@@ -1,0 +1,1400 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>屏東縣人民團體數位櫃檯</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Huninn&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#FFF6EE; --surface:#FFFFFF; --soft:#FFEBDA; --soft2:#FFF2E6; --ink:#3A281D; --muted:#7B6355;
+  --primary:#C2531A; --primary-ink:#FFFFFF; --sun:#F4B23A; --rose:#DE5F72; --leaf:#3F8A5C;
+  --line:#F1DCC8; --danger:#B53A2A;
+  --shadow:0 18px 40px -24px rgba(122,62,20,.45);
+  color-scheme:light; box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#1D1511; --surface:#281D17; --soft:#3A2A20; --soft2:#30231B; --ink:#F7EADF; --muted:#C9AE9C;
+  --primary:#F08A4B; --primary-ink:#2A160A; --sun:#F6C25A; --rose:#F08394; --leaf:#78C394;
+  --line:#47352A; --danger:#F29483; --shadow:0 18px 40px -24px rgba(0,0,0,.8); color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --bg:#1D1511; --surface:#281D17; --soft:#3A2A20; --soft2:#30231B; --ink:#F7EADF; --muted:#C9AE9C;
+  --primary:#F08A4B; --primary-ink:#2A160A; --sun:#F6C25A; --rose:#F08394; --leaf:#78C394;
+  --line:#47352A; --danger:#F29483; color-scheme:dark;}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 80px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;font-size:16.5px;line-height:1.75;-webkit-font-smoothing:antialiased}
+h1,h2,h3{margin:0;line-height:1.35;font-weight:700;letter-spacing:.01em}
+.hu{font-family:"Huninn","Noto Sans TC",sans-serif;font-weight:400}
+a{color:var(--primary)}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--sun);outline-offset:2px;border-radius:8px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--surface)}
+.sr{position:absolute;left:-9999px}
+[hidden]{display:none!important}
+
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--surface);border-bottom:1px solid var(--line)}
+.top-in{max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:20px;padding:12px 24px}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--ink);flex-shrink:0}
+.brand b{font-size:1.12rem;display:block;line-height:1.25;font-weight:900}
+.brand small{color:var(--muted);font-size:.78rem;display:block;line-height:1.25}
+.nav{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;margin-left:auto}
+.nav::-webkit-scrollbar{display:none}
+.nav a{white-space:nowrap;text-decoration:none;color:var(--muted);padding:8px 13px;border-radius:10px;font-size:.95rem;font-weight:500}
+.nav a:hover{color:var(--ink);background:var(--soft2)}
+.nav a[aria-current="page"]{color:var(--primary);background:var(--soft)}
+@media (max-width:900px){.top-in{flex-wrap:wrap;gap:6px;padding:10px 16px}.nav{margin-left:0;width:100%}html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 128px)}}
+
+main{max-width:1200px;margin:0 auto;padding:28px 24px 72px}
+@media (max-width:640px){main{padding:18px 14px 56px}}
+.view{display:none}.view.on{display:block}
+
+.hero{display:grid;grid-template-columns:330px 1fr;gap:28px;align-items:start}
+.clerkcard{position:sticky;top:96px;background:var(--surface);border:1px solid var(--line);border-radius:28px;padding:20px 20px 0;box-shadow:var(--shadow);overflow:hidden}
+.status{display:flex;justify-content:space-between;align-items:center;font-size:.85rem;color:var(--muted)}
+.live{display:inline-flex;align-items:center;gap:6px}
+.live i{width:8px;height:8px;border-radius:50%;background:var(--leaf);box-shadow:0 0 0 4px color-mix(in srgb,var(--leaf) 25%,transparent)}
+.qno{background:var(--soft);border-radius:8px;padding:2px 10px;color:var(--ink)}
+.qno b{font-variant-numeric:tabular-nums;color:var(--primary)}
+.clerkwrap{position:relative;cursor:pointer;margin-top:6px}
+.clerkwrap svg{display:block;width:100%;height:auto}
+.nudge{position:absolute;left:8px;right:8px;bottom:10px;background:var(--ink);color:var(--bg);border-radius:16px;padding:10px 14px;font-size:.92rem;line-height:1.5;opacity:0;transform:translateY(6px);pointer-events:none;transition:opacity .3s,transform .3s}
+.nudge::after{content:"";position:absolute;left:50%;top:-8px;border:8px solid transparent;border-bottom-color:var(--ink);border-top:0;transform:translateX(-50%)}
+.nudge.show{opacity:1;transform:none;pointer-events:auto}
+.nudge button{background:var(--sun);color:#3A2400;border:0;border-radius:999px;padding:3px 12px;margin-top:6px;cursor:pointer;font-size:.88rem;font-weight:700}
+.nameplate{margin:0 -20px;background:var(--primary);color:var(--primary-ink);padding:14px 20px 16px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.nameplate .n{font-size:1.35rem;line-height:1.2}
+.nameplate small{display:block;opacity:.85;font-size:.82rem}
+.mood{font-size:.85rem;background:rgba(255,255,255,.18);border-radius:999px;padding:3px 10px;white-space:nowrap}
+.clerk .armUp,.clerk .armChin,.clerk .dots,.clerk .mTalk{opacity:0}
+.clerk .body{transform-origin:160px 300px}
+.clerk .pupils{transition:transform .35s ease}
+.clerk .lid{transform-origin:center;transform-box:fill-box;transform:scaleY(0)}
+.clerk.wave .armUp{opacity:1}.clerk.wave .armDown{opacity:0}
+.clerk.think .armChin,.clerk.think .dots{opacity:1}.clerk.think .armDown{opacity:0}
+.clerk.think .pupils{transform:translate(4px,-5px)}
+.clerk.listen .pupils{transform:translate(3px,5px)}
+.clerk.talk .mTalk{opacity:1}.clerk.talk .mSmile{opacity:0}
+.clerk.point .pupils{transform:translate(6px,0)}
+@media (prefers-reduced-motion:no-preference){
+  .clerk .body{animation:breathe 4.2s ease-in-out infinite}
+  @keyframes breathe{50%{transform:translateY(-2px) scale(1.004)}}
+  .clerk .lid{animation:blink 5.5s infinite}
+  @keyframes blink{0%,95%,100%{transform:scaleY(0)}97%{transform:scaleY(1)}}
+  .clerk.wave .armUp{animation:wave .55s ease-in-out 4 alternate;transform-origin:212px 208px;transform-box:view-box}
+  @keyframes wave{from{transform:rotate(-12deg)}to{transform:rotate(14deg)}}
+  .clerk.talk .mTalk{animation:talk .28s ease-in-out infinite alternate;transform-origin:160px 146px;transform-box:view-box}
+  @keyframes talk{from{transform:scaleY(.35)}to{transform:scaleY(1)}}
+  .clerk.think .dots circle{animation:dot 1.2s infinite}
+  .clerk.think .dots circle:nth-child(2){animation-delay:.2s}.clerk.think .dots circle:nth-child(3){animation-delay:.4s}
+  @keyframes dot{0%,100%{opacity:.25}50%{opacity:1}}
+  .clerk.nod .head{animation:nod .5s ease-in-out 2;transform-origin:160px 160px;transform-box:view-box}
+  @keyframes nod{50%{transform:rotate(-4deg) translateY(3px)}}
+}
+
+.board{background:var(--surface);border:2px solid var(--primary);border-radius:28px;box-shadow:var(--shadow);position:relative;min-height:460px;display:flex;flex-direction:column}
+.board::before{content:"";position:absolute;left:-14px;top:120px;width:24px;height:24px;background:var(--surface);border-left:2px solid var(--primary);border-bottom:2px solid var(--primary);transform:rotate(45deg);border-radius:0 0 0 6px}
+@media (max-width:960px){.hero{grid-template-columns:1fr;gap:14px}.clerkcard{position:relative;top:0;display:grid;grid-template-columns:120px 1fr;gap:0 14px;padding:14px 14px 0;align-items:end}.clerkcard .status{grid-column:1/-1}.clerkwrap{grid-row:2}.nameplate{grid-column:2;grid-row:2;margin:0 -14px 0 0;border-radius:18px 0 0 0;align-self:end}.nudge{display:none}.mood{display:none}.board::before{left:60px;top:-14px;border-left:2px solid var(--primary);border-top:2px solid var(--primary);border-bottom:0;border-radius:6px 0 0 0}}
+.boardbody{padding:28px 32px 24px;flex:1}
+@media (max-width:640px){.boardbody{padding:20px 18px}}
+.qline{display:flex;gap:10px;align-items:flex-start;color:var(--muted);font-size:.95rem;margin-bottom:10px}
+.qline b{color:var(--ink);font-weight:500}
+.qline .who{flex-shrink:0;background:var(--soft);color:var(--primary);border-radius:6px;padding:0 8px;font-size:.8rem;font-weight:700;line-height:1.9}
+.atitle{font-size:clamp(1.45rem,2.6vw,1.9rem);font-weight:900;line-height:1.3}
+.acat{display:inline-block;font-size:.8rem;font-weight:700;color:var(--primary);background:var(--soft);border-radius:6px;padding:1px 10px;margin-bottom:8px}
+.summary{margin:14px 0 0;font-size:1.12rem;line-height:1.8;padding:14px 18px;background:var(--soft2);border-radius:16px;border-left:5px solid var(--sun)}
+.sec{margin-top:22px}
+.sec h3{font-size:1rem;display:flex;align-items:center;gap:8px;margin-bottom:10px;color:var(--ink)}
+.sec h3 svg{flex-shrink:0;color:var(--primary)}
+.asteps{list-style:none;margin:0;padding:0;counter-reset:a;display:grid;gap:8px}
+.asteps li{counter-increment:a;display:grid;grid-template-columns:32px 1fr;gap:12px;align-items:start}
+.asteps li::before{content:counter(a);width:32px;height:32px;border-radius:50%;background:var(--primary);color:var(--primary-ink);display:grid;place-items:center;font-weight:700;font-size:.92rem}
+.asteps li span{padding-top:3px}
+.adocs{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:6px 16px;margin:0;padding:0;list-style:none}
+.adocs li{display:flex;gap:8px;align-items:flex-start}
+.adocs li::before{content:"";flex-shrink:0;width:16px;height:16px;margin-top:5px;border:2px solid var(--primary);border-radius:4px}
+.lawbox{border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.lawrow{display:grid;grid-template-columns:150px 1fr;border-top:1px solid var(--line)}
+.lawrow:first-child{border-top:0}
+.lawrow .ref{background:var(--soft2);padding:12px 14px;font-weight:700;font-size:.92rem;line-height:1.5}
+.lawrow .ref small{display:block;color:var(--primary);font-size:.92rem}
+.lawrow p{margin:0;padding:12px 16px;line-height:1.75}
+@media (max-width:560px){.lawrow{grid-template-columns:1fr}}
+.lawfoot{font-size:.82rem;color:var(--muted);margin-top:6px}
+.anotes{margin:0;padding-left:1.2em}
+.anotes li{margin:2px 0}
+.glist{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.gcard{border:1px solid var(--line);border-radius:16px;padding:14px 16px;background:var(--bg)}
+.gcard.hit{border:2px solid var(--primary);background:var(--surface)}
+.gname{font-weight:900;font-size:1.06rem;line-height:1.45}
+.gtags{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 8px}
+.gtags span{font-size:.78rem;font-weight:700;background:var(--soft);color:var(--primary);border-radius:6px;padding:0 8px}
+.gtags span.dead{background:transparent;border:1px solid var(--danger);color:var(--danger)}
+#formhead{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;margin-bottom:14px}
+#formhead:empty{display:none}
+.gcard dl{display:grid;grid-template-columns:5.2em 1fr;gap:2px 8px;margin:0;font-size:.93rem}
+.gcard dt{color:var(--muted)}
+.gcard dd{margin:0;word-break:break-word}
+.pcard{border:1px solid var(--line);border-radius:16px;padding:14px 16px;background:var(--bg);display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}
+.pcard .pn{font-weight:900;font-size:1.08rem}
+.pcard .pd{color:var(--muted);font-size:.92rem}
+.callbtn{background:var(--leaf);color:#fff;border-radius:12px;padding:8px 14px;text-decoration:none;font-weight:700;white-space:nowrap}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px;padding-top:18px;border-top:1px dashed var(--line)}
+.btn{border:0;border-radius:12px;padding:11px 20px;background:var(--primary);color:var(--primary-ink);cursor:pointer;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:8px;font-size:.97rem}
+.btn:hover{filter:brightness(1.06)}
+.btn.ghost{background:var(--soft);color:var(--ink)}
+.btn.small{padding:6px 12px;font-size:.88rem;border-radius:10px}
+.btn.danger{background:transparent;color:var(--danger);border:1px solid var(--line)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.greet h2{font-size:clamp(1.5rem,2.8vw,2rem);font-weight:900}
+.greet p.sub{color:var(--muted);margin:6px 0 0;font-size:1.02rem}
+.topics{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:22px}
+@media (max-width:640px){.topics{grid-template-columns:1fr}}
+.topic{border:1px solid var(--line);border-radius:18px;padding:14px 16px;background:var(--soft2)}
+.topic h3{font-size:1rem;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.topic h3 i{width:10px;height:10px;border-radius:3px;background:var(--c)}
+.qbtn{display:block;width:100%;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin-top:6px;cursor:pointer;font-size:.95rem}
+.qbtn:hover{border-color:var(--primary);color:var(--primary)}
+.thinking{display:flex;flex-direction:column;gap:12px}
+.thinking .tline{display:flex;align-items:center;gap:10px;color:var(--muted)}
+.thinking .tline.done{color:var(--ink)}
+.thinking .tline i{width:18px;height:18px;border-radius:50%;border:2px solid var(--line);flex-shrink:0}
+.thinking .tline.done i{background:var(--leaf);border-color:var(--leaf)}
+.thinking .tline.now i{border-color:var(--primary);border-top-color:transparent;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.skel{height:14px;border-radius:7px;background:var(--soft);margin-top:10px}
+.askbar{border-top:1px solid var(--line);padding:14px 18px 16px;background:var(--soft2);border-radius:0 0 26px 26px}
+.askrow{display:flex;gap:10px}
+.askrow input{flex:1;min-width:0;border:2px solid var(--line);background:var(--surface);border-radius:14px;padding:13px 16px;font-size:1.02rem}
+.askrow input:focus{border-color:var(--primary);outline:none}
+.recent{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;align-items:center;font-size:.85rem;color:var(--muted)}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:3px 12px;cursor:pointer;font-size:.86rem;color:var(--ink)}
+.chip:hover{border-color:var(--primary)}
+.svc{margin-top:44px}
+.svc h2{font-size:1.35rem;margin-bottom:14px}
+.svcgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+@media (max-width:900px){.svcgrid{grid-template-columns:repeat(2,1fr)}}
+.svcitem{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:20px;text-decoration:none;color:var(--ink);border-top:5px solid var(--c)}
+.svcitem b{font-size:1.15rem;display:block}
+.svcitem span{color:var(--muted);font-size:.9rem;display:block;margin-top:4px;line-height:1.6}
+.svcitem:hover{box-shadow:var(--shadow)}
+.pagehead{margin:6px 0 22px;max-width:48em}
+.pagehead h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:900}
+.pagehead p{color:var(--muted);margin:.4em 0 0}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px}
+.tab{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 16px;cursor:pointer;font-weight:500}
+.tab[aria-selected="true"]{background:var(--primary);color:var(--primary-ink);border-color:var(--primary)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:26px 28px}
+@media (max-width:640px){.panel{padding:20px 18px}}
+.panel+.panel{margin-top:16px}
+.panel h2{font-size:1.3rem;margin-bottom:4px}
+.panel h3{font-size:1.02rem;margin:20px 0 8px}
+.lead{color:var(--muted);margin:0 0 6px;max-width:52em}
+.note{background:var(--soft2);border-left:5px solid var(--sun);padding:12px 16px;border-radius:0 14px 14px 0;margin-top:16px;max-width:52em}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;align-items:center}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:860px){.two{grid-template-columns:1fr}}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:.88rem;color:var(--muted);font-weight:500}
+.field input,.field select,.field textarea{border:1.5px solid var(--line);background:var(--bg);border-radius:12px;padding:10px 12px;width:100%}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--primary);outline:none}
+.filters{display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px}
+@media (max-width:700px){.filters{grid-template-columns:1fr}}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media (max-width:700px){.grid3{grid-template-columns:1fr}}
+.tablewrap{overflow-x:auto;margin-top:12px}
+table{border-collapse:collapse;width:100%;min-width:640px}
+th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top;font-size:.94rem}
+th{font-weight:700;color:var(--muted);font-size:.86rem;white-space:nowrap}
+.empty{padding:26px;text-align:center;color:var(--muted);background:var(--soft2);border-radius:16px;margin-top:16px}
+.meta{font-size:.85rem;color:var(--muted);margin-top:10px}
+.forms{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+@media (max-width:700px){.forms{grid-template-columns:1fr}}
+.formitem{display:flex;justify-content:space-between;align-items:center;gap:10px;border:1px solid var(--line);border-radius:14px;padding:12px 14px;background:var(--bg)}
+.formitem small{display:block;color:var(--muted)}
+.check{display:flex;gap:8px;align-items:flex-start;padding:3px 0}
+.check input{margin-top:7px;accent-color:var(--primary)}
+.msgline{margin-top:10px;font-size:.95rem}
+.msgline.ok{color:var(--leaf)}.msgline.err{color:var(--danger)}
+.ticket{border:2px dashed var(--sun);border-radius:16px;padding:14px 16px;margin-top:12px;background:var(--soft2)}
+.contactlist{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+@media (max-width:700px){.contactlist{grid-template-columns:1fr}}
+.lawcard h2{display:flex;justify-content:space-between;gap:10px;align-items:baseline;flex-wrap:wrap}
+.lawcard .kind{font-size:.8rem;font-weight:700;color:var(--muted)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-top:12px}
+@media (max-width:760px){.stats{grid-template-columns:repeat(2,1fr)}}
+.stat{background:var(--soft2);border-radius:16px;padding:14px 16px}
+.stat b{display:block;font-size:1.6rem;font-weight:900;line-height:1.2;color:var(--primary);font-variant-numeric:tabular-nums}
+.stat span{font-size:.86rem;color:var(--muted)}
+.drop{border:2px dashed var(--line);border-radius:16px;padding:18px;text-align:center;background:var(--bg);margin-top:12px}
+.drop input{max-width:100%}
+.map{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+.map span{font-size:.84rem;border-radius:8px;padding:2px 10px;background:var(--soft)}
+.map span.miss{background:transparent;border:1px dashed var(--line);color:var(--muted)}
+.kitem{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid var(--line);padding:10px 0;align-items:flex-start}
+.kitem small{color:var(--muted);display:block}
+footer{border-top:1px solid var(--line);color:var(--muted);font-size:.88rem;background:var(--surface)}
+footer div{max-width:1200px;margin:0 auto;padding:18px 24px}
+</style>
+</head>
+<body>
+<header class="top"><div class="top-in">
+  <a class="brand" href="#home" aria-label="回首頁">
+    <svg width="42" height="42" viewBox="0 0 42 42" aria-hidden="true"><rect width="42" height="42" rx="12" fill="var(--primary)"/><path d="M21 31s-9-5.6-9-11.6A5 5 0 0 1 21 16.6a5 5 0 0 1 9 2.8C30 25.4 21 31 21 31z" fill="#fff"/><circle cx="31" cy="11" r="4" fill="var(--sun)"/></svg>
+    <span><b>屏東縣人民團體數位櫃檯</b><small>屏東縣政府社會處</small></span>
+  </a>
+  <nav class="nav" aria-label="主選單">
+    <a href="#home">服務櫃檯</a><a href="#biz">業務辦理</a><a href="#meet">會務辦理</a><a href="#law">相關法令</a><a href="#search">團體查詢</a><a href="#forms">書表下載</a><a href="#apply">線上申辦</a><a href="#contact">聯絡承辦</a><a href="#admin" id="navadmin" hidden>資料管理</a>
+  </nav>
+</div></header>
+
+<main>
+<section class="view" id="v-home">
+  <div class="hero">
+    <aside class="clerkcard" aria-label="櫃檯服務員小屏">
+      <div class="status"><span class="live"><i></i>線上服務中</span><span class="qno">服務號碼 <b id="qno">0001</b></span></div>
+      <div class="clerkwrap" id="clerkwrap" title="點我打招呼">
+        <div class="nudge" id="nudge" role="status"></div>
+        <svg class="clerk" id="clerk" viewBox="0 0 320 300" role="img" aria-label="櫃檯服務員小屏">
+          <circle cx="160" cy="150" r="120" fill="var(--soft)"/>
+          <g class="dots" fill="var(--primary)"><circle cx="232" cy="62" r="6"/><circle cx="252" cy="48" r="7.5"/><circle cx="276" cy="34" r="9"/></g>
+          <g class="body">
+            <path d="M74 300 C74 222 108 196 160 196 C212 196 246 222 246 300 Z" fill="#C2531A"/>
+            <path d="M136 198 L160 236 L184 198 Z" fill="#FFF8F0"/>
+            <path d="M136 198 L160 236 L150 250 L126 206 Z" fill="#A9440F"/><path d="M184 198 L160 236 L170 250 L194 206 Z" fill="#A9440F"/>
+            <path d="M146 200 C146 230 150 250 160 262 M174 200 C174 230 170 250 160 262" stroke="#F4B23A" stroke-width="3" fill="none"/>
+            <rect x="148" y="258" width="24" height="30" rx="4" fill="#fff" stroke="#F4B23A" stroke-width="2"/>
+            <path d="M160 280s-6-3.6-6-7.6a3 3 0 0 1 6-1.5 3 3 0 0 1 6 1.5c0 4-6 7.6-6 7.6z" fill="#DE5F72"/>
+            <g class="armDown"><path d="M96 232 C88 252 92 280 104 300 L124 300 C114 278 112 256 116 236 Z" fill="#B24A14"/><path d="M224 232 C232 252 228 280 216 300 L196 300 C206 278 208 256 204 236 Z" fill="#B24A14"/></g>
+            <g class="armChin"><path d="M96 232 C88 252 92 280 104 300 L124 300 C114 278 112 256 116 236 Z" fill="#B24A14"/><path d="M222 226 C238 240 214 262 192 190 L204 182 C220 232 232 222 222 226 Z" fill="#B24A14"/><circle cx="196" cy="180" r="13" fill="#F4C3A0"/></g>
+            <g class="armUp"><path d="M96 232 C88 252 92 280 104 300 L124 300 C114 278 112 256 116 236 Z" fill="#B24A14"/><path d="M206 214 C222 190 236 160 244 128 L260 134 C252 168 236 200 222 226 Z" fill="#B24A14"/><circle cx="252" cy="118" r="16" fill="#F4C3A0"/><path d="M244 104 v-12 M252 102 v-14 M260 104 v-12" stroke="#F4C3A0" stroke-width="7" stroke-linecap="round"/></g>
+            <rect x="146" y="168" width="28" height="32" rx="10" fill="#EBB48E"/>
+            <g class="head">
+              <path d="M96 116 C88 54 132 36 162 38 C200 40 230 66 222 122 C232 150 226 178 210 188 L208 120 Z M98 120 L112 188 C94 178 88 150 98 120 Z" fill="#3B2A22"/>
+              <circle cx="160" cy="122" r="58" fill="#F6CBA8"/>
+              <circle cx="104" cy="128" r="10" fill="#F6CBA8"/><circle cx="216" cy="128" r="10" fill="#F6CBA8"/>
+              <path d="M102 118 C104 72 136 60 164 62 C192 64 214 82 218 116 C200 94 176 84 150 86 C130 88 114 98 102 118 Z" fill="#3B2A22"/>
+              <circle cx="104" cy="140" r="4" fill="#F4B23A"/><circle cx="216" cy="140" r="4" fill="#F4B23A"/>
+              <g class="pupils"><ellipse cx="138" cy="124" rx="6" ry="7.5" fill="#2D1F18"/><ellipse cx="182" cy="124" rx="6" ry="7.5" fill="#2D1F18"/><circle cx="140" cy="121" r="2" fill="#fff"/><circle cx="184" cy="121" r="2" fill="#fff"/></g>
+              <rect class="lid" x="130" y="115" width="16" height="18" rx="8" fill="#F6CBA8"/><rect class="lid" x="174" y="115" width="16" height="18" rx="8" fill="#F6CBA8"/>
+              <path d="M126 108 q12 -7 22 -1 M172 107 q10 -6 22 1" stroke="#3B2A22" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+              <ellipse cx="124" cy="144" rx="10" ry="6" fill="#F08A80" opacity=".45"/><ellipse cx="196" cy="144" rx="10" ry="6" fill="#F08A80" opacity=".45"/>
+              <path class="mSmile" d="M144 146 Q160 162 176 146" stroke="#7A3A26" stroke-width="4" fill="none" stroke-linecap="round"/>
+              <ellipse class="mTalk" cx="160" cy="151" rx="11" ry="9" fill="#7A3A26"/>
+            </g>
+          </g>
+        </svg>
+      </div>
+      <div class="nameplate"><div><div class="n hu">小屏</div><small>人民團體服務專員</small></div><span class="mood" id="mood">歡迎光臨</span></div>
+    </aside>
+    <section class="board" aria-label="櫃檯回覆">
+      <div class="boardbody" id="board" aria-live="polite"></div>
+      <form class="askbar" id="askform" autocomplete="off">
+        <div class="askrow">
+          <label for="q" class="sr">輸入您的問題</label>
+          <input id="q" placeholder="例如：屏東縣商業會的理事長是誰？" maxlength="300">
+          <button class="btn" type="submit">詢問</button>
+        </div>
+        <div class="recent" id="recent"></div>
+      </form>
+    </section>
+  </div>
+  <div class="svc">
+    <h2>依團體類型辦理</h2>
+    <div class="svcgrid">
+      <a class="svcitem" href="#biz" data-type="social" style="--c:#C2531A"><b>社會團體</b><span>協會、學會、聯誼會之籌組、立案、變更</span></a>
+      <a class="svcitem" href="#biz" data-type="community" style="--c:#F4B23A"><b>社區發展協會</b><span>依社區發展工作綱要成立與運作</span></a>
+      <a class="svcitem" href="#biz" data-type="coop" style="--c:#3F8A5C"><b>合作社</b><span>設立登記、變更登記、年度社務</span></a>
+      <a class="svcitem" href="#biz" data-type="pro" style="--c:#DE5F72"><b>職業團體</b><span>工商及自由職業團體組織與會務</span></a>
+    </div>
+  </div>
+</section>
+
+<section class="view" id="v-biz">
+  <div class="pagehead"><h1>業務辦理</h1><p>選擇團體類型，查看辦理流程、應備文件與法規依據，並可直接線上申辦。</p></div>
+  <div class="tabs" role="tablist" id="biztabs"></div>
+  <div id="bizbody"></div>
+</section>
+
+<section class="view" id="v-meet">
+  <div class="pagehead"><h1>會務辦理</h1><p>團體成立後的日常會務：開會、改選、財務報告、會員與職員異動。</p></div>
+  <div id="meetbody"></div>
+</section>
+
+<section class="view" id="v-law">
+  <div class="pagehead"><h1>相關法令</h1><p>人民團體、社區發展協會與合作社常用法規、重要條文與函釋資料。條文內容以全國法規資料庫最新公告為準。</p></div>
+  <div class="tabs" role="tablist" id="lawtabs"></div>
+  <div id="lawbody"></div>
+</section>
+
+<section class="view" id="v-search">
+  <div class="pagehead"><h1>團體查詢</h1><p>依名稱、類別或鄉鎮市查詢屏東縣社會處列管之社會團體與職業團體，並可看到會務承辦人與分機。</p></div>
+  <div class="panel">
+    <div class="filters">
+      <div class="field"><label for="sq">團體名稱或關鍵字</label><input id="sq" placeholder="例如：商業會、登山、慈善"></div>
+      <div class="field"><label for="st">團體類別</label><select id="st"><option value="">全部類別</option></select></div>
+      <div class="field"><label for="sd">鄉鎮市</label><select id="sd"><option value="">全部鄉鎮市</option></select></div>
+    </div>
+    <label class="check" style="margin-top:10px"><input type="checkbox" id="sx"><span>包含已解散團體</span></label>
+    <div id="sresult"></div>
+  </div>
+</section>
+
+<section class="view" id="v-forms">
+  <div class="pagehead"><h1>書表下載</h1><p>屏東縣政府社會處公告的人民團體申請表與團體會務書表，依辦理階段分類，下載後可直接用 Word、Excel 填寫。</p></div>
+  <div class="tabs" role="tablist" id="formtabs"></div>
+  <div class="panel"><div id="formhead"></div><div class="forms" id="formlist"></div><p class="msgline" id="formstatus" role="status"></p><p class="meta" id="formsrc"></p></div>
+</section>
+
+<section class="view" id="v-apply">
+  <div class="pagehead"><h1>線上申辦</h1><p>填寫申辦資料並確認應備文件，送出後取得案件編號，可在右側查看辦理進度。</p></div>
+  <div class="two">
+    <div class="panel">
+      <h2>填寫申辦資料</h2>
+      <form id="applyform">
+        <div class="field" style="margin-top:12px"><label for="a-item">申辦項目</label><select id="a-item" required></select></div>
+        <div class="field" style="margin-top:10px"><label for="a-org">團體名稱（籌組中請填預定名稱）</label><input id="a-org" required maxlength="80"></div>
+        <div class="field" style="margin-top:10px"><label for="a-dist">所在鄉鎮市</label><select id="a-dist" required></select></div>
+        <div class="field" style="margin-top:10px"><label for="a-name">聯絡人</label><input id="a-name" required maxlength="40" autocomplete="name"></div>
+        <div class="field" style="margin-top:10px"><label for="a-tel">聯絡電話</label><input id="a-tel" required maxlength="30" inputmode="tel" autocomplete="tel"></div>
+        <div class="field" style="margin-top:10px"><label for="a-mail">電子郵件</label><input id="a-mail" type="email" maxlength="80" autocomplete="email"></div>
+        <div class="field" style="margin-top:10px"><label for="a-note">補充說明</label><textarea id="a-note" rows="3" maxlength="500"></textarea></div>
+        <h3>應備文件確認</h3>
+        <div id="a-docs"></div>
+        <div class="row"><button class="btn" type="submit" id="a-submit">送出申辦</button><button class="btn ghost" type="button" id="a-dl">下載申請摘要</button></div>
+        <p class="msgline" id="a-status" role="status"></p>
+      </form>
+    </div>
+    <div>
+      <div class="panel"><h2>我的申辦紀錄</h2><div id="myapps"><div class="empty">登入後送出的申辦案件會顯示在這裡。</div></div></div>
+      <div class="note">送出後，請依承辦人通知將簽名、用印之紙本正本送達或郵寄至屏東縣政府社會處，紙本文件到齊後正式收件。</div>
+    </div>
+  </div>
+</section>
+
+<section class="view" id="v-contact">
+  <div class="pagehead"><h1>聯絡承辦</h1><p>依業務類別找到負責的承辦人，直接撥打電話與分機。</p></div>
+  <div class="panel">
+    <div class="field" style="max-width:360px"><label for="cq">搜尋業務或姓名</label><input id="cq" placeholder="例如：合作社、社區、改選"></div>
+    <div id="clist" style="margin-top:16px"></div>
+  </div>
+  <div class="panel">
+    <h2>屏東縣政府社會處</h2>
+    <p class="lead">承辦單位：社會行政科（社會團體、職業團體）、長青科（老人會）<br>地址：900 屏東縣屏東市自由路527號（屏東縣政府）<br>總機：<a href="tel:087320415">08-7320415</a><br>服務時間：週一至週五 上午 8:00 至 12:00、下午 1:30 至 5:30（國定假日除外）</p>
+  </div>
+</section>
+
+<section class="view" id="v-admin">
+  <div class="pagehead"><h1>資料管理</h1><p>只有管理者看得到這一頁。匯入的資料會立即用於櫃檯對話、團體查詢與聯絡承辦頁面。</p></div>
+  <div class="panel"><h2>資料狀態</h2><div class="stats" id="adm-stats"></div></div>
+
+  <div class="panel">
+    <h2>團體名冊</h2>
+    <p class="lead">請上傳社會處網站下載的名冊檔案（Excel .xlsx、.xls、ODS 或 CSV），可一次選多個檔案。系統會自動辨識團體名稱、鄉鎮市、會址、立案字號、理事長、電話與立案日期等欄位。</p>
+    <div class="grid3" style="margin-top:12px">
+      <div class="field"><label for="g-type">團體類型</label><select id="g-type"><option value="">依名稱自動判斷</option><option>社會團體</option><option>社區發展協會</option><option>合作社</option><option>職業團體</option></select></div>
+      <div class="field"><label for="g-mode">匯入方式</label><select id="g-mode"><option value="type">取代同類型的舊資料</option><option value="all">全部取代</option><option value="append">附加在現有資料後</option></select></div>
+    </div>
+    <div class="drop"><input type="file" id="g-file" accept=".xlsx,.xls,.ods,.csv" multiple aria-label="選擇團體名冊檔案"></div>
+    <div id="g-preview"></div>
+  </div>
+
+  <div class="panel">
+    <h2>承辦人與分機</h2>
+    <p class="lead">上傳業務職掌表或分機表（需有姓名、承辦業務、分機等欄位），或逐筆新增。</p>
+    <div class="drop"><input type="file" id="s-file" accept=".xlsx,.xls,.ods,.csv" aria-label="選擇承辦人分機表"></div>
+    <div id="s-preview"></div>
+    <h3>逐筆新增</h3>
+    <form id="s-form" class="grid3">
+      <div class="field"><label for="s-name">姓名</label><input id="s-name" required maxlength="20"></div>
+      <div class="field"><label for="s-title">職稱</label><input id="s-title" maxlength="20"></div>
+      <div class="field"><label for="s-unit">科別</label><input id="s-unit" maxlength="30"></div>
+      <div class="field" style="grid-column:1/-1"><label for="s-duty">承辦業務</label><input id="s-duty" required maxlength="200" placeholder="例如：社區發展協會立案、會務輔導、社區活動補助"></div>
+      <div class="field"><label for="s-tel">電話</label><input id="s-tel" maxlength="20" value="08-7320415"></div>
+      <div class="field"><label for="s-ext">分機</label><input id="s-ext" maxlength="10"></div>
+      <div class="field" style="justify-content:flex-end"><button class="btn" type="submit">新增承辦人</button></div>
+    </form>
+    <p class="msgline" id="s-status" role="status"></p>
+    <div id="s-list"></div>
+  </div>
+
+  <div class="panel">
+    <h2>法規、函釋與常見問答</h2>
+    <p class="lead">小屏會依這裡的資料回答民眾，並在回覆中註明出處。可上傳 Excel、CSV（標題、內容、文號、日期欄位）或文字檔，也可直接貼上網頁上的函釋、作業規定或常見問答全文。</p>
+    <div class="drop"><input type="file" id="k-file" accept=".xlsx,.xls,.ods,.csv,.txt,.md" multiple aria-label="選擇法規或函釋檔案"></div>
+    <p class="msgline" id="k-fstatus" role="status"></p>
+    <h3>貼上文字新增</h3>
+    <form id="k-form">
+      <div class="grid3">
+        <div class="field"><label for="k-title">標題</label><input id="k-title" required maxlength="120" placeholder="例如：社區發展協會理事長連任疑義"></div>
+        <div class="field"><label for="k-cat">類別</label><select id="k-cat"><option>函釋</option><option>法規</option><option>作業規定</option><option>常見問答</option><option>縣府公告</option><option>其他</option></select></div>
+        <div class="field"><label for="k-src">文號或來源</label><input id="k-src" maxlength="120" placeholder="例如：內政部○年○月○日台內團字第○號函"></div>
+      </div>
+      <div class="field" style="margin-top:10px"><label for="k-date">日期</label><input id="k-date" maxlength="20" placeholder="例如：2024-05-01" style="max-width:240px"></div>
+      <div class="field" style="margin-top:10px"><label for="k-text">內容</label><textarea id="k-text" rows="7" required maxlength="20000"></textarea></div>
+      <div class="row"><button class="btn" type="submit">加入知識庫</button></div>
+    </form>
+    <p class="msgline" id="k-status" role="status"></p>
+    <div class="field" style="margin-top:14px;max-width:360px"><label for="k-q">搜尋已收錄資料</label><input id="k-q"></div>
+    <div id="k-list"></div>
+  </div>
+
+  <div class="panel">
+    <h2>線上申辦案件</h2>
+    <p class="lead">民眾送出的申辦案件，可在此更新辦理狀態，民眾會在「我的申辦紀錄」看到最新狀態。</p>
+    <div id="apps-admin"></div>
+  </div>
+</section>
+</main>
+
+<footer><div>屏東縣人民團體數位櫃檯｜屏東縣政府社會處｜本站內容為辦理指引，實際規定以屏東縣政府及中央主管機關最新公告為準。</div></footer>
+
+<script>
+"use strict";
+/* ================= 固定資料 ================= */
+const TOWNS="屏東市 潮州鎮 東港鎮 恆春鎮 萬丹鄉 長治鄉 麟洛鄉 九如鄉 里港鄉 鹽埔鄉 高樹鄉 萬巒鄉 內埔鄉 竹田鄉 新埤鄉 枋寮鄉 新園鄉 崁頂鄉 林邊鄉 南州鄉 佳冬鄉 琉球鄉 車城鄉 滿州鄉 枋山鄉 三地門鄉 霧臺鄉 瑪家鄉 泰武鄉 來義鄉 春日鄉 獅子鄉 牡丹鄉".split(" ");
+const GTYPES=["社會團體","職業團體","社區發展協會","合作社"];
+const SRC_APPLY="屏東縣政府社會處「人民團體申請表下載」";
+const SRC_ZC="屏東縣政府社會處「社會團體章程草案範例」";
+const ART={
+ pg4:{law:"人民團體法",art:"第4條",text:"人民團體分為職業團體、社會團體及政治團體三種。"},
+ pg8:{law:"人民團體法",art:"第8條",text:"人民團體之組織，應由發起人檢具申請書、章程草案及發起人名冊，向主管機關申請許可。發起人須年滿18歲、30人以上，且無因犯罪經判處有期徒刑以上之刑確定尚未執行或執行未畢（受緩刑宣告者除外）、受保安處分之裁判確定尚未執行或執行未畢、受破產宣告尚未復權、受監護宣告尚未撤銷等情事。"},
+ pg17:{law:"人民團體法",art:"第17條",text:"人民團體應設理事、監事，由會員（會員代表）選舉之，分別成立理事會、監事會；理事名額依團體層級訂有上限，監事名額不得超過理事名額三分之一。"},
+ pg20:{law:"人民團體法",art:"第20條",text:"理事、監事之任期不得超過四年，其連選連任者不得超過二分之一；理事長之連任，以一次為限。"},
+ pg25:{law:"人民團體法",art:"第25條",text:"會員（會員代表）大會分定期會議與臨時會議，由理事長召集。定期會議每年召開一次；召集時除臨時會議外，應於十五日前通知。"},
+ pg27:{law:"人民團體法",art:"第27條",text:"大會決議以會員（會員代表）過半數之出席、出席人數較多數之同意行之。章程之訂定與變更、會員之除名、理監事之罷免、財產之處分、團體之解散等事項，應經出席人數三分之二以上同意。"},
+ pg35:{law:"人民團體法",art:"第35條",text:"職業團體係以協調同業關係，增進共同利益，促進社會經濟建設為目的，由同一行業之單位、團體或同一職業之從業人員組成之團體。"},
+ pg39:{law:"人民團體法",art:"第39條",text:"社會團體係以推展文化、學術、醫療、衛生、宗教、慈善、體育、聯誼、社會服務或其他以公益為目的，由個人或團體組成之團體。"},
+ pg58:{law:"人民團體法",art:"第58條",text:"人民團體有違反法令、章程或妨害公益情事者，主管機關得予警告、撤銷其決議、停止其業務之一部或全部，並限期令其改善；屆期未改善或情節重大者，得為撤免職員、限期整理、廢止許可或解散等處分。"},
+ ptA:{law:"屏東縣人民團體申請許可應備文件",art:"發起人資格",text:"發起人須年滿18歲、30人以上。全縣性團體：限屏東縣籍或未設籍本縣但有工作證明者，並由本縣11個以上鄉鎮市人員組成。鄉鎮市級團體：限設籍該鄉（鎮市）或未設籍但在該鄉（鎮市）有工作證明者，並由該鄉鎮市3分之1以上村里人員組成（屏東市為20個里以上）。兩者權利義務並無差異。"},
+ ptB:{law:"屏東縣人民團體申請許可應備文件",art:"送件與審查",text:"申請書、發起人名冊、發起人身分證正反面影本黏貼冊、組織章程草案、發起人戶籍分佈一覽表，5種文件訂成1份，共1式3份，依序折疊整齊、由左線裝訂成冊，另檢附其他必要文件，送屏東縣政府審查，審查期限2個月。"},
+ ptC:{law:"人民團體籌組成立流程圖說明",art:"成立期限與大會通知",text:"許可設立後逾6個月未成立者，廢止其許可；因故未及依限完成設立者，得報准延長3個月。成立大會應於15日前通知會員（會員代表），並於15日前報請主管機關派員列席；選舉及大會手冊應提前送交主管機關指導員。"},
+ ptD:{law:"人民團體籌組成立流程圖說明",art:"報請立案",text:"成立大會後檢具成立大會會議紀錄暨第一次理監事會議紀錄、章程、年度計畫、收支預算、會員名冊、會址同意書、選任職員簡歷冊、大會手冊，報請主管機關核准立案並發給立案證書；得依法向地方法院辦理法人登記，並將登記證書影本送主管機關備查。"},
+ zc1:{law:"屏東縣社會團體章程草案範例",art:"第1條註",text:"名稱應明確表示業務性質，以「會」、「社」、「學會」、「學社」、「研究會」、「協會」、「協進會」等文字為宜，並不得與其他已許可人民團體之名稱相同；不得使用易使人誤認與政府機關、營利團體有關之文字，例如「合作社」、「同業公會」、「委員會」、「中心」、「聯誼會」、「俱樂部」、「基金會」等。"},
+ zc15:{law:"屏東縣社會團體章程草案範例",art:"第15條註",text:"理事名額不得超過15人，監事名額不得超過理事名額三分之一，候補者不得超過正選者三分之一；建議理事至少9人、監事至少3人，理監事應定額並為奇數。"},
+ zc17:{law:"屏東縣社會團體章程草案範例",art:"第17條",text:"理事長、常務理事出缺時，應於一個月內補選之；理事名額9人以上得互選常務理事，名額不得超過理事總額三分之一。"},
+ zc20:{law:"屏東縣社會團體章程草案範例",art:"第20條",text:"理事、監事均為無給職，任期1至4年（建議至少2年），連選得連任，理事長之連任以一次為限；任期自召開本屆第一次理事會之日起計算，理事長任期與理監事相同。"},
+ zc25:{law:"屏東縣社會團體章程草案範例",art:"第25、26條",text:"會員大會由理事長召集，除緊急事故之臨時會議外，應於15日前以書面通知；定期會議每年召開一次，臨時會議於理事會認為必要、會員五分之一以上請求或監事會函請召集時召開。會員不能親自出席時，得以書面委託其他會員代理，每一會員以代理一人為限。"},
+ zc27:{law:"屏東縣社會團體章程草案範例",art:"第27條",text:"辦理法人登記後，章程之變更以出席人數四分之三以上之同意或全體會員三分之二以上書面之同意行之；團體之解散，得隨時以全體會員三分之二以上之可決解散之。"},
+ zc28:{law:"屏東縣社會團體章程草案範例",art:"第28、29條",text:"理事會、監事會至少每6個月舉行會議一次，除臨時會議外應於7日前以書面通知，決議以過半數出席、出席人數較多數同意行之；理事、監事不得委託出席，連續二次無故缺席者視同辭職。"},
+ zc32:{law:"屏東縣社會團體章程草案範例",art:"第31、32條",text:"會計年度以曆年為準。會計年度開始前二個月由理事會編造年度工作計畫、收支預算表、員工待遇表，提會員大會通過，於會計年度開始前報主管機關核備；會計年度終了後二個月內編造年度工作報告、收支決算表、現金出納表、資產負債表、財產目錄及基金收支表，送監事會審核後提會員大會通過，於三月底前報主管機關核備。"},
+ zc33:{law:"屏東縣社會團體章程草案範例",art:"第33條",text:"團體解散後，剩餘財產歸屬所在地之地方自治團體或主管機關指定之機關團體所有。"},
+ cd2:{law:"社區發展工作綱要",art:"第2點",text:"社區係指經鄉（鎮、市、區）社區發展主管機關劃定，供為依法設立社區發展協會，推動社區發展工作之組織與活動區域。"},
+ cdorg:{law:"社區發展工作綱要",art:"組織規定",text:"社區發展協會依人民團體法規定立案，以社區內居民為會員，設會員大會、理事會、監事會，並依社區需求訂定社區發展計畫及年度工作計畫。"},
+ cp1:{law:"合作社法",art:"第1條",text:"合作社，指依平等原則，在互助組織之基礎上，以共同經營方法，謀社員經濟之利益與生活之改善，而其社員人數及股金總額均可變動之團體。"},
+ cpset:{law:"合作社法",art:"設立規定",text:"合作社之設立，社員不得少於七人，經召開創立會通過章程、選任理事監事後，應向主管機關申請設立登記；非經登記，不得成立。"},
+ cpfin:{law:"合作社法",art:"決算規定",text:"合作社於年度終了時，由理事會造具業務報告書、資產負債表、損益表、財產目錄及盈餘分配案，經監事會審核後，提經社員（代表）大會承認並報主管機關。"}
+};
+const LAWS=[
+ {cat:"人民團體",name:"人民團體法",kind:"法律",desc:"人民團體之種類、設立、會員、理監事、會議、經費與監督之基本規範。",arts:["pg4","pg8","pg17","pg20","pg25","pg27","pg35","pg39","pg58"]},
+ {cat:"人民團體",name:"人民團體選舉罷免辦法",kind:"法規命令",desc:"理事、監事選舉與罷免之程序、選票與當選認定。",arts:[]},
+ {cat:"人民團體",name:"社會團體許可立案作業規定",kind:"行政規則",desc:"社會團體籌組、成立大會、立案及立案證書、圖記核發之作業程序。",arts:[]},
+ {cat:"人民團體",name:"社會團體財務處理辦法",kind:"法規命令",desc:"社會團體會計、預算決算、財產管理與財務報告。",arts:[]},
+ {cat:"屏東縣作業規定",name:"組織人民團體申請許可應備文件",kind:"縣府作業規定",desc:"屏東縣政府社會處公告之籌組申請文件、發起人資格與審查期限（全縣性、鄉鎮市級）。",arts:["ptA","ptB"]},
+ {cat:"屏東縣作業規定",name:"人民團體籌組成立流程圖說明",kind:"縣府作業規定",desc:"從申請許可、籌備會、成立大會到報請立案的流程與注意事項。",arts:["ptC","ptD"]},
+ {cat:"屏東縣作業規定",name:"屏東縣社會團體章程草案範例",kind:"縣府範例",desc:"社會團體擬定章程的範例條文與註解，涵蓋名稱、理監事名額、任期、會議、經費與會計。",arts:["zc1","zc15","zc17","zc20","zc25","zc27","zc28","zc32","zc33"]},
+ {cat:"社區發展",name:"社區發展工作綱要",kind:"行政規則",desc:"社區範圍劃定、社區發展協會組織、工作項目與經費來源。",arts:["cd2","cdorg"]},
+ {cat:"合作社",name:"合作社法",kind:"法律",desc:"合作社之設立、社員、社股、盈餘分配、理監事、社員大會、解散與清算。",arts:["cp1","cpset","cpfin"]},
+ {cat:"合作社",name:"合作社法施行細則",kind:"法規命令",desc:"合作社法執行之補充規定。",arts:[]}
+];
+const BIZ={
+ social:{name:"社會團體",lead:"以公益為目的，由個人或團體組成之協會、學會等。在屏東縣行政區域內組織者，向屏東縣政府社會處申請；分為全縣性與鄉鎮市級兩種，權利義務相同。",laws:["pg39","ptA"],items:[
+  {id:"s-new",title:"社會團體籌組立案",steps:[["確認團體層級","全縣性：發起人由本縣11個以上鄉鎮市人員組成；鄉鎮市級：由該鄉鎮市3分之1以上村里人員組成（屏東市為20個里以上）。"],["準備申請文件","申請書、發起人名冊、發起人身分證正反面影本黏貼冊、組織章程草案、發起人戶籍分佈一覽表，5種文件訂成1份，共1式3份，由左線裝訂成冊。"],["送件審查","送屏東縣政府社會處審查，審查期限2個月；許可後應於6個月內完成成立（得報准延長3個月）。"],["召開籌備會","發起人暨第一次籌備會議推選籌備委員與召集人、審查章程草案並公開徵求會員；第二次籌備會議審定會員名冊、決定成立大會日期與大會手冊。"],["召開成立大會","15日前通知會員並報請縣府派員列席；通過章程、年度工作計畫及預算，選舉理事、監事，隨後召開第一次理監事會選出常務理事、理事長及常務監事。"],["函報申請立案","檢送大會與理監事會紀錄、章程、選任職員暨聘僱人員簡歷冊、會員名冊、年度工作計畫、預算表、會址使用同意書、移交清冊、大會手冊（一式三份），以及理事長當選證明書申請表二份、理事長照片三張，核准後發給立案證書及理事長當選證明書。"]],docs:["申請書","發起人名冊","發起人身分證正反面影本黏貼冊","組織章程草案","發起人戶籍分佈一覽表"],laws:["pg8","ptA","ptB","ptC","ptD"],forms:["申請表","籌備會","成立大會"]},
+  {id:"s-change",title:"會址、名稱或章程變更",steps:[["會址變更","經理監事聯席會議議決，取得新會址使用同意書，檢附會議紀錄及同意書各一式二份函報縣府備查。"],["章程或名稱變更","提會員大會決議，須出席人數三分之二以上同意（已辦法人登記者為四分之三以上，或全體會員三分之二以上書面同意），並製作章程修改條文對照表。"],["函報核備","檢送會員大會紀錄、章程修改條文對照表及修正後章程函報縣府；名稱變更者依核定換發證書及圖記。"]],docs:["理監事聯席會議紀錄","會址使用同意書","會員大會紀錄","章程修改條文對照表","修正後章程"],laws:["pg27","zc27"],forms:["理監事會","常年會"]},
+  {id:"s-dissolve",title:"解散與清算",steps:[["召開解散會員大會","寄發開會通知，經出席人數三分之二以上同意決議解散，並選任清算人。"],["函報備查","檢附會員大會紀錄、5項財務報表（缺一不可）、解散報告表各一式二份函報縣府。"],["繳回證照","繳回縣府原核發之立案證書、圖記及理事長當選證明書。"],["清算與剩餘財產","剩餘財產歸屬所在地之地方自治團體或主管機關指定之機關團體，並檢附捐款收據或剩餘財產轉移清冊。"]],docs:["開會通知書","解散會員大會紀錄","5項財務報表","解散報告表","立案證書及圖記","理事長當選證明書","剩餘財產轉移清冊"],laws:["pg27","zc33"],forms:["解散"]}]},
+ pro:{name:"職業團體",lead:"由同一行業之單位或同一職業之從業人員組成，如商業同業公會、自由職業公會。各職業團體另有專屬法律（如商業團體法、工業團體法及各專門職業法規）。",laws:["pg35"],items:[
+  {id:"p-new",title:"職業團體籌組立案",steps:[["確認適用法規","依行業別確認專屬法律、發起人數與會員資格。"],["申請籌組","檢具申請書、章程草案、發起人名冊向縣府申請。"],["籌備與成立大會","召開發起人會議、籌備會議、成立大會，並通知縣府派員列席。"],["報請立案","檢送會議紀錄、章程、會員名冊、選任職員簡歷冊等報請核准立案。"]],docs:["籌組申請書","章程草案","發起人名冊","執業或營業證明","成立大會紀錄","會員名冊"],laws:["pg35","pg8"],forms:["籌備會","成立大會"]}]},
+ community:{name:"社區發展協會",lead:"依社區發展工作綱要，由社區居民組成，以推動社區發展為宗旨；立案程序依人民團體法規定辦理。",laws:["cd2","cdorg"],items:[
+  {id:"c-new",title:"成立社區發展協會",steps:[["確認社區範圍","向鄉鎮市公所確認已劃定之社區範圍。"],["申請籌組","社區居民發起，檢具申請書、章程草案、發起人名冊提出申請。"],["籌備與成立大會","召開發起人會議、籌備會議、成立大會選出理監事，並通知縣府與公所派員列席。"],["報請立案","檢送章程、會員名冊、選任職員簡歷冊等報縣府立案。"],["擬定社區計畫","立案後擬定社區發展計畫與年度工作計畫。"]],docs:["籌組申請書","章程草案","發起人名冊","社區範圍圖","會員名冊","選任職員簡歷冊"],laws:["cd2","cdorg","pg8"],forms:[]},
+  {id:"c-plan",title:"年度工作計畫與成果",steps:[["會員大會通過","年度工作計畫與經費預算提會員大會通過。"],["報送備查","工作計畫、預算書與上年度成果、決算書依規定送公所轉縣府備查。"],["申請補助","依當年度補助作業規定申請社區活動與福利服務經費。"]],docs:["年度工作計畫","收支預算表","工作成果報告","收支決算表","會員大會紀錄"],laws:["cdorg"],forms:[]}]},
+ coop:{name:"合作社",lead:"依合作社法組織，以平等互助、共同經營謀社員經濟利益與生活改善。主管機關在縣為縣政府。",laws:["cp1","cpset"],items:[
+  {id:"o-new",title:"合作社設立登記",steps:[["發起與籌備","社員至少 7 人，擬定章程草案與業務計畫，召開籌備會議。"],["召開創立會","通過章程、選舉理事監事，確認社股金額與繳納。"],["申請設立登記","檢具申請書、章程、社員名冊、職員名冊、業務計畫等向縣府申請。"],["核發登記證","縣府核准後發給合作社登記證，即可開始營運。"]],docs:["設立登記申請書","章程","社員名冊","理監事名冊","創立會紀錄","業務計畫書","社股繳納證明"],laws:["cp1","cpset"],forms:[]},
+  {id:"o-annual",title:"合作社年度決算",steps:[["編造決算表冊","理事會造具業務報告書、資產負債表、損益表、財產目錄及盈餘分配案。"],["監事會審核","監事會審核並提出審核報告。"],["社員大會承認","提社員（代表）大會承認後報縣府。"]],docs:["業務報告書","資產負債表","損益表","財產目錄","盈餘分配表","監事會審核報告","社員大會紀錄"],laws:["cpfin"],forms:[]}]}
+};
+const MEET=[
+ {id:"m-assembly",title:"召開會員大會（常年會）",steps:[["大會前理監事聯席會議","審議工作報告、收支決算、工作計畫、預算與大會議程。"],["呈報大會前會議紀錄","檢附會議紀錄及大會手冊內容（議程、理事會工作報告、監事會監察報告、收支決算表、財產目錄、資產負債表、收支報表、年度工作計畫、經費收支預算表、會員名冊及章程）一式二份函報縣府。"],["寄發開會通知","除緊急事故之臨時會議外，應於15日前以書面通知會員。"],["召開會員大會","會員過半數出席始得開會；不能出席者得書面委託其他會員代理，每人以代理一人為限。"],["會後函報備查","檢送會議紀錄及會員名冊、收支決算表（含財產目錄及資產負債表）、年度工作計畫、經費收支預算表、章程、大會手冊各一式二份。"]],docs:["開會通知書","大會議程","委託書","會員大會簽到簿","會議紀錄","大會手冊","6項財務報表"],laws:["pg25","zc25","pg27"],forms:["常年會"]},
+ {id:"m-elect",title:"理監事改選",steps:[["選前理監事會","決定改選日期、選舉方式與選舉票格式，並備妥大會手冊。"],["呈報選前會議紀錄","檢附會議紀錄、選票樣張及大會手冊內容一式二份，報請縣府派員列席。"],["寄發開會通知","15日前以書面通知會員。"],["改選會員大會","選出理事、監事；選舉票應蓋團體圖記並由監事會推派監事簽章。"],["第一次理監事會","選出常務理事、理事長及常務監事，並聘任總幹事等工作人員（工作人員不得由理監事擔任）。"],["檢送改選資料","會議紀錄、收支決算表（含財產目錄及資產負債表）、收支報表、工作計畫、預算表、會員名冊、新任理監事暨聘僱人員名冊、移交清冊、會址使用同意書、章程、理事長當選證明書申請表及大會手冊，各一式二份。"],["辦理移交","新舊任理事長依圖記、電子檔案、業務、財產、人事5項清冊移交，由監事會代表監交。"]],docs:["開會通知書","選舉票","委託書","會員大會簽到簿","改選會議紀錄","理監事暨會務人員一覽表","申請理事長當選證明書表","理事長移交清冊","會址同意書","6項財務報表"],laws:["pg20","zc20","zc15"],forms:["改選"]},
+ {id:"m-board",title:"理監事會議與理事長補選",steps:[["定期召開","理事會、監事會至少每6個月舉行一次，必要時得召開聯席會議或臨時會議。"],["寄發通知","除臨時會議外，應於7日前以書面通知。"],["出席與決議","過半數出席、出席人數較多數同意；理監事不得委託出席，連續二次無故缺席視同辭職。"],["函報備查","會後檢送會議紀錄函報縣府備查。"],["理事長出缺","應於一個月內召開理監事聯席會議補選，理事缺額由候補理事依序遞補。"]],docs:["開會通知書","理監事會簽到簿","會議紀錄","辭職書"],laws:["zc28","zc17"],forms:["理監事會"]},
+ {id:"m-finance",title:"年度工作計畫與財務報告",steps:[["年度開始前二個月","理事會編造年度工作計畫、收支預算表、員工待遇表，提會員大會通過（未能如期召開先提理監事聯席會議），於年度開始前報縣府核備。"],["年度終了後二個月內","編造年度工作報告、收支決算表、現金出納表、資產負債表、財產目錄及基金收支表。"],["審核與報備","送監事會審核後提會員大會通過，於三月底前報縣府核備。"]],docs:["年度工作計畫","收支預算表","員工待遇表","工作報告","收支決算表","現金出納表","資產負債表","財產目錄","基金收支表"],laws:["zc32"],forms:["常年會"]},
+ {id:"m-roster",title:"會員、職員異動與移交",steps:[["會員入會","填具入會申請書，經理事會通過並繳納會費。"],["會員除名","危害團體情節重大者，經會員大會出席三分之二以上同意除名。"],["理監事辭職與遞補","提出辭職書經理事會或監事會決議通過，由候補理監事依序遞補。"],["工作人員聘免","總幹事等工作人員由理事長提名經理事會通過聘免，報縣府備查，且不得由理監事擔任。"],["理事長交接","依移交清冊辦理圖記、電子檔案、業務、財產、人事移交。"]],docs:["入會申請書","辭職書","理監事暨會務人員一覽表","移交清冊"],laws:["pg27"],forms:["籌備會","理監事會","改選"]}
+];
+const ALLITEMS={};Object.values(BIZ).forEach(b=>b.items.forEach(i=>ALLITEMS[i.id]=i));MEET.forEach(m=>ALLITEMS[m.id]=m);
+const KB=[
+ {k:["全縣性","鄉鎮市級","差別","不同","區別"],cat:"業務辦理",title:"全縣性與鄉鎮市級團體的區別",summary:"全縣性團體發起人由本縣11個以上鄉鎮市人員組成，會員限設籍本縣或在本縣工作；鄉鎮市級團體發起人由該鄉鎮市3分之1以上村里人員組成（屏東市為20個里以上），會員限設籍或在該鄉鎮市工作。兩者權利義務沒有差異。",laws:["ptA"],notes:["申請表分全縣性與鄉鎮市級兩種版本，請依團體層級下載。"],act:[["下載申請表","forms","申請表"],["看籌組流程","biz","social"]]},
+ {k:["應備文件","準備哪些","要準備","需要什麼文件","申請文件","申請許可"],cat:"業務辦理",title:"籌組申請應備文件",summary:"申請書、發起人名冊、發起人身分證正反面影本黏貼冊、組織章程草案、發起人戶籍分佈一覽表，5種文件訂成1份，共1式3份，送縣府審查，審查期限2個月。",ref:"s-new",laws:["ptB","ptA"],notes:["發起人須年滿18歲、30人以上。","身分證影本須清晰可辨認，並依發起人名冊順序黏貼於A4紙。"],act:[["下載申請表","forms","申請表"],["看完整流程","biz","social"],["聯絡承辦","contact",""]]},
+ {k:["社區發展協會","社區協會"],cat:"業務辦理",title:"成立社區發展協會",summary:"社區發展協會以已劃定之社區範圍為組織區域，由社區居民發起，經籌備會與成立大會後報縣府立案。",ref:"c-new",notes:["請先向鄉鎮市公所確認社區範圍是否已劃定。","社區發展協會業務窗口請撥縣府總機 08-7320415 轉社會處詢問。"],act:[["看完整流程","biz","community"]]},
+ {k:["合作社"],cat:"業務辦理",title:"合作社設立登記",summary:"合作社社員至少 7 人，召開創立會通過章程、選出理監事後，向縣府申請設立登記，非經登記不得成立。",ref:"o-new",notes:["合作社業務窗口請撥縣府總機 08-7320415 轉社會處詢問。"],act:[["看完整流程","biz","coop"]]},
+ {k:["職業團體","公會"],cat:"業務辦理",title:"職業團體籌組",summary:"職業團體依行業別另有專屬法律，請先確認適用法規；商業公會、自由職業公會由社會處社會行政科羅宇軒承辦（08-7320415 轉 5317）。",ref:"p-new",notes:[],act:[["看完整說明","biz","pro"],["聯絡承辦","contact",""]]},
+ {k:["理事長可以連任","可以連任","連任幾次","理事長連任","任期多久","連任","任期"],cat:"法規查詢",title:"理監事任期與理事長連任",summary:"理監事任期依章程訂為1至4年，連選得連任；理事長連任以一次為限，任期自召開本屆第一次理事會之日起計算。",laws:["pg20","zc20"],notes:["理監事連選連任者不得超過二分之一。"],act:[["看改選流程","meet","m-elect"],["下載改選書表","forms","改選"]]},
+ {k:["名額","幾位理事","理事人數","監事人數"],cat:"法規查詢",title:"理事、監事名額",summary:"依本縣章程範例，理事不得超過15人、監事不得超過理事三分之一、候補不得超過正選三分之一；建議理事至少9人、監事至少3人，並為奇數。",laws:["zc15","pg17"],notes:[],act:[["查看章程範例","law","屏東縣作業規定"]]},
+ {k:["改選後","送哪些","改選資料","改選要送"],cat:"會務辦理",title:"改選後應送資料",summary:"改選後檢送會議紀錄、收支決算表（含財產目錄及資產負債表）、收支報表、工作計畫、預算表、會員名冊、新任理監事暨聘僱人員名冊、移交清冊、會址使用同意書、章程、理事長當選證明書申請表及大會手冊，各一式二份。",ref:"m-elect",notes:[],act:[["下載改選書表","forms","改選"],["看改選流程","meet","m-elect"]]},
+ {k:["改選","選舉","理監事"],cat:"會務辦理",title:"理監事改選",summary:"先召開選前理監事會並呈報紀錄，15日前通知會員召開改選會員大會，選出理監事後由理監事會選出理事長，再檢送改選資料一式二份報縣府備查。",ref:"m-elect",notes:["選舉票應蓋團體圖記，並由監事會推派監事簽章。"],act:[["看完整流程","meet","m-elect"],["下載改選書表","forms","改選"]]},
+ {k:["三分之二","決議","表決","出席","過半","四分之三"],cat:"法規查詢",title:"會員大會決議門檻",summary:"一般決議須過半數會員出席、出席人數較多數同意；章程變更、除名、罷免、財產處分、解散須出席三分之二以上同意。辦理法人登記後，章程變更須出席四分之三以上同意或全體會員三分之二以上書面同意。",laws:["pg27","zc27"],notes:[],act:[["看會員大會辦理","meet","m-assembly"]]},
+ {k:["會員大會","常年會","開會","大會","通知","幾天前"],cat:"會務辦理",title:"召開會員大會",summary:"定期會議每年召開一次，除緊急事故之臨時會議外，應於15日前以書面通知會員；會後檢送會議紀錄及附件一式二份報縣府備查。",ref:"m-assembly",notes:["會員可書面委託其他會員代理出席，每人以代理一人為限。"],act:[["看完整流程","meet","m-assembly"],["下載常年會書表","forms","常年會"]]},
+ {k:["理監事會","理事會","監事會","補選","缺席"],cat:"會務辦理",title:"理監事會議",summary:"理事會、監事會至少每6個月開會一次，7日前書面通知；理監事不得委託出席，連續二次無故缺席視同辭職。理事長出缺應於一個月內補選。",ref:"m-board",notes:[],act:[["看完整說明","meet","m-board"],["下載理監事會書表","forms","理監事會"]]},
+ {k:["財務","預算","決算","報表","年度報告","工作計畫"],cat:"會務辦理",title:"年度工作計畫與財務報告",summary:"年度開始前二個月編造工作計畫、預算與員工待遇表，提大會通過後於年度開始前報核備；年度終了後二個月內編造決算等表冊，經監事會審核、大會通過，於三月底前報縣府核備。",ref:"m-finance",laws:["zc32"],notes:[],act:[["看完整流程","meet","m-finance"],["下載財務報表","forms","常年會"]]},
+ {k:["會址","變更","更名","章程修改","修改章程"],cat:"業務辦理",title:"會址、名稱或章程變更",summary:"會址變更經理監事聯席會議議決後，檢附會議紀錄及會址使用同意書函報；章程或名稱變更須經會員大會出席三分之二以上同意，並附章程修改條文對照表報縣府核備。",ref:"s-change",notes:[],act:[["看完整流程","biz","social"],["下載理監事會書表","forms","理監事會"]]},
+ {k:["解散","清算"],cat:"業務辦理",title:"團體解散與清算",summary:"解散須經會員大會出席三分之二以上同意並選任清算人，檢附會議紀錄、5項財務報表、解散報告表報縣府，並繳回立案證書、圖記及理事長當選證明書。",ref:"s-dissolve",notes:[],act:[["看完整流程","biz","social"],["下載解散書表","forms","解散"]]},
+ {k:["移交","交接","圖記","印信","遺失","補發"],cat:"會務辦理",title:"理事長交接與圖記",summary:"新舊任理事長依圖記、電子檔案、業務、財產、人事5項移交清冊辦理移交，由監事會代表監交。",ref:"m-roster",notes:["圖記遺失或毀損，請洽承辦人辦理補發。"],act:[["下載移交清冊","forms","改選"],["聯絡承辦","contact",""]]},
+ {k:["期限","六個月","延長","許可後"],cat:"業務辦理",title:"籌組成立期限",summary:"許可設立後逾6個月未成立者廢止其許可，因故未及依限完成得報准延長3個月；成立大會應於15日前通知會員並報請縣府派員列席。",laws:["ptC","ptD"],notes:[],act:[["看籌組流程","biz","social"]]},
+ {k:["名稱","取名","命名"],cat:"業務辦理",title:"團體名稱規定",summary:"名稱應明確表示業務性質，不得與其他已許可人民團體之名稱相同，並不得使用「合作社」、「聯誼會」、「俱樂部」、「中心」等易生誤認之文字。",laws:["zc1"],notes:["可直接告訴我想用的完整名稱，我會比對本縣名冊。"],act:[["查詢團體名冊","search",""]]},
+ {k:["成立","籌組","立案","協會","學會","申請設立"],cat:"業務辦理",title:"社會團體籌組立案",summary:"發起人30人以上（年滿18歲）檢具5種文件1式3份向縣府申請，審查期限2個月；許可後召開籌備會、成立大會，再函報申請立案，核准後發給立案證書及理事長當選證明書。",ref:"s-new",notes:[],act:[["看完整流程","biz","social"],["下載申請表","forms","申請表"]]},
+ {k:["法規","法令","條文","人民團體法"],cat:"法規查詢",title:"人民團體相關法令",summary:"人民團體以人民團體法為基本法律，本縣另訂有申請許可應備文件、籌組成立流程說明及社會團體章程草案範例。",laws:["pg4","pg39","ptA"],notes:[],act:[["查看相關法令","law","人民團體"]]},
+ {k:["書表","下載","範本","申請書","表格"],cat:"書表下載",title:"書表範本下載",summary:"社會處公告的申請表與團體會務書表（籌備會、成立大會、常年會、理監事會、改選、解散）都可下載，Word 與 Excel 格式可直接填寫。",notes:[],act:[["前往書表下載","forms",""]]},
+ {k:["線上","申辦","網路"],cat:"線上申辦",title:"線上申辦",summary:"選擇申辦項目、填寫資料並確認應備文件後送出，即取得案件編號。",notes:["簽名、用印之紙本正本仍須送達縣府。"],act:[["前往線上申辦","apply",""]]}
+];
+const TOPICS=[
+ {name:"團體查詢",c:"#DE5F72",q:["屏東縣商業會的理事長是誰？","潮州鎮有哪些體育運動團體？","我想取名「屏東縣快樂登山協會」，有沒有重複？"]},
+ {name:"業務辦理",c:"#C2531A",q:["成立協會需要準備哪些文件？","全縣性和鄉鎮市級團體有什麼不同？"]},
+ {name:"會務辦理",c:"#F4B23A",q:["改選後要送哪些資料？","會員大會要幾天前通知？"]},
+ {name:"法規與承辦",c:"#3F8A5C",q:["理事長可以連任幾次？","老人會業務找哪位承辦人？"]}
+];
+const TIPS=["小提醒：會員大會除緊急臨時會外，要在 15 日前以書面通知會員喔。","小提醒：理監事會至少每 6 個月開一次，要在 7 日前通知。","小提醒：理事長連任以一次為限。","小提醒：籌組許可後 6 個月內要完成成立。","小提醒：直接把團體名稱告訴我，就能查立案資料和承辦人。"];
+const CAT_ALIAS=[["社會服務團體",/社會服務/],["學術文化團體",/學術|文化團體/],["體育運動團體",/體育|運動團體/],["經濟業務團體",/經濟業務/],["宗教團體",/宗教/],["慈善團體",/慈善/],["老人會",/老人會|老人團體|長青會/],["商業團體",/商業團體|商業同業公會/],["國際團體",/國際團體|國際性|獅子會|扶輪社|青商會|同濟會/],["教育會",/教育會/],["環保團體",/環保/],["同學校友會",/校友會/],["醫療衛生團體",/醫療|衛生團體/],["宗親會",/宗親會/],["教師會",/教師會/],["自由職業團體",/自由職業/],["同鄉會",/同鄉會/],["工業團體",/工業團體/]];
+
+/* ================= 共用工具 ================= */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const norm=s=>String(s??"").replace(/臺/g,"台").replace(/[\s\u3000「」『』（）()〔〕【】、，,。.．:：;；!！?？"'“”‘’\-－—_/／]/g,"").toLowerCase();
+const nameKey=s=>norm(s).replace(/^社團法人/,"").replace(/^屏東縣/,"");
+function bigrams(s){s=norm(s);const a=[];for(let i=0;i<s.length-1;i++)a.push(s.slice(i,i+2));return a.length?a:(s?[s]:[])}
+const fmtDate=iso=>iso?String(iso).slice(0,10):"";
+function withTimeout(p,ms){return Promise.race([p,new Promise((_,rej)=>setTimeout(()=>rej(new Error("連線逾時")),ms))])}
+let caps={db:null,user:null,sample:null,downloads:null};
+let isAdmin=false;
+const VIEWS=["home","biz","meet","law","search","forms","apply","contact","admin"];
+let bizType="social",lawCat="人民團體",formCat="申請表",pendingFocus="",pendingSearch=null;
+const ICON={
+ step:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 6h16M4 12h10M4 18h6"/></svg>',
+ doc:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M6 3h9l4 4v14H6z"/><path d="M9 12h7M9 16h5"/></svg>',
+ law:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 3v18M5 21h14M6 7h12M6 7l-3 7a3 3 0 0 0 6 0zM18 7l-3 7a3 3 0 0 0 6 0z"/></svg>',
+ note:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.5"/></svg>',
+ org:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M3 21h18M5 21V9l7-5 7 5v12M9 21v-6h6v6"/></svg>',
+ person:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></svg>'
+};
+
+/* ================= 資料存取（名冊／承辦人／知識庫） ================= */
+const STORE={dir:{rows:[],meta:null},staff:{rows:[],updatedAt:null,source:""},kn:{rows:[],meta:null},forms:{catalog:null},loaded:false};
+let loadPromise=null;
+async function loadChunked(coll){
+  const s=await withTimeout(caps.db.collection(coll).get(),12000);
+  let meta=null;const parts=[];
+  s.docs.forEach(d=>{const v=d.data();if(!v)return;if(d.id==="meta")meta=v;else if(/^c\d+$/.test(d.id))parts.push([+d.id.slice(1),v.rows||[]])});
+  parts.sort((a,b)=>a[0]-b[0]);
+  const n=meta&&Number.isFinite(meta.chunks)?meta.chunks:parts.length;
+  return {meta,rows:parts.filter(p=>p[0]<n).flatMap(p=>p[1])};
+}
+async function saveChunked(coll,rows,metaExtra){
+  const enc=new TextEncoder();const chunks=[];let cur=[],size=0;
+  for(const r of rows){const b=enc.encode(JSON.stringify(r)).length+2;if(size+b>180000&&cur.length){chunks.push(cur);cur=[];size=0}cur.push(r);size+=b}
+  if(cur.length)chunks.push(cur);
+  const prev=(coll==="directory"?STORE.dir.meta:STORE.kn.meta)?.chunks||0;
+  for(let i=0;i<chunks.length;i++)await caps.db.doc(`${coll}/c${i}`).set({rows:chunks[i]});
+  for(let i=chunks.length;i<prev;i++){try{await caps.db.doc(`${coll}/c${i}`).delete()}catch(e){}}
+  const meta={...metaExtra,chunks:chunks.length,count:rows.length,updatedAt:new Date().toISOString()};
+  await caps.db.doc(`${coll}/meta`).set(meta);
+  return meta;
+}
+async function loadAll(force){
+  if(loadPromise&&!force)return loadPromise;
+  loadPromise=(async()=>{
+    const base=document.baseURI.replace(/[^/]*$/,"")+"data/";
+    const jf=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);return r.json()};
+    const [d,s,k,f]=await Promise.allSettled([jf(base+"directory.json"),jf(base+"staff.json"),jf(base+"knowledge.json"),jf(base+"forms-catalog.json")]);
+    if(d.status==="fulfilled"){const v=d.value;STORE.dir={rows:v.rows||[],meta:v.meta||null}}
+    if(s.status==="fulfilled"){const v=s.value;STORE.staff={rows:v.rows||[],updatedAt:v.updatedAt,source:v.source||""}}
+    if(k.status==="fulfilled")STORE.kn={rows:k.value.rows||[],meta:null};
+    if(f.status==="fulfilled"){const v=f.value;if(v&&Array.isArray(v.files))STORE.forms.catalog=v}
+    STORE.loaded=true;
+  })();
+  return loadPromise;
+}
+
+/* ================= 搜尋 ================= */
+function townOf(text){
+  const n=norm(text);
+  for(const t of TOWNS){if(n.includes(norm(t)))return t}
+  for(const t of TOWNS){const base=norm(t).slice(0,-1);if(base==="屏東"||base.length<2)continue;const i=n.indexOf(base);if(i>=0&&n[i+base.length]!=="會")return t}
+  return "";
+}
+function guessType(name){
+  if(/社區發展協會/.test(name))return"社區發展協會";
+  if(/合作社|合作農場/.test(name))return"合作社";
+  if(/公會|商業會|工業會|同業/.test(name))return"職業團體";
+  return"社會團體";
+}
+function searchDir(o,limit){
+  limit=limit||50;
+  const rows=STORE.dir.rows;const kw=nameKey(o.kw||"");const d=o.d||"";const t=o.t||"";const c=o.c||"";const inc=!!o.x;
+  const base=rows.filter(r=>(inc||r.s!=="已解散")&&(!t||r.t===t)&&(!c||r.c===c)&&(!d||r.d===d||norm(r.a).includes(norm(d))));
+  const order=(a,b)=>(a.s==="已解散")-(b.s==="已解散");
+  if(!kw){const all=base.slice().sort(order);return{total:all.length,rows:all.slice(0,limit),all,fuzzy:false,exact:[]}}
+  let hit=base.filter(r=>nameKey(r.n).includes(kw));let fuzzy=false;
+  if(!hit.length){
+    const bg=bigrams(kw);
+    hit=base.map(r=>{const n=nameKey(r.n)+norm(r.a||"")+norm(r.x||"");let s=0;bg.forEach(b=>{if(n.includes(b))s++});return[s/bg.length,r]}).filter(x=>x[0]>=0.5).sort((a,b)=>b[0]-a[0]).map(x=>x[1]);
+    fuzzy=true;
+  }else hit.sort((a,b)=>order(a,b)||(nameKey(b.n)===kw)-(nameKey(a.n)===kw)||a.n.length-b.n.length);
+  const exact=hit.filter(r=>nameKey(r.n)===kw);
+  return{total:hit.length,rows:hit.slice(0,limit),all:hit,fuzzy,exact};
+}
+function staffForCat(c,t){
+  const rows=STORE.staff.rows;if(!rows.length)return null;
+  if(t==="社區發展協會"||t==="合作社")return null;
+  return rows.find(r=>(r.cats||[]).includes(c))||rows.find(r=>(r.cats||[]).includes("*"))||null;
+}
+function staffByName(n){return STORE.staff.rows.find(s=>s.name===n)||null}
+function staffForGroup(g){if(!g||g.s==="已解散")return null;return(g.o&&staffByName(g.o))||staffForCat(g.c,g.t)}
+function staffDist(c){const m=new Map();STORE.dir.rows.forEach(r=>{if(r.s==="已解散"||r.c!==c)return;const s=staffForGroup(r);if(s)m.set(s,(m.get(s)||0)+1)});return[...m.entries()].map(([s,n])=>({s,n})).sort((a,b)=>b.n-a.n)}
+function staffLoad(s){const cc={};let n=0;STORE.dir.rows.forEach(r=>{if(r.s==="已解散")return;if(staffForGroup(r)===s){n++;cc[r.c]=(cc[r.c]||0)+1}});return{n,top:Object.entries(cc).sort((a,b)=>b[1]-a[1]).slice(0,4).map(x=>x[0])}}
+function searchStaff(q){
+  const rows=STORE.staff.rows;if(!rows.length)return[];
+  const c=detectCat(q);if(c){const d=staffDist(c).map(x=>x.s);const s=d.length?d:[staffForCat(c)].filter(Boolean);return[...s,...rows.filter(r=>!s.includes(r))]}
+  const cleaned=String(q||"").replace(/承辦人|承辦|分機|電話|聯絡|窗口|業務|是誰|哪位|找誰|請問|負責|的|嗎|？|\?/g,"");
+  const bg=bigrams(cleaned);if(!bg.length)return rows.slice();
+  const sc=rows.map(r=>{const n=norm([r.duty,r.unit,r.title,r.name,(r.cats||[]).join("")].join(""));let s=0;bg.forEach(b=>{if(n.includes(b))s++});return[s,r]}).filter(x=>x[0]>0).sort((a,b)=>b[0]-a[0]);
+  return sc.map(x=>x[1]);
+}
+const KSTOP=/請問|一下|可以|是否|如何|怎麼|什麼|需要|的|嗎|呢|？|\?/g;
+function searchKn(q,limit){
+  const rows=STORE.kn.rows;if(!rows.length)return[];
+  const bg=[...new Set(bigrams(String(q).replace(KSTOP,"")))];if(!bg.length)return[];
+  const sc=rows.map(r=>{const ti=norm(r.title),tx=norm(r.text);let s=0,first=-1;bg.forEach(b=>{if(ti.includes(b))s+=3;const i=tx.indexOf(b);if(i>=0){s+=1;if(first<0||i<first)first=i}});return{s,r,first}}).filter(x=>x.s>=Math.min(3,bg.length)).sort((a,b)=>b.s-a.s).slice(0,limit||5);
+  return sc.map(({r})=>{const raw=String(r.text);const key=bg.find(b=>norm(raw).includes(b));let i=key?raw.indexOf(key[0]+key[1]):0;if(i<0)i=0;const start=Math.max(0,i-120);return{標題:r.title,類別:r.cat||"",文號或來源:r.source||"",日期:r.date||"",內容摘錄:(start>0?"…":"")+raw.slice(start,start+520)+(raw.length>start+520?"…":"")}});
+}
+
+/* ================= 意圖判斷 ================= */
+const SUFFIX="社區發展協會|合作社|合作農場|商業同業公會|同業公會|商業會|工業會|佛教會|道教會|功德會|婦女會|體育會|青年會|協會|學會|促進會|聯誼會|公會|研究會|總會|分會|商會|聯合會|獅子會|扶輪社|青商會|同濟會|發展會|關懷會|老人會|長青會|宗親會|同鄉會|校友會|俱樂部";
+const NAME_RE=new RegExp("([\\u4e00-\\u9fa5A-Za-z0-9]{2,24}?(?:"+SUFFIX+"))");
+const LEAD_RE=/^(請問一下|請問|請幫我查詢|請幫我查|幫我查詢|幫我查|幫我找|我想查詢|我想查|我要查詢|我要查|想查|查詢|查一下|查|找|搜尋|有沒有|是否有|我想知道|想知道)/;
+const GENERIC_PREFIX=/^(成立|申請|籌組|設立|組織|一個|這個|我們的|我們|新的|該|本|辦理|如何|怎麼|要|想|社區發展|人民團體|社會團體|職業團體)$/;
+const CUT_RE=/^.*(有哪些|哪些|有沒有|是否有|查詢|查一下|列出|幾個|多少個|多少家|共有|我想取的|想取的|取名為|取名|名稱為|名稱|叫做|請問)/;
+const NAME_RE_G=new RegExp(NAME_RE.source,"g");
+function specificName(q){
+  const src=String(q).replace(/\s/g,"");
+  for(const m of src.matchAll(NAME_RE_G)){
+    const full=m[1].replace(CUT_RE,"").replace(LEAD_RE,"");
+    let cand=full.replace(/^屏東縣/,"");
+    const suf=cand.match(new RegExp("("+SUFFIX+")$"));const pre=suf?cand.slice(0,-suf[1].length):cand;
+    if(!pre&&/^屏東縣/.test(full)&&suf&&!/^(協會|學會|公會|合作社|社區發展協會)$/.test(suf[1]))return full;
+    if(!pre||pre.length<2||GENERIC_PREFIX.test(pre))continue;
+    if(/^(社區發展|社會|職業|人民)/.test(cand)&&pre.length<=4)continue;
+    const preN=norm(pre);const town=TOWNS.find(t=>preN.startsWith(norm(t))||(norm(t).slice(0,-1)!=="屏東"&&preN.startsWith(norm(t).slice(0,-1))));
+    if(town){let rest=preN.startsWith(norm(town))?preN.slice(norm(town).length):preN.slice(norm(town).length-1);rest=rest.replace(/^[有的在之]+|[有的在之]+$/g,"");
+      if(!rest&&(suf[1]==="社區發展協會"||suf[1]==="合作社"||/[有的在之]/.test(preN)))continue;}
+    return cand;
+  }
+  return"";
+}
+const PROCESS_RE=/怎麼|如何|流程|步驟|辦理|要準備|需要什麼|準備什麼|文件|期限|幾天|連任|任期|改選|變更|解散|補助|法規|條文|規定|籌組|申請|章程|開會|會議|召開|決算|預算|名額|移交/;
+const QUERY_RE=/查詢|查一下|幫我查|查查|搜尋|有沒有|有哪些|哪些|列出|名冊|清單|幾個|多少個|多少家|共有|是否立案|立案了嗎|有立案|有登記|是誰|電話|地址|在哪|重複|被用|可以用|能用|資料|還在嗎|解散了嗎/;
+const ENTITY_RE=/團體|協會|學會|社區|合作社|公會|促進會|聯誼會|獅子會|扶輪社|同濟會|老人會|宗親會|同鄉會|校友會|教師會|教育會|商業會|工業會|佛教會|道教會|功德會|婦女會|體育會|青年會/;
+const STAFF_RE=/承辦|分機|窗口|找誰|找哪位|哪位|業務聯絡|聯絡誰|打給誰|負責人員/;
+function detectType(q){if(/社區發展協會|社區協會|社區/.test(q))return"社區發展協會";if(/合作社/.test(q))return"合作社";if(/職業團體|公會/.test(q))return"職業團體";if(/社會團體/.test(q))return"社會團體";return""}
+function detectCat(q){for(const [c,re] of CAT_ALIAS){if(re.test(q))return c}return""}
+function intentOf(q){
+  const sn=specificName(q);
+  if(/名稱.*(重複|被用|可以用|能用|有人用|撞名)|(重複|可以用|能用|撞名).*名稱|撞名|取名.*(重複|可以|能用)/.test(q))return{kind:"dir",dup:true,name:sn};
+  if(/理事長是誰|的理事長|的電話|的地址|會址在|立案了嗎|有立案嗎|還在嗎|解散了嗎|立案證號|統一編號/.test(q)&&!STAFF_RE.test(q)&&!PROCESS_RE.test(q))return{kind:"dir",name:sn};
+  if(sn&&STAFF_RE.test(q))return{kind:"staff",name:sn};
+  if(sn&&!PROCESS_RE.test(q))return{kind:"dir",name:sn};
+  if(STAFF_RE.test(q))return{kind:"staff"};
+  if(QUERY_RE.test(q)&&ENTITY_RE.test(q)&&!PROCESS_RE.test(q))return{kind:"dir",name:sn};
+  if(!PROCESS_RE.test(q)&&(/有.{0,10}(合作社|協會|團體|社區|學會|公會|老人會|宗親會)(嗎|呢)?[？?]?$/.test(q)||(townOf(q)&&(detectType(q)||detectCat(q))&&q.length<=16)))return{kind:"dir",name:sn};
+  return{kind:"ai"};
+}
+function dirQueryFrom(q,intent){
+  const d=townOf(q);const c=detectCat(q);const t=c?"":detectType(q);
+  let kw=String(q).replace(/臺/g,"台").replace(/\s/g,"");
+  if(intent.name)kw=intent.name;
+  else{
+    kw=kw.replace(LEAD_RE,"");
+    if(c){const re=CAT_ALIAS.find(x=>x[0]===c)[1];kw=kw.replace(new RegExp(re.source,"g"),"")}
+    ["社區發展協會","社區協會","合作社","職業團體","社會團體","人民團體","團體名稱","名稱","團體"].forEach(w=>kw=kw.split(w).join(""));
+    if(d){const nd=d.replace(/臺/g,"台");kw=kw.split(nd).join("");const base=nd.slice(0,-1);if(base!=="屏東")kw=kw.split(base).join("")}
+    kw=kw.replace(/屏東縣|縣內|本縣|目前|所有|全部|有哪些|哪些|有沒有|是否|列出|清單|名冊|名單|資料|幾個|多少個|多少家|多少|共有|立案了嗎|有立案|有登記|的電話|電話|的地址|地址|在哪裡|在哪|理事長是誰|理事長|負責人|是誰|重複|可以用|能用|被用|有人用|我想取的|我想取|想取的|一下|查詢|查/g,"");
+    kw=kw.replace(/[「」『』]/g,"").replace(/[嗎呢吧了啊的？?！!，,。\s]+$/g,"").replace(/^[的在有]+/,"");
+    if(/^(協會|學會|公會|社區|團體|會|的|有|的團體|的協會|的社區)?$/.test(kw))kw="";
+  }
+  return{kw,d,t,c};
+}
+
+/* ================= 路由 ================= */
+function route(){
+  const h=(location.hash||"#home").slice(1);
+  let v=VIEWS.includes(h)?h:"home";
+  if(v==="admin"&&!isAdmin)v="home";
+  VIEWS.forEach(x=>$("#v-"+x).classList.toggle("on",x===v));
+  document.querySelectorAll(".nav a").forEach(a=>{if(a.getAttribute("href")==="#"+v)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current")});
+  if(v==="biz")renderBiz();
+  if(v==="law")renderLaw();
+  if(v==="forms")renderForms();
+  if(v==="search"){if(STORE.dir.rows.length)fillCatSelect();if(pendingSearch){$("#sq").value=pendingSearch.kw||"";$("#st").value=pendingSearch.c?"c:"+pendingSearch.c:pendingSearch.t?"t:"+pendingSearch.t:"";$("#sd").value=pendingSearch.d||"";$("#sx").checked=false;pendingSearch=null}renderSearch()}
+  if(v==="contact")renderContacts();
+  if(v==="apply")renderMyApps();
+  if(v==="admin")renderAdmin();
+  if(pendingFocus){const id=pendingFocus;pendingFocus="";setTimeout(()=>{const el=document.getElementById(id);if(el)el.scrollIntoView({behavior:"smooth",block:"start"})},60);return}
+  window.scrollTo(0,0);
+}
+window.addEventListener("hashchange",route);
+function goTo(view,sub){
+  if(view==="biz"&&sub&&BIZ[sub])bizType=sub;
+  if(view==="meet"&&sub)pendingFocus=sub;
+  if(view==="law"&&sub)lawCat=sub;
+  if(view==="forms"&&sub)formCat=sub;
+  if(view==="apply"&&sub&&ALLITEMS[sub]){$("#a-item").value=sub;renderDocs()}
+  if(view==="search"&&sub){try{pendingSearch=JSON.parse(sub)}catch(e){pendingSearch={kw:sub}}}
+  if(location.hash==="#"+view)route();else location.hash=view;
+}
+
+/* ================= 共用區塊 ================= */
+function lawBox(ids){
+  const rows=(ids||[]).map(id=>ART[id]).filter(Boolean);if(!rows.length)return"";
+  return `<div class="lawbox">${rows.map(a=>`<div class="lawrow"><div class="ref">${esc(a.law)}<small>${esc(a.art)}</small></div><p>${esc(a.text)}</p></div>`).join("")}</div><div class="lawfoot">條文為重點摘要，完整內容以全國法規資料庫最新公告為準。</div>`;
+}
+function refBox(refs){
+  if(!refs||!refs.length)return"";
+  return `<div class="lawbox">${refs.map(r=>`<div class="lawrow"><div class="ref">${esc(r.cat||"參考資料")}<small>${esc(r.date||"")}</small></div><p><b>${esc(r.title)}</b>${r.source?`<br><span class="lead">${esc(r.source)}</span>`:""}</p></div>`).join("")}</div>`;
+}
+function stepsList(steps){return `<ol class="asteps">${steps.map(s=>`<li><span>${Array.isArray(s)?`<b>${esc(s[0])}</b>：${esc(s[1])}`:esc(s)}</span></li>`).join("")}</ol>`}
+function docsList(d){return `<ul class="adocs">${d.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`}
+function telHref(tel,ext){const t=String(tel||"").replace(/[^0-9]/g,"");return t?`tel:${t}${ext?","+String(ext).replace(/[^0-9]/g,""):""}`:""}
+function groupCard(r,hit){
+  const dead=r.s==="已解散";
+  const st=dead?null:staffForGroup(r);
+  const f=dead?[["立案證號",r.r],["成立日期",r.dt],["解散字號",r.sd]]:[["會址",r.a],["理事長",r.p],["電話",r.tel],["屆別任期",r.term],["立案證號",r.r],["成立日期",r.dt],["統一編號",r.tax],["目的事業主管",r.m]];
+  const rows=f.filter(x=>x[1]).map(x=>`<dt>${x[0]}</dt><dd>${x[0]==="電話"&&telHref(x[1])?`<a href="${telHref(x[1])}">${esc(x[1])}</a>`:esc(x[1])}</dd>`).join("");
+  const staffRow=st?`<dt>會務承辦</dt><dd>${esc(st.name)}（${esc(st.unit)}）<br><a href="${telHref(st.tel,st.ext)}">${esc(st.tel)} 轉 ${esc(st.ext)}</a></dd>`:"";
+  return `<div class="gcard${hit?" hit":""}"><div class="gname">${esc(r.n)}</div><div class="gtags"><span>${esc(r.c||r.t||"")}</span>${r.d?`<span>${esc(r.d)}</span>`:""}${dead?`<span class="dead">已解散</span>`:""}</div><dl>${rows}${staffRow}</dl></div>`;
+}
+function staffCard(s){
+  const h=telHref(s.tel||"08-7320415",s.ext);
+  return `<div class="pcard"><div><div class="pn">${esc(s.name)}${s.title?`<span class="lead" style="font-weight:400">　${esc(s.title)}</span>`:""}</div>${s.unit?`<div class="pd">${esc(s.unit)}</div>`:""}<div>${esc(s.duty||"")}</div>${(()=>{const l=STORE.dir.rows.length?staffLoad(s):null;return l&&l.n?`<div class="pd">目前承辦 ${l.n} 個團體（${esc(l.top.join("、"))}等）</div>`:""})()}<div class="pd">${esc(s.tel||"08-7320415")}${s.ext?` 轉 ${esc(s.ext)}`:""}</div></div>${h?`<a class="callbtn" href="${h}">撥打</a>`:""}</div>`;
+}
+function dirMetaLine(){const m=STORE.dir.meta;if(!m)return"";const act=STORE.dir.rows.filter(r=>r.s!=="已解散").length;return `名冊資料：存續 ${act} 個、已解散 ${STORE.dir.rows.length-act} 個（更新：${fmtDate(m.updatedAt)}）`}
+
+/* ================= 業務／會務／法令 ================= */
+function folderLabel(id){const c=STORE.forms.catalog;const f=c&&c.folders.find(x=>x.id===id);return f?f.label:id}
+function itemPanel(it){
+  return `<div class="panel" id="${it.id}"><h2>${esc(it.title)}</h2>
+   <div class="sec"><h3>${ICON.step}辦理步驟</h3>${stepsList(it.steps)}</div>
+   <div class="sec"><h3>${ICON.doc}應備文件</h3>${docsList(it.docs)}</div>
+   ${it.laws&&it.laws.length?`<div class="sec"><h3>${ICON.law}法規依據</h3>${lawBox(it.laws)}</div>`:""}
+   <div class="row">${(it.forms||[]).map(f=>`<button class="btn ghost" data-goforms="${esc(f)}">下載${esc(folderLabel(f))}書表</button>`).join("")}<button class="btn" data-apply="${it.id}">線上申辦這一項</button><button class="btn ghost" data-ask="${esc(it.title)}">問小屏</button></div></div>`;
+}
+function renderBiz(){
+  $("#biztabs").innerHTML=Object.entries(BIZ).map(([k,v])=>`<button class="tab" role="tab" aria-selected="${k===bizType}" data-k="${k}">${v.name}</button>`).join("");
+  const b=BIZ[bizType];
+  $("#bizbody").innerHTML=`<div class="panel"><h2>${b.name}</h2><p class="lead">${esc(b.lead)}</p><div class="sec">${lawBox(b.laws)}</div></div>`+b.items.map(itemPanel).join("");
+}
+$("#biztabs").addEventListener("click",e=>{const t=e.target.closest("[data-k]");if(t){bizType=t.dataset.k;renderBiz()}});
+$("#meetbody").innerHTML=MEET.map(itemPanel).join("");
+document.addEventListener("click",e=>{
+  const a=e.target.closest("[data-apply]");if(a){e.preventDefault();goTo("apply",a.dataset.apply);return}
+  const q=e.target.closest("[data-ask]");if(q){e.preventDefault();location.hash="home";setTimeout(()=>ask(q.dataset.ask+"怎麼辦理？"),80);return}
+  const s=e.target.closest(".svcitem[data-type]");if(s){bizType=s.dataset.type}
+});
+function renderLaw(){
+  const cats=[...new Set(LAWS.map(l=>l.cat))];const hasKn=STORE.kn.rows.length>0;
+  const all=hasKn?[...cats,"函釋與問答"]:cats;
+  if(!all.includes(lawCat))lawCat=all[0];
+  $("#lawtabs").innerHTML=all.map(k=>`<button class="tab" role="tab" aria-selected="${k===lawCat}" data-l="${k}">${k}</button>`).join("");
+  if(lawCat==="函釋與問答"){
+    $("#lawbody").innerHTML=`<div class="panel"><div class="field" style="max-width:360px"><label for="lq">搜尋函釋與問答</label><input id="lq" placeholder="例如：連任、會員代表"></div><div id="lres"></div></div>`;
+    const draw=()=>{const q=$("#lq").value.trim();const list=q?STORE.kn.rows.filter(r=>norm(r.title+r.text+r.source).includes(norm(q))):STORE.kn.rows;
+      $("#lres").innerHTML=list.slice(0,80).map(r=>`<details class="kitem" style="display:block"><summary style="cursor:pointer"><b>${esc(r.title)}</b><small>${esc([r.cat,r.source,r.date].filter(Boolean).join("｜"))}</small></summary><p style="white-space:pre-wrap;margin:8px 0 0">${esc(r.text)}</p></details>`).join("")||`<div class="empty">找不到相關資料，請換個關鍵字。</div>`};
+    $("#lq").addEventListener("input",draw);draw();return;
+  }
+  $("#lawbody").innerHTML=LAWS.filter(l=>l.cat===lawCat).map(l=>`<div class="panel lawcard"><h2><span>${esc(l.name)}</span><span class="kind">${esc(l.kind)}</span></h2><p class="lead">${esc(l.desc)}</p>${l.arts.length?`<div class="sec"><h3>${ICON.law}重要條文</h3>${lawBox(l.arts)}</div>`:""}<div class="row"><a class="btn ghost" href="https://law.moj.gov.tw/" target="_blank" rel="noopener">至全國法規資料庫查閱全文</a></div></div>`).join("");
+}
+$("#lawtabs").addEventListener("click",e=>{const t=e.target.closest("[data-l]");if(t){lawCat=t.dataset.l;renderLaw()}});
+
+/* ================= 團體查詢頁 ================= */
+$("#sd").innerHTML+=TOWNS.map(t=>`<option>${t}</option>`).join("");
+let shown=50;
+function fillCatSelect(){
+  const sel=$("#st");const cur=sel.value;
+  const cnt={};STORE.dir.rows.forEach(r=>{if(r.s!=="已解散"&&r.c)cnt[r.c]=(cnt[r.c]||0)+1});
+  const types=GTYPES.filter(t=>STORE.dir.rows.some(r=>r.t===t));
+  sel.innerHTML=`<option value="">全部類別</option>${types.length?`<optgroup label="團體性質">${types.map(t=>`<option value="t:${esc(t)}">${esc(t)}</option>`).join("")}</optgroup>`:""}${Object.keys(cnt).length?`<optgroup label="團體類別">${Object.entries(cnt).sort((a,b)=>b[1]-a[1]).map(([c,n])=>`<option value="c:${esc(c)}">${esc(c)}（${n}）</option>`).join("")}</optgroup>`:""}`;
+  sel.value=cur;
+}
+function selToQuery(v){return v.startsWith("c:")?{c:v.slice(2)}:v.startsWith("t:")?{t:v.slice(2)}:{}}
+async function renderSearch(more){
+  const box=$("#sresult");
+  if(!more)shown=50;
+  if(caps.db&&!STORE.loaded){box.innerHTML=`<div class="empty">名冊載入中…</div>`;await loadAll()}
+  if(!STORE.dir.rows.length){box.innerHTML=`<div class="empty">線上名冊建置中，目前請洽承辦人查詢團體立案資料。<div class="row" style="justify-content:center"><a class="btn ghost" href="#contact">聯絡承辦</a></div></div>`;return}
+  if($("#st").options.length<=1)fillCatSelect();
+  const r=searchDir({kw:$("#sq").value.trim(),d:$("#sd").value,x:$("#sx").checked,...selToQuery($("#st").value)},100000);
+  if(!r.total){box.innerHTML=`<div class="empty">找不到符合條件的團體，請減少關鍵字、改選其他鄉鎮市，或勾選「包含已解散團體」。</div><p class="meta">${dirMetaLine()}</p>`;return}
+  const list=r.all.slice(0,shown);
+  box.innerHTML=`<p class="lead" style="margin-top:14px">共 ${r.total} 筆${r.fuzzy?"（相近名稱）":""}</p><div class="tablewrap"><table><thead><tr><th>團體名稱</th><th>類別</th><th>鄉鎮市</th><th>會址</th><th>理事長</th><th>電話</th><th>會務承辦</th></tr></thead><tbody>${list.map(g=>{const dead=g.s==="已解散";const st=dead?null:staffForGroup(g);return `<tr><td><b>${esc(g.n)}</b>${dead?`<br><small style="color:var(--danger)">已解散　${esc(g.sd||"")}</small>`:g.term?`<br><small class="lead">${esc(g.term)}</small>`:""}</td><td>${esc(g.c||g.t)}</td><td>${esc(g.d)}</td><td>${esc(g.a||"")}</td><td>${esc(g.p||"")}</td><td>${telHref(g.tel)?`<a href="${telHref(g.tel)}">${esc(g.tel)}</a>`:esc(g.tel||"")}</td><td>${st?`${esc(st.name)}<br><a href="${telHref(st.tel,st.ext)}">轉 ${esc(st.ext)}</a>`:""}</td></tr>`}).join("")}</tbody></table></div>${r.total>shown?`<div class="row"><button class="btn ghost" id="more">再顯示 50 筆</button></div>`:""}<p class="meta">${dirMetaLine()}</p>`;
+  const m=$("#more");if(m)m.addEventListener("click",()=>{shown+=50;renderSearch(true)});
+}
+let st=null;["#sq","#st","#sd","#sx"].forEach(s=>$(s).addEventListener("input",()=>{clearTimeout(st);st=setTimeout(()=>renderSearch(),200)}));
+
+/* ================= 書表 ================= */
+const SHARD_CACHE={};let JSZIPP=null;
+const MIME={docx:"application/vnd.openxmlformats-officedocument.wordprocessingml.document",xlsx:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"};
+function fmtSize(n){return n>=1048576?(n/1048576).toFixed(1)+" MB":Math.max(1,Math.round(n/1024))+" KB"}
+async function renderForms(){
+  if(caps.db&&!STORE.loaded){$("#formlist").innerHTML=`<div class="empty" style="grid-column:1/-1">書表載入中…</div>`;await loadAll()}
+  const cat=STORE.forms.catalog;
+  if(!cat){$("#formtabs").innerHTML="";$("#formhead").innerHTML="";$("#formlist").innerHTML=`<div class="empty" style="grid-column:1/-1">書表暫時無法載入，請稍後再試，或撥 08-7320415 洽社會處承辦人索取。</div>`;return}
+  const folders=cat.folders.filter(f=>cat.files.some(x=>x.f===f.id));
+  if(!folders.some(f=>f.id===formCat))formCat=folders[0].id;
+  $("#formtabs").innerHTML=folders.map(f=>`<button class="tab" role="tab" aria-selected="${f.id===formCat}" data-f="${esc(f.id)}">${esc(f.label)}</button>`).join("");
+  const fo=folders.find(f=>f.id===formCat);
+  const list=cat.files.map((x,i)=>({...x,i})).filter(x=>x.f===formCat);
+  const groups={};list.forEach(x=>(groups[x.sub||""]=groups[x.sub||""]||[]).push(x));
+  $("#formhead").innerHTML=`<div><h2>${esc(fo.label)}</h2><p class="lead">${esc(fo.desc)}</p></div><button class="btn ghost" data-zip="${esc(fo.id)}">整包下載（${list.length} 個檔案）</button>`;
+  $("#formlist").innerHTML=Object.entries(groups).map(([sub,arr])=>`${sub?`<h3 style="grid-column:1/-1;margin:12px 0 0">${esc(sub)}</h3>`:""}${arr.map(x=>`<div class="formitem"><div>${esc(x.name.replace(/\.(docx|xlsx)$/,""))}<small>${x.ext==="xlsx"?"Excel":"Word"}　${fmtSize(x.size)}</small></div><button class="btn ghost small" data-dl="${x.i}">下載</button></div>`).join("")}`).join("");
+  $("#formsrc").textContent=cat.source||"";
+}
+$("#formtabs").addEventListener("click",e=>{const t=e.target.closest("[data-f]");if(t){formCat=t.dataset.f;renderForms()}});
+function shardData(s){
+  if(SHARD_CACHE[s])return SHARD_CACHE[s];
+  const base=document.baseURI.replace(/[^/]*$/,"")+"data/";
+  SHARD_CACHE[s]=fetch(base+"forms-"+s+".json").then(r=>{if(!r.ok)throw new Error("檔案讀取失敗（"+r.status+"）");return r.json()}).then(j=>j.files||{}).catch(e=>{delete SHARD_CACHE[s];throw e});
+  return SHARD_CACHE[s];
+}
+function b64bytes(b){const s=atob(b);const u=new Uint8Array(s.length);for(let i=0;i<s.length;i++)u[i]=s.charCodeAt(i);return u}
+async function fileBytes(x){const files=await shardData(x.s);const b=files[x.k];if(!b)throw new Error("找不到檔案內容");return b64bytes(b)}
+async function saveFile(filename,data,st){
+  if(caps.downloads){
+    try{await caps.downloads.save({filename,data});st.className="msgline ok";st.textContent=`已下載「${filename}」。`;return}
+    catch(e){if(e&&e.code==="declined"){st.className="msgline err";st.textContent="已取消下載。";return}}
+  }
+  try{const blob=data instanceof Blob?data:new Blob([data]);const u=URL.createObjectURL(blob);const a=document.createElement("a");a.href=u;a.download=filename;document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(u);st.className="msgline ok";st.textContent=`已下載「${filename}」。`}
+  catch(e){st.className="msgline err";st.textContent="下載未完成："+((e&&e.message)||"請稍後再試。")}
+}
+$("#formlist").addEventListener("click",async e=>{
+  const b=e.target.closest("[data-dl]");if(!b)return;
+  const x=STORE.forms.catalog.files[+b.dataset.dl];const st=$("#formstatus");
+  b.disabled=true;st.className="msgline";st.textContent=`準備「${x.name}」…`;
+  try{const u=await fileBytes(x);await saveFile(x.name,new Blob([u],{type:MIME[x.ext]}),st)}
+  catch(err){st.className="msgline err";st.textContent="下載未完成："+(err.message||"")}
+  finally{b.disabled=false}
+});
+function loadJSZip(){
+  if(window.JSZip)return Promise.resolve(window.JSZip);
+  if(JSZIPP)return JSZIPP;
+  JSZIPP=new Promise((res,rej)=>{const s=document.createElement("script");s.src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js";s.onload=()=>res(window.JSZip);s.onerror=()=>{JSZIPP=null;rej(new Error("壓縮元件載入失敗，請檢查網路後再試。"))};document.head.appendChild(s)});
+  return JSZIPP;
+}
+$("#formhead").addEventListener("click",async e=>{
+  const b=e.target.closest("[data-zip]");if(!b)return;
+  const cat=STORE.forms.catalog;const fo=cat.folders.find(f=>f.id===b.dataset.zip);const list=cat.files.filter(x=>x.f===fo.id);const st=$("#formstatus");
+  b.disabled=true;st.className="msgline";st.textContent="打包中…";
+  try{const Z=await loadJSZip();const zip=new Z();for(const x of list)zip.file((x.sub?x.sub+"/":"")+x.name,await fileBytes(x));const blob=await zip.generateAsync({type:"blob"});await saveFile(`${fo.label}.zip`,blob,st)}
+  catch(err){st.className="msgline err";st.textContent="打包未完成："+(err.message||"")}
+  finally{b.disabled=false}
+});
+document.addEventListener("click",e=>{const g=e.target.closest("[data-goforms]");if(g){e.preventDefault();goTo("forms",g.dataset.goforms)}});
+
+/* ================= 線上申辦 ================= */
+const ITEMS=[];
+Object.values(BIZ).forEach(b=>b.items.forEach(it=>ITEMS.push({id:it.id,label:`${b.name}｜${it.title}`,docs:it.docs})));
+MEET.forEach(m=>ITEMS.push({id:m.id,label:`會務｜${m.title}`,docs:m.docs}));
+$("#a-item").innerHTML=ITEMS.map(i=>`<option value="${i.id}">${esc(i.label)}</option>`).join("");
+$("#a-dist").innerHTML=`<option value="">請選擇</option>`+TOWNS.map(t=>`<option>${t}</option>`).join("");
+function renderDocs(){const it=ITEMS.find(i=>i.id===$("#a-item").value);$("#a-docs").innerHTML=it.docs.map(d=>`<label class="check"><input type="checkbox" data-doc="${esc(d)}"><span>${esc(d)}</span></label>`).join("")}
+$("#a-item").addEventListener("change",renderDocs);renderDocs();
+function collect(){
+  const it=ITEMS.find(i=>i.id===$("#a-item").value);
+  return{item:it.id,itemLabel:it.label,org:$("#a-org").value.trim(),district:$("#a-dist").value,contact:$("#a-name").value.trim(),tel:$("#a-tel").value.trim(),email:$("#a-mail").value.trim(),note:$("#a-note").value.trim(),docs:[...document.querySelectorAll("#a-docs input")].map(c=>({name:c.dataset.doc,ready:c.checked}))};
+}
+function summaryText(d,no){return `屏東縣人民團體數位櫃檯 申辦摘要\n${no?`案件編號：${no}\n`:""}申辦項目：${d.itemLabel}\n團體名稱：${d.org}\n鄉鎮市：${d.district}\n聯絡人：${d.contact}\n聯絡電話：${d.tel}\n電子郵件：${d.email||"（未填）"}\n補充說明：${d.note||"（無）"}\n\n應備文件：\n${d.docs.map(x=>`${x.ready?"■":"□"} ${x.name}`).join("\n")}\n\n請將簽名、用印之紙本文件送達屏東縣政府社會處（屏東市自由路527號）。\n`}
+$("#a-dl").addEventListener("click",()=>{const d=collect();saveFile(`申辦摘要_${d.org||"未命名"}.txt`,summaryText(d),$("#a-status"))});
+$("#applyform").addEventListener("submit",async e=>{
+  e.preventDefault();const st=$("#a-status");const d=collect();
+  if(!d.org||!d.district||!d.contact||!d.tel){st.className="msgline err";st.textContent="請填寫團體名稱、鄉鎮市、聯絡人與電話。";return}
+  if(!caps.db||!caps.user){st.className="msgline err";st.textContent="線上申辦功能需在 claude.ai 開啟本站使用；您可以先下載申請摘要，列印填寫後送達縣府。";return}
+  const missing=d.docs.filter(x=>!x.ready).length;const btn=$("#a-submit");btn.disabled=true;st.className="msgline";st.textContent="送出中…";
+  try{
+    const uid=await caps.user.id();const now=new Date();
+    const no="PT"+now.getFullYear()+String(now.getMonth()+1).padStart(2,"0")+String(now.getDate()).padStart(2,"0")+"-"+Math.random().toString(36).slice(2,6).toUpperCase();
+    const ref=caps.db.doc("applications/"+uid);const snap=await ref.get();
+    const items=(snap.exists&&snap.data().items)||[];
+    items.unshift({...d,no,status:"已送出",staffNote:"",createdAt:now.toISOString()});
+    await ref.set({items:items.slice(0,100)});
+    st.className="msgline ok";st.innerHTML=`已送出申辦，案件編號 <b>${no}</b>。${missing?`尚有 ${missing} 項文件未備齊，請補齊後一併送達。`:"應備文件已全部確認。"}`;
+    renderMyApps();
+  }catch(err){st.className="msgline err";st.textContent="送出未完成："+((err&&err.message)||"請稍後再試。")}
+  finally{btn.disabled=false}
+});
+async function renderMyApps(){
+  const box=$("#myapps");
+  if(!caps.db||!caps.user){box.innerHTML=`<div class="empty">線上申辦紀錄需在 claude.ai 開啟本站才能使用。您可以先下載申請摘要，列印填寫後直接送達縣府社會處。</div>`;return}
+  try{
+    const uid=await caps.user.id();const snap=await caps.db.doc("applications/"+uid).get();
+    const rows=(snap.exists&&snap.data().items)||[];
+    if(!rows.length){box.innerHTML=`<div class="empty">還沒有申辦紀錄，填寫左側表單即可送出第一件申辦。</div>`;return}
+    box.innerHTML=rows.map(r=>`<div class="ticket"><b>${esc(r.no)}</b>　<span class="acat" style="margin:0">${esc(r.status)}</span><div>${esc(r.itemLabel)}</div><div>${esc(r.org)}（${esc(r.district)}）</div>${r.staffNote?`<div>承辦人說明：${esc(r.staffNote)}</div>`:""}<div class="lead" style="margin:0">送出日期 ${esc(fmtDate(r.createdAt))}</div></div>`).join("");
+  }catch(e){box.innerHTML=`<div class="empty">紀錄暫時無法載入，請重新整理頁面。</div>`}
+}
+
+/* ================= 聯絡承辦頁 ================= */
+async function renderContacts(){
+  const box=$("#clist");
+  if(caps.db&&!STORE.loaded){box.innerHTML=`<div class="empty">載入中…</div>`;await loadAll()}
+  const all=STORE.staff.rows;const q=$("#cq").value.trim();
+  if(!all.length){box.innerHTML=`<div class="empty">請撥縣府總機 <a href="tel:087320415">08-7320415</a>，告知要辦理的業務，由總機轉接社會處承辦人。</div>`;return}
+  const list=q?searchStaff(q):all;
+  box.innerHTML=list.length?`<div class="contactlist">${list.map(staffCard).join("")}</div><p class="meta">${esc(STORE.staff.source||"")}${STORE.staff.updatedAt?`（更新：${esc(fmtDate(STORE.staff.updatedAt))}）`:""}</p><div class="note">社區發展協會、合作社業務請撥縣府總機 08-7320415 轉社會處詢問承辦窗口。</div>`:`<div class="empty">找不到符合的承辦人，請改用業務名稱搜尋，例如「老人會」、「慈善」。</div>`;
+}
+$("#cq").addEventListener("input",renderContacts);
+
+/* ================= 小屏：動作與主動互動 ================= */
+const clerk=$("#clerk"),mood=$("#mood"),nudge=$("#nudge");let poseTimer=null;
+function pose(name,ms,label){
+  clerk.classList.remove("wave","think","talk","listen","point","nod");
+  if(name)clerk.classList.add(...name.split(" "));
+  if(label)mood.textContent=label;
+  clearTimeout(poseTimer);
+  if(ms)poseTimer=setTimeout(()=>{clerk.classList.remove("wave","talk","point","nod");mood.textContent="隨時為您服務"},ms);
+}
+function say(text,btn){
+  nudge.innerHTML=esc(text)+(btn?`<br><button type="button" data-nq="${esc(btn)}">${esc(btn)}</button>`:"");
+  nudge.classList.add("show");clearTimeout(say.t);say.t=setTimeout(()=>nudge.classList.remove("show"),7000);
+}
+nudge.addEventListener("click",e=>{const b=e.target.closest("[data-nq]");if(b){e.stopPropagation();nudge.classList.remove("show");ask(b.dataset.nq)}});
+let tipIdx=0;
+$("#clerkwrap").addEventListener("click",e=>{if(e.target.closest(".nudge"))return;pose("wave nod",2200,"很高興為您服務");say(TIPS[tipIdx++%TIPS.length]);touch()});
+const qin=$("#q");
+qin.addEventListener("focus",()=>{if(!busy)pose("listen",0,"聆聽中")});
+qin.addEventListener("blur",()=>{if(!busy){clerk.classList.remove("listen");mood.textContent="隨時為您服務"}});
+qin.addEventListener("input",touch);
+let idleT=null,nudges=0;const HOT=["理監事改選怎麼辦？","長治鄉有哪些社區發展協會？","理事長可以連任幾次？"];
+function touch(){clearTimeout(idleT);idleT=setTimeout(idle,16000)}
+function idle(){
+  if(nudges>=3||busy||!$("#v-home").classList.contains("on")||document.activeElement===qin){touch();return}
+  const q=HOT[nudges%HOT.length];nudges++;pose("wave",1600,"有需要嗎？");say("需要幫忙嗎？很多人都在問：",q);touch();
+}
+function greetWord(){const h=new Date().getHours();return h<11?"早安":h<18?"午安":"晚安"}
+
+/* ================= 回覆看板 ================= */
+const board=$("#board");
+let busy=false,qcount=1;const recent=[];const convo=[];let lastDir=null;
+function showGreeting(){
+  board.innerHTML=`<div class="greet"><h2>${greetWord()}，我是小屏。</h2><p class="sub">我可以幫您查詢本縣人民團體的立案資料、說明籌組與會務辦理流程和相關規定、提供社會處公告的書表，並找到負責的承辦人與分機。請點選常見問題，或在下方直接輸入。</p>
+  <div class="topics">${TOPICS.map(t=>`<div class="topic" style="--c:${t.c}"><h3><i></i>${t.name}</h3>${t.q.map(q=>`<button type="button" class="qbtn" data-q="${esc(q)}">${esc(q)}</button>`).join("")}</div>`).join("")}</div></div>`;
+}
+board.addEventListener("click",e=>{
+  const q=e.target.closest("[data-q]");if(q){ask(q.dataset.q);return}
+  const g=e.target.closest("[data-go]");if(g){goTo(g.dataset.go,g.dataset.sub);return}
+  if(e.target.closest("[data-home]")){showGreeting();pose("wave",1500,"請問還有什麼需要？")}
+});
+function renderRecent(){
+  $("#recent").innerHTML=recent.length?`<span>剛才問過：</span>`+recent.map((r,i)=>`<button type="button" class="chip" data-r="${i}">${esc(r.q.length>14?r.q.slice(0,14)+"…":r.q)}</button>`).join(""):`<span>直接輸入團體名稱即可查詢，例如「屏東縣商業會」。</span>`;
+}
+$("#recent").addEventListener("click",e=>{const b=e.target.closest("[data-r]");if(b){const r=recent[+b.dataset.r];renderAnswer(r.q,r.a)}});
+function thinkingView(q,lines){
+  board.innerHTML=`<div class="qline"><span class="who">您問</span><b>${esc(q)}</b></div><div class="thinking">${lines.map((l,i)=>`<div class="tline${i===0?" now":""}"><i></i>${esc(l)}</div>`).join("")}<div class="skel" style="width:70%"></div><div class="skel" style="width:90%"></div><div class="skel" style="width:55%"></div></div>`;
+  let i=0;const t=setInterval(()=>{const els=board.querySelectorAll(".tline");if(!els.length||i>=els.length-1){clearInterval(t);return}els[i].className="tline done";i++;els[i].className="tline now"},800);
+  return()=>clearInterval(t);
+}
+function renderAnswer(q,a){
+  const steps=a.steps||[],docs=a.docs||[],laws=(a.laws||[]).filter(id=>ART[id]),notes=a.notes||[],acts=a.actions||[],groups=a.groups||[],staff=a.staff||[],refs=a.refs||[];
+  board.innerHTML=`<div class="qline"><span class="who">您問</span><b>${esc(q)}</b></div>
+   <span class="acat">${esc(a.category||"服務說明")}</span>
+   <h2 class="atitle">${esc(a.title||"小屏的回覆")}</h2>
+   <p class="summary">${esc(a.summary||"")}</p>
+   ${groups.length?`<div class="sec"><h3>${ICON.org}團體資料</h3><div class="glist">${groups.map((g,i)=>groupCard(g,a.hitFirst&&i===0)).join("")}</div>${a.dirMeta?`<div class="lawfoot">${esc(a.dirMeta)}</div>`:""}</div>`:""}
+   ${staff.length?`<div class="sec"><h3>${ICON.person}承辦人</h3><div class="contactlist">${staff.map(staffCard).join("")}</div></div>`:""}
+   ${steps.length?`<div class="sec"><h3>${ICON.step}辦理步驟</h3>${stepsList(steps)}</div>`:""}
+   ${docs.length?`<div class="sec"><h3>${ICON.doc}應備文件</h3>${docsList(docs)}</div>`:""}
+   ${laws.length?`<div class="sec"><h3>${ICON.law}法規依據</h3>${lawBox(laws)}</div>`:""}
+   ${refs.length?`<div class="sec"><h3>${ICON.doc}函釋與參考資料</h3>${refBox(refs)}</div>`:""}
+   ${notes.length?`<div class="sec"><h3>${ICON.note}注意事項</h3><ul class="anotes">${notes.map(n=>`<li>${esc(n)}</li>`).join("")}</ul></div>`:""}
+   <div class="actions">${acts.map((x,i)=>`<button type="button" class="btn${i?" ghost":""}" data-go="${esc(x.view)}" data-sub="${esc(x.sub||"")}">${esc(x.label)}</button>`).join("")}<button type="button" class="btn ghost" data-home>回到常見問題</button></div>`;
+  if(window.innerWidth<960)board.scrollIntoView({behavior:"smooth",block:"start"});
+}
+function matchKB(q){let best=null,score=0;for(const e of KB){const s=e.k.reduce((n,k)=>n+(q.includes(k)?k.length:0),0);if(s>score){score=s;best=e}}return best}
+function kbAnswer(e){const it=e.ref?ALLITEMS[e.ref]:null;return{category:e.cat,title:e.title,summary:e.summary,steps:it?it.steps:[],docs:it?it.docs:[],laws:e.laws||(it?it.laws:[])||[],notes:e.notes||[],actions:e.act.map(x=>({label:x[0],view:x[1],sub:x[2]}))}}
+function staffFor(type,c){const s=staffForCat(c||"",type);return s?[s]:[]}
+function contactLine(list){return list.length?`${list[0].unit||""}${list[0].name}（${list[0].tel||"08-7320415"}${list[0].ext?" 轉 "+list[0].ext:""}）`:"縣府總機 08-7320415 轉社會處承辦人"}
+
+/* 團體查詢回覆 */
+function notCovered(t){return(t==="社區發展協會"||t==="合作社")&&!STORE.dir.rows.some(r=>r.t===t)}
+function dirAnswer(q,intent){
+  if(!STORE.dir.rows.length){
+    return{category:"團體查詢",title:"團體資料查詢",summary:`線上名冊目前建置中，暫時無法在櫃檯直接查詢。請洽${contactLine(staffFor(detectType(q),detectCat(q)))}，承辦人可協助查詢團體立案資料。`,staff:staffFor(detectType(q),detectCat(q)),notes:[],actions:[{label:"聯絡承辦",view:"contact",sub:""}]};
+  }
+  if(/(它|他們|該會|這個協會|這間|這個團體|這個社)/.test(q)&&lastDir&&!intent.name)return dirRender(q,lastDir.query,lastDir.res,intent);
+  let query=dirQueryFrom(q,intent);let res;
+  if(!intent.name&&!query.kw&&notCovered(query.t)){
+    const act=STORE.dir.rows.filter(r=>r.s!=="已解散").length;
+    return{category:"團體查詢",title:`${query.t}查詢`,summary:`目前線上名冊收錄社會處列管之社會團體與職業團體（存續 ${act} 個），${query.t}名冊尚未納入。請撥縣府總機 08-7320415 轉社會處查詢${query.t}資料。`,notes:[],actions:[{label:"看"+query.t+"辦理說明",view:"biz",sub:query.t==="合作社"?"coop":"community"},{label:"聯絡承辦",view:"contact",sub:""}]};
+  }
+  if(intent.name){
+    res=searchDir({kw:intent.name,x:true},50);
+    if(!res.total){const core=intent.name.replace(new RegExp("("+SUFFIX+")$"),"");if(core.length>=2)res=searchDir({kw:core,d:query.d,x:true},50)}
+    query={kw:intent.name,d:"",t:"",c:""};
+  }else{
+    res=searchDir(query,50);
+    if(!res.total&&query.t){res=searchDir({...query,t:""},50);if(res.total)query={...query,t:""}}
+  }
+  lastDir={query,res};
+  return dirRender(q,query,res,intent);
+}
+function termNote(g){
+  if(!g.te||g.s==="已解散")return[];
+  const end=new Date(g.te+"T00:00:00");if(isNaN(end))return[];
+  const days=Math.round((end-new Date())/86400000);
+  if(days<0)return[`本屆任期已於 ${g.te} 屆滿，請儘速辦理理監事改選。`];
+  if(days<=180)return[`本屆任期至 ${g.te}，請預先籌備理監事改選。`];
+  return[];
+}
+function dirRender(q,query,res,intent){
+  const meta=dirMetaLine();const label=[query.d,query.c||query.t].filter(Boolean).join("")||"本縣";
+  const more=res.total>10?[{label:`在團體查詢頁看全部 ${res.total} 筆`,view:"search",sub:JSON.stringify({kw:query.kw,t:query.t,c:query.c,d:query.d})}]:[];
+  if(intent.dup){
+    const typed=(q.match(/「([^」]{2,40})」/)||[])[1]||query.kw;
+    if(!query.kw)return{category:"團體查詢",title:"名稱是否重複",summary:"請告訴我您想使用的完整團體名稱，例如「屏東縣○○協會」，我會比對本縣已立案名冊。",laws:["zc1"],notes:[],actions:[]};
+    const all=searchDir({kw:query.kw,x:true},50);
+    const live=all.exact.filter(r=>r.s!=="已解散"),gone=all.exact.filter(r=>r.s==="已解散");
+    const near=all.rows.filter(r=>!all.exact.includes(r)).slice(0,5);
+    const summary=live.length?`「${typed}」已有存續團體使用（${live[0].c||live[0].t}${live[0].r?"，立案證號 "+live[0].r:""}），不得重複，請另擬名稱。`:`本縣名冊中沒有存續團體使用「${typed}」${gone.length?"（曾有同名團體，已解散）":""}${near.length?`；以下是 ${near.length} 個相近名稱供參考`:""}。名稱是否可用，仍以縣府受理審查為準。`;
+    return{category:"團體查詢",title:"名稱比對結果",summary,groups:[...live,...gone,...near].slice(0,6),hitFirst:live.length>0,dirMeta:meta,laws:["zc1"],notes:[],actions:[{label:"看籌組流程",view:"biz",sub:"social"},{label:"下載申請表",view:"forms",sub:"申請表"}]};
+  }
+  if(!res.total){
+    const s=staffFor(query.t||detectType(q),query.c||detectCat(q));
+    return{category:"團體查詢",title:"查無符合資料",summary:`本縣名冊中查無「${query.kw||label}」相關團體。可能是名稱用字不同（例如臺、台），或屬社區發展協會、合作社等未納入本名冊之團體。`,groups:[],staff:s,dirMeta:meta,notes:["可改用名稱中的兩三個關鍵字再查一次。","如需確認立案狀況，請洽承辦人。"],actions:[{label:"到團體查詢頁搜尋",view:"search",sub:JSON.stringify({kw:query.kw,t:query.t,c:query.c,d:query.d})},{label:"聯絡承辦",view:"contact",sub:""}]};
+  }
+  if(query.kw&&res.exact.length===1&&!res.fuzzy){
+    const g=res.exact[0];
+    if(g.s==="已解散")return{category:"團體查詢",title:g.n,summary:`「${g.n}」已解散${g.sd?"（"+g.sd+"）":""}，目前不是存續團體。`,groups:[g],hitFirst:true,dirMeta:meta,notes:[],actions:more};
+    const st=staffForGroup(g);
+    const fields=[g.d?"位於"+g.d:"",g.p?"理事長："+g.p:"",g.tel?"電話："+g.tel:"",g.term?"屆別任期："+g.term:""].filter(Boolean).join("，");
+    return{category:"團體查詢",title:g.n,summary:`「${g.n}」是本縣存續的${g.c||g.t}${fields?"，"+fields:""}。${st?`會務由${st.unit}${st.name}承辦（${st.tel} 轉 ${st.ext}）。`:""}`,groups:[g],hitFirst:true,dirMeta:meta,notes:termNote(g),actions:[{label:"會員大會辦理",view:"meet",sub:"m-assembly"},{label:"改選辦理",view:"meet",sub:"m-elect"},...more]};
+  }
+  const live=res.all.filter(r=>r.s!=="已解散").length;
+  const summary=query.kw?(res.fuzzy?`查無完全相同的名稱，以下是與「${query.kw}」相近的 ${res.total} 筆團體。`:`找到 ${res.total} 筆名稱含「${query.kw}」的團體${query.d?"（"+query.d+"）":""}${live<res.total?`，其中 ${res.total-live} 筆已解散`:""}。`):`${query.d||"本縣"}目前共有 ${res.total} 個存續的${query.c||query.t||"人民團體"}。`;
+  return{category:"團體查詢",title:query.kw?"查詢結果":`${label}名冊`,summary,groups:res.rows.slice(0,10),dirMeta:meta,notes:res.total>10?["櫃檯先列出前 10 筆，完整名單請到團體查詢頁查看。"]:[],actions:more};
+}
+function staffAnswer(q,intent){
+  const t=detectType(q);let c=detectCat(q);let g=null;
+  if(intent&&intent.name&&STORE.dir.rows.length){const r=searchDir({kw:intent.name,x:true},5);if(r.exact.length)g=r.exact[0];else if(r.total&&!r.fuzzy)g=r.rows[0];if(g)c=g.c}
+  if(!g&&STORE.dir.rows.length){const kw=dirQueryFrom(q.replace(/承辦人|承辦|分機|窗口|找誰|找哪位|哪位|業務|聯絡|打給誰/g,""),{}).kw;if(kw.length>=2){const r=searchDir({kw,x:true},5);if(r.exact.length){g=r.exact[0];c=g.c}}}
+  if(!STORE.staff.rows.length)return{category:"聯絡承辦",title:"承辦人聯絡方式",summary:"請撥縣府總機 08-7320415，告知要辦理的業務，由總機轉接社會處承辦人。",notes:["服務時間：週一至週五上午 8:00 至 12:00、下午 1:30 至 5:30。"],actions:[{label:"聯絡承辦",view:"contact",sub:""}]};
+  if(!g&&!c&&(t==="社區發展協會"||t==="合作社"))return{category:"聯絡承辦",title:`${t}業務窗口`,summary:`${t}業務請撥縣府總機 08-7320415 轉社會處詢問承辦人。社會團體、職業團體及老人會的承辦人如下。`,staff:STORE.staff.rows.slice(0,4),notes:[],actions:[{label:"看全部承辦人",view:"contact",sub:""}]};
+  if(g&&g.s!=="已解散"){
+    const p=staffForGroup(g);
+    if(p)return{category:"聯絡承辦",title:"承辦人聯絡方式",summary:`「${g.n}」（${g.c||g.t}）的會務由${p.unit}${p.name}承辦，電話 ${p.tel} 轉 ${p.ext}。`,staff:[p],groups:[g],notes:[],actions:[{label:"看全部承辦人",view:"contact",sub:""}]};
+  }
+  if(c){
+    const dist=staffDist(c);
+    if(dist.length===1){const p=dist[0].s;return{category:"聯絡承辦",title:"承辦人聯絡方式",summary:`本縣${c}的會務由${p.unit}${p.name}承辦，電話 ${p.tel} 轉 ${p.ext}。`,staff:[p],notes:[],actions:[{label:"看全部承辦人",view:"contact",sub:""}]}}
+    if(dist.length>1)return{category:"聯絡承辦",title:"承辦人聯絡方式",summary:`本縣${c}由${dist.map(x=>`${x.s.name}（轉 ${x.s.ext}，${x.n} 個團體）`).join("、")}分別承辦。請告訴我團體名稱，我幫您查出確切的承辦人。`,staff:dist.map(x=>x.s),notes:[],actions:[{label:"看全部承辦人",view:"contact",sub:""}]};
+    const p=staffForCat(c,t);
+    if(p)return{category:"聯絡承辦",title:"承辦人聯絡方式",summary:`${c}的業務由${p.unit}${p.name}承辦，電話 ${p.tel} 轉 ${p.ext}。`,staff:[p],notes:[],actions:[{label:"看全部承辦人",view:"contact",sub:""}]};
+  }
+  const list=searchStaff(q);
+  return{category:"聯絡承辦",title:"人民團體業務承辦人",summary:`已立案團體的會務，由名冊指定的承辦人辦理，告訴我團體名稱就能查到；新申請籌組依申請表分工：${STORE.staff.rows.map(s=>`${s.name}（轉 ${s.ext}）${s.duty.replace(/^辦理/,"")}`).join("；")}。`,staff:(list.length?list:STORE.staff.rows).slice(0,4),notes:["總機 08-7320415，撥通後請轉分機。"],actions:[{label:"看全部承辦人",view:"contact",sub:""}]};
+}
+
+/* AI 回覆（含名冊、承辦人、知識庫工具） */
+function rowBrief(r){const st=staffForGroup(r);return{名稱:r.n,類別:r.c,性質:r.t,鄉鎮市:r.d,狀態:r.s||"存續",解散字號:r.sd,會址:r.a,理事長:r.p,電話:r.tel,屆別任期:r.term,立案證號:r.r,成立日期:r.dt,目的事業主管:r.m,會務承辦:st?`${st.unit}${st.name}（08-7320415 轉 ${st.ext}）`:""}}
+function knowledgeText(){
+  const items=Object.values(ALLITEMS).map(i=>`[${i.id}] ${i.title}｜步驟：${i.steps.map(s=>s[0]+"："+s[1]).join("；")}｜應備：${i.docs.join("、")}｜法規代碼：${(i.laws||[]).join(",")}`).join("\n");
+  const arts=Object.entries(ART).map(([k,a])=>`${k}｜${a.law} ${a.art}｜${a.text}`).join("\n");
+  const staff=STORE.staff.rows.map(s=>{const l=STORE.dir.rows.length?staffLoad(s):{n:0,top:[]};return `${s.name}｜${s.unit}｜新申請籌組分工：${s.duty}｜目前承辦既有團體 ${l.n} 個（${l.top.join("、")}等）｜08-7320415 轉 ${s.ext}`}).join("\n")+"\n既有團體的承辦人以名冊指定為準（search_groups 結果的「會務承辦」欄），同一類別可能由不同承辦人辦理。"||"（未建立，請撥總機 08-7320415）";
+  const forms=STORE.forms.catalog?STORE.forms.catalog.folders.map(f=>`${f.id}：${f.desc}`).join("\n"):"";
+  return `【辦理項目】\n${items}\n【法規條文代碼】\n${arts}\n【承辦人（社會團體、職業團體、老人會）】\n${staff}\n社區發展協會、合作社業務：請撥總機轉社會處詢問。\n【書表分類（forms sub 用 id）】\n${forms}\n【資料概況】名冊 ${STORE.dir.rows.length} 筆（社會處列管之社會團體與職業團體，含已解散），未含社區發展協會與合作社；法規函釋資料 ${STORE.kn.rows.length} 則。\n【機關】屏東縣政府社會處，屏東市自由路527號，總機 08-7320415，服務時間週一至週五 8:00-12:00、13:30-17:30。`;
+}
+const VIEW_SUBS="biz(sub: social|pro|community|coop)、meet(sub: m-assembly|m-elect|m-board|m-finance|m-roster)、law(sub: 人民團體|屏東縣作業規定|社區發展|合作社|函釋與問答)、forms(sub: 申請表|籌備會|成立大會|常年會|理監事會|改選|解散|範本)、apply(sub: 辦理項目id)、search、contact";
+async function aiAnswer(q,kb){
+  let lastGroups=null,lastStaff=null;const seen=new Map();
+  const tools=[
+   {name:"search_groups",description:"查詢屏東縣社會處列管之人民團體名冊（社會團體、職業團體，含已解散者；不含社區發展協會與合作社），可用名稱關鍵字、鄉鎮市、團體類別篩選。回傳符合筆數與前20筆（名稱、類別、狀態、會址、理事長、電話、屆別任期、立案證號、會務承辦人與分機）。凡涉及特定團體、某地有哪些團體、團體數量、名稱是否重複或某團體承辦人，都要先呼叫。",
+    inputSchema:{type:"object",properties:{keyword:{type:"string",description:"團體名稱或關鍵字，可空白"},district:{type:"string",description:"鄉鎮市全名，例如長治鄉，可空白"},category:{type:"string",description:"團體類別，例如宗教團體、慈善團體、老人會、體育運動團體、商業團體，可空白"},includeDissolved:{type:"boolean",description:"是否包含已解散團體，預設否"}}},
+    execute:(i)=>{if(!STORE.dir.rows.length)return"線上名冊尚未建置，請建議民眾洽承辦人查詢。";const r=searchDir({kw:String(i.keyword||""),d:String(i.district||""),c:String(i.category||""),x:!!i.includeDissolved||!!i.keyword},20);lastGroups=r;return{符合筆數:r.total,是否為相近名稱:r.fuzzy,名冊說明:dirMetaLine(),結果:r.rows.map(rowBrief)}}},
+   {name:"search_staff",description:"查詢社會處人民團體相關業務承辦人、職稱、承辦業務、電話與分機。問題涉及找誰辦理、分機、聯絡窗口時呼叫。",
+    inputSchema:{type:"object",properties:{keyword:{type:"string",description:"業務關鍵字，例如社區發展協會、合作社、補助"}}},
+    execute:(i)=>{const r=searchStaff(String(i.keyword||""));lastStaff=r.slice(0,4);return r.length?r.slice(0,6):"承辦人資料尚未建立，請建議撥縣府總機 08-7320415 轉社會處。"}},
+   {name:"search_knowledge",description:"查詢社會處匯入的法規、函釋、作業規定、常見問答與縣府公告全文，回傳最相關的5段摘錄（標題、類別、文號或來源、日期、內容摘錄）。凡涉及規定細節、法令解釋、函釋、補助、期限或例外情形，都要先呼叫。",
+    inputSchema:{type:"object",properties:{query:{type:"string",description:"查詢重點，例如 理事長 連任 任期"}},required:["query"]},
+    execute:(i)=>{const r=searchKn(String(i.query||""),5);r.forEach(x=>seen.set(norm(x.標題),x));return r.length?r:"知識庫中沒有相關資料。"}}
+  ];
+  const hint=kb?`\n參考的已核對答案（若符合問題可沿用）：${JSON.stringify(kbAnswer(kb))}`:"";
+  const prompt=`你是「屏東縣人民團體數位櫃檯」的服務專員「小屏」，代表屏東縣政府社會處，以專業、親切、精確的繁體中文（台灣用語）回答民眾關於社會團體、職業團體、社區發展協會、合作社的業務、會務、法規、函釋、團體查詢與承辦窗口問題。
+作答流程：
+1. 先判斷需要哪些資料，並呼叫工具：特定團體、名冊、數量用 search_groups；法規細節、函釋、補助、期限用 search_knowledge；承辦人分機用 search_staff。可同時呼叫多個。
+2. 以工具結果與下方資料為準。工具結果中的函釋或規定，請在 refs 列出標題（必須與工具回傳的標題相同）。
+3. 資料不足時，可依人民團體法令的一般原則簡要說明，但不可編造條號、文號、日期、團體名稱、人名、電話或分機，並在 notes 建議洽承辦人確認。
+4. summary 用 1 至 2 句話直接給出結論（例如「可以，理事長連任以一次為限」），不要客套話。
+5. laws 只能填【法規條文代碼】中的代碼（最多3個）；steps 為字串陣列（每步一句，含動作與期限），不涉及流程給空陣列；docs 為應備文件名稱陣列。
+6. 若有呼叫 search_groups 且結果與問題相關，showGroups 設為 true；若有呼叫 search_staff 且有結果，showStaff 設為 true。
+7. actions 給 1 至 3 個下一步按鈕，view 只能是：${VIEW_SUBS}。
+8. 問題與人民團體業務無關時，禮貌說明服務範圍。
+最後只回覆 JSON：{"category":"業務辦理|會務辦理|法規查詢|團體查詢|聯絡承辦|其他","title":"15字內標題","summary":"…","steps":[],"docs":[],"laws":[],"refs":[{"title":"…"}],"notes":[],"showGroups":false,"showStaff":false,"actions":[{"label":"…","view":"…","sub":"…"}]}
+${convo.length?`\n先前對話：\n${convo.slice(-3).map(c=>"問："+c.q+"／答："+c.s).join("\n")}`:""}${hint}
+
+資料：
+${knowledgeText()}
+
+民眾問題：${q}`;
+  const r=await caps.sample.json(prompt,{tools,modelTier:"default",cache:false});
+  if(!r||typeof r!=="object"||!r.summary)return null;
+  const arr=(v,n)=>Array.isArray(v)?v.map(String).filter(Boolean).slice(0,n):[];
+  const refs=(Array.isArray(r.refs)?r.refs:[]).map(x=>seen.get(norm(x&&x.title||""))).filter(Boolean).map(x=>({title:x.標題,cat:x.類別,source:x.文號或來源,date:x.日期}));
+  return{category:String(r.category||"服務說明"),title:String(r.title||""),summary:String(r.summary),steps:arr(r.steps,8),docs:arr(r.docs,12),laws:arr(r.laws,3),notes:arr(r.notes,4),refs,
+    groups:r.showGroups&&lastGroups?lastGroups.rows.slice(0,10):[],dirMeta:r.showGroups?dirMetaLine():"",staff:r.showStaff&&lastStaff?lastStaff:[],
+    actions:(Array.isArray(r.actions)?r.actions:[]).filter(a=>a&&VIEWS.includes(a.view)&&a.view!=="admin").slice(0,3).map(a=>({label:String(a.label||"前往"),view:a.view,sub:String(a.sub||"")}))};
+}
+async function ask(q){
+  q=String(q||"").trim();if(!q||busy)return;
+  busy=true;touch();nudge.classList.remove("show");
+  if(!$("#v-home").classList.contains("on"))location.hash="home";
+  $("#qno").textContent=String(++qcount).padStart(4,"0");
+  pose("think",0,"查詢中");
+  const intent=intentOf(q);
+  const lines=intent.kind==="dir"?["理解您的問題","比對團體名冊","整理查詢結果"]:intent.kind==="staff"?["理解您的問題","查詢承辦人資料"]:["理解您的問題","查閱法規、函釋與名冊","整理辦理步驟與應備文件"];
+  const stop=thinkingView(q,lines);
+  const t0=Date.now();
+  if(caps.db)await loadAll();
+  let ans=null;
+  try{
+    if(intent.kind==="dir")ans=dirAnswer(q,intent);
+    else if(intent.kind==="staff")ans=staffAnswer(q,intent);
+    else{
+      const kb=matchKB(q);
+      if(caps.sample){try{ans=await aiAnswer(q,kb)}catch(e){if(e&&e.code==="not_granted")caps.sample=null;console.warn("AI fallback:",e)}}
+      if(!ans&&kb)ans=kbAnswer(kb);
+      if(!ans){const k=searchKn(q,3);if(k.length)ans={category:"法規查詢",title:"相關規定與函釋",summary:`與您的問題最相關的是「${k[0].標題}」：${k[0].內容摘錄.slice(0,120)}`,refs:k.map(x=>({title:x.標題,cat:x.類別,source:x.文號或來源,date:x.日期})),notes:["實際適用情形請洽承辦人確認。"],actions:[{label:"查看函釋與問答",view:"law",sub:"函釋與問答"}]}}
+      if(!ans){const s=staffFor(detectType(q));ans={category:"其他",title:"請承辦人協助確認",summary:`這個問題需要承辦人依實際情形確認，請洽${contactLine(s)}。`,staff:s,notes:[],actions:[{label:"聯絡承辦",view:"contact",sub:""}]}}
+    }
+  }catch(e){ans={category:"其他",title:"暫時無法回覆",summary:"系統暫時無法完成查詢，請稍後再試，或撥縣府總機 08-7320415 轉社會處。",actions:[]}}
+  const wait=Math.max(0,900-(Date.now()-t0));await new Promise(r=>setTimeout(r,wait));
+  stop();renderAnswer(q,ans);
+  recent.unshift({q,a:ans});if(recent.length>4)recent.pop();renderRecent();
+  convo.push({q,s:ans.summary});
+  pose("talk point",2600,"為您說明");busy=false;
+  setTimeout(()=>{if(!busy)say("還有其他問題嗎？可以接著問我喔。")},3200);
+}
+$("#askform").addEventListener("submit",e=>{e.preventDefault();const q=qin.value.trim();if(!q)return;qin.value="";qin.blur();ask(q)});
+
+/* ================= 資料管理（管理者） ================= */
+let XLSXP=null;
+function loadXLSX(){
+  if(window.XLSX)return Promise.resolve(window.XLSX);
+  if(XLSXP)return XLSXP;
+  XLSXP=new Promise((res,rej)=>{const s=document.createElement("script");s.src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";s.onload=()=>res(window.XLSX);s.onerror=()=>{XLSXP=null;rej(new Error("試算表元件載入失敗，請檢查網路後再試。"))};document.head.appendChild(s)});
+  return XLSXP;
+}
+function decodeText(buf){try{return new TextDecoder("utf-8",{fatal:true}).decode(buf).replace(/^\uFEFF/,"")}catch(e){try{return new TextDecoder("big5").decode(buf)}catch(e2){return new TextDecoder().decode(buf)}}}
+async function readSheets(file){
+  const X=await loadXLSX();const buf=await file.arrayBuffer();
+  const wb=/\.csv$/i.test(file.name)?X.read(decodeText(buf),{type:"string"}):X.read(buf,{type:"array",cellDates:true});
+  return wb.SheetNames.map(n=>({name:n,rows:X.utils.sheet_to_json(wb.Sheets[n],{header:1,defval:"",raw:false,blankrows:false})}));
+}
+const cell=v=>String(v??"").replace(/\s+/g," ").trim();
+function findHeader(rows,syn){
+  let best=-1,score=0;
+  for(let i=0;i<Math.min(rows.length,20);i++){const s=rows[i].reduce((n,c)=>{const t=norm(c);return n+((t&&t.length<=14&&Object.values(syn).some(l=>l.some(w=>t.includes(norm(w)))))?1:0)},0);if(s>score){score=s;best=i}}
+  return score>=2?best:-1;
+}
+function mapCols(header,syn,avoid){
+  const h=header.map(c=>norm(c));const used=new Set();const map={};
+  for(const [f,list] of Object.entries(syn)){
+    let idx=-1;
+    for(const w of list){const nw=norm(w);idx=h.findIndex((c,i)=>!used.has(i)&&c===nw);if(idx>=0)break}
+    if(idx<0)for(const w of list){const nw=norm(w);idx=h.findIndex((c,i)=>!used.has(i)&&c.includes(nw)&&!(avoid[f]&&avoid[f].test(c)));if(idx>=0)break}
+    if(idx>=0){map[f]=idx;used.add(idx)}
+  }
+  return map;
+}
+const G_SYN={n:["團體名稱","協會名稱","社區發展協會名稱","合作社名稱","社名","單位名稱","團體全銜","名稱","社區發展協會","團體"],d:["鄉鎮市","鄉鎮市別","鄉鎮市區","鄉鎮","行政區","區域"],a:["會址","社址","地址","會所地址","通訊地址"],r:["立案字號","立案證書字號","立案證號","登記證字號","登記字號","證書字號","立案文號","核准文號"],p:["理事長姓名","理事長","理事主席","負責人","代表人"],tel:["會址電話","聯絡電話","電話","手機"],dt:["立案日期","成立日期","登記日期","核准日期"],t:["團體類別","類別","類型","種類","性質"]};
+const G_AVOID={p:/電話|地址|手機|任期/,tel:/理事長電話/,n:/理事長|負責人|社區名稱/,a:/電子|email/};
+const S_SYN={name:["姓名","承辦人","人員"],title:["職稱"],unit:["科別","科室","單位","股別"],duty:["承辦業務","業務職掌","職掌","業務","工作項目","負責業務"],tel:["電話","聯絡電話","辦公室電話"],ext:["分機"],email:["電子郵件","email","信箱"]};
+const K_SYN={title:["標題","主旨","題目","問題","案由","名稱"],text:["內容","說明","全文","條文","答覆","回答","解答","函釋內容","答"],source:["文號","發文字號","字號","來源","依據"],date:["日期","發文日期","公布日期"],cat:["類別","分類","類型"]};
+function parseGroups(sheets,forcedType,fileName){
+  const out=[];const report={sheets:[],missing:[]};
+  for(const sh of sheets){
+    const hi=findHeader(sh.rows,G_SYN);if(hi<0){report.sheets.push({name:sh.name,ok:false});continue}
+    const header=sh.rows[hi];const map=mapCols(header,G_SYN,G_AVOID);
+    if(map.n===undefined){report.sheets.push({name:sh.name,ok:false});continue}
+    report.sheets.push({name:sh.name,ok:true,map:Object.fromEntries(Object.entries(map).map(([k,v])=>[k,cell(header[v])]))});
+    const mapped=new Set(Object.values(map));const sheetTown=townOf(sh.name);
+    for(const row of sh.rows.slice(hi+1)){
+      const n=cell(row[map.n]);if(!n||n.length<2||/合計|總計|小計|^名稱$/.test(n)||norm(n)===norm(header[map.n]))continue;
+      const g={n,t:"",d:"",a:"",r:"",p:"",tel:"",dt:"",x:""};
+      for(const f of ["d","a","r","p","tel","dt"])if(map[f]!==undefined)g[f]=cell(row[map[f]]);
+      const rawType=map.t!==undefined?cell(row[map.t]):"";
+      g.t=forcedType||(GTYPES.find(t=>rawType.includes(t.slice(0,2)))||guessType(n));
+      if(g.d&&!TOWNS.includes(g.d))g.d=townOf(g.d)||g.d;
+      if(!g.d)g.d=townOf(g.a)||sheetTown||townOf(n);
+      const extra=header.map((h,i)=>!mapped.has(i)&&cell(h)&&cell(row[i])&&!/^(編號|序號|項次|no)$/i.test(cell(h))?`${cell(h)}：${cell(row[i])}`:"").filter(Boolean).join("；");
+      g.x=extra.slice(0,200);g.src=fileName;
+      out.push(g);
+    }
+  }
+  return{rows:out,report};
+}
+function parseStaff(sheets){
+  const out=[];
+  for(const sh of sheets){
+    const hi=findHeader(sh.rows,S_SYN);if(hi<0)continue;
+    const map=mapCols(sh.rows[hi],S_SYN,{});if(map.name===undefined||map.duty===undefined)continue;
+    for(const row of sh.rows.slice(hi+1)){
+      const name=cell(row[map.name]);const duty=cell(row[map.duty]);if(!name||!duty)continue;
+      let tel=map.tel!==undefined?cell(row[map.tel]):"";let ext=map.ext!==undefined?cell(row[map.ext]):"";
+      const m=tel.match(/(?:分機|轉|#|ext\.?)\s*(\d+)/i);if(m){ext=ext||m[1];tel=tel.slice(0,m.index).trim()}
+      out.push({name,title:map.title!==undefined?cell(row[map.title]):"",unit:map.unit!==undefined?cell(row[map.unit]):"",duty,tel:tel||"08-7320415",ext,email:map.email!==undefined?cell(row[map.email]):""});
+    }
+  }
+  return out;
+}
+function parseKnowledgeSheets(sheets,fileName){
+  const out=[];
+  for(const sh of sheets){
+    const hi=findHeader(sh.rows,K_SYN);if(hi<0)continue;
+    const map=mapCols(sh.rows[hi],K_SYN,{});if(map.text===undefined)continue;
+    for(const row of sh.rows.slice(hi+1)){
+      const text=cell(row[map.text]);if(!text)continue;
+      const title=(map.title!==undefined?cell(row[map.title]):"")||text.slice(0,30);
+      out.push({id:"k"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),title,cat:map.cat!==undefined?cell(row[map.cat]):"常見問答",source:map.source!==undefined?cell(row[map.source]):fileName,date:map.date!==undefined?cell(row[map.date]):"",text});
+    }
+  }
+  return out;
+}
+function splitText(title,text,base){
+  const t=String(text).replace(/\r/g,"").trim();if(!t)return[];
+  if(t.length<=2500)return[{...base,title,text:t}];
+  const parts=[];let i=0,k=1;
+  while(i<t.length){let end=Math.min(t.length,i+2000);const cut=t.lastIndexOf("\n",end);if(cut>i+800&&end<t.length)end=cut;parts.push({...base,id:base.id+"-"+k,title:`${title}（${k}）`,text:t.slice(i,end).trim()});i=end;k++}
+  return parts;
+}
+function admMsg(id,ok,text){const el=$(id);el.className="msgline "+(ok?"ok":"err");el.textContent=text}
+function renderAdmin(){
+  const appsCount=adminApps?adminApps.length:"—";
+  $("#adm-stats").innerHTML=[[STORE.dir.rows.length,"團體名冊筆數",STORE.dir.meta&&fmtDate(STORE.dir.meta.updatedAt)],[STORE.forms.catalog?STORE.forms.catalog.files.length:0,"官方書表檔案",""],[STORE.staff.rows.length,"承辦人",fmtDate(STORE.staff.updatedAt)],[STORE.kn.rows.length,"法規函釋資料",STORE.kn.meta&&fmtDate(STORE.kn.meta.updatedAt)],[appsCount,"線上申辦案件",""]].map(s=>`<div class="stat"><b>${s[0]}</b><span>${s[1]}${s[2]?`｜更新 ${s[2]}`:""}</span></div>`).join("");
+  const byType=GTYPES.map(t=>[t,STORE.dir.rows.filter(r=>r.t===t).length]).filter(x=>x[1]);
+  if(byType.length)$("#adm-stats").insertAdjacentHTML("afterend","");
+  renderStaffList();renderKnList();loadAdminApps();
+}
+/* 團體名冊匯入 */
+let gPending=null;
+$("#g-file").addEventListener("change",async e=>{
+  const files=[...e.target.files];if(!files.length)return;
+  const box=$("#g-preview");box.innerHTML=`<p class="lead">讀取中…</p>`;
+  try{
+    let rows=[];const reports=[];
+    for(const f of files){const sh=await readSheets(f);const r=parseGroups(sh,$("#g-type").value,f.name);rows=rows.concat(r.rows);reports.push([f.name,r.report])}
+    gPending=rows;
+    const counts=GTYPES.map(t=>[t,rows.filter(r=>r.t===t).length]).filter(x=>x[1]);
+    const label={n:"團體名稱",d:"鄉鎮市",a:"會址",r:"立案字號",p:"理事長",tel:"電話",dt:"立案日期",t:"類別"};
+    box.innerHTML=`<h3>預覽</h3>${reports.map(([fn,rep])=>`<p class="lead"><b>${esc(fn)}</b>：${rep.sheets.map(s=>s.ok?`工作表「${esc(s.name)}」已辨識`:`工作表「${esc(s.name)}」找不到團體名稱欄位，已略過`).join("；")}</p>${rep.sheets.filter(s=>s.ok).slice(0,1).map(s=>`<div class="map">${Object.keys(label).map(k=>s.map[k]?`<span>${label[k]} ← ${esc(s.map[k])}</span>`:`<span class="miss">${label[k]}：未找到</span>`).join("")}</div>`).join("")}`).join("")}
+      <p><b>共讀取 ${rows.length} 筆</b>　${counts.map(c=>`${c[0]} ${c[1]} 筆`).join("、")}</p>
+      ${rows.length?`<div class="tablewrap"><table><thead><tr><th>團體名稱</th><th>類型</th><th>鄉鎮市</th><th>會址</th><th>立案字號</th><th>理事長</th><th>電話</th></tr></thead><tbody>${rows.slice(0,5).map(g=>`<tr><td>${esc(g.n)}</td><td>${esc(g.t)}</td><td>${esc(g.d)}</td><td>${esc(g.a)}</td><td>${esc(g.r)}</td><td>${esc(g.p)}</td><td>${esc(g.tel)}</td></tr>`).join("")}</tbody></table></div><div class="row"><button class="btn" id="g-go">確認匯入 ${rows.length} 筆</button><button class="btn ghost" id="g-cancel">取消</button></div>`:""}
+      <p class="msgline" id="g-status" role="status"></p>`;
+    if(rows.length){$("#g-go").addEventListener("click",importGroups);$("#g-cancel").addEventListener("click",()=>{gPending=null;box.innerHTML="";$("#g-file").value=""})}
+  }catch(err){box.innerHTML=`<p class="msgline err">${esc(err.message||"檔案讀取失敗，請確認檔案格式。")}</p>`}
+});
+async function importGroups(){
+  if(!gPending||!gPending.length)return;
+  const btn=$("#g-go");btn.disabled=true;admMsg("#g-status",true,"匯入中，請勿關閉頁面…");
+  try{
+    const mode=$("#g-mode").value;const types=new Set(gPending.map(r=>r.t));
+    let keep=mode==="all"?[]:mode==="type"?STORE.dir.rows.filter(r=>!types.has(r.t)):STORE.dir.rows.slice();
+    const merged=keep.concat(gPending);
+    const sources=[...new Set(gPending.map(r=>r.src))];
+    const meta=await saveChunked("directory",merged,{sources:[...((STORE.dir.meta&&STORE.dir.meta.sources)||[]).filter(s=>!sources.includes(s)),...sources].slice(-30)});
+    STORE.dir={rows:merged,meta};
+    admMsg("#g-status",true,`已匯入 ${gPending.length} 筆，名冊目前共 ${merged.length} 筆。櫃檯與團體查詢頁已可查詢。`);
+    gPending=null;$("#g-file").value="";renderAdmin();
+  }catch(err){admMsg("#g-status",false,"匯入未完成："+(err.message||"請稍後再試。")+"（需為此頁面的擁有者或編輯者）");btn.disabled=false}
+}
+/* 承辦人 */
+async function saveStaff(rows){const v={rows,updatedAt:new Date().toISOString()};await caps.db.doc("staff/list").set(v);STORE.staff=v}
+function renderStaffList(){
+  const rows=STORE.staff.rows;
+  $("#s-list").innerHTML=rows.length?`<div class="tablewrap"><table><thead><tr><th>姓名</th><th>職稱</th><th>科別</th><th>承辦業務</th><th>電話</th><th>分機</th><th></th></tr></thead><tbody>${rows.map((s,i)=>`<tr><td>${esc(s.name)}</td><td>${esc(s.title)}</td><td>${esc(s.unit)}</td><td>${esc(s.duty)}</td><td>${esc(s.tel)}</td><td>${esc(s.ext)}</td><td><button class="btn danger small" data-sdel="${i}">刪除</button></td></tr>`).join("")}</tbody></table></div>`:`<div class="empty">尚未建立承辦人資料。</div>`;
+}
+$("#s-list").addEventListener("click",async e=>{const b=e.target.closest("[data-sdel]");if(!b)return;const rows=STORE.staff.rows.slice();const s=rows.splice(+b.dataset.sdel,1)[0];if(!confirm(`確定刪除承辦人「${s.name}」？`))return;try{await saveStaff(rows);renderStaffList();admMsg("#s-status",true,`已刪除「${s.name}」。`)}catch(err){admMsg("#s-status",false,"刪除未完成："+(err.message||""))}});
+$("#s-form").addEventListener("submit",async e=>{
+  e.preventDefault();const s={name:$("#s-name").value.trim(),title:$("#s-title").value.trim(),unit:$("#s-unit").value.trim(),duty:$("#s-duty").value.trim(),tel:$("#s-tel").value.trim()||"08-7320415",ext:$("#s-ext").value.trim(),email:""};
+  if(!s.name||!s.duty)return;
+  try{await saveStaff([...STORE.staff.rows,s]);renderStaffList();admMsg("#s-status",true,`已新增承辦人「${s.name}」。`);["#s-name","#s-title","#s-duty","#s-ext"].forEach(id=>$(id).value="")}catch(err){admMsg("#s-status",false,"新增未完成："+(err.message||""))}
+});
+$("#s-file").addEventListener("change",async e=>{
+  const f=e.target.files[0];if(!f)return;const box=$("#s-preview");box.innerHTML=`<p class="lead">讀取中…</p>`;
+  try{
+    const rows=parseStaff(await readSheets(f));
+    if(!rows.length){box.innerHTML=`<p class="msgline err">找不到「姓名」與「承辦業務」欄位，請確認檔案第一列為欄位名稱。</p>`;return}
+    box.innerHTML=`<p><b>讀取 ${rows.length} 位承辦人</b></p><div class="tablewrap"><table><thead><tr><th>姓名</th><th>職稱</th><th>承辦業務</th><th>電話</th><th>分機</th></tr></thead><tbody>${rows.slice(0,6).map(s=>`<tr><td>${esc(s.name)}</td><td>${esc(s.title)}</td><td>${esc(s.duty)}</td><td>${esc(s.tel)}</td><td>${esc(s.ext)}</td></tr>`).join("")}</tbody></table></div><div class="row"><button class="btn" id="s-replace">取代現有名單</button><button class="btn ghost" id="s-append">加到現有名單</button></div>`;
+    const go=async replace=>{try{await saveStaff(replace?rows:[...STORE.staff.rows,...rows]);box.innerHTML="";$("#s-file").value="";renderStaffList();renderAdmin();admMsg("#s-status",true,`已匯入 ${rows.length} 位承辦人。`)}catch(err){admMsg("#s-status",false,"匯入未完成："+(err.message||""))}};
+    $("#s-replace").addEventListener("click",()=>go(true));$("#s-append").addEventListener("click",()=>go(false));
+  }catch(err){box.innerHTML=`<p class="msgline err">${esc(err.message||"檔案讀取失敗。")}</p>`}
+});
+/* 知識庫 */
+async function saveKn(rows){const meta=await saveChunked("knowledge",rows,{});STORE.kn={rows,meta}}
+function renderKnList(){
+  const q=$("#k-q").value.trim();const rows=STORE.kn.rows.map((r,i)=>[r,i]).filter(([r])=>!q||norm(r.title+r.text+r.source).includes(norm(q)));
+  $("#k-list").innerHTML=STORE.kn.rows.length?rows.slice(0,100).map(([r,i])=>`<div class="kitem"><div><b>${esc(r.title)}</b><small>${esc([r.cat,r.source,r.date,`${r.text.length} 字`].filter(Boolean).join("｜"))}</small></div><button class="btn danger small" data-kdel="${i}">刪除</button></div>`).join("")+(rows.length>100?`<p class="meta">僅顯示前 100 則，請用搜尋縮小範圍。</p>`:""):`<div class="empty">尚未收錄法規、函釋或常見問答。</div>`;
+}
+$("#k-q").addEventListener("input",renderKnList);
+$("#k-list").addEventListener("click",async e=>{const b=e.target.closest("[data-kdel]");if(!b)return;const rows=STORE.kn.rows.slice();const r=rows.splice(+b.dataset.kdel,1)[0];if(!confirm(`確定刪除「${r.title}」？`))return;try{await saveKn(rows);renderKnList();renderAdmin()}catch(err){admMsg("#k-status",false,"刪除未完成："+(err.message||""))}});
+$("#k-form").addEventListener("submit",async e=>{
+  e.preventDefault();const title=$("#k-title").value.trim(),text=$("#k-text").value.trim();if(!title||!text)return;
+  const base={id:"k"+Date.now().toString(36),cat:$("#k-cat").value,source:$("#k-src").value.trim(),date:$("#k-date").value.trim()};
+  try{await saveKn([...STORE.kn.rows,...splitText(title,text,base)]);admMsg("#k-status",true,`已加入「${title}」，小屏回答時會參考這份資料。`);["#k-title","#k-src","#k-date","#k-text"].forEach(id=>$(id).value="");renderKnList();renderAdmin()}catch(err){admMsg("#k-status",false,"加入未完成："+(err.message||""))}
+});
+$("#k-file").addEventListener("change",async e=>{
+  const files=[...e.target.files];if(!files.length)return;admMsg("#k-fstatus",true,"讀取中…");
+  try{
+    let add=[];
+    for(const f of files){
+      if(/\.(txt|md)$/i.test(f.name)){const text=decodeText(await f.arrayBuffer());add=add.concat(splitText(f.name.replace(/\.(txt|md)$/i,""),text,{id:"k"+Date.now().toString(36)+Math.random().toString(36).slice(2,5),cat:"其他",source:f.name,date:""}))}
+      else add=add.concat(parseKnowledgeSheets(await readSheets(f),f.name));
+    }
+    if(!add.length){admMsg("#k-fstatus",false,"找不到內容欄位。試算表需有「內容」或「說明」欄位；PDF 或 Word 檔請先另存為文字檔，或直接貼上內容。");return}
+    await saveKn([...STORE.kn.rows,...add]);$("#k-file").value="";admMsg("#k-fstatus",true,`已加入 ${add.length} 則資料。`);renderKnList();renderAdmin();
+  }catch(err){admMsg("#k-fstatus",false,"匯入未完成："+(err.message||""))}
+});
+/* 申辦案件 */
+let adminApps=null;
+async function loadAdminApps(){
+  const box=$("#apps-admin");
+  try{
+    const s=await withTimeout(caps.db.collection("applications").get(),12000);
+    adminApps=[];s.docs.forEach(d=>{const v=d.data();(v&&v.items||[]).forEach((it,i)=>adminApps.push({...it,_uid:d.id,_i:i}))});
+    adminApps.sort((a,b)=>(b.createdAt||"").localeCompare(a.createdAt||""));
+    const STAT=["已送出","已收件","審查中","待補件","已核准","已退件"];
+    box.innerHTML=adminApps.length?`<div class="tablewrap"><table><thead><tr><th>案件編號</th><th>申辦項目</th><th>團體</th><th>聯絡人</th><th>送出日</th><th>狀態</th><th>承辦說明</th><th></th></tr></thead><tbody>${adminApps.map((a,k)=>`<tr><td>${esc(a.no)}</td><td>${esc(a.itemLabel)}</td><td>${esc(a.org)}<br><small class="lead">${esc(a.district)}</small></td><td>${esc(a.contact)}<br><a href="${telHref(a.tel)}">${esc(a.tel)}</a></td><td>${esc(fmtDate(a.createdAt))}</td><td><select data-ast="${k}">${STAT.map(s=>`<option${s===a.status?" selected":""}>${s}</option>`).join("")}</select></td><td><input data-anote="${k}" value="${esc(a.staffNote||"")}" maxlength="200" style="min-width:160px"></td><td><button class="btn small" data-asave="${k}">儲存</button></td></tr>`).join("")}</tbody></table></div>`:`<div class="empty">目前沒有線上申辦案件。</div>`;
+    $("#adm-stats .stat:last-child b")&&($("#adm-stats .stat:last-child b").textContent=adminApps.length);
+  }catch(err){box.innerHTML=`<div class="empty">案件暫時無法載入：${esc(err.message||"")}</div>`}
+}
+$("#apps-admin").addEventListener("click",async e=>{
+  const b=e.target.closest("[data-asave]");if(!b)return;const k=+b.dataset.asave;const a=adminApps[k];
+  b.disabled=true;
+  try{
+    const ref=caps.db.doc("applications/"+a._uid);const snap=await ref.get();const items=(snap.exists&&snap.data().items)||[];
+    const idx=items.findIndex(x=>x.no===a.no);if(idx<0)throw new Error("找不到此案件");
+    items[idx]={...items[idx],status:$(`[data-ast="${k}"]`).value,staffNote:$(`[data-anote="${k}"]`).value.trim(),updatedAt:new Date().toISOString()};
+    await ref.set({items});b.textContent="已儲存";setTimeout(()=>{b.textContent="儲存";b.disabled=false},1500);
+  }catch(err){b.disabled=false;alert("儲存未完成："+(err.message||""))}
+});
+
+/* ================= 啟動 ================= */
+showGreeting();renderRecent();route();
+setTimeout(()=>{pose("wave",2400,"歡迎光臨");say(`${greetWord()}！歡迎來到人民團體數位櫃檯，直接說出團體名稱我就能幫您查。`)},500);
+touch();
+(async()=>{
+  if(window.claude&&window.claude.use){
+    const [db,user,sample,downloads]=await Promise.all(["db","user","sample","downloads"].map(n=>window.claude.use(n).catch(()=>null)));
+    caps={db,user,sample,downloads};
+    if(user){try{isAdmin=(await user.isOwner())||(await user.canEdit())}catch(e){isAdmin=false}}
+    $("#navadmin").hidden=!isAdmin;
+  }
+  await loadAll().catch(e=>console.warn("data load:",e));
+  route();
+})();
+</script>
+</body>
+</html>
