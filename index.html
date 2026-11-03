@@ -1147,6 +1147,39 @@ ${knowledgeText()}
     groups:r.showGroups&&lastGroups?lastGroups.rows.slice(0,10):[],dirMeta:r.showGroups?dirMetaLine():"",staff:r.showStaff&&lastStaff?lastStaff:[],
     actions:(Array.isArray(r.actions)?r.actions:[]).filter(a=>a&&VIEWS.includes(a.view)&&a.view!=="admin").slice(0,3).map(a=>({label:String(a.label||"前往"),view:a.view,sub:String(a.sub||"")}))};
 }
+function smartFallback(q,kb){
+  const parts={};
+  if(kb){const a=kbAnswer(kb);parts.summary=a.summary;parts.category=a.category;parts.title=a.title;
+    parts.steps=a.steps;parts.docs=a.docs;parts.laws=a.laws;parts.notes=a.notes||[];parts.actions=a.actions||[]}
+  const kn=searchKn(q,3);
+  if(kn.length){
+    const useful=kn.filter(x=>!/^書表範本/.test(x.標題));
+    if(!parts.summary&&useful.length){parts.category="法規查詢";parts.title=useful[0].標題;
+      parts.summary=useful[0].內容摘錄.replace(/\n/g," ").slice(0,250)+(useful[0].內容摘錄.length>250?"…":"");
+    }
+    if(useful.length)parts.refs=useful.map(x=>({title:x.標題,cat:x.類別,source:x.文號或來源,date:x.日期}));
+  }
+  if(ENTITY_RE.test(q)&&STORE.dir.rows.length){
+    const t=detectType(q),c=detectCat(q),d=townOf(q);
+    if(c||t||d){const r=searchDir({kw:"",d,c,t},10);
+      if(r.total&&!parts.groups){parts.groups=r.rows.slice(0,6);parts.dirMeta=dirMetaLine();
+        if(!parts.summary){const label=[d,c||t].filter(Boolean).join("");
+          const live=r.all.filter(x=>x.s!=="已解散").length;
+          parts.summary=`${label||"本縣"}目前共有 ${live} 個存續的${c||t||"人民團體"}。`;
+          parts.category="團體查詢";parts.title=label+"名冊";
+          if(r.total>6)parts.actions=[...(parts.actions||[]),{label:"查看全部 "+r.total+" 筆",view:"search",sub:JSON.stringify({kw:"",t:c?"":t,c,d})}];
+        }
+      }
+    }
+  }
+  if(STAFF_RE.test(q)){const sa=staffAnswer(q,{});if(sa.staff&&sa.staff.length){parts.staff=sa.staff;if(!parts.summary){parts.summary=sa.summary;parts.category=sa.category;parts.title=sa.title}}}
+  else if(!parts.staff){const t=detectType(q),c=detectCat(q);const sf=staffFor(t,c);if(sf.length)parts.staff=sf}
+  if(!parts.summary){
+    const sf=staffFor(detectType(q),detectCat(q));
+    return{category:"其他",title:"這題我幫您轉給承辦人",summary:"這個問題我手邊的資料不太夠，怕回答不夠精確，建議直接打電話問承辦人比較放心。"+contactLine(sf)+"可以給您最正確的答覆。您也可以換個問法試試，例如直接輸入團體名稱就能查詳細資料。",staff:sf,notes:[],actions:[{label:"聯絡承辦",view:"contact",sub:""},{label:"回到常見問題",view:"home",sub:""}]};
+  }
+  return{category:parts.category||"服務說明",title:parts.title||"小屏的回覆",summary:parts.summary,steps:parts.steps||[],docs:parts.docs||[],laws:parts.laws||[],notes:parts.notes||[],refs:parts.refs||[],groups:parts.groups||[],dirMeta:parts.dirMeta||"",staff:parts.staff||[],actions:parts.actions||[]};
+}
 async function ask(q){
   q=String(q||"").trim();if(!q||busy)return;
   busy=true;touch();nudge.classList.remove("show");
@@ -1166,8 +1199,7 @@ async function ask(q){
       const kb=matchKB(q);
       if(caps.sample){try{ans=await aiAnswer(q,kb)}catch(e){if(e&&e.code==="not_granted")caps.sample=null;console.warn("AI fallback:",e)}}
       if(!ans&&kb)ans=kbAnswer(kb);
-      if(!ans){const k=searchKn(q,3);if(k.length)ans={category:"法規查詢",title:"相關規定與函釋",summary:`與您的問題最相關的是「${k[0].標題}」：${k[0].內容摘錄.slice(0,120)}`,refs:k.map(x=>({title:x.標題,cat:x.類別,source:x.文號或來源,date:x.日期})),notes:["實際適用情形請洽承辦人確認。"],actions:[{label:"查看函釋與問答",view:"law",sub:"函釋與問答"}]}}
-      if(!ans){const s=staffFor(detectType(q));ans={category:"其他",title:"請承辦人協助確認",summary:`這個問題需要承辦人依實際情形確認，請洽${contactLine(s)}。`,staff:s,notes:[],actions:[{label:"聯絡承辦",view:"contact",sub:""}]}}
+      if(!ans){ans=smartFallback(q,kb)}
     }
   }catch(e){ans={category:"其他",title:"暫時無法回覆",summary:"系統暫時無法完成查詢，請稍後再試，或撥縣府總機 08-7320415 轉社會處。",actions:[]}}
   const wait=Math.max(0,900-(Date.now()-t0));await new Promise(r=>setTimeout(r,wait));
