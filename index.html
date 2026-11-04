@@ -524,6 +524,16 @@ const MEET=[
 ];
 const ALLITEMS={};Object.values(BIZ).forEach(b=>b.items.forEach(i=>ALLITEMS[i.id]=i));MEET.forEach(m=>ALLITEMS[m.id]=m);
 const KB=[
+ {k:["補助","經費補助","申請補助","縣府補助","補助款"],cat:"業務辦理",title:"協會可以申請縣府補助嗎",
+  summary:"可以申請，但不是每個協會、每個活動都一定符合。縣府依「屏東縣政府對民間團體補助經費作業要點」審查補助，實際能申請的項目、受理期間、金額和表件，要看主辦處室當年度的公告。先確認您的團體已依法立案、活動性質符合公告的補助對象，再準備計畫書和經費概算送件。",
+  steps:["確認活動屬於哪個業務（例如社會福利、文化、體育、社區），找到負責的處室。","查詢該處室當年度補助公告與受理期間。","準備活動計畫、經費概算表及公告指定文件，依公告方式送件。","收到核定函後，依核定的項目和金額辦理活動。","活動結束後，依規定期限辦理核銷。"],
+  notes:["同一活動向不同機關重複申請補助，要依規定揭露，不能重複請領同一筆支出。","想給您更精確的答案，請告訴我：團體名稱、活動類型、辦理日期與想申請的年度。"],
+  act:[["聯絡承辦","contact",""]]},
+ {k:["補助核銷","核銷","結報","領據","支用明細","憑證"],cat:"業務辦理",title:"補助款怎麼核銷",
+  summary:"核銷是向補助機關證明活動確實辦了、錢也確實照核定用途花掉。活動結束後，依核定函和承辦處室的要求，在期限內把成果和支出證明送回去。",
+  steps:["整理成果報告：活動照片、簽到表、課程講義或參加紀錄。","整理支出：領據、各項支出單據（發票或收據）、支用明細表或收支清單。","核對憑證抬頭、日期、金額是否和核定項目相符，支用明細要和單據、帳簿一致。","依規定期限送承辦處室（社區類補助通常經鄉鎮市公所函送）。","有剩餘款的，依規定繳回。"],
+  notes:["憑證抬頭、正本或影本、免附憑證的門檻等細節，以核定函和最新作業要點為準；網頁舊說明與要點不一致時，先洽承辦人確認。","補助購置的設備要列入財產目錄。"],
+  act:[["聯絡承辦","contact",""]]},
  {k:["你好","您好","哈囉","嗨","早安","午安","晚安","在嗎"],cat:"打招呼",title:"您好，我是小屏",summary:"您好！我是人民團體數位櫃檯的小屏。協會的成立、開會、改選、財務報表、法人登記、統編、免稅、解散這些事情都可以問我，也可以直接說團體名稱，我幫您查立案資料和承辦人。請問今天想辦什麼呢？",notes:[],act:[["看常見問題","home",""]]},
  {k:["謝謝","感謝","辛苦了","了解","知道了","好的"],cat:"打招呼",title:"不客氣",summary:"不客氣！很高興能幫上忙。如果之後還有問題，隨時回來問我就好。辦理過程中有不確定的地方，也可以直接打給承辦人：羅宇軒（08-7320415 轉 5317）、林祈宏（轉 5316）、周瑜文（轉 5368）。",notes:[],act:[["看常見問題","home",""]]},
  {k:["法人登記","登記法人","辦法人","法院登記","社團法人","地方法院"],cat:"業務辦理",title:"協會怎麼辦法人登記",
@@ -817,11 +827,20 @@ function searchStaff(q){
   return sc.map(x=>x[1]);
 }
 const KSTOP=/請問|一下|可以|是否|如何|怎麼|什麼|需要|的|嗎|呢|？|\?/g;
+let KN_IDX=null;
+function knIndex(){
+  const rows=STORE.kn.rows;if(KN_IDX&&KN_IDX.n===rows.length)return KN_IDX;
+  const df=new Map();const docs=rows.map(r=>{const ti=norm(r.title),tx=norm(r.text);const set=new Set(bigrams(ti+"｜"+tx));set.forEach(b=>df.set(b,(df.get(b)||0)+1));return{ti,tx}});
+  KN_IDX={n:rows.length,df,docs};return KN_IDX;
+}
+function revCov(title,q){const tb=bigrams(title);if(!tb.length)return 0;const qn=norm(q);return tb.filter(b=>qn.includes(b)).length/tb.length}
 function searchKn(q,limit){
   const rows=STORE.kn.rows;if(!rows.length)return[];
   const bg=[...new Set(bigrams(String(q).replace(KSTOP,"")))];if(!bg.length)return[];
-  const sc=rows.map(r=>{const ti=norm(r.title),tx=norm(r.text);let s=0,first=-1;bg.forEach(b=>{if(ti.includes(b))s+=3;const i=tx.indexOf(b);if(i>=0){s+=1;if(first<0||i<first)first=i}});return{s,r,first}}).filter(x=>x.s>=Math.min(3,bg.length)).sort((a,b)=>b.s-a.s).slice(0,limit||5);
-  return sc.map(({r})=>{const raw=String(r.text);const key=bg.find(b=>norm(raw).includes(b));let i=key?raw.indexOf(key[0]+key[1]):0;if(i<0)i=0;const start=Math.max(0,i-120);return{標題:r.title,類別:r.cat||"",文號或來源:r.source||"",日期:r.date||"",內容摘錄:(start>0?"…":"")+raw.slice(start,start+520)+(raw.length>start+520?"…":"")}});
+  const ix=knIndex();const N=ix.n;
+  const w=bg.map(b=>Math.log((N+1)/(1+(ix.df.get(b)||0))));const wsum=w.reduce((a,b)=>a+b,0)||1;
+  const sc=rows.map((r,k)=>{const {ti,tx}=ix.docs[k];let s=0,t=0;bg.forEach((b,j)=>{if(ti.includes(b)){s+=3*w[j];t+=w[j]}if(tx.includes(b))s+=w[j]});return{s,r,tc:t/wsum}}).filter(x=>x.s>0).sort((a,b)=>b.s-a.s).slice(0,limit||5).filter(x=>x.s>=wsum*0.6);
+  return sc.map(({r,tc})=>{const raw=String(r.text);const key=bg.find(b=>norm(raw).includes(b));let i=key?raw.indexOf(key[0]+key[1]):0;if(i<0)i=0;const start=raw.length<=600?0:Math.max(0,i-120);const o={標題:r.title,類別:r.cat||"",文號或來源:r.source||"",日期:r.date||"",內容摘錄:(start>0?"…":"")+raw.slice(start,start+600)+(raw.length>start+600?"…":""),追問:r.ask||""};Object.defineProperty(o,"_tc",{value:tc});Object.defineProperty(o,"_r",{value:r});return o});
 }
 
 /* ================= 意圖判斷 ================= */
@@ -855,6 +874,7 @@ function detectType(q){if(/社區發展協會|社區協會|社區/.test(q))retur
 function detectCat(q){for(const [c,re] of CAT_ALIAS){if(re.test(q))return c}return""}
 function intentOf(q){
   const sn=specificName(q);
+  if(!/多少|幾個|幾家|幾間|有哪些|哪些|列出|理事長是誰|的理事長|的電話|的地址|立案了嗎|重複|撞名/.test(q)){const k=searchKn(q,1);if(k.length&&k[0]._tc>=0.7&&revCov(k[0].標題,q)>=0.6)return{kind:"ai"}}
   const kbm=matchKB(q);
   if(STAFF_RE.test(q)&&!sn&&kbm&&!/聯絡承辦|打招呼/.test(kbm.cat)&&!detectCat(q))return{kind:"ai"};
   if(/名稱.*(重複|被用|可以用|能用|有人用|撞名)|(重複|可以用|能用|撞名).*名稱|撞名|取名.*(重複|可以|能用)/.test(q))return{kind:"dir",dup:true,name:sn};
@@ -1176,11 +1196,13 @@ function renderAnswer(q,a){
    ${laws.length?`<div class="sec"><h3>${ICON.law}法規依據</h3>${lawBox(laws)}</div>`:""}
    ${refs.length?`<div class="sec"><h3>${ICON.doc}函釋與參考資料</h3>${refBox(refs)}</div>`:""}
    ${notes.length?`<div class="sec"><h3>${ICON.note}注意事項</h3><ul class="anotes">${notes.map(n=>`<li>${esc(n)}</li>`).join("")}</ul></div>`:""}
+   ${(a.related||[]).length?`<div class="sec"><h3>${ICON.note}您可能也想問</h3>${a.related.map(r=>`<button type="button" class="qbtn" data-q="${esc(r)}">${esc(r)}</button>`).join("")}</div>`:""}
    <div class="actions">${acts.map((x,i)=>`<button type="button" class="btn${i?" ghost":""}" data-go="${esc(x.view)}" data-sub="${esc(x.sub||"")}">${esc(x.label)}</button>`).join("")}<button type="button" class="btn ghost" data-home>回到常見問題</button></div>`;
   if(window.innerWidth<960)board.scrollIntoView({behavior:"smooth",block:"start"});
 }
+let KB_LAST_SCORE=0;
 const KB_GENERIC=/^(準備哪些|要準備|需要什麼文件|申請文件|怎麼申請|多久|資格|下載|聯絡|電話|分機|承辦|承辦人|找誰|窗口|開會|大會|通知|出席|決議|期限|名稱|名字|線上|網路|書表|範本|表格|法規|法令|條文|報表|登記|法人|好的|了解)$/;
-function matchKB(q){let best=null,score=0;const qn=norm(q);for(const e of KB){let s=0;for(const k of e.k){const w=KB_GENERIC.test(k)?1:k.length*2;if(q.includes(k))s+=w;else if(qn.includes(norm(k)))s+=Math.ceil(w/2)}if(s>score){score=s;best=e}}return score>=2?best:null}
+function matchKB(q){let best=null,score=0;const qn=norm(q);for(const e of KB){let s=0;for(const k of e.k){const w=KB_GENERIC.test(k)?1:k.length*2;if(q.includes(k))s+=w;else if(qn.includes(norm(k)))s+=Math.ceil(w/2)}if(s>score){score=s;best=e}}KB_LAST_SCORE=score;return score>=2?best:null}
 function kbAnswer(e){const it=e.ref?ALLITEMS[e.ref]:null;return{category:e.cat,title:e.title,summary:e.summary,steps:e.steps||(it?it.steps:[]),docs:e.docs||(it?it.docs:[]),laws:e.laws||(it?it.laws:[])||[],notes:e.notes||[],where:e.where||[],guide:e.guide||[],actions:(e.act||[]).filter(x=>x[1]!=="home").map(x=>({label:x[0],view:x[1],sub:x[2]}))}}
 function staffFor(type,c){const s=staffForCat(c||"",type);return s?[s]:[]}
 function contactLine(list){return list.length?`${list[0].unit||""}${list[0].name}（${list[0].tel||"08-7320415"}${list[0].ext?" 轉 "+list[0].ext:""}）`:"縣府總機 08-7320415 轉社會處承辦人"}
@@ -1317,14 +1339,23 @@ function smartFallback(q,kb){
   const parts={};
   if(kb&&kb.cat==="打招呼")return kbAnswer(kb);
   if(kb){Object.assign(parts,kbAnswer(kb))}
-  const kn=searchKn(q,3);
+  const kn=searchKn(q,5).filter(x=>!/^書表範本/.test(x.標題));
   if(kn.length){
-    const useful=kn.filter(x=>!/^書表範本/.test(x.標題));
-    if(!parts.summary&&useful.length){parts.category="法規查詢";parts.title=useful[0].標題;
-      parts.summary=useful[0].內容摘錄.replace(/\n/g," ").slice(0,250)+(useful[0].內容摘錄.length>250?"…":"");
+    const top=kn[0];const strong=top._tc>=0.45;
+    const near=top._tc>=0.8&&revCov(top.標題,q)>=0.6;
+    if(!parts.summary||near||(strong&&KB_LAST_SCORE<6)){
+      const r=top._r;
+      Object.assign(parts,{category:r.cat||"法規查詢",title:r.title,summary:r.text,steps:[],docs:[],guide:[],where:[],laws:[],actions:parts.actions||[]});
+      parts.notes=[...(r.ask?["想給您更精確的答案，請告訴我："+r.ask.replace(/^請問/,"")]:[]),"這則說明整理自法規與主管機關資料（初版），個案仍以主管機關最新規定為準。"];
+      parts.refs=[{title:r.title,cat:r.cat,source:String(r.source||"").split("|")[0].trim(),date:r.date}];
+      parts.related=kn.slice(1,5).map(x=>x.標題);
+    }else{
+      if(strong&&top._r.text.length<=320&&top.標題!==parts.title)parts.notes=[...(parts.notes||[]),"補充："+top._r.text];
+      parts.related=kn.slice(0,4).map(x=>x.標題).filter(t=>t!==parts.title);
     }
-    if(useful.length)parts.refs=useful.map(x=>({title:x.標題,cat:x.類別,source:x.文號或來源,date:x.日期}));
   }
+  const twn=townOf(q);
+  if(twn&&/統編|統一編號|國稅|扣繳|所得稅|免稅|報稅/.test(q)){const tr=STORE.kn.rows.find(r=>r.cat==="國稅轄區"&&r.text.includes(twn));if(tr)parts.where=[`${twn}的國稅窗口：`+tr.text,...(parts.where||[])]}
   if(!kb&&ENTITY_RE.test(q)&&STORE.dir.rows.length){
     const t=detectType(q),c=detectCat(q),d=townOf(q);
     if(c||t||d){const r=searchDir({kw:"",d,c,t},10);
@@ -1344,7 +1375,7 @@ function smartFallback(q,kb){
     const sf=staffFor(detectType(q),detectCat(q));
     return{category:"其他",title:"這題我幫您轉給承辦人",summary:"這個問題我手邊的資料不太夠，怕回答不夠精確，建議直接打電話問承辦人比較放心。"+contactLine(sf)+"可以給您最正確的答覆。您也可以換個問法試試，例如直接輸入團體名稱就能查詳細資料。",staff:sf,notes:[],actions:[{label:"聯絡承辦",view:"contact",sub:""},{label:"回到常見問題",view:"home",sub:""}]};
   }
-  return{category:parts.category||"服務說明",title:parts.title||"小屏的回覆",summary:parts.summary,steps:parts.steps||[],docs:parts.docs||[],where:parts.where||[],guide:parts.guide||[],laws:parts.laws||[],notes:parts.notes||[],refs:parts.refs||[],groups:parts.groups||[],dirMeta:parts.dirMeta||"",staff:parts.staff||[],actions:parts.actions||[]};
+  return{related:parts.related||[],category:parts.category||"服務說明",title:parts.title||"小屏的回覆",summary:parts.summary,steps:parts.steps||[],docs:parts.docs||[],where:parts.where||[],guide:parts.guide||[],laws:parts.laws||[],notes:parts.notes||[],refs:parts.refs||[],groups:parts.groups||[],dirMeta:parts.dirMeta||"",staff:parts.staff||[],actions:parts.actions||[]};
 }
 async function ask(q){
   q=String(q||"").trim();if(!q||busy)return;
@@ -1364,7 +1395,7 @@ async function ask(q){
     else{
       const kb=matchKB(q);
       if(caps.sample){try{ans=await aiAnswer(q,kb)}catch(e){if(e&&e.code==="not_granted")caps.sample=null;console.warn("AI fallback:",e)}}
-      if(!ans&&kb)ans=kbAnswer(kb);
+      
       if(!ans){ans=smartFallback(q,kb)}
     }
   }catch(e){ans={category:"其他",title:"暫時無法回覆",summary:"系統暫時無法完成查詢，請稍後再試，或撥縣府總機 08-7320415 轉社會處。",actions:[]}}
