@@ -38,7 +38,7 @@ function articleRows(q){
 let lastQuestionContext=null;
 function clarifyIncompleteQuestion(q){
  const text=String(q||'').normalize('NFKC').replace(/\s+/g,'').replace(/[？?。！!，,]/g,'');
- if(/^(?:請問|查詢|查|想問)?(?:屏東縣)?(?:女性|婦女|婦女團體|女性團體|婦女社團|女性社團)(?:的|之)?(?:負責人|理事長|名單)?$/.test(text))return {category:'確認問題',title:'您想查詢女性團體的哪項資料？',summary:'您想查女性團體名單、特定團體的負責人，還是女性擔任負責人的資格或規定？若查特定團體，請提供名稱。',notes:[],actions:[{label:'查詢團體',view:'search',sub:''}]};
+ if(/^(?:請問|查詢|查|想問)?(?:屏東縣)?(?:[一-鿿]{2,4}[鄉鎮市])?(?:男性|女性|婦女|男性團體|婦女團體|女性團體|男性社團|婦女社團|女性社團)(?:的|之)?(?:負責人|理事長|名單)?$/.test(text))return {category:'確認問題',title:'您想查詢哪一項團體資料？',summary:'您想查詢特定地區的團體名單、某個團體的負責人，還是擔任負責人的資格？請補充您的需求；若查詢特定團體，請提供名稱。',notes:[],actions:[{label:'查詢團體',view:'search',sub:''}]};
  const topic=text.replace(/^(?:請問|我想問|想問|我要查|查詢|查)/,'');
  const topics={改選:'想了解改選時間、流程、文件，還是延期規定？請補充團體類型。',任期:'想了解哪個職務的任期？請說明團體類型。',負責人:'想查詢特定團體負責人，還是了解資格或變更程序？',理事長:'想了解任期、連任、資格、改選或變更？若查特定團體，請提供名稱。',開會:'想了解哪種會議的時間、通知、出席人數或紀錄？請補充團體類型。',補助:'想了解哪項補助的資格、期限、文件或核銷？請提供補助名稱。',法規:'請提供法規名稱、條號或想了解的業務，以及團體類型。',合作社:'想了解成立、改選、會議、書表下載，還是查詢合作社資料？',協會:'想了解成立、改選、會議、法規、書表，還是查詢團體資料？'};
  if(Object.prototype.hasOwnProperty.call(topics,topic))return {category:'確認問題',title:'請再告訴我您的需求',summary:topics[topic],notes:[],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
