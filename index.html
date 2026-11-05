@@ -1375,7 +1375,7 @@ function smartFallback(q,kb){
   else if(!parts.staff&&!kb&&!parts.summary){const t=detectType(q),c=detectCat(q);const sf=staffFor(t,c);if(sf.length)parts.staff=sf}
   if(!parts.summary){
     const sf=staffFor(detectType(q),detectCat(q));
-    return{category:"其他",title:"這題我幫您轉給承辦人",summary:"這個問題我手邊的資料不太夠，怕回答不夠精確，建議直接打電話問承辦人比較放心。"+contactLine(sf)+"可以給您最正確的答覆。您也可以換個問法試試，例如直接輸入團體名稱就能查詳細資料。",staff:sf,notes:[],actions:[{label:"聯絡承辦",view:"contact",sub:""},{label:"回到常見問題",view:"home",sub:""}]};
+    return{category:"其他",title:"建議洽詢承辦人",summary:"這個問題我手邊的資料不太夠，怕回答不夠精確，建議直接打電話問承辦人比較放心。"+contactLine(sf)+"可以給您最正確的答覆。您也可以換個問法試試，例如直接輸入團體名稱就能查詳細資料。",staff:sf,notes:[],actions:[{label:"聯絡承辦",view:"contact",sub:""},{label:"回到常見問題",view:"home",sub:""}]};
   }
   return{related:parts.related||[],category:parts.category||"服務說明",title:parts.title||"小屏的回覆",summary:parts.summary,steps:parts.steps||[],docs:parts.docs||[],where:parts.where||[],guide:parts.guide||[],laws:parts.laws||[],notes:parts.notes||[],refs:parts.refs||[],groups:parts.groups||[],dirMeta:parts.dirMeta||"",staff:parts.staff||[],actions:parts.actions||[]};
 }
@@ -1397,7 +1397,9 @@ async function ask(q){
     const clarification=typeof clarifyIncompleteQuestion==="function"?clarifyIncompleteQuestion(q):null;
     const taxAnswer=typeof taxRegistrationAnswer==='function'?taxRegistrationAnswer(q):null;
     const boardSeats=typeof boardSeatAnswer==='function'?boardSeatAnswer(q):null;
-    if(boardSeats)ans=boardSeats;
+    const basis=typeof accountingBasisAnswer==='function'?accountingBasisAnswer(q):null;
+    if(basis)ans=basis;
+    else if(boardSeats)ans=boardSeats;
     else if(taxAnswer)ans=taxAnswer;
     else if(clarification)ans=clarification;
     else if(exact)ans=exact;
@@ -1638,6 +1640,6 @@ touch();
 })();
 </script>
 <script src="question-understanding.js?v=20261105-1"></script>
-<script src="counter-upgrade.js?v=20261106-1"></script>
+<script src="counter-upgrade.js?v=20261106-2"></script>
 </body>
 </html>
