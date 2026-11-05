@@ -331,7 +331,7 @@ footer div{max-width:1200px;margin:0 auto;padding:18px 24px}
 </section>
 
 <section class="view" id="v-search">
-  <div class="pagehead"><h1>團體查詢</h1><p>依名稱、類別或鄉鎮市查詢屏東縣社會處列管之社會團體與職業團體，並可看到會務承辦人與分機。</p></div>
+  <div class="pagehead"><h1>團體查詢</h1><p>依名稱、類別或鄉鎮市查詢人民團體及合作社。合作社名冊日期為2026年10月1日；查詢資料以原名冊列載內容為準。</p></div>
   <div class="panel">
     <div class="filters">
       <div class="field"><label for="sq">團體名稱或關鍵字</label><input id="sq" placeholder="例如：商業會、登山、慈善"></div>
@@ -1017,7 +1017,7 @@ async function renderSearch(more){
   const r=searchDir({kw:$("#sq").value.trim(),d:$("#sd").value,x:$("#sx").checked,...selToQuery($("#st").value)},100000);
   if(!r.total){box.innerHTML=`<div class="empty">找不到符合條件的團體，請減少關鍵字、改選其他鄉鎮市，或勾選「包含已解散團體」。</div><p class="meta">${dirMetaLine()}</p>`;return}
   const list=r.all.slice(0,shown);
-  box.innerHTML=`<p class="lead" style="margin-top:14px">共 ${r.total} 筆${r.fuzzy?"（相近名稱）":""}</p><div class="tablewrap"><table><thead><tr><th>團體名稱</th><th>類別</th><th>鄉鎮市</th><th>會址</th><th>理事長</th><th>電話</th><th>會務承辦</th></tr></thead><tbody>${list.map(g=>{const dead=g.s==="已解散";const st=dead?null:staffForGroup(g);return `<tr><td><b>${esc(g.n)}</b>${dead?`<br><small style="color:var(--danger)">已解散　${esc(g.sd||"")}</small>`:g.term?`<br><small class="lead">${esc(g.term)}</small>`:""}</td><td>${esc(g.c||g.t)}</td><td>${esc(g.d)}</td><td>${esc(g.a||"")}</td><td>${esc(g.p||"")}</td><td>${telHref(g.tel)?`<a href="${telHref(g.tel)}">${esc(g.tel)}</a>`:esc(g.tel||"")}</td><td>${st?`${esc(st.name)}<br><a href="${telHref(st.tel,st.ext)}">轉 ${esc(st.ext)}</a>`:""}</td></tr>`}).join("")}</tbody></table></div>${r.total>shown?`<div class="row"><button class="btn ghost" id="more">再顯示 50 筆</button></div>`:""}<p class="meta">${dirMetaLine()}</p>`;
+  box.innerHTML=`<p class="lead" style="margin-top:14px">共 ${r.total} 筆${r.fuzzy?"（相近名稱）":""}</p><div class="tablewrap"><table><thead><tr><th>團體名稱</th><th>類別</th><th>鄉鎮市</th><th>會址</th><th>負責人</th><th>電話</th><th>會務承辦</th></tr></thead><tbody>${list.map(g=>{const dead=g.s==="已解散";const st=dead?null:staffForGroup(g);return `<tr><td><b>${esc(g.n)}</b>${dead?`<br><small style="color:var(--danger)">已解散　${esc(g.sd||"")}</small>`:g.term?`<br><small class="lead">${esc(g.term)}</small>`:""}</td><td>${esc(g.c||g.t)}</td><td>${esc(g.d)}</td><td>${esc(g.a||"")}</td><td>${esc(g.p||"")}</td><td>${telHref(g.tel)?`<a href="${telHref(g.tel)}">${esc(g.tel)}</a>`:esc(g.tel||"")}</td><td>${st?`${esc(st.name)}<br><a href="${telHref(st.tel,st.ext)}">轉 ${esc(st.ext)}</a>`:""}</td></tr>`}).join("")}</tbody></table></div>${r.total>shown?`<div class="row"><button class="btn ghost" id="more">再顯示 50 筆</button></div>`:""}<p class="meta">${dirMetaLine()}</p>`;
   const m=$("#more");if(m)m.addEventListener("click",()=>{shown+=50;renderSearch(true)});
 }
 let st=null;["#sq","#st","#sd","#sx"].forEach(s=>$(s).addEventListener("input",()=>{clearTimeout(st);st=setTimeout(()=>renderSearch(),200)}));
@@ -1295,13 +1295,13 @@ function knowledgeText(){
   const arts=Object.entries(ART).map(([k,a])=>`${k}｜${a.law} ${a.art}｜${a.text}`).join("\n");
   const staff=STORE.staff.rows.map(s=>{const l=STORE.dir.rows.length?staffLoad(s):{n:0,top:[]};return `${s.name}｜${s.unit}｜新申請籌組分工：${s.duty}｜目前承辦既有團體 ${l.n} 個（${l.top.join("、")}等）｜08-7320415 轉 ${s.ext}`}).join("\n")+"\n既有團體的承辦人以名冊指定為準（search_groups 結果的「會務承辦」欄），同一類別可能由不同承辦人辦理。"||"（未建立，請撥總機 08-7320415）";
   const forms=STORE.forms.catalog?STORE.forms.catalog.folders.map(f=>`${f.id}：${f.desc}`).join("\n"):"";
-  return `【辦理項目】\n${items}\n【法規條文代碼】\n${arts}\n【承辦人（社會團體、職業團體、老人會）】\n${staff}\n社區發展協會、合作社業務：請撥總機轉社會處詢問。\n【書表分類（forms sub 用 id）】\n${forms}\n【資料概況】名冊 ${STORE.dir.rows.length} 筆（社會處列管之社會團體與職業團體，含已解散），未含社區發展協會與合作社；法規函釋資料 ${STORE.kn.rows.length} 則。\n【機關】屏東縣政府社會處，屏東市自由路527號，總機 08-7320415，服務時間週一至週五 8:00-12:00、13:30-17:30。`;
+  return `【辦理項目】\n${items}\n【法規條文代碼】\n${arts}\n【承辦人（社會團體、職業團體、老人會）】\n${staff}\n社區發展協會、合作社業務：請撥總機轉社會處詢問。\n【書表分類（forms sub 用 id）】\n${forms}\n【資料概況】名冊 ${STORE.dir.rows.length} 筆（社會處列管之社會團體與職業團體，含已解散），另含2026年10月1日合作社名冊；尚未含社區發展協會；法規函釋資料 ${STORE.kn.rows.length} 則。\n【機關】屏東縣政府社會處，屏東市自由路527號，總機 08-7320415，服務時間週一至週五 8:00-12:00、13:30-17:30。`;
 }
 const VIEW_SUBS="biz(sub: social|pro|community|coop)、meet(sub: m-assembly|m-elect|m-board|m-finance|m-roster)、law(sub: 人民團體|屏東縣作業規定|社區發展|合作社|函釋與問答)、forms(sub: 申請表|籌備會|成立大會|常年會|理監事會|改選|解散|範本)、apply(sub: 辦理項目id)、search、contact";
 async function aiAnswer(q,kb){
   let lastGroups=null,lastStaff=null;const seen=new Map();
   const tools=[
-   {name:"search_groups",description:"查詢屏東縣社會處列管之人民團體名冊（社會團體、職業團體，含已解散者；不含社區發展協會與合作社），可用名稱關鍵字、鄉鎮市、團體類別篩選。回傳符合筆數與前20筆（名稱、類別、狀態、會址、理事長、電話、屆別任期、立案證號、會務承辦人與分機）。凡涉及特定團體、某地有哪些團體、團體數量、名稱是否重複或某團體承辦人，都要先呼叫。",
+   {name:"search_groups",description:"查詢屏東縣社會處列管之人民團體名冊（社會團體、職業團體及合作社；合作社為2026年10月1日名冊），可用名稱關鍵字、鄉鎮市、團體類別篩選。回傳符合筆數與前20筆（名稱、類別、狀態、會址、理事長、電話、屆別任期、立案證號、會務承辦人與分機）。凡涉及特定團體、某地有哪些團體、團體數量、名稱是否重複或某團體承辦人，都要先呼叫。",
     inputSchema:{type:"object",properties:{keyword:{type:"string",description:"團體名稱或關鍵字，可空白"},district:{type:"string",description:"鄉鎮市全名，例如長治鄉，可空白"},category:{type:"string",description:"團體類別，例如宗教團體、慈善團體、老人會、體育運動團體、商業團體，可空白"},includeDissolved:{type:"boolean",description:"是否包含已解散團體，預設否"}}},
     execute:(i)=>{if(!STORE.dir.rows.length)return"線上名冊尚未建置，請建議民眾洽承辦人查詢。";const r=searchDir({kw:String(i.keyword||""),d:String(i.district||""),c:String(i.category||""),x:!!i.includeDissolved||!!i.keyword},20);lastGroups=r;return{符合筆數:r.total,是否為相近名稱:r.fuzzy,名冊說明:dirMetaLine(),結果:r.rows.map(rowBrief)}}},
    {name:"search_staff",description:"查詢社會處人民團體相關業務承辦人、職稱、承辦業務、電話與分機。問題涉及找誰辦理、分機、聯絡窗口時呼叫。",
@@ -1522,7 +1522,7 @@ $("#g-file").addEventListener("change",async e=>{
     const label={n:"團體名稱",d:"鄉鎮市",a:"會址",r:"立案字號",p:"理事長",tel:"電話",dt:"立案日期",t:"類別"};
     box.innerHTML=`<h3>預覽</h3>${reports.map(([fn,rep])=>`<p class="lead"><b>${esc(fn)}</b>：${rep.sheets.map(s=>s.ok?`工作表「${esc(s.name)}」已辨識`:`工作表「${esc(s.name)}」找不到團體名稱欄位，已略過`).join("；")}</p>${rep.sheets.filter(s=>s.ok).slice(0,1).map(s=>`<div class="map">${Object.keys(label).map(k=>s.map[k]?`<span>${label[k]} ← ${esc(s.map[k])}</span>`:`<span class="miss">${label[k]}：未找到</span>`).join("")}</div>`).join("")}`).join("")}
       <p><b>共讀取 ${rows.length} 筆</b>　${counts.map(c=>`${c[0]} ${c[1]} 筆`).join("、")}</p>
-      ${rows.length?`<div class="tablewrap"><table><thead><tr><th>團體名稱</th><th>類型</th><th>鄉鎮市</th><th>會址</th><th>立案字號</th><th>理事長</th><th>電話</th></tr></thead><tbody>${rows.slice(0,5).map(g=>`<tr><td>${esc(g.n)}</td><td>${esc(g.t)}</td><td>${esc(g.d)}</td><td>${esc(g.a)}</td><td>${esc(g.r)}</td><td>${esc(g.p)}</td><td>${esc(g.tel)}</td></tr>`).join("")}</tbody></table></div><div class="row"><button class="btn" id="g-go">確認匯入 ${rows.length} 筆</button><button class="btn ghost" id="g-cancel">取消</button></div>`:""}
+      ${rows.length?`<div class="tablewrap"><table><thead><tr><th>團體名稱</th><th>類型</th><th>鄉鎮市</th><th>會址</th><th>立案字號</th><th>負責人</th><th>電話</th></tr></thead><tbody>${rows.slice(0,5).map(g=>`<tr><td>${esc(g.n)}</td><td>${esc(g.t)}</td><td>${esc(g.d)}</td><td>${esc(g.a)}</td><td>${esc(g.r)}</td><td>${esc(g.p)}</td><td>${esc(g.tel)}</td></tr>`).join("")}</tbody></table></div><div class="row"><button class="btn" id="g-go">確認匯入 ${rows.length} 筆</button><button class="btn ghost" id="g-cancel">取消</button></div>`:""}
       <p class="msgline" id="g-status" role="status"></p>`;
     if(rows.length){$("#g-go").addEventListener("click",importGroups);$("#g-cancel").addEventListener("click",()=>{gPending=null;box.innerHTML="";$("#g-file").value=""})}
   }catch(err){box.innerHTML=`<p class="msgline err">${esc(err.message||"檔案讀取失敗，請確認檔案格式。")}</p>`}
@@ -1627,5 +1627,6 @@ touch();
   route();
 })();
 </script>
+<script src="counter-upgrade.js?v=20261105-1"></script>
 </body>
 </html>
