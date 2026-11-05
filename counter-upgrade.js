@@ -28,12 +28,16 @@ searchKn=function(q,limit){
   const people=!coop&&/協會|社會團體|人民團體/.test(q);
   const exact=articleRows(q);
   const results=unscopedSearchKn(String(q).replaceAll('法規說明','白話說明'),STORE.kn.rows.length).filter(hit=>!exact.length||exact.includes(hit._r));
-  return results.filter(hit=>{if(comparison||(!coop&&!people))return true;const row=hit._r;const isCoop=/^合作社/.test(row.cat||'')||/合作社|合作農場/.test(row.title||'');return coop?isCoop:!isCoop}).slice(0,limit||5);
+  return results.filter(hit=>{if(comparison||(!coop&&!people))return true;const row=hit._r;const isCoop=/^合作社/.test(row.cat||'')||/合作社|合作農場/.test(row.title||'');if(people&&!/工會|公會|商業|工業|醫事|社工|護理|律師/.test(q)&&/工會|公會|商業團體|工業團體|醫事|社工師|護理|律師/.test(row.title+' '+row.cat))return false;return coop?isCoop:!isCoop}).slice(0,limit||5);
 };
 const scopedFallback=smartFallback;
 smartFallback=function(q,kb){
   const exact=articleRows(q);
   if(exact.length){const row=exact[0];return{category:'法規說明',title:row.title,summary:row.text,refs:[{title:row.title,cat:'法規說明',source:row.source,date:row.date}],notes:[],actions:[{label:'查詢其他法規',view:'law',sub:/合作社/.test(row.title)?'合作社':'人民團體'}]};}
+  if(/^(?:請問)?(?:人民團體|社會團體|協會)(?:的|有什麼|有哪些|相關)*(?:法規|法令|法律|法)(?:有哪些|是什麼|介紹|說明|查詢|？|\?)*$/.test(q)){
+    const entry=KB.find(e=>e.title==='人民團體相關法令');
+    if(entry)return{...kbAnswer(entry),related:['人民團體法第1條 法規說明','人民團體法第13條 法規說明','人民團體法第25條 法規說明']};
+  }
   if(/合作社/.test(q)&&!/信用|保險|籌組|差別|不同|比較/.test(q)&&/成立|設立/.test(q)&&/文件|準備|應備|怎麼|如何|流程/.test(q)){
     const item=BIZ.coop.items.find(x=>x.id==='o-new');
     return {category:'合作社成立登記',title:'合作社成立登記要準備哪些文件？',summary:'依本縣承辦人提供的清單，成立登記應準備下列13項文件。會議紀錄請附簽到資料，並留意正本、影本及份數。',docs:item.docs,steps:item.steps,laws:item.laws,notes:[],actions:[{label:'看合作社辦理流程',view:'biz',sub:'coop'},{label:'下載合作社書表',view:'forms',sub:'合作社'}]};
