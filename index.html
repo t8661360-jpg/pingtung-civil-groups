@@ -1200,7 +1200,7 @@ function renderAnswer(q,a){
    ${notes.length?`<div class="sec"><h3>${ICON.note}注意事項</h3><ul class="anotes">${notes.map(n=>`<li>${esc(n)}</li>`).join("")}</ul></div>`:""}
    ${(a.related||[]).length?`<div class="sec"><h3>${ICON.note}您可能也想問</h3>${a.related.map(r=>`<button type="button" class="qbtn" data-q="${esc(r)}">${esc(r)}</button>`).join("")}</div>`:""}
    <div class="actions">${acts.map((x,i)=>`<button type="button" class="btn${i?" ghost":""}" data-go="${esc(x.view)}" data-sub="${esc(x.sub||"")}">${esc(x.label)}</button>`).join("")}<button type="button" class="btn ghost" data-home>回到常見問題</button></div>`;
-  if(window.innerWidth<960)board.scrollIntoView({behavior:"smooth",block:"start"});
+  board.scrollIntoView({behavior:"smooth",block:"start"});
 }
 let KB_LAST_SCORE=0;
 const KB_GENERIC=/^(準備哪些|要準備|需要什麼文件|申請文件|怎麼申請|多久|資格|下載|聯絡|電話|分機|承辦|承辦人|找誰|窗口|開會|大會|通知|出席|決議|期限|名稱|名字|線上|網路|書表|範本|表格|法規|法令|條文|報表|登記|法人|好的|了解)$/;
@@ -1358,7 +1358,7 @@ function smartFallback(q,kb){
   }
   const twn=townOf(q);
   if(twn&&/統編|統一編號|國稅|扣繳|所得稅|免稅|報稅/.test(q)){const tr=STORE.kn.rows.find(r=>r.cat==="國稅轄區"&&r.text.includes(twn));if(tr)parts.where=[`${twn}的國稅窗口：`+tr.text,...(parts.where||[])]}
-  if(!kb&&ENTITY_RE.test(q)&&STORE.dir.rows.length){
+  if(!kb&&!parts.summary&&!PROCESS_RE.test(q)&&ENTITY_RE.test(q)&&STORE.dir.rows.length){
     const t=detectType(q),c=detectCat(q),d=townOf(q);
     if(c||t||d){const r=searchDir({kw:"",d,c,t},10);
       if(r.total&&!parts.groups){parts.groups=r.rows.slice(0,6);parts.dirMeta=dirMetaLine();
@@ -1372,7 +1372,7 @@ function smartFallback(q,kb){
     }
   }
   if(STAFF_RE.test(q)){const sa=staffAnswer(q,{});if(sa.staff&&sa.staff.length){parts.staff=sa.staff;if(!parts.summary){parts.summary=sa.summary;parts.category=sa.category;parts.title=sa.title}}}
-  else if(!parts.staff&&!kb){const t=detectType(q),c=detectCat(q);const sf=staffFor(t,c);if(sf.length)parts.staff=sf}
+  else if(!parts.staff&&!kb&&!parts.summary){const t=detectType(q),c=detectCat(q);const sf=staffFor(t,c);if(sf.length)parts.staff=sf}
   if(!parts.summary){
     const sf=staffFor(detectType(q),detectCat(q));
     return{category:"其他",title:"這題我幫您轉給承辦人",summary:"這個問題我手邊的資料不太夠，怕回答不夠精確，建議直接打電話問承辦人比較放心。"+contactLine(sf)+"可以給您最正確的答覆。您也可以換個問法試試，例如直接輸入團體名稱就能查詳細資料。",staff:sf,notes:[],actions:[{label:"聯絡承辦",view:"contact",sub:""},{label:"回到常見問題",view:"home",sub:""}]};
@@ -1627,6 +1627,6 @@ touch();
   route();
 })();
 </script>
-<script src="counter-upgrade.js?v=20261105-2"></script>
+<script src="counter-upgrade.js?v=20261105-3"></script>
 </body>
 </html>
