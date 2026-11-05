@@ -1188,7 +1188,7 @@ function renderAnswer(q,a){
   board.innerHTML=`<div class="qline"><span class="who">您問</span><b>${esc(q)}</b></div>
    <span class="acat">${esc(a.category||"服務說明")}</span>
    <h2 class="atitle">${esc(a.title||"小屏的回覆")}</h2>
-   <p class="summary">${esc(a.summary||"")}</p>
+   <div class="summary">${esc(a.summary||"")}</div>
    ${groups.length?`<div class="sec"><h3>${ICON.org}團體資料</h3><div class="glist">${groups.map((g,i)=>groupCard(g,a.hitFirst&&i===0)).join("")}</div>${a.dirMeta?`<div class="lawfoot">${esc(a.dirMeta)}</div>`:""}</div>`:""}
    ${staff.length?`<div class="sec"><h3>${ICON.person}承辦人</h3><div class="contactlist">${staff.map(staffCard).join("")}</div></div>`:""}
    ${steps.length?`<div class="sec"><h3>${ICON.step}辦理步驟</h3>${stepsList(steps)}</div>`:""}
@@ -1627,6 +1627,6 @@ touch();
   route();
 })();
 </script>
-<script src="counter-upgrade.js?v=20261105-5"></script>
+<script src="counter-upgrade.js?v=20261105-6"></script>
 </body>
 </html>

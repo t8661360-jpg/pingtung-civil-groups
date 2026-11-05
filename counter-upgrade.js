@@ -11,7 +11,22 @@ function readable(text){
   return plainText(text).split(/\n+|(?<=[。！？])\s*/).map(s=>s.trim()).filter(Boolean).map(s=>`<p>${esc(s)}</p>`).join('');
 }
 function sourceLinks(source){return [...new Set(String(source||'').match(/https?:\/\/[^\s|]+/g)||[])].filter(u=>{try{return ['https:','http:'].includes(new URL(u).protocol)}catch{return false}}).map((u,i)=>`<a target="_blank" rel="noopener" href="${esc(u)}">${i?'相關依據':'查閱原始資料'} ↗</a>`).join('　')}
-function knowledgeCard(r){return `<details class="plain-card"><summary>${esc(r.title.replaceAll('白話說明','法規說明'))}<small>${esc(r.cat==='正式函釋索引'?'函釋資料與現行對照':r.cat==='逐條法規白話導讀'?'法規導讀':'實務問題說明')}</small></summary><div class="plain-content"><h3>法規說明</h3>${readable(r.text)}<details><summary>資料來源與適用提醒</summary><p>${sourceLinks(r.source)}</p><p>資料日期：${esc(r.date||'未標示')}。這是輔助說明，個案應核對現行法規、章程與原函適用情況。</p>${r.review?`<p>${esc(r.review)}</p>`:''}</details></div></details>`}
+let statuteData={laws:{}},statutePromise=null;
+async function loadStatutes(){
+ if(!statutePromise)statutePromise=(async()=>{const response=await fetch('data/statutes.json.gz?v=20261105-1');if(!response.ok)throw Error('法條原文讀取失敗');const bytes=new Uint8Array(await response.arrayBuffer());let text;if(bytes[0]===31&&bytes[1]===139){text=await new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'))).text()}else text=new TextDecoder().decode(bytes);statuteData=JSON.parse(text)})().catch(error=>{console.warn(error);statutePromise=null});
+ return statutePromise;
+}
+function statuteFor(row){
+ if(!row)return null;const code=String(row.source||'').match(/pcode=([A-Z0-9]+)/);const number=String(row.title||'').match(/第\s*(\d+(?:-\d+)?)\s*條/);if(!code||!number)return null;
+ const law=statuteData.laws[code[1]];if(!law||!law.articles[number[1]]||!norm(row.title).startsWith(norm(law.name)))return null;
+ return {...law,number:number[1],text:law.articles[number[1]],url:`https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=${code[1]}&flno=${number[1]}`};
+}
+function originalLawBlock(row){
+ const original=statuteFor(row);
+ if(!original)return '<section class="statute-original"><h3>法條原文</h3><p>這則資料的條文原文尚未完成對應，請先查閱官方原文。</p><p>'+sourceLinks(row&&row.source)+'</p></section>';
+ return `<section class="statute-original"><h3>法條原文</h3><p class="statute-caption">${esc(original.name)} 第${esc(original.number)}條</p><div class="statute-text">${esc(original.text)}</div><p class="statute-version">${esc(original.modified||'版本日期請見官方來源')}｜原文核對：${esc(original.verifiedAt)}</p><a href="${esc(original.url)}" target="_blank" rel="noopener">查閱官方本條原文 ↗</a></section>`;
+}
+function knowledgeCard(r){return `<details class="plain-card"><summary>${esc(r.title.replaceAll('白話說明','法規說明'))}<small>${esc(r.cat==='正式函釋索引'?'函釋資料與現行對照':r.cat==='逐條法規白話導讀'?'法規導讀':'實務問題說明')}</small></summary><div class="plain-content">${r.cat==='逐條法規白話導讀'?originalLawBlock(r):''}<h3>法規說明</h3>${readable(r.text)}<details><summary>資料來源與適用提醒</summary><p>${sourceLinks(r.source)}</p><p>資料日期：${esc(r.date||'未標示')}。這是輔助說明，個案應核對現行法規、章程與原函適用情況。</p>${r.review?`<p>${esc(r.review)}</p>`:''}</details></div></details>`}
 const COOP_RULING={title:'合作社社員大會通過的決議，一定有效嗎？',cat:'正式函釋索引',date:'2014-12-17',source:'https://mojlaw.moj.gov.tw/LawContentExShow.aspx?etype=etype5&id=FE274576&keyword=&type=E',text:'法務部法律字第10303514440號函說明：決議即使經社員大會表決通過，也不能違反法律的強制或禁止規定。\n本函針對消費合作社分配盈餘的個案表示：如果主管機關認定相關規定屬強制規定，且該分配決議違反規定，決議就可能無效。\n對民眾來說，投票通過不等於合法。遇到盈餘分配或追繳爭議，應把決議、交易及主管機關文件一併交給承辦人確認。\n本函討論的是特定歷史案件；不能直接推論所有分配決議都無效，仍須核對現行規定與個案事實。'};
 const baseLoadAll=loadAll;
 function articleRows(q){
@@ -48,7 +63,7 @@ smartFallback=function(q,kb){
   }
   return scopedFallback(q,kb);
 };
-loadAll=async function(force){await baseLoadAll(force);if(!STORE.coopLoaded){
+loadAll=async function(force){await baseLoadAll(force);await loadStatutes();if(!STORE.coopLoaded){
   try{const responses=await Promise.all([fetch('data/coop/directory.json'),fetch('data/coop/catalog.json')]);if(responses.some(r=>!r.ok))throw Error('合作社資料載入失敗');const [dir,cat]=await Promise.all(responses.map(r=>r.json()));STORE.dir.rows=STORE.dir.rows.filter(r=>r.t!=='合作社').concat(dir.rows.map(r=>({...r,d:townOf(r.a)})));coopCatalog=cat.files;STORE.coopLoaded=true;fillCatSelect()}catch(e){console.warn(e)}
 }if(!STORE.kn.rows.some(r=>r.title===COOP_RULING.title)){STORE.kn.rows.push(COOP_RULING);KN_IDX=null}};
 const oldDirMetaLine=dirMetaLine;
@@ -70,11 +85,12 @@ renderForms=async function(){const selected=formCat;await baseRenderForms();
 const baseIntent=intentOf;
 intentOf=function(q){if(/(?:法|辦法|細則|準則)第[0-9一二三四五六七八九十百]+|法規說明|函釋/.test(q))return{kind:'ai'};return baseIntent(q)};
 const baseAnswer=renderAnswer;
-renderAnswer=function(q,a){const label=s=>String(s||'').replaceAll('逐條法規白話導讀','逐條法規說明').replaceAll('白話說明','法規說明');a={...a,title:label(a.title),category:label(a.category),related:(a.related||[]).map(label),refs:(a.refs||[]).map(r=>({...r,title:label(r.title),cat:label(r.cat)}))};baseAnswer(q,a);const el=board.querySelector('.summary');if(el)el.innerHTML=readable(a.summary||'');};
+renderAnswer=function(q,a){const label=s=>String(s||'').replaceAll('逐條法規白話導讀','逐條法規說明').replaceAll('白話說明','法規說明');a={...a,title:label(a.title),category:label(a.category),related:(a.related||[]).map(label),refs:(a.refs||[]).map(r=>({...r,title:label(r.title),cat:label(r.cat)}))};baseAnswer(q,a);const el=board.querySelector('.summary');if(el){const row=articleRows(a.title||q)[0];el.innerHTML=(row?originalLawBlock(row)+'<h3>法規說明</h3>':'')+readable(a.summary||'');}};
 function renderMeetUpgrade(){
  $('#meetbody').innerHTML=`<div class="tabs" role="tablist"><button class="tab" role="tab" id="meet-people" aria-selected="true">人民團體會務</button><button class="tab" role="tab" id="meet-coop" aria-selected="false">合作社會務</button></div><div id="meet-content"></div>`;
  const draw=coop=>{$('#meet-people').setAttribute('aria-selected',!coop);$('#meet-coop').setAttribute('aria-selected',coop);$('#meet-content').innerHTML=coop?`<div class="panel"><h2>合作社會務怎麼辦？</h2><p>先確認您要辦的是開會、改選、年度財務或變更登記，再選擇下列項目。</p>${[["社員大會與理監事會","先確認章程及會議種類，再準備通知、議程與簽到表；會後整理紀錄及決議。",5],["改選與交接","先確認任期、選舉方式及候選程序，再使用對應的選票、委託書與會議紀錄表單。",6],["年度決算與預算","依合作社的會計年度準備決算、監事審核及社員大會紀錄，核對應報送的書表。",4],["理監事、章程或社址變更","先完成必要的會議決議，再準備變更申請及相關證明。",3],["解散與清算","解散及清算有不同階段，請依承辦人提供的流程與各階段書表辦理。",7]].map(([t,d,n])=>`<div class="sec"><h3>${t}</h3><p>${d}</p><a href="data/coop/forms-${n}.zip" download>下載對應書表</a>　<button class="btn ghost" data-coop-law="${t}">查法規說明</button></div>`).join('')}</div>`:MEET.map(itemPanel).join('');$('#meet-content').querySelectorAll('[data-coop-law]').forEach(b=>b.onclick=()=>{lawCat='合作社';location.hash='law';renderLaw()})};$('#meet-people').onclick=()=>draw(false);$('#meet-coop').onclick=()=>draw(true);draw(false);
 }
+const statuteStyle=document.createElement('style');statuteStyle.textContent='.statute-original{margin:0 0 24px;padding:20px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink)}.statute-original h3{margin-top:0}.statute-caption{font-weight:700}.statute-text{white-space:pre-wrap;font-size:1rem;line-height:1.9;text-align:left}.statute-version{font-size:.85rem;color:var(--muted);margin-top:16px!important}.statute-original a{font-size:.9rem}.plain-content .statute-original{margin-top:8px}.summary>h3{margin:20px 0 12px}';document.head.append(statuteStyle);
 const upgradeStyle=document.createElement('style');upgradeStyle.textContent='.knowledge-filters{display:grid;grid-template-columns:1fr 1fr 2fr;gap:16px}.plain-card{border:1px solid var(--line);border-radius:12px;margin:12px 0;background:var(--surface);color:var(--ink)}.plain-card>summary{cursor:pointer;padding:18px;font-weight:600;line-height:1.7}.plain-card small{display:block;font-weight:400;color:var(--muted);margin-top:4px}.plain-content{padding:0 22px 22px;max-width:78ch;font-size:17px;line-height:1.9;overflow-wrap:anywhere}.plain-content p,.summary p{margin:0 0 14px}.plain-content details{border-top:1px solid var(--line);padding-top:12px;font-size:14px}.summary{line-height:1.9}@media(max-width:650px){.knowledge-filters{grid-template-columns:1fr}.plain-content{padding:0 16px 16px}}';document.head.append(upgradeStyle);
 loadAll().then(()=>{fillCatSelect();renderMeetUpgrade();route()});
 
