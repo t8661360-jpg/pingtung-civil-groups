@@ -1389,10 +1389,12 @@ async function ask(q){
   const lines=intent.kind==="dir"?["理解您的問題","比對團體名冊","整理查詢結果"]:intent.kind==="staff"?["理解您的問題","查詢承辦人資料"]:["理解您的問題","查閱法規、函釋與名冊","整理辦理步驟與應備文件"];
   const stop=thinkingView(q,lines);
   const t0=Date.now();
-  if(caps.db)await loadAll();
+  await loadAll();
   let ans=null;
   try{
-    if(intent.kind==="dir")ans=dirAnswer(q,intent);
+    const exact=typeof exactArticleAnswer==="function"?exactArticleAnswer(q):null;
+    if(exact)ans=exact;
+    else if(intent.kind==="dir")ans=dirAnswer(q,intent);
     else if(intent.kind==="staff")ans=staffAnswer(q,intent);
     else{
       const kb=matchKB(q);
@@ -1627,6 +1629,6 @@ touch();
   route();
 })();
 </script>
-<script src="counter-upgrade.js?v=20261105-6"></script>
+<script src="counter-upgrade.js?v=20261105-7"></script>
 </body>
 </html>

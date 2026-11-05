@@ -30,10 +30,17 @@ function knowledgeCard(r){return `<details class="plain-card"><summary>${esc(r.t
 const COOP_RULING={title:'合作社社員大會通過的決議，一定有效嗎？',cat:'正式函釋索引',date:'2014-12-17',source:'https://mojlaw.moj.gov.tw/LawContentExShow.aspx?etype=etype5&id=FE274576&keyword=&type=E',text:'法務部法律字第10303514440號函說明：決議即使經社員大會表決通過，也不能違反法律的強制或禁止規定。\n本函針對消費合作社分配盈餘的個案表示：如果主管機關認定相關規定屬強制規定，且該分配決議違反規定，決議就可能無效。\n對民眾來說，投票通過不等於合法。遇到盈餘分配或追繳爭議，應把決議、交易及主管機關文件一併交給承辦人確認。\n本函討論的是特定歷史案件；不能直接推論所有分配決議都無效，仍須核對現行規定與個案事實。'};
 const baseLoadAll=loadAll;
 function articleRows(q){
-  const match=String(q).match(/([\u4e00-\u9fff]+(?:法|辦法|細則|準則))第\s*(\d+(?:-\d+)?)\s*條/);
+  const match=String(q).normalize('NFKC').match(/([\u4e00-\u9fff]+(?:法|辦法|細則|準則))第\s*(\d+(?:-\d+)?)\s*條/);
   if(!match)return[];
   const law=match[1].replace(/^(請問|查詢|查一下|說明|解釋)/,'');const key=norm(law+'第'+match[2]+'條');
   return STORE.kn.rows.filter(row=>norm(row.title).startsWith(key));
+}
+function exactArticleAnswer(q){
+  const match=String(q).normalize('NFKC').match(/([\u4e00-\u9fff]+(?:法|辦法|細則|準則))第\s*(\d+(?:-\d+)?)\s*條/);
+  if(!match)return null;
+  const rows=articleRows(q);
+  if(rows.length){const row=rows[0];return{category:'法規說明',title:row.title,summary:row.text,refs:[{title:row.title,cat:'法規說明',source:row.source,date:row.date}],notes:[],actions:[{label:'查詢其他法規',view:'law',sub:/合作社/.test(row.title)?'合作社':'人民團體'}]};}
+  return{category:'條文查詢',title:match[1].replace(/^(請問|查詢|查一下|說明|解釋)/,'')+'第'+match[2]+'條',summary:'目前尚未找到這一條的完整對應資料，請確認法規名稱與條號，或至相關法令頁查閱官方原文。',notes:[],actions:[{label:'前往法規查詢',view:'law',sub:/合作社/.test(q)?'合作社':'人民團體'}]};
 }
 // Scope retrieval before selecting the best result, rather than filtering only the top hit.
 const unscopedSearchKn=searchKn;
@@ -85,7 +92,7 @@ renderForms=async function(){const selected=formCat;await baseRenderForms();
 const baseIntent=intentOf;
 intentOf=function(q){if(/(?:法|辦法|細則|準則)第[0-9一二三四五六七八九十百]+|法規說明|函釋/.test(q))return{kind:'ai'};return baseIntent(q)};
 const baseAnswer=renderAnswer;
-renderAnswer=function(q,a){const label=s=>String(s||'').replaceAll('逐條法規白話導讀','逐條法規說明').replaceAll('白話說明','法規說明');a={...a,title:label(a.title),category:label(a.category),related:(a.related||[]).map(label),refs:(a.refs||[]).map(r=>({...r,title:label(r.title),cat:label(r.cat)}))};baseAnswer(q,a);const el=board.querySelector('.summary');if(el){const row=articleRows(a.title||q)[0];el.innerHTML=(row?originalLawBlock(row)+'<h3>法規說明</h3>':'')+readable(a.summary||'');}};
+renderAnswer=function(q,a){const exact=exactArticleAnswer(q);if(exact)a=exact;const label=s=>String(s||'').replaceAll('逐條法規白話導讀','逐條法規說明').replaceAll('白話說明','法規說明');a={...a,title:label(a.title),category:label(a.category),related:(a.related||[]).map(label),refs:(a.refs||[]).map(r=>({...r,title:label(r.title),cat:label(r.cat)}))};baseAnswer(q,a);const el=board.querySelector('.summary');if(el){const row=articleRows(a.title||q)[0];el.innerHTML=(row?originalLawBlock(row)+'<h3>法規說明</h3>':'')+readable(a.summary||'');}};
 function renderMeetUpgrade(){
  $('#meetbody').innerHTML=`<div class="tabs" role="tablist"><button class="tab" role="tab" id="meet-people" aria-selected="true">人民團體會務</button><button class="tab" role="tab" id="meet-coop" aria-selected="false">合作社會務</button></div><div id="meet-content"></div>`;
  const draw=coop=>{$('#meet-people').setAttribute('aria-selected',!coop);$('#meet-coop').setAttribute('aria-selected',coop);$('#meet-content').innerHTML=coop?`<div class="panel"><h2>合作社會務怎麼辦？</h2><p>先確認您要辦的是開會、改選、年度財務或變更登記，再選擇下列項目。</p>${[["社員大會與理監事會","先確認章程及會議種類，再準備通知、議程與簽到表；會後整理紀錄及決議。",5],["改選與交接","先確認任期、選舉方式及候選程序，再使用對應的選票、委託書與會議紀錄表單。",6],["年度決算與預算","依合作社的會計年度準備決算、監事審核及社員大會紀錄，核對應報送的書表。",4],["理監事、章程或社址變更","先完成必要的會議決議，再準備變更申請及相關證明。",3],["解散與清算","解散及清算有不同階段，請依承辦人提供的流程與各階段書表辦理。",7]].map(([t,d,n])=>`<div class="sec"><h3>${t}</h3><p>${d}</p><a href="data/coop/forms-${n}.zip" download>下載對應書表</a>　<button class="btn ghost" data-coop-law="${t}">查法規說明</button></div>`).join('')}</div>`:MEET.map(itemPanel).join('');$('#meet-content').querySelectorAll('[data-coop-law]').forEach(b=>b.onclick=()=>{lawCat='合作社';location.hash='law';renderLaw()})};$('#meet-people').onclick=()=>draw(false);$('#meet-coop').onclick=()=>draw(true);draw(false);
