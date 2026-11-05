@@ -74,6 +74,6 @@ assert.match(qa.resolve('那可以延期多久',{prior}).summary,/主管機關�
 assert.match(qa.resolve('那合作社呢',{prior}).summary,/不能直接套用/);
 assert.equal(qa.understand('那可以延期多久').focus,'other');
 assert.equal(qa.understand('合作社呢',qa.understand('會員大會幾天前通知')).domain,'coop');
-const fs=require('node:fs');const laws=JSON.parse(fs.readFileSync('data/statutes.json','utf8')).laws;
+const fs=require('node:fs');const laws=JSON.parse(require('node:zlib').gunzipSync(fs.readFileSync('data/statutes.json.gz')).toString('utf8')).laws;
 for(const [question] of cases){for(const row of qa.resolve(question)?.statutes||[]){const code=row.source.match(/pcode=(\w+)/)[1],n=row.title.match(/第(\d+)條/)[1];assert.ok(laws[code]?.articles[n],question+' missing statutory source');}}
 console.log('Passed '+cases.length+' intent cases, 14 answer checks, 8 context checks and all statutory references.');
