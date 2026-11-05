@@ -46,30 +46,18 @@ function clarifyIncompleteQuestion(q){
  if(Object.prototype.hasOwnProperty.call(topics,key))return {category:'確認問題',title:'請再告訴我您的需求',summary:topics[key],notes:[],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
  return null;
 }
+const TAX_OFFICES=[["\u5c4f\u6771\u5206\u5c40","\u5c4f\u6771\u7e23\u5c4f\u6771\u5e02\u5317\u8208\u885755\u865f","08-7311166","\u5c4f\u6771\u5e02 \u4e5d\u5982\u9109 \u91cc\u6e2f\u9109 \u9ad8\u6a39\u9109 \u9e7d\u57d4\u9109 \u9577\u6cbb\u9109 \u9e9f\u6d1b\u9109 \u842c\u4e39\u9109 \u746a\u5bb6\u9109 \u4e09\u5730\u9580\u9109 \u9727\u81fa\u9109"],["\u6771\u6e2f\u7a3d\u5fb5\u6240","\u5c4f\u6771\u7e23\u6771\u6e2f\u93ae\u65b0\u751f\u4e8c\u8def16\u865f","08-8330132","\u6771\u6e2f\u93ae \u65b0\u5712\u9109 \u5d01\u9802\u9109 \u5357\u5dde\u9109 \u7409\u7403\u9109 \u6797\u908a\u9109 \u4f73\u51ac\u9109"],["\u6f6e\u5dde\u7a3d\u5fb5\u6240","\u5c4f\u6771\u7e23\u6f6e\u5dde\u93ae\u6c38\u5eb7\u885766\u865f","08-7899871","\u6f6e\u5dde\u93ae \u5167\u57d4\u9109 \u7af9\u7530\u9109 \u842c\u5dd2\u9109 \u65b0\u57e4\u9109 \u678b\u5bee\u9109 \u4f86\u7fa9\u9109 \u6cf0\u6b66\u9109 \u6625\u65e5\u9109"],["\u6046\u6625\u7a3d\u5fb5\u6240","\u5c4f\u6771\u7e23\u6046\u6625\u93ae\u5357\u9580\u8def98\u865f2\u6a13","08-8892484","\u6046\u6625\u93ae \u8eca\u57ce\u9109 \u678b\u5c71\u9109 \u6eff\u5dde\u9109 \u7261\u4e39\u9109 \u7345\u5b50\u9109"]];
 function taxRegistrationAnswer(q){
-
- const text=String(q||'').normalize('NFKC').replace(/\s+/g,'');
-
+ const text=String(q||'').normalize('NFKC').replace(/\s+/g,'').replaceAll('\u81fa','\u53f0');
  if(!/(?:\u7d71\u7de8|\u7d71\u4e00\u7de8\u865f)/.test(text)||!/(?:\u7533\u8acb|\u8fa6\u7406|\u8fa6|\u54ea\u88e1|\u4f55\u8655|\u54ea\u88cf|\u600e\u9ebc|\u5982\u4f55|\u53bb\u54ea)/.test(text)||/(?:\u958b\u6236|\u67e5\u7d71\u7de8|\u67e5\u8a62\u7d71\u7de8|\u7d71\u4e00\u7de8\u865f\u662f)/.test(text))return null;
-
- const town=townOf(text);
-
- const local=town==='\u5167\u57d4\u9109';
-
- if(/合作社/.test(text)||town==='枋山鄉'){
- const office=town==='枋山鄉'?'枋山鄉的會址或社址屬南區國稅局恆春稽徵所轄區。地址：屏東縣恆春鎮南門路98號2樓；電話：08-8892484。':town==='內埔鄉'?'內埔鄉的會址或社址屬南區國稅局潮州稽徵所轄區。地址：屏東縣潮州鎮永康街66號；電話：08-7899871。':'請向會址或社址所在地的國稅局分局或稽徵所確認轄區。';
- const people=/協會|社會團體|人民團體|社團/.test(text);
- const coop=/合作社/.test(text);
- const summary=office+'\n'+(people?'協會：可詢問非營利事業單位統一編號的申請方式。':'')+(coop?'\n合作社：請攜帶成立登記資料，向國稅局確認目前是否已有統編、是否需辦稅籍或扣繳登記，以及適用表件；應依實際業務和登記狀態辦理。':'')+'\n出發前請致電確認應備文件與辦理方式。';
- return {category:'統一編號申請',title:'協會與合作社的統一編號如何辦理？',summary,refs:[{title:'南區國稅局服務地點與轄區',cat:'官方來源',source:'https://www.ntbsa.gov.tw/singlehtml/89c6b7678693468287b33f6443b9e19c'}],notes:[],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
- }
-
- const summary=local?'\u5982\u679c\u5354\u6703\u6703\u5740\u5728\u5167\u57d4\u9109\uff0c\u53ef\u5411\u8ca1\u653f\u90e8\u5357\u5340\u570b\u7a05\u5c40\u6f6e\u5dde\u7a3d\u5fb5\u6240\u8a62\u554f\u975e\u71df\u5229\u4e8b\u696d\u55ae\u4f4d\u7d71\u4e00\u7de8\u865f\u7de8\u914d\u3002\n\u5730\u5740\uff1a\u5c4f\u6771\u7e23\u6f6e\u5dde\u93ae\u6c38\u5eb7\u885766\u865f\u3002\u96fb\u8a71\uff1a08-7899871\uff0c\u53ef\u8a62\u554f\u5206\u6a5f202\u3002\n\u8acb\u5148\u544a\u77e5\u5718\u9ad4\u985e\u578b\u8207\u6703\u5740\uff0c\u5411\u570b\u7a05\u5c40\u78ba\u8a8d\u7533\u8acb\u65b9\u5f0f\u548c\u61c9\u5099\u6587\u4ef6\u3002':'\u5354\u6703\u7d71\u4e00\u7de8\u865f\u53ef\u5411\u6703\u5740\u6240\u5728\u5730\u7684\u570b\u7a05\u5c40\u5206\u5c40\u6216\u7a3d\u5fb5\u6240\u8a62\u554f\u3002\u8acb\u63d0\u4f9b\u6703\u5740\u6240\u5728\u9109\u93ae\u5e02\uff0c\u4e26\u5411\u570b\u7a05\u5c40\u78ba\u8a8d\u8f44\u5340\u53ca\u61c9\u5099\u6587\u4ef6\u3002';
-
- return {category:'\u7d71\u4e00\u7de8\u865f\u7533\u8acb',title:local?'\u5167\u57d4\u9109\u5354\u6703\u5411\u54ea\u88e1\u7533\u8acb\u7d71\u4e00\u7de8\u865f\uff1f':'\u5354\u6703\u7d71\u4e00\u7de8\u865f\u5411\u54ea\u88e1\u7533\u8acb\uff1f',summary,refs:[{title:'\u5357\u5340\u570b\u7a05\u5c40\u670d\u52d9\u5730\u9ede\u8207\u8f44\u5340',cat:'\u5b98\u65b9\u4f86\u6e90',source:'https://www.ntbsa.gov.tw/singlehtml/89c6b7678693468287b33f6443b9e19c'},{title:'\u6f6e\u5dde\u7a3d\u5fb5\u6240\u8aee\u8a62\u7a97\u53e3',cat:'\u5b98\u65b9\u4f86\u6e90',source:'https://www.ntbsa.gov.tw/singlehtml/99707a44b82046f79601206d3d1c647d'}],notes:[],actions:[{label:'\u806f\u7d61\u627f\u8fa6',view:'contact',sub:''}]};
-
+ const all=TAX_OFFICES.flatMap(o=>o[3].split(' '));const matches=all.filter(t=>text.includes(t.replaceAll('\u81fa','\u53f0')));if(!matches.length){const t=townOf(text);if(t)matches.push(t)}
+ const selected=TAX_OFFICES.filter(o=>matches.some(t=>o[3].split(' ').includes(t)));
+ const office=selected.length?selected.map(o=>"\u82e5\u6703\u5740\u6216\u793e\u5740\u4f4d\u65bc"+matches.filter(t=>o[3].split(' ').includes(t)).join('\u3001')+"\uff0c\u53ef\u6d3d\u5357\u5340\u570b\u7a05\u5c40"+o[0]+"\u3002\u5730\u5740\uff1a"+o[1]+"\uff1b\u96fb\u8a71\uff1a"+o[2]+"\u3002").join('\n'):"\u8acb\u63d0\u4f9b\u5354\u6703\u6703\u5740\u6216\u5408\u4f5c\u793e\u793e\u5740\u6240\u5728\u7684\u5c4f\u6771\u7e23\u9109\u93ae\u5e02\uff0c\u4ee5\u78ba\u8a8d\u570b\u7a05\u8f44\u5340\u3002";
+ const people=/(?:\u5354\u6703|\u793e\u6703\u5718\u9ad4|\u4eba\u6c11\u5718\u9ad4|\u793e\u5718|\u793e\u5340)/.test(text);
+ const coop=/\u5408\u4f5c\u793e/.test(text);
+ const summary=office+(people?'\n'+"\u5354\u6703\u6216\u793e\u5340\u767c\u5c55\u5354\u6703\uff1a\u53ef\u8a62\u554f\u975e\u71df\u5229\u4e8b\u696d\u55ae\u4f4d\u7d71\u4e00\u7de8\u865f\u7684\u7533\u8acb\u65b9\u5f0f\u3002":'')+(coop?'\n'+"\u5408\u4f5c\u793e\uff1a\u8acb\u5148\u5411\u570b\u7a05\u5c40\u78ba\u8a8d\u662f\u5426\u5df2\u6709\u7d71\u7de8\uff0c\u53ca\u662f\u5426\u9700\u8981\u8fa6\u7406\u7a05\u7c4d\u6216\u6263\u7e73\u767b\u8a18\uff1b\u9069\u7528\u8868\u4ef6\u4f9d\u5be6\u969b\u696d\u52d9\u53ca\u767b\u8a18\u72c0\u614b\u78ba\u8a8d\u3002":'')+'\n'+"\u8acb\u5148\u81f4\u96fb\u570b\u7a05\u5c40\u78ba\u8a8d\u9069\u7528\u7a0b\u5e8f\u53ca\u61c9\u5099\u6587\u4ef6\u3002";
+ return {category:"\u7d71\u4e00\u7de8\u865f\u7533\u8acb",title:"\u7d71\u4e00\u7de8\u865f\u8981\u5411\u54ea\u88e1\u7533\u8acb\uff1f",summary,refs:[{title:"\u570b\u7a05\u5c40\u670d\u52d9\u5730\u9ede\u8207\u8f44\u5340\uff082026-11-05\u6838\u5c0d\uff09",cat:"\u5b98\u65b9\u4f86\u6e90",source:'https://www.ntbsa.gov.tw/singlehtml/89c6b7678693468287b33f6443b9e19c'}],notes:[],actions:[{label:"\u806f\u7d61\u627f\u8fa6",view:'contact',sub:''}]};
 }
-
 function focusedQuestionAnswer(q){return window.CounterQuestions?window.CounterQuestions.resolve(q,{prior:lastQuestionContext,electionDocuments:(MEET.find(item=>item.id==='m-elect')||{}).docs||[]}):null;}
 function exactArticleAnswer(q){
   const match=String(q).normalize('NFKC').match(/([\u4e00-\u9fff]+(?:法|辦法|細則|準則))第\s*(\d+(?:-\d+)?)\s*條/);
