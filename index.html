@@ -1395,7 +1395,9 @@ async function ask(q){
     const exact=typeof exactArticleAnswer==="function"?exactArticleAnswer(q):null;
     const focused=typeof focusedQuestionAnswer==="function"?focusedQuestionAnswer(q):null;
     const clarification=typeof clarifyIncompleteQuestion==="function"?clarifyIncompleteQuestion(q):null;
-    if(clarification)ans=clarification;
+    const taxAnswer=typeof taxRegistrationAnswer==='function'?taxRegistrationAnswer(q):null;
+    if(taxAnswer)ans=taxAnswer;
+    else if(clarification)ans=clarification;
     else if(exact)ans=exact;
     else if(focused)ans=focused;
     else if(intent.kind==="dir")ans=dirAnswer(q,intent);
@@ -1634,6 +1636,6 @@ touch();
 })();
 </script>
 <script src="question-understanding.js?v=20261105-1"></script>
-<script src="counter-upgrade.js?v=20261105-13"></script>
+<script src="counter-upgrade.js?v=20261105-14"></script>
 </body>
 </html>
