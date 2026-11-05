@@ -972,7 +972,8 @@ function itemPanel(it){
 function renderBiz(){
   $("#biztabs").innerHTML=Object.entries(BIZ).map(([k,v])=>`<button class="tab" role="tab" aria-selected="${k===bizType}" data-k="${k}">${v.name}</button>`).join("");
   const b=BIZ[bizType];
-  $("#bizbody").innerHTML=`<div class="panel"><h2>${b.name}</h2><p class="lead">${esc(b.lead)}</p><div class="sec">${lawBox(b.laws)}</div></div>`+b.items.map(itemPanel).join("");
+  const coopFiles = bizType === "coop" ? `<div class="panel"><h2>合作社書表下載</h2><p>由承辦人提供，依辦理階段分類。下載後請解壓縮；表單版本及應備文件請向主管機關確認。</p>${[[1,"籌組表單",7],[2,"成立表單",21],[3,"變更表單",12],[4,"決算書表及社員大會紀錄",7],[5,"各項會議表單",6],[6,"相關書表範例（含改選）",17],[7,"解散及清算表單",11]].map(([id,title,count])=>`<div class="sec"><a href="data/coop/forms-${id}.zip" download>${title}（${count} 個檔案，ZIP）</a></div>`).join("")}</div>` : "";
+  $("#bizbody").innerHTML=`<div class="panel"><h2>${b.name}</h2><p class="lead">${esc(b.lead)}</p><div class="sec">${lawBox(b.laws)}</div></div>`+coopFiles+b.items.map(itemPanel).join("");
 }
 $("#biztabs").addEventListener("click",e=>{const t=e.target.closest("[data-k]");if(t){bizType=t.dataset.k;renderBiz()}});
 $("#meetbody").innerHTML=MEET.map(itemPanel).join("");
