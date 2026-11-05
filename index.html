@@ -772,7 +772,7 @@ async function loadAll(force){
     const base=document.baseURI.replace(/[^/]*$/,"")+"data/";
     const jf=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);return r.json()};
     const jgz=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);const b=new Uint8Array(await r.arrayBuffer());if(b[0]!==31||b[1]!==139)return JSON.parse(new TextDecoder().decode(b));if(typeof DecompressionStream==="undefined")throw new Error("gzip unsupported");const text=await new Response(new Blob([b]).stream().pipeThrough(new DecompressionStream("gzip"))).text();return JSON.parse(text)};
-    const [d,s,k,f]=await Promise.allSettled([jf(base+"directory.json"),jf(base+"staff.json"),jgz(base+"knowledge.json.gz").catch(()=>jf(base+"knowledge.json")),jf(base+"forms-catalog.json")]);
+    const [d,s,k,f]=await Promise.allSettled([jf(base+"directory.json"),jf(base+"staff.json"),jgz(base+"knowledge.json.gz").catch(()=>jf(base+"knowledge.json")),jf(base+"forms-catalog.json?v=20261105-5")]);
     if(d.status==="fulfilled"){const v=d.value;STORE.dir={rows:v.rows||[],meta:v.meta||null}}
     if(s.status==="fulfilled"){const v=s.value;STORE.staff={rows:v.rows||[],updatedAt:v.updatedAt,source:v.source||""}}
     if(k.status==="fulfilled")STORE.kn={rows:k.value.rows||[],meta:k.value.meta||null};
@@ -1030,7 +1030,7 @@ async function renderForms(){
   if(caps.db&&!STORE.loaded){$("#formlist").innerHTML=`<div class="empty" style="grid-column:1/-1">書表載入中…</div>`;await loadAll()}
   const cat=STORE.forms.catalog;
   if(!cat){$("#formtabs").innerHTML="";$("#formhead").innerHTML="";$("#formlist").innerHTML=`<div class="empty" style="grid-column:1/-1">書表暫時無法載入，請稍後再試，或撥 08-7320415 洽社會處承辦人索取。</div>`;return}
-  const folders=cat.folders.filter(f=>cat.files.some(x=>x.f===f.id));
+  const folders=cat.folders.filter(f=>f.id!=="範本"&&cat.files.some(x=>x.f===f.id));
   if(!folders.some(f=>f.id===formCat))formCat=folders[0].id;
   $("#formtabs").innerHTML=folders.map(f=>`<button class="tab" role="tab" aria-selected="${f.id===formCat}" data-f="${esc(f.id)}">${esc(f.label)}</button>`).join("");
   const fo=folders.find(f=>f.id===formCat);
@@ -1297,7 +1297,7 @@ function knowledgeText(){
   const forms=STORE.forms.catalog?STORE.forms.catalog.folders.map(f=>`${f.id}：${f.desc}`).join("\n"):"";
   return `【辦理項目】\n${items}\n【法規條文代碼】\n${arts}\n【承辦人（社會團體、職業團體、老人會）】\n${staff}\n社區發展協會、合作社業務：請撥總機轉社會處詢問。\n【書表分類（forms sub 用 id）】\n${forms}\n【資料概況】名冊 ${STORE.dir.rows.length} 筆（社會處列管之社會團體與職業團體，含已解散），另含2026年10月1日合作社名冊；尚未含社區發展協會；法規函釋資料 ${STORE.kn.rows.length} 則。\n【機關】屏東縣政府社會處，屏東市自由路527號，總機 08-7320415，服務時間週一至週五 8:00-12:00、13:30-17:30。`;
 }
-const VIEW_SUBS="biz(sub: social|pro|community|coop)、meet(sub: m-assembly|m-elect|m-board|m-finance|m-roster)、law(sub: 人民團體|屏東縣作業規定|社區發展|合作社|函釋與問答)、forms(sub: 申請表|籌備會|成立大會|常年會|理監事會|改選|解散|範本)、apply(sub: 辦理項目id)、search、contact";
+const VIEW_SUBS="biz(sub: social|pro|community|coop)、meet(sub: m-assembly|m-elect|m-board|m-finance|m-roster)、law(sub: 人民團體|屏東縣作業規定|社區發展|合作社|函釋與問答)、forms(sub: 申請表|籌備會|成立大會|常年會|理監事會|改選|解散)、apply(sub: 辦理項目id)、search、contact";
 async function aiAnswer(q,kb){
   let lastGroups=null,lastStaff=null;const seen=new Map();
   const tools=[
@@ -1627,6 +1627,6 @@ touch();
   route();
 })();
 </script>
-<script src="counter-upgrade.js?v=20261105-4"></script>
+<script src="counter-upgrade.js?v=20261105-5"></script>
 </body>
 </html>
