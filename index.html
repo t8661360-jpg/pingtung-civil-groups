@@ -940,9 +940,17 @@ function lawBox(ids){
   const rows=(ids||[]).map(id=>ART[id]).filter(Boolean);if(!rows.length)return"";
   return `<div class="lawbox">${rows.map(a=>`<div class="lawrow"><div class="ref">${esc(a.law)}<small>${esc(a.art)}</small></div><p>${esc(a.text)}</p></div>`).join("")}</div><div class="lawfoot">條文為重點摘要，完整內容以全國法規資料庫最新公告為準。</div>`;
 }
+function publicReferenceLinks(source){
+ const parts=String(source||'').split('|').map(x=>x.trim()).filter(Boolean);
+ return parts.flatMap(part=>{
+  const urls=part.match(/https?:\/\/[^\s|]+/g)||[];
+  if(!urls.length)return [esc(part)];
+  return urls.filter(raw=>{try{const u=new URL(raw);return /^https?:$/.test(u.protocol)&&!((u.hostname==='github.com'||u.hostname==='raw.githubusercontent.com')&&u.pathname.toLowerCase().startsWith('/t8661360-jpg/pingtung-civil-groups/'))}catch{return false}}).map(raw=>'<a href="'+esc(raw)+'" target="_blank" rel="noopener">'+"\u67e5\u770b\u539f\u59cb\u4f86\u6e90"+' \u2197</a>');
+ }).join('\u3000');
+}
 function refBox(refs){
-  if(!refs||!refs.length)return"";
-  return `<div class="lawbox">${refs.map(r=>`<div class="lawrow"><div class="ref">${esc(r.cat||"參考資料")}<small>${esc(r.date||"")}</small></div><p><b>${esc(r.title)}</b>${r.source?`<br><span class="lead">${esc(r.source)}</span>`:""}</p></div>`).join("")}</div>`;
+ if(!refs||!refs.length)return '';
+ return '<div class="lawbox">'+refs.map(r=>{const source=publicReferenceLinks(r.source);return '<div class="lawrow"><div class="ref">'+esc(r.cat||"\u53c3\u8003\u8cc7\u6599")+'<small>'+esc(r.date||'')+'</small></div><p><b>'+esc(r.title)+'</b>'+(source?'<br>'+source:'')+'</p></div>'}).join('')+'</div>';
 }
 function stepsList(steps){return `<ol class="asteps">${steps.map(s=>`<li><span>${Array.isArray(s)?`<b>${esc(s[0])}</b>：${esc(s[1])}`:esc(s)}</span></li>`).join("")}</ol>`}
 function docsList(d){return `<ul class="adocs">${d.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`}
@@ -1350,7 +1358,7 @@ function smartFallback(q,kb){
       const r=top._r;
       Object.assign(parts,{category:r.cat||"法規查詢",title:r.title,summary:r.text,steps:[],docs:[],guide:[],where:[],laws:[],actions:parts.actions||[]});
       parts.notes=[...(r.ask?["想給您更精確的答案，請告訴我："+r.ask.replace(/^請問/,"")]:[]),"這則說明整理自法規與主管機關資料（初版），個案仍以主管機關最新規定為準。"];
-      parts.refs=[{title:r.title,cat:r.cat,source:String(r.source||"").split("|")[0].trim(),date:r.date}];
+      parts.refs=[{title:r.title,cat:r.cat,source:String(r.source||"").trim(),date:r.date}];
       parts.related=kn.slice(1,5).map(x=>x.標題);
     }else{
       if(strong&&top._r.text.length<=320&&top.標題!==parts.title)parts.notes=[...(parts.notes||[]),"補充："+top._r.text];
@@ -1645,6 +1653,6 @@ touch();
 })();
 </script>
 <script src="question-understanding.js?v=20261105-1"></script>
-<script src="counter-upgrade.js?v=20261106-5"></script>
+<script src="counter-upgrade.js?v=20261106-6"></script>
 </body>
 </html>

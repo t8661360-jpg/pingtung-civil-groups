@@ -10,7 +10,7 @@ function plainText(text){
 function readable(text){
   return plainText(text).split(/\n+|(?<=[。！？])\s*/).map(s=>s.trim()).filter(Boolean).map(s=>`<p>${esc(s)}</p>`).join('');
 }
-function sourceLinks(source){return [...new Set(String(source||'').match(/https?:\/\/[^\s|]+/g)||[])].filter(u=>{try{return ['https:','http:'].includes(new URL(u).protocol)}catch{return false}}).map((u,i)=>`<a target="_blank" rel="noopener" href="${esc(u)}">${i?'相關依據':'查閱原始資料'} ↗</a>`).join('　')}
+function sourceLinks(source){return publicReferenceLinks(source)}
 let statuteData={laws:{}},statutePromise=null;
 async function loadStatutes(){
  if(!statutePromise)statutePromise=(async()=>{const response=await fetch('data/statutes.json.gz?v=20261105-1');if(!response.ok)throw Error('法條原文讀取失敗');const bytes=new Uint8Array(await response.arrayBuffer());let text;if(bytes[0]===31&&bytes[1]===139){text=await new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'))).text()}else text=new TextDecoder().decode(bytes);statuteData=JSON.parse(text)})().catch(error=>{console.warn(error);statutePromise=null});
