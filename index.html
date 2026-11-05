@@ -771,10 +771,11 @@ async function loadAll(force){
   loadPromise=(async()=>{
     const base=document.baseURI.replace(/[^/]*$/,"")+"data/";
     const jf=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);return r.json()};
-    const [d,s,k,f]=await Promise.allSettled([jf(base+"directory.json"),jf(base+"staff.json"),jf(base+"knowledge.json"),jf(base+"forms-catalog.json")]);
+    const jgz=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);const b=new Uint8Array(await r.arrayBuffer());if(b[0]!==31||b[1]!==139)return JSON.parse(new TextDecoder().decode(b));if(typeof DecompressionStream==="undefined")throw new Error("gzip unsupported");const text=await new Response(new Blob([b]).stream().pipeThrough(new DecompressionStream("gzip"))).text();return JSON.parse(text)};
+    const [d,s,k,f]=await Promise.allSettled([jf(base+"directory.json"),jf(base+"staff.json"),jgz(base+"knowledge.json.gz").catch(()=>jf(base+"knowledge.json")),jf(base+"forms-catalog.json")]);
     if(d.status==="fulfilled"){const v=d.value;STORE.dir={rows:v.rows||[],meta:v.meta||null}}
     if(s.status==="fulfilled"){const v=s.value;STORE.staff={rows:v.rows||[],updatedAt:v.updatedAt,source:v.source||""}}
-    if(k.status==="fulfilled")STORE.kn={rows:k.value.rows||[],meta:null};
+    if(k.status==="fulfilled")STORE.kn={rows:k.value.rows||[],meta:k.value.meta||null};
     if(f.status==="fulfilled"){const v=f.value;if(v&&Array.isArray(v.files))STORE.forms.catalog=v}
     STORE.loaded=true;
   })();
@@ -840,7 +841,7 @@ function searchKn(q,limit){
   const ix=knIndex();const N=ix.n;
   const w=bg.map(b=>Math.log((N+1)/(1+(ix.df.get(b)||0))));const wsum=w.reduce((a,b)=>a+b,0)||1;
   const sc=rows.map((r,k)=>{const {ti,tx}=ix.docs[k];let s=0,t=0;bg.forEach((b,j)=>{if(ti.includes(b)){s+=3*w[j];t+=w[j]}if(tx.includes(b))s+=w[j]});return{s,r,tc:t/wsum}}).filter(x=>x.s>0).sort((a,b)=>b.s-a.s).slice(0,limit||5).filter(x=>x.s>=wsum*0.6);
-  return sc.map(({r,tc})=>{const raw=String(r.text);const key=bg.find(b=>norm(raw).includes(b));let i=key?raw.indexOf(key[0]+key[1]):0;if(i<0)i=0;const start=raw.length<=600?0:Math.max(0,i-120);const o={標題:r.title,類別:r.cat||"",文號或來源:r.source||"",日期:r.date||"",內容摘錄:(start>0?"…":"")+raw.slice(start,start+600)+(raw.length>start+600?"…":""),追問:r.ask||""};Object.defineProperty(o,"_tc",{value:tc});Object.defineProperty(o,"_r",{value:r});return o});
+  return sc.map(({r,tc})=>{const raw=String(r.text);const key=bg.find(b=>norm(raw).includes(b));let i=key?raw.indexOf(key[0]+key[1]):0;if(i<0)i=0;const start=raw.length<=600?0:Math.max(0,i-120);const o={標題:r.title,類別:r.cat||"",文號或來源:r.source||"",日期:r.date||"",內容摘錄:(start>0?"…":"")+raw.slice(start,start+600)+(raw.length>start+600?"…":""),資料狀態:STORE.kn.meta&&STORE.kn.meta.note||"",追問:r.ask||""};Object.defineProperty(o,"_tc",{value:tc});Object.defineProperty(o,"_r",{value:r});return o});
 }
 
 /* ================= 意圖判斷 ================= */
@@ -1305,7 +1306,7 @@ async function aiAnswer(q,kb){
    {name:"search_staff",description:"查詢社會處人民團體相關業務承辦人、職稱、承辦業務、電話與分機。問題涉及找誰辦理、分機、聯絡窗口時呼叫。",
     inputSchema:{type:"object",properties:{keyword:{type:"string",description:"業務關鍵字，例如社區發展協會、合作社、補助"}}},
     execute:(i)=>{const r=searchStaff(String(i.keyword||""));lastStaff=r.slice(0,4);return r.length?r.slice(0,6):"承辦人資料尚未建立，請建議撥縣府總機 08-7320415 轉社會處。"}},
-   {name:"search_knowledge",description:"查詢社會處匯入的法規、函釋、作業規定、常見問答與縣府公告全文，回傳最相關的5段摘錄（標題、類別、文號或來源、日期、內容摘錄）。凡涉及規定細節、法令解釋、函釋、補助、期限或例外情形，都要先呼叫。",
+   {name:"search_knowledge",description:"查詢社會處匯入的法規、函釋、作業規定、常見問答與縣府公告全文，回傳最相關的5段摘錄（標題、類別、文號或來源、日期、內容摘錄與資料狀態）。凡涉及規定細節、法令解釋、函釋、補助、期限或例外情形，都要先呼叫。資料狀態為待覆核或內部測試時，不可表述為已核定標準。",
     inputSchema:{type:"object",properties:{query:{type:"string",description:"查詢重點，例如 理事長 連任 任期"}},required:["query"]},
     execute:(i)=>{const r=searchKn(String(i.query||""),5);r.forEach(x=>seen.set(norm(x.標題),x));return r.length?r:"知識庫中沒有相關資料。"}}
   ];
@@ -1313,7 +1314,7 @@ async function aiAnswer(q,kb){
   const prompt=`你是「屏東縣人民團體數位櫃檯」的服務專員「小屏」，代表屏東縣政府社會處，以專業、親切、精確的繁體中文（台灣用語）回答民眾關於社會團體、職業團體、社區發展協會、合作社的業務、會務、法規、函釋、團體查詢與承辦窗口問題。
 作答流程：
 1. 先判斷需要哪些資料，並呼叫工具：特定團體、名冊、數量用 search_groups；法規細節、函釋、補助、期限用 search_knowledge；承辦人分機用 search_staff。可同時呼叫多個。
-2. 以工具結果與下方資料為準。工具結果中的函釋或規定，請在 refs 列出標題（必須與工具回傳的標題相同）。
+2. 以工具結果與下方資料為準。工具結果中的函釋或規定，請在 refs 列出標題（必須與工具回傳的標題相同）。資料狀態若標示待覆核或內部測試，notes 必須提醒個案以主管機關最新公告、核定函與承辦單位說明為準，不得把內容寫成已核定標準。
 3. 資料不足時，可依人民團體法令的一般原則簡要說明，但不可編造條號、文號、日期、團體名稱、人名、電話或分機，並在 notes 建議洽承辦人確認。
 4. summary 用 1 至 2 句話直接給出結論（例如「可以，理事長連任以一次為限」），不要客套話。
 5. laws 只能填【法規條文代碼】中的代碼（最多3個）；steps 為字串陣列（每步一句，含動作與期限），不涉及流程給空陣列；docs 為應備文件名稱陣列。
