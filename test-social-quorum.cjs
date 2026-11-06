@@ -1,0 +1,6 @@
+const fs=require('fs'),vm=require('vm'),assert=require('assert');
+const s=fs.readFileSync('counter-upgrade.js','utf8'),f=s.slice(s.indexOf('function socialQuorumAnswer('),s.indexOf('function exactArticleAnswer('));
+const a=vm.runInNewContext(f+';socialQuorumAnswer');
+for(const x of ["\u5354\u6703\u6703\u54e1\u5927\u6703\u51fa\u5e2d\u4eba\u6578\u4e0d\u5230\u534a\u6578\uff0c\u53ef\u4ee5\u958b\u6703\u55ce\uff1f","\u793e\u5340\u6703\u54e1\u5927\u6703\u904e\u534a\u6578\u662f\u5e7e\u4eba"]) assert(a(x));
+for(const x of ["\u5408\u4f5c\u793e\u6703\u54e1\u5927\u6703\u51fa\u5e2d\u4e0d\u5230\u534a\u6578","\u5354\u6703\u7406\u4e8b\u6703\u51fa\u5e2d\u4e0d\u5230\u534a\u6578","\u5354\u6703\u6703\u54e1\u5927\u6703\u51fa\u5e2d\u901a\u77e5\u4f55\u6642\u5bc4\uff1f","\u5354\u6703\u6703\u54e1\u5927\u6703\u51fa\u5e2d\u5f8c\u8868\u6c7a\u9700\u8981\u591a\u5c11\u8d0a\u6210\u7968\uff1f"]) assert.equal(a(x),null);
+const answer=a("\u5354\u6703\u6703\u54e1\u5927\u6703\u51fa\u5e2d\u4e0d\u5230\u534a\u6578");assert(answer.summary.includes("51\u540d\u51fa\u5e2d"));assert.equal(answer.statutes.length,2);console.log('social quorum: 6 routing cases passed');
