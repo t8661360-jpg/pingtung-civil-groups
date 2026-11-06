@@ -1422,7 +1422,9 @@ async function ask(q){
     const socialFinanceConcern=typeof socialFinancialConcernAnswer==='function'?socialFinancialConcernAnswer(q):null;
     const coopWithdrawal=typeof coopVoluntaryWithdrawalAnswer==='function'?coopVoluntaryWithdrawalAnswer(q):null;
     const socialFeeRefund=typeof socialMembershipFeeRefundAnswer==='function'?socialMembershipFeeRefundAnswer(q):null;
-    if(socialFeeRefund)ans=socialFeeRefund;
+    const coopExpulsion=typeof coopMemberExpulsionAnswer==='function'?coopMemberExpulsionAnswer(q):null;
+    if(coopExpulsion)ans=coopExpulsion;
+    else if(socialFeeRefund)ans=socialFeeRefund;
     else if(coopWithdrawal)ans=coopWithdrawal;
     else if(socialFinanceConcern)ans=socialFinanceConcern;
     else if(coopFinanceConcern)ans=coopFinanceConcern;
@@ -1679,6 +1681,6 @@ touch();
 })();
 </script>
 <script src="question-understanding.js?v=20261106-2"></script>
-<script src="counter-upgrade.js?v=20261107-19"></script>
+<script src="counter-upgrade.js?v=20261107-20"></script>
 </body>
 </html>
