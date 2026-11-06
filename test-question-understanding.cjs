@@ -77,3 +77,11 @@ assert.equal(qa.understand('合作社呢',qa.understand('會員大會幾天前�
 const fs=require('node:fs');const laws=JSON.parse(require('node:zlib').gunzipSync(fs.readFileSync('data/statutes.json.gz')).toString('utf8')).laws;
 for(const [question] of cases){for(const row of qa.resolve(question)?.statutes||[]){const code=row.source.match(/pcode=(\w+)/)[1],n=row.title.match(/第(\d+)條/)[1];assert.ok(laws[code]?.articles[n],question+' missing statutory source');}}
 console.log('Passed '+cases.length+' intent cases, 14 answer checks, 8 context checks and all statutory references.');
+
+const noticeContext=qa.understand('\u5354\u6703\u6703\u54e1\u5927\u6703\u901a\u77e5\u9700\u8981\u63d0\u524d\u5e7e\u5929\u5bc4');
+for (const question of ['\u90a3\u7406\u4e8b\u6703\u5462\uff1f','\u90a3\u76e3\u4e8b\u6703\u5462\uff1f']) {
+  const response=qa.resolve(question,{prior:noticeContext});
+  assert.match(response.summary,/\u4e03\u65e5\u524d/);
+  assert.match(response.statutes[0].source,/D0020094/);
+}
+console.log('2 meeting notice followups passed');

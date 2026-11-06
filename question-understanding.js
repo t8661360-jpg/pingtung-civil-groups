@@ -5,6 +5,10 @@
  const P=n=>source('D0050091','人民團體法',n),E=n=>source('D0050093','人民團體選舉罷免辦法',n),C=n=>source('D0050112','合作社法',n),CE=n=>source('D0050022','合作社選舉罷免辦法',n),G=n=>source('D0020094','人民團體會務輔導辦法',n);
  function understand(input,prior=null){
   let q=String(input||'').normalize('NFKC').replace(/\s+/g,'');
+  if(prior&&prior.focus==='notice'){
+   if(/^(?:\u90a3|\u90a3\u9ebc|\u90a3\u8acb\u554f)?(?:\u7406\u4e8b\u6703|\u76e3\u4e8b\u6703|\u7406\u76e3\u4e8b\u6703)(?:\u5462|\u5462\u003f|\u5982\u4f55|\u662f\u5462)[?]?$/u.test(q))return {...prior,board:true};
+   if(/^(?:\u90a3|\u90a3\u9ebc|\u90a3\u8acb\u554f)?(?:\u6703\u54e1\u5927\u6703|\u793e\u54e1\u5927\u6703)(?:\u5462|\u5982\u4f55|\u662f\u5462)[?]?$/u.test(q))return {...prior,board:false};
+  }
   if(prior&&/^(那|如果|所以|可以|最多|最長|多久|幾天|合作社呢|協會呢)/.test(q)&&!/工會|公會|信用合作社|成立|解散|財務|統編|第[\d一二三四五六七八九十百-]+條/.test(q)){
    const domain=/合作社/.test(q)?'coop':/協會/.test(q)?'social':prior.domain;
    if(/^(那|如果是|所以)?(合作社|協會)呢[?？]?$/.test(q))return{...prior,domain};
