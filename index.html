@@ -1412,7 +1412,9 @@ async function ask(q){
     const socialProxy=typeof socialProxyAnswer==='function'?socialProxyAnswer(q):null;
     const proxyRatio=typeof proxyRatioAnswer==='function'?proxyRatioAnswer(q):null;
     const quorum=typeof socialQuorumAnswer==='function'?socialQuorumAnswer(q):null;
-    if(quorum)ans=quorum;
+    const propertyForm=typeof socialAssetInventoryAnswer==='function'?socialAssetInventoryAnswer(q):null;
+    if(propertyForm)ans=propertyForm;
+    else if(quorum)ans=quorum;
     else if(proxyRatio)ans=proxyRatio;
     else if(socialProxy)ans=socialProxy;
     else if(creditProxy)ans=creditProxy;
@@ -1659,6 +1661,6 @@ touch();
 })();
 </script>
 <script src="question-understanding.js?v=20261106-2"></script>
-<script src="counter-upgrade.js?v=20261106-9"></script>
+<script src="counter-upgrade.js?v=20261106-10"></script>
 </body>
 </html>
