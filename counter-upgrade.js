@@ -120,6 +120,13 @@ function staffClarificationAnswer(q){
  return {category:"聯絡承辦",title:"請先提供團體名稱或類型",summary:"請先提供團體完整名稱，我才能查找對應承辦人。\n若團體尚未成立，請告訴我是一般協會、社區發展協會或合作社，以及所在鄉鎮市。",questionState:{focus:'staff-clarification',domain:'contact'},notes:[],actions:[{label:"聯絡承辦",view:'contact',sub:''}]};
 }
 function focusedQuestionAnswer(q){return window.CounterQuestions?window.CounterQuestions.resolve(q,{prior:lastQuestionContext,electionDocuments:(MEET.find(item=>item.id==='m-elect')||{}).docs||[]}):null;}
+function socialRegionalNameAnswer(q){
+ const t=String(q||'').normalize('NFKC').replace(/\s+/g,'');
+ if(!/(?:協會|人民團體|社會團體)/.test(t)||!/(?:名稱|取名|命名|名字)/.test(t))return null;
+ if(!/(?:加冠|冠上|加上|前面加|一定要有|一定要加|行政區域|屏東縣|鄉鎮市級|縣級)/.test(t))return null;
+ const township=/(?:鄉鎮市級|鄉級|鎮級|市級|[\u4e00-\u9fff]{2,4}[鄉鎮市])/.test(t);
+ return {category:'協會名稱預查',title:township?'鄉鎮市級協會名稱要加行政區域嗎？':'屏東縣級協會名稱要加「屏東縣」嗎？',summary:(township?'申請實務上，請在名稱前加冠「屏東縣○○鄉／鎮／市」，例如「屏東縣潮州鎮○○協會」。':'申請實務上，請在名稱前加冠「屏東縣」，例如「屏東縣○○協會」。')+'\n這樣可以辨明主管機關及團體的組織區域，避免與全國性、其他縣市或其他鄉鎮市的團體混淆；未依組織區域命名時，主管機關可能要求修改名稱或補充說明。\n但《人民團體法》沒有明文規定名稱一定要冠行政區域；內政部函釋說明，主管機關得在輔導籌組時建議加冠。因此，這是申請實務上的命名方式，不應寫成法律明定的強制規定。送件前仍應以預定完整名稱向屏東縣政府辦理預查。',statutes:[{title:'人民團體法第7條',source:'https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050091'},{title:'內政部台內社字第8906177號函',source:'https://www.moi.gov.tw/News_Content.aspx?n=14119&s=220069'}],questionState:{focus:'social-regional-name',domain:'social'},notes:['縣級與鄉鎮市級應依實際組織區域命名，不要使用超過組織範圍的名稱。','最後是否核准，仍須核對名稱有無重複，以及是否會讓人誤認與政府機關或營利團體有關。'],actions:[{label:'查詢團體名稱',view:'search',sub:''},{label:'聯絡承辦',view:'contact',sub:''}]};
+}
 function socialNameRestrictionAnswer(q){
  const t=String(q||'').normalize('NFKC').replace(/\s+/g,'');
  if(!/(?:名稱|取名|命名|名字|可以叫|能不能叫|可以用|能不能用|可不可以用|能否使用|是否能使用|是否可以使用)/.test(t))return null;
