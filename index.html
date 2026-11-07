@@ -65,11 +65,12 @@ main{max-width:1200px;margin:0 auto;padding:28px 24px 72px}
 .nudge::after{content:"";position:absolute;left:50%;top:-8px;border:8px solid transparent;border-bottom-color:var(--ink);border-top:0;transform:translateX(-50%)}
 .nudge.show{opacity:1;transform:none;pointer-events:auto}
 .nudge button{background:var(--sun);color:#3A2400;border:0;border-radius:999px;padding:3px 12px;margin-top:6px;cursor:pointer;font-size:.88rem;font-weight:700}
+.clerkprompt{display:none}
 .nameplate{margin:0 -20px;background:var(--primary);color:var(--primary-ink);padding:14px 20px 16px;display:flex;justify-content:space-between;align-items:center;gap:10px}
 .nameplate .n{font-size:1.35rem;line-height:1.2}
 .nameplate small{display:block;opacity:.85;font-size:.82rem}
 .mood{font-size:.85rem;background:rgba(255,255,255,.18);border-radius:999px;padding:3px 10px;white-space:nowrap}
-.clerk .armUp,.clerk .armChin,.clerk .dots,.clerk .mTalk{opacity:0}
+.clerk .armUp,.clerk .armChin,.clerk .dots,.clerk .mTalk,.clerk .hearts{opacity:0}
 .clerk .body{transform-origin:160px 300px}
 .clerk .pupils{transition:transform .35s ease}
 .clerk .lid{transform-origin:center;transform-box:fill-box;transform:scaleY(0)}
@@ -79,6 +80,8 @@ main{max-width:1200px;margin:0 auto;padding:28px 24px 72px}
 .clerk.listen .pupils{transform:translate(3px,5px)}
 .clerk.talk .mTalk{opacity:1}.clerk.talk .mSmile{opacity:0}
 .clerk.point .pupils{transform:translate(6px,0)}
+.clerk.happy .hearts{opacity:1}
+.clerk.happy .mSmile{stroke-width:5}
 @media (prefers-reduced-motion:no-preference){
   .clerk .body{animation:breathe 4.2s ease-in-out infinite}
   @keyframes breathe{50%{transform:translateY(-2px) scale(1.004)}}
@@ -93,11 +96,15 @@ main{max-width:1200px;margin:0 auto;padding:28px 24px 72px}
   @keyframes dot{0%,100%{opacity:.25}50%{opacity:1}}
   .clerk.nod .head{animation:nod .5s ease-in-out 2;transform-origin:160px 160px;transform-box:view-box}
   @keyframes nod{50%{transform:rotate(-4deg) translateY(3px)}}
+  .clerk.happy .body{animation:happyBounce .55s ease-in-out 2}
+  .clerk.happy .hearts{animation:heartFloat 1.4s ease-out both}
+  @keyframes happyBounce{50%{transform:translateY(-7px) scale(1.015)}}
+  @keyframes heartFloat{0%{transform:translateY(12px);opacity:0}35%{opacity:1}100%{transform:translateY(-14px);opacity:0}}
 }
 
 .board{background:var(--surface);border:2px solid var(--primary);border-radius:28px;box-shadow:var(--shadow);position:relative;min-height:460px;display:flex;flex-direction:column}
 .board::before{content:"";position:absolute;left:-14px;top:120px;width:24px;height:24px;background:var(--surface);border-left:2px solid var(--primary);border-bottom:2px solid var(--primary);transform:rotate(45deg);border-radius:0 0 0 6px}
-@media (max-width:960px){.hero{grid-template-columns:1fr;gap:14px}.clerkcard{position:relative;top:0;display:grid;grid-template-columns:120px 1fr;gap:0 14px;padding:14px 14px 0;align-items:end}.clerkcard .status{grid-column:1/-1}.clerkwrap{grid-row:2}.nameplate{grid-column:2;grid-row:2;margin:0 -14px 0 0;border-radius:18px 0 0 0;align-self:end}.nudge{display:none}.mood{display:none}.board::before{left:60px;top:-14px;border-left:2px solid var(--primary);border-top:2px solid var(--primary);border-bottom:0;border-radius:6px 0 0 0}}
+@media (max-width:960px){.hero{grid-template-columns:1fr;gap:14px}.clerkcard{position:relative;top:0;display:grid;grid-template-columns:120px 1fr;gap:0 14px;padding:14px 14px 0;align-items:end}.clerkcard .status{grid-column:1/-1}.clerkwrap{grid-row:2}.nameplate{grid-column:2;grid-row:2;margin:0 -14px 0 0;border-radius:18px 0 0 0;align-self:end}.nudge{display:none}.mood{display:none}.clerkprompt.show{display:flex;grid-column:1/-1;align-items:center;justify-content:space-between;gap:10px;background:var(--soft2);border-top:1px solid var(--line);margin:0 -14px;padding:10px 14px;font-size:.92rem;line-height:1.45}.clerkprompt button{flex-shrink:0;border:0;border-radius:999px;background:var(--primary);color:var(--primary-ink);padding:7px 12px;font-weight:700}.board::before{left:60px;top:-14px;border-left:2px solid var(--primary);border-top:2px solid var(--primary);border-bottom:0;border-radius:6px 0 0 0}}
 .boardbody{padding:28px 32px 24px;flex:1}
 @media (max-width:640px){.boardbody{padding:20px 18px}}
 .qline{display:flex;gap:10px;align-items:flex-start;color:var(--muted);font-size:.95rem;margin-bottom:10px}
@@ -158,6 +165,7 @@ main{max-width:1200px;margin:0 auto;padding:28px 24px 72px}
 .topic h3 i{width:10px;height:10px;border-radius:3px;background:var(--c)}
 .qbtn{display:block;width:100%;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin-top:6px;cursor:pointer;font-size:.95rem}
 .qbtn:hover{border-color:var(--primary);color:var(--primary)}
+.qbtn:focus-visible,.clerkprompt button:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
 .thinking{display:flex;flex-direction:column;gap:12px}
 .thinking .tline{display:flex;align-items:center;gap:10px;color:var(--muted)}
 .thinking .tline.done{color:var(--ink)}
@@ -261,6 +269,7 @@ footer div{max-width:1200px;margin:0 auto;padding:18px 24px}
         <svg class="clerk" id="clerk" viewBox="0 0 320 300" role="img" aria-label="櫃檯服務員小屏">
           <circle cx="160" cy="150" r="120" fill="var(--soft)"/>
           <g class="dots" fill="var(--primary)"><circle cx="232" cy="62" r="6"/><circle cx="252" cy="48" r="7.5"/><circle cx="276" cy="34" r="9"/></g>
+          <g class="hearts" fill="#DE5F72" aria-hidden="true"><path d="M66 78c-10-10-26 7 0 25 26-18 10-35 0-25z"/><path d="M256 86c-8-8-20 6 0 20 20-14 8-28 0-20z"/></g>
           <g class="body">
             <path d="M74 300 C74 222 108 196 160 196 C212 196 246 222 246 300 Z" fill="#C2531A"/>
             <path d="M136 198 L160 236 L184 198 Z" fill="#FFF8F0"/>
@@ -289,13 +298,15 @@ footer div{max-width:1200px;margin:0 auto;padding:18px 24px}
         </svg>
       </div>
       <div class="nameplate"><div><div class="n hu">小屏</div><small>人民團體服務專員</small></div><span class="mood" id="mood">歡迎光臨</span></div>
+      <div class="clerkprompt" id="clerkprompt" role="status"></div>
     </aside>
     <section class="board" aria-label="櫃檯回覆">
       <div class="boardbody" id="board" aria-live="polite"></div>
       <form class="askbar" id="askform" autocomplete="off">
         <div class="askrow">
           <label for="q" class="sr">輸入您的問題</label>
-          <input id="q" placeholder="例如：屏東縣商業會的理事長是誰？" maxlength="300">
+          <input id="q" list="question-suggestions" placeholder="用自己的話描述問題，例如：協會多久要改選？" maxlength="300">
+          <datalist id="question-suggestions"></datalist>
           <button class="btn" type="submit">詢問</button>
         </div>
         <div class="recent" id="recent"></div>
@@ -717,11 +728,14 @@ const KB=[
 ];
 const TOPICS=[
  {name:"團體查詢",c:"#DE5F72",q:["屏東縣商業會的理事長是誰？","潮州鎮有哪些體育運動團體？","屏東縣有多少個宗教團體？","我想取名「屏東縣快樂登山協會」，有沒有重複？"]},
- {name:"業務辦理",c:"#C2531A",q:["成立協會需要準備哪些文件？","協會要怎麼辦法人登記？","協會怎麼申請統一編號？","協會可以申請免稅嗎？"]},
- {name:"會務辦理",c:"#F4B23A",q:["我要辦改選，要怎麼做？","6項財務報表怎麼填？","會議紀錄怎麼寫？","會址要怎麼變更？"]},
- {name:"法規與承辦",c:"#3F8A5C",q:["理事長可以連任幾次？","理事、監事名額上限？","老人會業務找哪位承辦人？"]}
+ {name:"協會會務",c:"#C2531A",q:["成立協會需要準備哪些文件？","協會多久要辦理改選？","會員大會可以委託別人出席嗎？","理事會可以委託別人出席嗎？"]},
+ {name:"社區發展協會",c:"#E28A37",q:["成立社區發展協會要怎麼辦？","社區發展協會理監事至少要幾人？","社區發展協會要去哪裡申請統一編號？","社區協會年度計畫要怎麼報？"]},
+ {name:"合作社",c:"#3F8A5C",q:["成立合作社至少要幾位社員？","合作社社員可以委託別人開會嗎？","合作社年度決算要準備哪些報表？","合作社盈餘怎麼分配給社員？"]},
+ {name:"財務與爭議",c:"#6B64A8",q:["6項財務報表是哪六項？","現金出納表期末餘額怎麼填？","會員退會可以要求退還會費嗎？","理事長一直不開會怎麼辦？"]},
+ {name:"法規與承辦",c:"#327C91",q:["理事長可以連任幾次？","理事、監事名額上限？","協會解散要多少人同意？","我的團體業務要找哪位承辦人？"]}
 ];
-const TIPS=["小提醒：會員大會除緊急臨時會外，要在 15 日前以書面通知會員喔。","小提醒：理監事會至少每 6 個月開一次，要在 7 日前通知。","小提醒：理事長連任以一次為限。","小提醒：籌組許可後 6 個月內要完成成立。","小提醒：直接把團體名稱告訴我，就能查立案資料和承辦人。"];
+const TIPS=["小提醒：會員大會除緊急臨時會外，要在 15 日前以書面通知會員喔。","小提醒：理監事會至少每 6 個月開一次，要在 7 日前通知。","小提醒：理事長連任以一次為限。","小提醒：籌組許可後 6 個月內要完成成立。","小提醒：直接把團體名稱告訴我，就能查立案資料和承辦人。","不知道法規名稱也沒關係，用自己的話描述遇到的事情，我會幫您找。"];
+const QUESTION_SUGGESTIONS=[...new Set(TOPICS.flatMap(t=>t.q))];
 const CAT_ALIAS=[["社會服務團體",/社會服務|社服|社福/],["學術文化團體",/學術|文化|藝術|音樂|文史|書法|美術|藝文/],["體育運動團體",/體育|運動|登山|健行|球類|武術|太極/],["經濟業務團體",/經濟業務|經濟|產業|觀光/],["宗教團體",/宗教|佛教|道教|基督|天主/],["慈善團體",/慈善|公益|救助/],["老人會",/老人|長青|銀髮|長者/],["商業團體",/商業團體|商業同業公會/],["國際團體",/國際|獅子會|扶輪社|青商會|同濟會/],["教育會",/教育會/],["環保團體",/環保|生態|保育/],["同學校友會",/校友|同學會/],["醫療衛生團體",/醫療|衛生/],["宗親會",/宗親/],["教師會",/教師會/],["自由職業團體",/自由職業|律師|會計師|醫師公會|地政士|技師/],["同鄉會",/同鄉/],["工業團體",/工業團體/]];
 
 /* ================= 共用工具 ================= */
@@ -1144,9 +1158,9 @@ async function renderContacts(){
 $("#cq").addEventListener("input",renderContacts);
 
 /* ================= 小屏：動作與主動互動 ================= */
-const clerk=$("#clerk"),mood=$("#mood"),nudge=$("#nudge");let poseTimer=null;
+const clerk=$("#clerk"),mood=$("#mood"),nudge=$("#nudge"),clerkPrompt=$("#clerkprompt");let poseTimer=null;
 function pose(name,ms,label){
-  clerk.classList.remove("wave","think","talk","listen","point","nod");
+  clerk.classList.remove("wave","think","talk","listen","point","nod","happy");
   if(name)clerk.classList.add(...name.split(" "));
   if(label)mood.textContent=label;
   clearTimeout(poseTimer);
@@ -1154,12 +1168,14 @@ function pose(name,ms,label){
 }
 function say(text,btn){
   nudge.innerHTML=esc(text)+(btn?`<br><button type="button" data-nq="${esc(btn)}">${esc(btn)}</button>`:"");
-  nudge.classList.add("show");clearTimeout(say.t);say.t=setTimeout(()=>nudge.classList.remove("show"),7000);
+  clerkPrompt.innerHTML=`<span>${esc(text)}</span>`+(btn?`<button type="button" data-nq="${esc(btn)}">${esc(btn)}</button>`:"");
+  nudge.classList.add("show");clerkPrompt.classList.add("show");clearTimeout(say.t);say.t=setTimeout(()=>{nudge.classList.remove("show");clerkPrompt.classList.remove("show")},7000);
 }
-nudge.addEventListener("click",e=>{const b=e.target.closest("[data-nq]");if(b){e.stopPropagation();nudge.classList.remove("show");ask(b.dataset.nq)}});
+[nudge,clerkPrompt].forEach(el=>el.addEventListener("click",e=>{const b=e.target.closest("[data-nq]");if(b){e.stopPropagation();nudge.classList.remove("show");clerkPrompt.classList.remove("show");ask(b.dataset.nq)}}));
 let tipIdx=0;
 $("#clerkwrap").addEventListener("click",e=>{if(e.target.closest(".nudge"))return;pose("wave nod",2200,"很高興為您服務");say(TIPS[tipIdx++%TIPS.length]);touch()});
 const qin=$("#q");
+$("#question-suggestions").innerHTML=QUESTION_SUGGESTIONS.map(q=>`<option value="${esc(q)}"></option>`).join("");
 qin.addEventListener("focus",()=>{if(!busy)pose("listen",0,"聆聽中")});
 qin.addEventListener("blur",()=>{if(!busy){clerk.classList.remove("listen");mood.textContent="隨時為您服務"}});
 qin.addEventListener("input",touch);
@@ -1390,7 +1406,7 @@ function smartFallback(q,kb){
 }
 async function ask(q){
   q=String(q||"").trim();if(!q||busy)return;
-  busy=true;touch();nudge.classList.remove("show");
+  busy=true;touch();nudge.classList.remove("show");clerkPrompt.classList.remove("show");
   if(!$("#v-home").classList.contains("on"))location.hash="home";
   $("#qno").textContent=String(++qcount).padStart(4,"0");
   pose("think",0,"查詢中");
@@ -1466,6 +1482,7 @@ async function ask(q){
   }catch(e){ans={category:"其他",title:"暫時無法回覆",summary:"系統暫時無法完成查詢，請稍後再試，或撥縣府總機 08-7320415 轉社會處。",actions:[]}}
   const wait=Math.max(0,900-(Date.now()-t0));await new Promise(r=>setTimeout(r,wait));
   stop();renderAnswer(q,ans);
+  pose("happy nod",1700,"希望有幫上忙");
   recent.unshift({q,a:ans});if(recent.length>4)recent.pop();renderRecent();
   convo.push({q,s:ans.summary});
   pose("talk point",2600,"為您說明");busy=false;
@@ -1691,6 +1708,7 @@ touch();
 })();
 </script>
 <script src="question-understanding.js?v=20261106-2"></script>
-<script src="counter-upgrade.js?v=20261107-26"></script>
+<script src="counter-upgrade.js?v=20261107-27"></script>
 </body>
 </html>
+
