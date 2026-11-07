@@ -1427,7 +1427,9 @@ async function ask(q){
     const coopDissolution=typeof coopDissolutionVoteAnswer==='function'?coopDissolutionVoteAnswer(q):null;
     const socialDissolution=typeof socialDissolutionVoteAnswer==='function'?socialDissolutionVoteAnswer(q):null;
     const boardProxy=typeof socialBoardProxyAnswer==='function'?socialBoardProxyAnswer(q):null;
-    if(boardProxy)ans=boardProxy;
+    const coopSurplus=typeof coopSurplusDistributionAnswer==='function'?coopSurplusDistributionAnswer(q):null;
+    if(coopSurplus)ans=coopSurplus;
+    else if(boardProxy)ans=boardProxy;
     else if(socialDissolution)ans=socialDissolution;
     else if(coopDissolution)ans=coopDissolution;
     else if(socialExpulsion)ans=socialExpulsion;
@@ -1689,6 +1691,6 @@ touch();
 })();
 </script>
 <script src="question-understanding.js?v=20261106-2"></script>
-<script src="counter-upgrade.js?v=20261107-25"></script>
+<script src="counter-upgrade.js?v=20261107-26"></script>
 </body>
 </html>

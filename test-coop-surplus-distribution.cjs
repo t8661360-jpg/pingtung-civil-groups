@@ -1,0 +1,5 @@
+const fs=require('fs'),vm=require('vm'),assert=require('assert');
+const s=fs.readFileSync('counter-upgrade.js','utf8');const f=s.slice(s.indexOf('function coopSurplusDistributionAnswer('),s.indexOf('function exactArticleAnswer('));const a=vm.runInNewContext(f+';coopSurplusDistributionAnswer');
+for(const q of ["\u5408\u4f5c\u793e\u76c8\u9918\u600e\u9ebc\u5206\u914d\u7d66\u793e\u54e1\uff1f","\u5408\u4f5c\u793e\u7d50\u9918\u5982\u4f55\u5206\u914d","\u5408\u4f5c\u793e\u76c8\u9918\u53ef\u4ee5\u5206\u7d05\u55ce"]){const x=a(q);assert(x&&x.summary.includes("\u4ea4\u6613\u984d\u6bd4\u4f8b"));}
+for(const q of ["\u4fe1\u7528\u5408\u4f5c\u793e\u76c8\u9918\u600e\u9ebc\u5206\u914d","\u5408\u4f5c\u793e\u975e\u793e\u54e1\u4ea4\u6613\u7d50\u9918\u600e\u9ebc\u5206\u914d","\u5354\u6703\u76c8\u9918\u600e\u9ebc\u5206\u914d","\u5408\u4f5c\u793e\u793e\u54e1\u9000\u793e\u53d6\u56de\u80a1\u91d1","\u5408\u4f5c\u793e\u89e3\u6563\u7d50\u9918\u5206\u914d"])assert.equal(a(q),null);
+console.log('cooperative surplus distribution: 8 cases passed');
