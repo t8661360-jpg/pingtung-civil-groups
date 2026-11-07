@@ -75,7 +75,7 @@ function accountingBasisAnswer(q){
 }
 function coopProxyAnswer(q){
  const t=String(q||'').normalize('NFKC').replace(/\s+/g,'');
- if(!/\u5408\u4f5c\u793e/.test(t)||!/\u793e\u54e1\u5927\u6703/.test(t)||!/(?:\u59d4\u8a17|\u4ee3\u7406|\u4ee3\u8868\u51fa\u5e2d)/.test(t))return null;
+ if(!/\u5408\u4f5c\u793e/.test(t)||!/\u793e\u54e1/.test(t)||!/(?:\u59d4\u8a17|\u4ee3\u7406|\u4ee3\u8868\u51fa\u5e2d)/.test(t)||!/(?:\u958b\u6703|\u5927\u6703|\u51fa\u5e2d)/.test(t))return null;
  if(/\u4fe1\u7528\u5408\u4f5c\u793e|\u7406\u4e8b\u6703|\u76e3\u4e8b\u6703|\u9078\u8209|\u7968\u9078|\u9078\u7968|\u793e\u54e1\u4ee3\u8868|\u5354\u6703/.test(t))return null;
  return {category:"\u5408\u4f5c\u793e\u6703\u52d9\u8aaa\u660e",title:"\u5408\u4f5c\u793e\u793e\u54e1\u5927\u6703\u53ef\u4ee5\u59d4\u8a17\u5225\u4eba\u51fa\u5e2d\u55ce\uff1f",summary:"\u793e\u54e1\u7121\u6cd5\u51fa\u5e2d\u793e\u54e1\u5927\u6703\u6642\uff0c\u53ef\u4ee5\u66f8\u9762\u59d4\u8a17\u5176\u4ed6\u793e\u54e1\u4ee3\u7406\u3002\u53d7\u8a17\u4eba\u5fc5\u9808\u662f\u8a72\u5408\u4f5c\u793e\u7684\u5176\u4ed6\u793e\u54e1\uff0c\u6bcf\u4f4d\u53d7\u8a17\u4eba\u6700\u591a\u4ee3\u7406\u4e00\u540d\u793e\u54e1\u3002\n\u8acb\u5148\u5411\u5408\u4f5c\u793e\u78ba\u8a8d\u59d4\u8a17\u66f8\u683c\u5f0f\u3001\u7c3d\u5230\u53ca\u63d0\u51fa\u65b9\u5f0f\u3002\u82e5\u662f\u793e\u54e1\u4ee3\u8868\u3001\u4fe1\u7528\u5408\u4f5c\u793e\u6216\u6d89\u53ca\u9078\u8209\uff0c\u8acb\u88dc\u5145\u5177\u9ad4\u8eab\u5206\u53ca\u6703\u8b70\u6027\u8cea\uff0c\u53e6\u4f9d\u9069\u7528\u898f\u5b9a\u78ba\u8a8d\u3002",statutes:[{title:"\u5408\u4f5c\u793e\u6cd5\u7b2c50\u689d",source:'https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050112'}],questionState:{focus:'coop-proxy',domain:'coop'},notes:[],actions:[{label:"\u67e5\u770b\u76f8\u95dc\u6cd5\u898f",view:'law',sub:"\u5408\u4f5c\u793e"}]};
 }
@@ -101,6 +101,23 @@ function proxyRatioAnswer(q){
  const summary=(p&&!s?pro:s&&!p?social:social+'\n'+pro)+(s&&!p?'':'\n'+"\u4e09\u5206\u4e4b\u4e00\u7684\u5206\u6bcd\u662f\u89aa\u81ea\u51fa\u5e2d\u4eba\u6578\uff0c\u4e0d\u662f\u628a\u59d4\u8a17\u4eba\u6578\u52a0\u9032\u53bb\u5f8c\u7684\u7e3d\u51fa\u5e2d\u4eba\u6578\u3002\u5de5\u6703\u3001\u5408\u4f5c\u793e\u7b49\u61c9\u53e6\u67e5\u9069\u7528\u898f\u5b9a\uff1b\u8acb\u63d0\u4f9b\u5718\u9ad4\u985e\u578b\u53ca\u6703\u8b70\u6027\u8cea\u3002");
  const P=n=>({title:"\u4eba\u6c11\u5718\u9ad4\u6cd5\u7b2c"+n+"\u689d",source:'https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050091'});
  return {category:"\u59d4\u8a17\u51fa\u5e2d\u6bd4\u4f8b",title:"\u6703\u54e1\u5927\u6703\u59d4\u8a17\u51fa\u5e2d\u4eba\u6578\u6709\u6bd4\u4f8b\u9650\u5236\u55ce\uff1f",summary,statutes:p&&!s?[P(38)]:s&&!p?[P(42)]:[P(38),P(42)],questionState:{focus:'proxy-ratio',domain:'social'},notes:[],actions:[{label:"\u67e5\u770b\u76f8\u95dc\u6cd5\u898f",view:'law',sub:"\u4eba\u6c11\u5718\u9ad4"}]};
+}
+function communityAnnualPlanAnswer(q){
+ const t=String(q||'').normalize('NFKC').replace(/\s+/g,'');
+ if(!/(?:社區發展協會|社區協會)/.test(t)||!/(?:年度計畫|工作計畫)/.test(t)||!/(?:怎麼報|如何報|報送|繳交|送哪|期限)/.test(t))return null;
+ if(/合作社|工會|公會|成立/.test(t))return null;
+ return {category:"社區會務",title:"社區發展協會年度計畫怎麼報？",summary:"先依章程完成協會內部審議，再依所在地鄉鎮市公所與縣府當年度通知的期限、格式及附件報送。\n這不是成立協會的申請流程。不同年度或補助計畫可能使用不同表式；請補充協會所在鄉鎮市與辦理年度，才能確認送件窗口和期限。",notes:["本站目前沒有足以確認全縣一律送件期限的官方資料，不直接猜測日期。"],questionState:{focus:'community-annual-plan',domain:'community'},actions:[{label:"聯絡承辦",view:'contact',sub:''}]};
+}
+function coopAnnualReportsAnswer(q){
+ const t=String(q||'').normalize('NFKC').replace(/\s+/g,'');
+ if(!/合作社/.test(t)||!/(?:年度決算|決算)/.test(t)||!/(?:報表|書表|準備|哪些|文件)/.test(t))return null;
+ const item=typeof BIZ!=='undefined'&&BIZ.coop&&BIZ.coop.items?BIZ.coop.items.find(x=>x.id==='o-annual'):null;
+ return {category:"合作社年度決算",title:"合作社年度決算要準備哪些報表？",summary:"先準備業務報告書、資產負債表、收支餘絀表、財產目錄、結餘分配表／短絀分攤表，以及監事會決算審核報告書和社員大會紀錄。\n報送時依本站現有承辦資料，還要附公文及次年度業務計畫書暨收支預算表。送件前請再向承辦人確認當年度版本與附件。",docs:item&&item.docs||[],steps:item&&item.steps||[],laws:item&&item.laws||[],questionState:{focus:'coop-annual-reports',domain:'coop'},notes:[],actions:[{label:"查看合作社書表",view:'forms',sub:'合作社'}]};
+}
+function staffClarificationAnswer(q){
+ const t=String(q||'').normalize('NFKC').replace(/\s+/g,'');
+ if(!/(?:我的團體|團體業務)/.test(t)||!/(?:承辦|找誰|哪位)/.test(t))return null;
+ return {category:"聯絡承辦",title:"請先提供團體名稱或類型",summary:"請先提供團體完整名稱，我才能查找對應承辦人。\n若團體尚未成立，請告訴我是一般協會、社區發展協會或合作社，以及所在鄉鎮市。",questionState:{focus:'staff-clarification',domain:'contact'},notes:[],actions:[{label:"聯絡承辦",view:'contact',sub:''}]};
 }
 function focusedQuestionAnswer(q){return window.CounterQuestions?window.CounterQuestions.resolve(q,{prior:lastQuestionContext,electionDocuments:(MEET.find(item=>item.id==='m-elect')||{}).docs||[]}):null;}
 function socialQuorumAnswer(q){
@@ -173,7 +190,7 @@ function coopVoluntaryWithdrawalAnswer(q){
 }
 function socialMembershipFeeRefundAnswer(q){
  const t=String(q||'').normalize('NFKC').replace(/\s+/g,'');
- if(!/\u5354\u6703|\u793e\u6703\u5718\u9ad4|\u793e\u5340/.test(t)||!/\u9000\u6703|\u9000\u51fa|\u9000\u8cbb|\u9000\u9084|\u9000\u6b3e/.test(t)||!/\u6703\u8cbb|\u5165\u6703\u8cbb|\u5e38\u5e74\u8cbb/.test(t))return null;
+ if(!/\u9000\u6703|\u9000\u51fa|\u9000\u8cbb|\u9000\u9084|\u9000\u6b3e/.test(t)||!/\u6703\u8cbb|\u5165\u6703\u8cbb|\u5e38\u5e74\u8cbb/.test(t))return null;
  if(/\u5408\u4f5c\u793e|\u5de5\u6703|\u516c\u6703|\u9664\u540d|\u7b2c\d+\u689d/.test(t))return null;
  return {category:"\u793e\u6703\u5718\u9ad4\u6703\u54e1\u6b0a\u76ca",title:"\u5354\u6703\u6703\u54e1\u9000\u6703\uff0c\u53ef\u4ee5\u9000\u56de\u6703\u8cbb\u55ce\uff1f",summary:"\u662f\u5426\u9000\u9084\u53ca\u9000\u9084\u591a\u5c11\uff0c\u61c9\u5148\u78ba\u8a8d\u8cbb\u7528\u7a2e\u985e\u3001\u5718\u9ad4\u7ae0\u7a0b\u3001\u5df2\u901a\u904e\u7684\u9000\u8cbb\u539f\u5247\u8207\u500b\u6848\u60c5\u6cc1\uff1b\u4e0d\u80fd\u4e00\u6982\u8a8d\u5b9a\u4e00\u5b9a\u5168\u9000\u6216\u4e00\u5f8b\u4e0d\u9000\u3002\n\u4f9d\u793e\u6703\u5718\u9ad4\u8ca1\u52d9\u8655\u7406\u8fa6\u6cd5\u7b2c14\u689d\uff0c\u5165\u6703\u8cbb\u53ca\u5e38\u5e74\u6703\u8cbb\u7684\u6a19\u6e96\u8207\u7e73\u7d0d\u65b9\u5f0f\u61c9\u8a02\u5165\u7ae0\u7a0b\uff1b\u5982\u6709\u9000\u8cbb\u9700\u8981\uff0c\u61c9\u7531\u7406\u4e8b\u6703\u8a02\u5b9a\u9000\u8cbb\u539f\u5247\uff0c\u63d0\u7d93\u6703\u54e1\uff08\u6703\u54e1\u4ee3\u8868\uff09\u5927\u6703\u901a\u904e\u5f8c\u8fa6\u7406\u3002\n\u8acb\u4fdd\u7559\u7e73\u8cbb\u6191\u8b49\u3001\u9000\u6703\u7533\u8acb\u53ca\u56de\u8986\u7d00\u9304\uff0c\u5411\u5354\u6703\u78ba\u8a8d\u8cbb\u7528\u5c6c\u5165\u6703\u8cbb\u3001\u5e38\u5e74\u6703\u8cbb\u6216\u5176\u4ed6\u8cbb\u7528\uff0c\u4e26\u7d22\u53d6\u7ae0\u7a0b\u53ca\u9069\u7528\u7684\u9000\u8cbb\u539f\u5247\u3002\u82e5\u6709\u722d\u8b70\u6216\u5718\u9ad4\u672a\u80fd\u8aaa\u660e\uff0c\u53ef\u5411\u4e3b\u7ba1\u6a5f\u95dc\u53cd\u6620\uff0c\u4e26\u8996\u9700\u8981\u5c0b\u6c42\u6cd5\u5f8b\u8aee\u8a62\u3002\n\u6d3b\u52d5\u8cbb\u3001\u6350\u6b3e\u7b49\u4e0d\u4e00\u5b9a\u8207\u6703\u8cbb\u9069\u7528\u76f8\u540c\u898f\u5247\uff1b\u5408\u4f5c\u793e\u3001\u8077\u696d\u5718\u9ad4\u6216\u5176\u4ed6\u7279\u6b8a\u5718\u9ad4\u4e5f\u61c9\u53e6\u4f9d\u9069\u7528\u898f\u5b9a\u78ba\u8a8d\u3002",statutes:[{title:"\u793e\u6703\u5718\u9ad4\u8ca1\u52d9\u8655\u7406\u8fa6\u6cd5\u7b2c14\u689d",source:'https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050097'}],questionState:{focus:'social-membership-fee-refund',domain:'social'},notes:[],actions:[{label:"\u806f\u7d61\u627f\u8fa6",view:'contact',sub:''},{label:"\u67e5\u770b\u76f8\u95dc\u6cd5\u898f",view:'law',sub:"\u4eba\u6c11\u5718\u9ad4"}]};
 }
