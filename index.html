@@ -1462,7 +1462,11 @@ async function ask(q){
     else if(propertyForm)ans=propertyForm;
     else if(quorum)ans=quorum;
     else if(proxyRatio)ans=proxyRatio;
-    else if(socialProxy)ans=socialProxy;
+   else if(socialProxy){
+     socialProxy.title="會員大會可以委託別人出席嗎？";
+     if(!/^可以/.test(socialProxy.summary))socialProxy.summary="可以，但必須以書面委託同一團體的其他會員或會員代表，而且每位受託人只能代理一人。\n"+socialProxy.summary;
+     ans=socialProxy;
+   }
     else if(creditProxy)ans=creditProxy;
     else if(proxy)ans=proxy;
     else if(basis)ans=basis;
@@ -1708,7 +1712,7 @@ touch();
 })();
 </script>
 <script src="question-understanding.js?v=20261106-2"></script>
-<script src="counter-upgrade.js?v=20261107-27"></script>
+<script src="counter-upgrade.js?v=20261107-28"></script>
 </body>
 </html>
 
