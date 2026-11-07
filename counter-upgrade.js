@@ -120,6 +120,13 @@ function staffClarificationAnswer(q){
  return {category:"聯絡承辦",title:"請先提供團體名稱或類型",summary:"請先提供團體完整名稱，我才能查找對應承辦人。\n若團體尚未成立，請告訴我是一般協會、社區發展協會或合作社，以及所在鄉鎮市。",questionState:{focus:'staff-clarification',domain:'contact'},notes:[],actions:[{label:"聯絡承辦",view:'contact',sub:''}]};
 }
 function focusedQuestionAnswer(q){return window.CounterQuestions?window.CounterQuestions.resolve(q,{prior:lastQuestionContext,electionDocuments:(MEET.find(item=>item.id==='m-elect')||{}).docs||[]}):null;}
+function socialNameRestrictionAnswer(q){
+ const t=String(q||'').normalize('NFKC').replace(/\s+/g,'');
+ if(!/(?:名稱|取名|命名|名字|可以叫|能不能叫|可以用|能不能用|可不可以用)/.test(t))return null;
+ if(!/(?:政府|機關|機構|公司|企業|營利|廟|寺|宮|府|院|所|局|處|署)/.test(t))return null;
+ if(/(?:合作社名稱|公司名稱|商號名稱|寺廟登記)/.test(t)&&!/(?:協會|人民團體|社會團體)/.test(t))return null;
+ return {category:'協會名稱預查',title:'協會名稱可以使用政府、公司或宮廟等字樣嗎？',summary:'不能只看單一字詞判定。協會名稱不得與已許可人民團體完全相同，也不得讓人誤認與政府機關（構）、政府捐助的財團法人或營利團體有關。\n直接使用政府機關或公司的完整名稱，或使用「府、院、局、處、署、所」等字樣而使整體看起來像官方或特定機構，通常有很高的退修風險。「宮、廟、寺」並非一律禁止，但若完整名稱讓人誤以為協會本身就是已登記寺廟，或與既有宗教團體相同，也可能需要修改。\n請提供預定的完整名稱及協會宗旨，由主管機關依整體名稱辦理預查；不要只憑其中一個字自行判定。',statutes:[{title:'人民團體法第7條',source:'https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050091'}],questionState:{focus:'social-name-restriction',domain:'social'},notes:['名稱是否可用，仍以主管機關就完整名稱、宗旨及現有登記資料的審查結果為準。','如涉及特定公司、機構或宮廟名稱，請一併說明雙方關係及是否取得同意；有同意也不代表一定核准。'],actions:[{label:'查詢團體名稱',view:'search',sub:''},{label:'聯絡承辦',view:'contact',sub:''}]};
+}
 function socialBoardQuorumAnswer(q){
  const t=String(q||'').normalize('NFKC').replace(/\s+/g,'');
  if(!/(?:理事會|監事會)/.test(t)||!/(?:出席人數不夠|人數不足|不到半數|未過半|不夠人|能不能開|可以開會|可不可以開)/.test(t))return null;
