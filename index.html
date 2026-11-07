@@ -1438,13 +1438,19 @@ async function ask(q){
     const socialFinanceConcern=typeof socialFinancialConcernAnswer==='function'?socialFinancialConcernAnswer(q):null;
     const coopWithdrawal=typeof coopVoluntaryWithdrawalAnswer==='function'?coopVoluntaryWithdrawalAnswer(q):null;
     const socialFeeRefund=typeof socialMembershipFeeRefundAnswer==='function'?socialMembershipFeeRefundAnswer(q):null;
+    const communityAnnual=typeof communityAnnualPlanAnswer==='function'?communityAnnualPlanAnswer(q):null;
+    const coopAnnual=typeof coopAnnualReportsAnswer==='function'?coopAnnualReportsAnswer(q):null;
+    const staffClarify=typeof staffClarificationAnswer==='function'?staffClarificationAnswer(q):null;
     const coopExpulsion=typeof coopMemberExpulsionAnswer==='function'?coopMemberExpulsionAnswer(q):null;
     const socialExpulsion=typeof socialMemberExpulsionVoteAnswer==='function'?socialMemberExpulsionVoteAnswer(q):null;
     const coopDissolution=typeof coopDissolutionVoteAnswer==='function'?coopDissolutionVoteAnswer(q):null;
     const socialDissolution=typeof socialDissolutionVoteAnswer==='function'?socialDissolutionVoteAnswer(q):null;
     const boardProxy=typeof socialBoardProxyAnswer==='function'?socialBoardProxyAnswer(q):null;
     const coopSurplus=typeof coopSurplusDistributionAnswer==='function'?coopSurplusDistributionAnswer(q):null;
-    if(coopSurplus)ans=coopSurplus;
+    if(staffClarify)ans=staffClarify;
+    else if(coopAnnual)ans=coopAnnual;
+    else if(communityAnnual)ans=communityAnnual;
+    else if(coopSurplus)ans=coopSurplus;
     else if(boardProxy)ans=boardProxy;
     else if(socialDissolution)ans=socialDissolution;
     else if(coopDissolution)ans=coopDissolution;
@@ -1484,6 +1490,15 @@ async function ask(q){
       if(!ans){ans=smartFallback(q,kb)}
     }
   }catch(e){ans={category:"其他",title:"暫時無法回覆",summary:"系統暫時無法完成查詢，請稍後再試，或撥縣府總機 08-7320415 轉社會處。",actions:[]}}
+  if(ans&&ans.questionState&&ans.questionState.focus==='board-count'&&/(?:上限|最多|不得逾)/.test(q)){
+    ans={...ans,title:"理事、監事名額上限是多少？",summary:"縣（市）以下的一般社會團體，理事最多15人；監事不得超過理事名額的三分之一，而且理事、監事名額須分別為奇數。\n"+ans.summary};
+  }
+  if(ans&&ans.questionState&&ans.questionState.focus==='social-dissolution-vote'&&/多少人同意/.test(q)){
+    ans={...ans,summary:"一般未辦法人登記的協會：會員（代表）過半數出席，並經出席人數三分之二以上同意。已辦社團法人登記者，還要另核對民法第57條與法院要求。\n"+ans.summary};
+  }
+  if(ans&&/成立合作社至少/.test(q)&&!/^至少需要7位社員/.test(ans.summary||'')){
+    ans={...ans,summary:"至少需要7位社員。\n"+(ans.summary||'')};
+  }
   const wait=Math.max(0,900-(Date.now()-t0));await new Promise(r=>setTimeout(r,wait));
   stop();renderAnswer(q,ans);
   pose("happy nod",1700,"希望有幫上忙");
@@ -1712,7 +1727,7 @@ touch();
 })();
 </script>
 <script src="question-understanding.js?v=20261106-2"></script>
-<script src="counter-upgrade.js?v=20261107-28"></script>
+<script src="counter-upgrade.js?v=20261107-29"></script>
 </body>
 </html>
 
