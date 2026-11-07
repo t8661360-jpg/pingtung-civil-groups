@@ -120,6 +120,13 @@ function staffClarificationAnswer(q){
  return {category:"聯絡承辦",title:"請先提供團體名稱或類型",summary:"請先提供團體完整名稱，我才能查找對應承辦人。\n若團體尚未成立，請告訴我是一般協會、社區發展協會或合作社，以及所在鄉鎮市。",questionState:{focus:'staff-clarification',domain:'contact'},notes:[],actions:[{label:"聯絡承辦",view:'contact',sub:''}]};
 }
 function focusedQuestionAnswer(q){return window.CounterQuestions?window.CounterQuestions.resolve(q,{prior:lastQuestionContext,electionDocuments:(MEET.find(item=>item.id==='m-elect')||{}).docs||[]}):null;}
+function socialBoardQuorumAnswer(q){
+ const t=String(q||'').normalize('NFKC').replace(/\s+/g,'');
+ if(!/(?:理事會|監事會)/.test(t)||!/(?:出席人數不夠|人數不足|不到半數|未過半|不夠人|能不能開|可以開會|可不可以開)/.test(t))return null;
+ if(/合作社|工會|公會|商業團體|工業團體|信用合作社|第\d+條/.test(t))return null;
+ const board=/理事會/.test(t),name=board?'理事':'監事';
+ return {category:"理監事會議出席門檻",title:(board?'理事會':'監事會')+"人數不足可以開會嗎？",summary:"不可以。一般人民團體的"+(board?'理事會':'監事會')+"須有全體"+name+"過半數出席，才達到開會及作成決議的門檻；剛好半數或不足半數都不算過半數。\n達到出席門檻後，普通決議還須經出席"+name+"過半數或較多數同意。請依簽到或報到人數計算，理事、監事不得委託他人代理出席。",statutes:[{title:"人民團體法第29條",source:'https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050091'},{title:"人民團體法第31條",source:'https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050091'}],questionState:{focus:'social-board-quorum',domain:'social'},notes:["合作社、工會、公會及其他有特別法規的團體，應另依其適用規定確認。"],actions:[{label:"查看相關法規",view:'law',sub:"人民團體"}]};
+}
 function socialQuorumAnswer(q){
  const t=String(q||'').normalize('NFKC').replace(/\s+/g,'');
  if(!/\u5354\u6703|\u793e\u5340|\u793e\u6703\u5718\u9ad4/.test(t)||!/\u6703\u54e1\u5927\u6703|\u6703\u54e1\u4ee3\u8868\u5927\u6703/.test(t)||!/\u51fa\u5e2d|\u534a\u6578|\u6cd5\u5b9a\u4eba\u6578|\u6210\u6703/.test(t))return null;
