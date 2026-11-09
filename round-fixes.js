@@ -298,6 +298,29 @@ function coopDissolutionProperty(t){
  if(!/合作社/.test(t)||!/解散/.test(t)||!/(財產|歸誰|歸屬|剩餘|怎麼處理|怎麼辦|清算)/.test(t))return null;
  return{category:'合作社會務',title:'合作社解散後財產：先清償債務，餘額依出資比例或章程辦理',summary:'合作社解散後進入清算程序，清算順序依合作社法第61、62條：先清償債務（含社員股金）→ 剩餘財產依章程規定處理，章程沒寫的依社員大會決議。\n合作社解散事由包括：社員不滿七人、章程所定解散事由發生、社員大會四分之三以上出席且出席三分之二以上決議解散、破產、主管機關命令解散、與他社合併（合作社法第55條）。',statutes:[C(55),C(61),C(62)],questionState:{focus:'coop-dissolution-property',domain:'coop'},notes:['合作社的剩餘財產處理方式與一般社會團體不同：社會團體歸地方自治團體，合作社則依章程或大會決議。'],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
 }
+
+function onlineVoting(t){
+ if(!/(線上投票|線上表決|電子投票|網路投票|APP投票|app投票|手機投票|數位投票)/.test(t))return null;
+ if(/合作社/.test(t))return{category:'合作社會務',title:'合作社社員代表選舉得採電子投票，但要章程規定',summary:'合作社的社員代表選舉或罷免，得採通訊投票或電子投票辦理，但必須先在章程規定，並訂定辦理辦法經社員大會決議通過、報主管機關備查後才能實施（合作社選舉罷免辦法第3條）。社員大會、理事和監事的選舉，原則仍應以會議方式投票。',statutes:[{title:'合作社選舉罷免辦法第3條',source:LAW+'D0050117'}],questionState:{focus:'online-voting',domain:'coop'},notes:['電子投票和通訊投票的選務規則、無效票認定都要在辦法中載明。'],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
+ return{category:'人民團體會務說明',title:'會員大會線上投票：目前法令沒有開放',summary:'目前人民團體法和人民團體選舉罷免辦法，只有規定「會議投票」和「通訊選舉」兩種方式，沒有「線上投票」或「電子投票」的條文。\n會員大會可以依人民團體法第25、29條以視訊方式召開（章程須先訂明），但表決仍依會議出席人數計算，不是線上投票系統。通訊選舉限於理監事改選，須在章程訂定，且有特定流程規定（選罷辦法第23條）。\n如果想讓會員遠距參與，目前可行的是視訊會議搭配線上簽到與舉手表決，但建議先洽承辦人確認程序是否被接受。',statutes:[E(23),P(25),P(29)],questionState:{focus:'online-voting',domain:'social'},notes:['合作社的社員代表選舉另依合作社選舉罷免辦法得採電子投票（第3條）。'],actions:[{label:'看視訊會議說明',view:'home',sub:''},{label:'聯絡承辦',view:'contact',sub:''}]};
+}
+function mailVoting(t){
+ if(!/(通訊投票|通訊選舉|通訊方式|郵寄投票|寄選票|郵寄選舉)/.test(t))return null;
+ if(/合作社/.test(t))return{category:'合作社會務',title:'合作社得採通訊投票，須章程規定並報備查',summary:'合作社社員代表的選舉或罷免，得經理事會決議並報主管機關備查後，採通訊投票辦理；但要先在章程規定，並訂定辦理辦法經社員大會決議通過、報主管機關備查（合作社選舉罷免辦法第3條）。',statutes:[{title:'合作社選舉罷免辦法第3條',source:LAW+'D0050117'}],questionState:{focus:'mail-voting',domain:'coop'},notes:[],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
+ return{category:'人民團體會務說明',title:'協會理監事改選可以用通訊選舉，但要章程訂定',summary:'可以。人民團體的理事、監事選舉，得於章程訂定採用通訊選舉（人民團體選舉罷免辦法第23條）。辦理要點：\n1. 章程須先訂明採通訊選舉（沒訂的要先修章程）。\n2. 理事會在開票日 45 天前審定會員資格、造名冊供閱覽。\n3. 開票日 30 天前依名冊寄送紙本通訊選舉票。\n4. 團體應訂定通訊選舉辦法，載明選務人員、投票規則、無效票認定、開票程序等，經理事會通過並報主管機關備查。\n注意：通訊選舉只適用於理監事選舉，會員大會的一般議案表決不能用通訊方式。',statutes:[E(23)],questionState:{focus:'mail-voting',domain:'social'},notes:['是否適用通訊選舉，在辦理前建議先洽承辦人確認。'],actions:[{label:'下載通訊選舉範本',view:'forms',sub:'範本'},{label:'聯絡承辦',view:'contact',sub:''}]};
+}
+function receiveDonation(t){
+ if(!/(收捐款|接受捐贈|接受捐款|收到捐款|收受捐|人家捐|外面捐|可以收錢|收外部)/.test(t)&&!/(捐款|捐贈|外界捐|善款)/.test(t))return null;
+ if(!/(可以|能不能|可不可以|要怎麼|如何|怎麼收|怎麼處理|要開|收據)/.test(t)&&!/社區/.test(t))return null;
+ if(/勸募/.test(t))return null;
+ return{category:'人民團體財務',title:'協會可以接受捐款，但要開正式收據',summary:'可以。人民團體的經費來源包括會員捐款和其他收入（人民團體法第33條），也可以接受外界主動捐贈（公益勸募條例第6條第3項）。\n接受捐款的處理方式：\n1. 開立正式收據，載明團體名稱、統編、捐款人、金額、日期（社會團體財務處理辦法第17條）。\n2. 收據存根至少保存十年（同辦法第21條）。\n3. 接受外界主動捐贈，應定期辦理公開徵信、依指定用途使用（公益勸募條例第6條）。\n4. 定期捐贈達一定規模的，要在會計報告中揭示。\n捐款人如果要拿收據抵稅，協會必須符合「教育文化公益慈善機關或團體免納所得稅適用標準」才行。',statutes:[P(33),F(17),F(21),{title:'公益勸募條例第6條',source:LAW+'D0050138'}],questionState:{focus:'receive-donation',domain:'social'},notes:['「主動接受捐贈」和「發起勸募」不同：發起勸募要申請許可。','不能為了特定捐款人的利益開立不實收據。'],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
+}
+function hireEmployee(t){
+ if(!/(雇|僱|聘僱|請人|員工|雇員|工讀|臨時人員)/.test(t))return null;
+ if(!/(可以|能不能|怎麼|如何|要|勞保|健保|勞健保|保險|投保|保勞|保健)/.test(t))return null;
+ if(/合作社/.test(t))return null;
+ return{category:'人民團體會務說明',title:'協會可以聘僱員工，要依勞基法辦理勞健保',summary:'可以。人民團體依章程聘僱工作人員辦理會務、業務（人民團體法第24條）。工作人員由理事長提名經理事會通過聘任，報主管機關備查（本縣章程範例第22條）。\n關於勞健保：\n1. 人民團體聘僱員工滿 5 人以上，就是勞工保險的強制投保單位，應為員工投保勞保。不到 5 人的也可以自願投保。\n2. 全民健保：有聘僱員工的，應以投保單位身分為員工加保。\n3. 勞工退休金：適用勞基法的人民團體，應依勞工退休金條例按月提繳退休金。\n投保地點：勞保局各地辦事處或線上申辦；健保到健保署各區業務組。',statutes:[P(24),{title:'本縣章程範例第22條',source:'本站書表下載｜申請表'}],questionState:{focus:'hire-employee',domain:'social'},notes:['理監事是無給職，不是員工（社會團體財務處理辦法第19條）。','工作人員不得由理監事擔任（章程範例第22條）。'],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
+}
 function delegated(t){
  const g=typeof root!=='undefined'?root:{};
  if(/社區/.test(t)&&/(年度計畫|工作計畫|計畫)/.test(t)&&/(什麼時候|何時|幾月|要送|多久|截止)/.test(t)&&!/成立|籌組/.test(t)&&typeof g.communityAnnualPlanAnswer==='function')return g.communityAnnualPlanAnswer((/社區發展協會/.test(t)?t:t.replace(/社區協會|社區/,'社區發展協會'))+(/年度計畫|工作計畫/.test(t)?'':'年度計畫')+'期限');
@@ -306,7 +329,7 @@ function delegated(t){
 }
 function verifiedRoundAnswer(q,ctx){
  const t=norm(q);
- return lendToChair(t)||branchOrg(t)||supervisorMeeting(t)||noAnnualMeeting(t)||chairSpendingAuth(t)||communityVsGeneral(t)||coopDissolutionProperty(t)||charterAmendment(t)||coopSupervisorAudit(t)||publicSolicitation(t)||decisionRevoked(t)||chairResign(t)||memberExpulsion(t)||sealChange(t)||noHandover(t)||communityDissolutionProperty(t)||boardFinanceAgenda(t)||vacancyQuorum(t)||boardQuorumGeneral(t)||delegated(t)||chairNoMeeting(t)||feeAnswer(t)||coopAssemblyQuorum(t)||proxyCount(t)||concurrent(t)||financeQuestioned(t)||financeDeadline(t)||meetingFrequency(t)||videoMeeting(t)||coopMinimum(t)||financeForms(t)||formsDownload(t,ctx&&ctx.catalog)||dissolutionHowTo(t)||null;
+ return onlineVoting(t)||mailVoting(t)||receiveDonation(t)||hireEmployee(t)||lendToChair(t)||branchOrg(t)||supervisorMeeting(t)||noAnnualMeeting(t)||chairSpendingAuth(t)||communityVsGeneral(t)||coopDissolutionProperty(t)||charterAmendment(t)||coopSupervisorAudit(t)||publicSolicitation(t)||decisionRevoked(t)||chairResign(t)||memberExpulsion(t)||sealChange(t)||noHandover(t)||communityDissolutionProperty(t)||boardFinanceAgenda(t)||vacancyQuorum(t)||boardQuorumGeneral(t)||delegated(t)||chairNoMeeting(t)||feeAnswer(t)||coopAssemblyQuorum(t)||proxyCount(t)||concurrent(t)||financeQuestioned(t)||financeDeadline(t)||meetingFrequency(t)||videoMeeting(t)||coopMinimum(t)||financeForms(t)||formsDownload(t,ctx&&ctx.catalog)||dissolutionHowTo(t)||null;
 }
 const api={normalizeQuestion,withContext,verifiedRoundAnswer};
 if(typeof module!=='undefined'&&module.exports)module.exports=api;
