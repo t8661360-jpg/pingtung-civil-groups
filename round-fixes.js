@@ -321,6 +321,57 @@ function hireEmployee(t){
  if(/合作社/.test(t))return null;
  return{category:'人民團體會務說明',title:'協會可以聘僱員工，要依勞基法辦理勞健保',summary:'可以。人民團體依章程聘僱工作人員辦理會務、業務（人民團體法第24條）。工作人員由理事長提名經理事會通過聘任，報主管機關備查（本縣章程範例第22條）。\n關於勞健保：\n1. 人民團體聘僱員工滿 5 人以上，就是勞工保險的強制投保單位，應為員工投保勞保。不到 5 人的也可以自願投保。\n2. 全民健保：有聘僱員工的，應以投保單位身分為員工加保。\n3. 勞工退休金：適用勞基法的人民團體，應依勞工退休金條例按月提繳退休金。\n投保地點：勞保局各地辦事處或線上申辦；健保到健保署各區業務組。',statutes:[P(24),{title:'本縣章程範例第22條',source:'本站書表下載｜申請表'}],questionState:{focus:'hire-employee',domain:'social'},notes:['理監事是無給職，不是員工（社會團體財務處理辦法第19條）。','工作人員不得由理監事擔任（章程範例第22條）。'],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
 }
+
+const ZC7={title:'屏東縣社會團體章程草案範例第7條（入會經理事會通過）',source:'本站書表下載｜申請表'};
+function investStocks(t){
+ if(!/(股票|基金投資|投資|理財|定存以外|買債券|債券|有價證券|期貨|虛擬貨幣|放貸)/.test(t))return null;
+ if(!/(協會|團體|社團|社區|我們|錢|經費|基金|可以|能不能)/.test(t))return null;
+ if(/合作社/.test(t))return null;
+ return{category:'人民團體財務',title:'協會經費應存金融機構，買股票等投資本站無法確認可行',summary:'社會團體財務收入應存入銀行、農會、漁會、信用合作社或郵局，不得存放於其他公私企業或個人，並以隨收隨存為原則（社會團體財務處理辦法第16條）；準備基金及孳息應專戶存儲，非經理事會通過不得動支（第15條）。\n辦法沒有明文規定社會團體可以用經費買股票、基金或其他有價證券，所以本站無法確認可行，也不建議自行操作。若有特殊需要，請先洽縣府承辦人確認，並至少經會員大會決議、在財務報表中如實揭露。',statutes:[F(16),F(15),F(20)],questionState:{focus:'invest',domain:'social'},notes:['財務收支不得匿報或虛報，並應定期公告（第20條）。','工會另依工會財務處理準則，投資種類、比例須經會員大會議決，與協會不同。'],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
+}
+function membershipRefused(t){
+ if(!/(入會|加入|成為會員|當會員)/.test(t))return null;
+ if(!/(拒絕|不讓|不准|被擋|不通過|不同意|退件|被拒)/.test(t))return null;
+ if(/合作社/.test(t))return null;
+ if(/公會|職業團體|律師|醫師|會計師|技師|地政士/.test(t))return{category:'人民團體會務說明',title:'職業團體不得拒絕具會員資格者入會',summary:'職業團體（例如公會）以組織區域內從事該行職業者為會員，不得拒絕具有會員資格者入會（人民團體法第37條）。如果您符合資格卻被拒絕，可以先以書面請公會說明理由，仍未獲處理時，向主管機關（縣府社會處）反映。\n各專業法（例如醫師法、律師法）另有入會規定的，依各該法律。',statutes:[P(37)],questionState:{focus:'membership-refused',domain:'pro'},notes:[],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
+ return{category:'人民團體會務說明',title:'協會入會須經理事會通過，被拒絕可先請協會說明理由',summary:'一般協會（社會團體）的入會資格與程序由章程訂定（人民團體法第12條）；依本縣章程範例第7條，入會申請須填具入會申請書，經理事會通過並繳納會費後才成為會員。法律沒有規定社會團體「不得拒絕」入會，這點與職業團體不同（職業團體依人民團體法第37條不得拒絕具資格者）。\n如果您被拒絕：\n1. 先以書面請協會說明拒絕理由，並核對章程的會員資格條件。\n2. 若協會以章程沒有規定的條件拒絕，或程序不符章程，可以向縣府承辦人反映。',statutes:[P(12),ZC7,P(37)],questionState:{focus:'membership-refused',domain:'social'},notes:['理事會審查入會時，應依章程所定的資格條件，不宜以章程以外的理由拒絕。'],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
+}
+function coopCapital(t){
+ if(!/合作社/.test(t)||!/(增資|增加股金|增購|加股|社股|股金|減資|減少股金)/.test(t))return null;
+ if(/退社|退還|拿回|除名|解散/.test(t))return null;
+ return{category:'合作社財務',title:'合作社增資：社員增購社股或吸收新社員，每股金額有法定範圍',summary:'合作社的股金來自社員認購的社股。增資常見兩種方式：現有社員增購社股，或吸收新社員入社認股。規定如下：\n1. 每股金額至少新臺幣 6 元、至多 150 元，同一社內必須一律（合作社法第16條）。\n2. 每位社員至少認購一股，至多不得超過股金總額百分之二十；第一次繳款不得少於所認股款四分之一（第17條）。\n3. 社股金額及繳納、退還規定是章程應記載事項（第9-1條）；要調整每股金額，屬章程變更，須經社員大會決議並辦理變更登記。\n4. 減少每股金額時，要經社員大會決議，並通知或公告債權人，給予一個月以上的異議期間（第21條）。',statutes:[C(16),C(17),{title:'合作社法第9-1條',source:LAW+'D0050112'},C(21)],questionState:{focus:'coop-capital',domain:'coop'},notes:['社員認購社股得依章程規定，以貨幣以外之財物估定價值代付股款（合作社法施行細則第10條）。','社股年息不得超過百分之十，無結餘時不得發息（第22條）。'],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
+}
+
+const ZC30={title:'屏東縣社會團體章程草案範例第30條（附註：常年會費建議每年至少500元）',source:'本站書表下載｜申請表'};
+function feeAmount(t){
+ if(!/(會費|入會費|常年會費|年費)/.test(t)||!/(多少|幾元|幾塊|金額|標準|要繳|收多少|繳多少)/.test(t))return null;
+ if(/退|合作社|工會|公會/.test(t))return null;
+ return{category:'人民團體財務',title:'會費金額由章程訂定，沒有全縣統一標準',summary:'入會費、常年會費要繳多少，由各團體在章程中訂定，並經會員（會員代表）大會通過、報主管機關核備（人民團體法第33條、社會團體財務處理辦法第14條）。所以每個協會、社區發展協會金額都不一樣，請看貴會章程的「經費來源」條文，或直接問協會。\n本縣章程範例第30條附註建議：為維持團體基本運作，常年會費每年至少新臺幣500元；這是建議，不是法定金額。',statutes:[P(33),F(14),ZC30],questionState:{focus:'fee-amount',domain:'social'},notes:['會員類別有兩種以上的，可以分類訂定不同的會費。'],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
+}
+function personalAccount(t){
+ if(!/(個人戶頭|私人帳戶|個人帳戶|理事長戶頭|理事長帳戶|總幹事戶頭|自己戶頭|私人戶頭|個人名義|存在.{0,4}(理事長|總幹事|會計|出納|個人))/.test(t))return null;
+ return{category:'人民團體財務',title:'不可以：協會的錢不能存在個人戶頭',summary:'不可以。社會團體的財務收入應存入銀行、農會、漁會、信用合作社或郵局，不得存放於其他公私企業或個人，並以隨收隨存為原則、不得收支坐抵（社會團體財務處理辦法第16條）。\n請用協會名義開戶（先申請統一編號），提用存款時由理事長、總幹事及財務人員共同蓋章（第17條）。已經存在個人帳戶的款項，應儘速轉入協會帳戶，並在財務報表中如實記載。',statutes:[F(16),F(17)],questionState:{focus:'personal-account',domain:'social'},notes:['合作社財務亦應以合作社名義管理。'],actions:[{label:'看開戶說明',view:'home',sub:''},{label:'聯絡承辦',view:'contact',sub:''}]};
+}
+function supervisorConvenerNoMeeting(t){
+ if(!/(監事會召集人|常務監事|監事會主席)/.test(t)||!/(不開|不召開|拒絕開|沒開|不肯開)/.test(t))return null;
+ if(/合作社/.test(t))return null;
+ return{category:'會務爭議',title:'監事會召集人不開會：監事過半數書面連署，15日內應召開',summary:'監事過半數以書面連署請求時，監事會召集人（常務監事）應在收到連署後 15 日內召開臨時監事會議完畢；連署書要以雙掛號寄給召集人並取得回執，再報主管機關備查（人民團體會務輔導辦法第13條）。\n監事會不能依法召開時，得由主管機關指定監事一人召集（人民團體法第32條）。',statutes:[G(13),P(32)],questionState:{focus:'supervisor-no-meeting',domain:'social'},notes:['請保留連署書與掛號回執，向縣府承辦人反映。'],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
+}
+function delegateAssembly(t){
+ if(!/會員代表大會|會員代表/.test(t)||!/(是什麼|什麼是|意思|怎麼產生|怎麼選|何時|幾人以上|要不要)/.test(t))return null;
+ if(/合作社/.test(t))return null;
+ return{category:'人民團體會務說明',title:'會員代表大會：會員超過300人時，可分區選代表開大會',summary:'人民團體會員人數超過三百人以上時，得劃分地區，依會員人數比例選出會員代表，再合開代表大會，行使會員大會的職權；地區劃分和代表名額分配要報主管機關核備（人民團體法第28條）。\n會員代表是指由會員單位推派、下級團體選派，或依上述方式分區選出的代表，權利的行使和會員相同（人民團體法第13條）。會員人數不到 300 人的團體，直接開會員大會。',statutes:[P(28),P(13)],questionState:{focus:'delegate-assembly',domain:'social'},notes:['會員代表任期應配合理監事任期，選舉辦法由理事會擬訂報主管機關核備（本縣章程範例）。'],actions:[{label:'看會員大會辦理',view:'meet',sub:'m-assembly'}]};
+}
+function noSupervisor(t){
+ if(!/監事/.test(t)||!/(不設|不用設|可以沒有|不要設|不置|免設|一定要有|一定要設|需要設)/.test(t))return null;
+ if(/合作社/.test(t))return null;
+ return{category:'人民團體會務說明',title:'不可以：人民團體一定要設理事和監事',summary:'人民團體均應置理事、監事，由會員（會員代表）中選舉產生（人民團體法第17條）。縣市以下團體理事不得超過15人；監事不得超過理事名額三分之一；候補理監事不得超過理監事名額三分之一。\n監事會負責財務查核（社會團體財務處理辦法第22條），也是決算審核的必要程序，所以不能省略。',statutes:[P(17),F(22)],questionState:{focus:'no-supervisor',domain:'social'},notes:['縣府建議理事至少9人、監事至少3人且為奇數（本縣章程範例）。'],actions:[{label:'看理監事名額',view:'law',sub:'屏東縣作業規定'}]};
+}
+function foundingDocs(t){
+ if(!/成立大會/.test(t)||!/(文件|資料|準備|要送|要報|立案|附件|表件)/.test(t))return null;
+ if(/合作社/.test(t))return null;
+ return{category:'業務辦理',title:'成立大會後 30 日內，檢具章程、會員名冊、職員簡歷冊報請立案',summary:'人民團體應於成立大會後三十日內，檢具章程、會員名冊、選任職員簡歷冊，報請主管機關核准立案，並發給立案證書（人民團體法第10條）。\n書表下載頁「成立大會」分類有本縣範本可用，包括：成立大會議程、開會通知書、會員大會簽到簿、選舉票範例、第一屆第一次會員大會及理監事聯席會議紀錄格式、組織章程、會員名冊、理監事暨會務人員一覽表、年度工作計畫、年度經費收支預算表、籌備期間經費收支報告、會址同意書、申請理事長當選證明書表，以及函報申請立案公文。\n立案後，協會圖記由協會自行製用，拓具印模送主管機關備查（同條）。',statutes:[P(10)],questionState:{focus:'founding-docs',domain:'social'},notes:['成立大會應報請主管機關派員列席（人民團體法第26條）。','實際應附份數依縣府通知辦理，送件前可先洽承辦人。'],actions:[{label:'下載成立大會書表',view:'forms',sub:'成立大會'},{label:'看籌組流程',view:'biz',sub:'social'}]};
+}
 function delegated(t){
  const g=typeof root!=='undefined'?root:{};
  if(/社區/.test(t)&&/(年度計畫|工作計畫|計畫)/.test(t)&&/(什麼時候|何時|幾月|要送|多久|截止)/.test(t)&&!/成立|籌組/.test(t)&&typeof g.communityAnnualPlanAnswer==='function')return g.communityAnnualPlanAnswer((/社區發展協會/.test(t)?t:t.replace(/社區協會|社區/,'社區發展協會'))+(/年度計畫|工作計畫/.test(t)?'':'年度計畫')+'期限');
@@ -329,7 +380,7 @@ function delegated(t){
 }
 function verifiedRoundAnswer(q,ctx){
  const t=norm(q);
- return onlineVoting(t)||mailVoting(t)||receiveDonation(t)||hireEmployee(t)||lendToChair(t)||branchOrg(t)||supervisorMeeting(t)||noAnnualMeeting(t)||chairSpendingAuth(t)||communityVsGeneral(t)||coopDissolutionProperty(t)||charterAmendment(t)||coopSupervisorAudit(t)||publicSolicitation(t)||decisionRevoked(t)||chairResign(t)||memberExpulsion(t)||sealChange(t)||noHandover(t)||communityDissolutionProperty(t)||boardFinanceAgenda(t)||vacancyQuorum(t)||boardQuorumGeneral(t)||delegated(t)||chairNoMeeting(t)||feeAnswer(t)||coopAssemblyQuorum(t)||proxyCount(t)||concurrent(t)||financeQuestioned(t)||financeDeadline(t)||meetingFrequency(t)||videoMeeting(t)||coopMinimum(t)||financeForms(t)||formsDownload(t,ctx&&ctx.catalog)||dissolutionHowTo(t)||null;
+ return feeAmount(t)||personalAccount(t)||supervisorConvenerNoMeeting(t)||delegateAssembly(t)||noSupervisor(t)||foundingDocs(t)||investStocks(t)||membershipRefused(t)||coopCapital(t)||onlineVoting(t)||mailVoting(t)||receiveDonation(t)||hireEmployee(t)||lendToChair(t)||branchOrg(t)||supervisorMeeting(t)||noAnnualMeeting(t)||chairSpendingAuth(t)||communityVsGeneral(t)||coopDissolutionProperty(t)||charterAmendment(t)||coopSupervisorAudit(t)||publicSolicitation(t)||decisionRevoked(t)||chairResign(t)||memberExpulsion(t)||sealChange(t)||noHandover(t)||communityDissolutionProperty(t)||boardFinanceAgenda(t)||vacancyQuorum(t)||boardQuorumGeneral(t)||delegated(t)||chairNoMeeting(t)||feeAnswer(t)||coopAssemblyQuorum(t)||proxyCount(t)||concurrent(t)||financeQuestioned(t)||financeDeadline(t)||meetingFrequency(t)||videoMeeting(t)||coopMinimum(t)||financeForms(t)||formsDownload(t,ctx&&ctx.catalog)||dissolutionHowTo(t)||null;
 }
 const api={normalizeQuestion,withContext,verifiedRoundAnswer};
 if(typeof module!=='undefined'&&module.exports)module.exports=api;

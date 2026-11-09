@@ -16,5 +16,5 @@ const has=(a,s)=>a&&a.statutes&&a.statutes.some(x=>x.title.includes(s));
 {const a=A('合作社解散後財產怎麼處理');assert(a.title.includes('出資比例'));assert(has(a,'合作社法第55條'));}
 // 不該觸發
 assert.equal(A('協會要辦改選'),null);
-assert.equal(A('合作社要怎麼增資'),null);
+// 第9輪起由 coopCapital 回答
 console.log('round 2026-11-09g: all cases passed');
