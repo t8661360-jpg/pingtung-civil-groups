@@ -428,9 +428,44 @@ function delegated(t){
  if(/合作社/.test(t)&&/(盈餘|結餘)/.test(t)&&/(怎麼分|如何分|怎樣分|分多少|要分)/.test(t)&&typeof g.coopSurplusDistributionAnswer==='function')return g.coopSurplusDistributionAnswer(t.replace(/怎麼分|如何分|怎樣分|分多少|要分/,'怎麼分配'));
  return null;
 }
+
+function supervisorAsDirector(t){
+ if(!/(監事|監察人)/.test(t)||!/(理事|兼任|同時當|可以當)/.test(t))return null;
+ return{category:'人民團體會務說明',title:'協會監事可否兼任理事：本站無法確認，請洽承辦',summary:'監事會與理事會是不同的監察與執行組織，人民團體法未明文禁止或限制監事兼任理事。實務上是否允許，取決於各團體章程規定或承辦機關解釋。建議直接洽承辦人確認。',statutes:[P(17),P(29)],questionState:{focus:'supervisor-director',domain:'social'},notes:['監事名額不得超過理事名額三分之一（人民團體法第17條）。'],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
+}
+function electionReportDeadline(t){
+ if(!/(改選|選舉|新任|理監事|改選完)/.test(t)||!/(多久|要報|要送|報縣府|期限)/.test(t)||/(改選)(時間|怎麼|一步)/.test(t))return null;
+ return{category:'人民團體會務說明',title:'改選後報縣府期限：大會紀錄 30 日內',summary:'改選大會召開後，會員（會員代表）大會紀錄應於閉會後三十日內報請主管機關備查（人民團體會務輔導辦法第12條）。新任理事長當選證明書應連同改選大會紀錄等書表，也在 30 日內完成報送。',statutes:[G(12)],questionState:{focus:'election-report-deadline',domain:'social'},notes:['改選應在任期屆滿前一個月內完成（人民團體選舉罷免辦法第6條）。'],actions:[{label:'下載改選書表',view:'forms',sub:'改選'}]};
+}
+function checkSignature(t){
+ if(!/支票/.test(t))return null;
+ if(!/理事長|理事會/.test(t)&&!/協會|社會團體/.test(t))return null;
+ return{category:'人民團體財務',title:'支票簽署權限：依章程或理事會授權',summary:'誰可以簽支票沒有強制規定，由團體自行決定。常見做法是理事長、總幹事、會計各一人共同簽署；無論怎樣簽，簽署人應是現任且有效的。',statutes:[],questionState:{focus:'check-signature',domain:'social'},notes:['銀行開戶時會要求存檔新任理事長及關鍵人員印章。'],actions:[{label:'看銀行開戶',view:'apply',sub:'1-bank'}]};
+}
+function feePeriods(t){
+ if(!/會費|入會費/.test(t)||!/(分期|分幾期|分好幾|月繳|月付)/.test(t))return null;
+ return{category:'人民團體會務說明',title:'會費分期繳納：由章程決定',summary:'法律沒有禁止分期。各團體可自行決定，例如常年費分季繳或月繳，或入會費分三期繳。重點是在章程或大會決議裡寫清楚分期方式，避免日後爭議。',statutes:[],questionState:{focus:'fee-periods',domain:'social'},notes:['會費金額也由章程或會員大會決議（人民團體法第35條）。'],actions:[]};
+}
+function feeDeferral(t){
+ if(!/會費/.test(t)||!/(不繳|欠繳|沒繳|怎麼辦|處理|除名)/.test(t))return null;
+ return{category:'人民團體會務說明',title:'會員不繳會費：通常逐級催繳後除名',summary:'人民團體法第26條規定會員有義務繳會費，但不規定不繳的後果。實務做法由章程決定，常見是：先個別通知→催繳函→逾期後大會決議除名。未繳會費的會員可暫停投票權或出席大會資格。具體催繳期限、除名標準及對權利的影響，都要在章程裡寫清楚；除名必須經會員大會決議。',statutes:[P(26),P(27)],questionState:{focus:'fee-deferral',domain:'social'},notes:['被除名會員可依章程重新申請入會。'],actions:[]};
+}
+function threeMonthsWording(t){
+ if(!/(章程|三個月|三月|期限)/.test(t)||!/(內|以內|怎麼寫|差別|意思)/.test(t))return null;
+ return{category:'人民團體會務說明',title:'「三個月」與「三個月內」的差別',summary:'「三個月內」比較明確，就是期限內完成；「三個月」容易引起爭議。本縣財務辦法及章程範例都用「三個月內」，建議您的章程也統一用「○○日前」或「○○月內」，搭配清楚的起算日，最容易避免誤解。',statutes:[F(11)],questionState:{focus:'three-months',domain:'social'},notes:['章程範例第20條訂任期時，建議寫「任期自召開本屆第一次理事會之日起計算」。'],actions:[{label:'下載章程範例',view:'forms',sub:'申請'}]};
+}
+function electionCandidates(t){
+ if(!/(改選|選舉|候選人)/.test(t)||!/(公告|公開|宣傳|通知)/.test(t))return null;
+ return{category:'人民團體會務說明',title:'改選候選人是否要公告',summary:'人民團體法沒有強制規定。實務上可以選擇現場提名、現場投票，也可以事先公告候選人名單。為了公開透明，建議在章程明確規定公告時間（如改選大會前 7 日）；沒有規定時，改選大會也要事先通知所有會員。',statutes:[P(25)],questionState:{focus:'candidates-announce',domain:'social'},notes:['會員大會一定要在十五日前通知各會員（人民團體法第25條）。'],actions:[{label:'下載改選書表',view:'forms',sub:'改選'}]};
+}
+function electionObjection(t){
+ if(!/(改選|選舉|決議)/.test(t)||!/(反對|異議|抗議|不服)/.test(t))return null;
+ return{category:'人民團體會務說明',title:'對改選決議有異議',summary:'改選大會當場揭曉結果時，會員可當場提出質疑選票有效性或計票程序，應記錄在會議紀錄。大會結束後，部分團體允許事後申請複查，但須在章程預先規定。通常不會推翻已做成的決議，除非程序嚴重違法（如出席人數不足）。建議章程或改選辦法裡預先說明監票員檢驗機制。',statutes:[P(25),E(10)],questionState:{focus:'election-objection',domain:'social'},notes:['改選程序依人民團體選舉罷免辦法辦理。'],actions:[{label:'看改選流程',view:'meet',sub:'m-elect'}]};
+}
+
 function verifiedRoundAnswer(q,ctx){
  const t=norm(q);
- return newChairTodo(t)||minutesDeadline(t)||coopBoardQuorum(t)||coopTax(t)||communityRename(t)||communityReportTownship(t)||addressCertificate(t)||bankChairChange(t)||eventFee(t)||communityChairTerm(t)||invalidBallot(t)||feeAmount(t)||personalAccount(t)||supervisorConvenerNoMeeting(t)||delegateAssembly(t)||noSupervisor(t)||foundingDocs(t)||investStocks(t)||membershipRefused(t)||coopCapital(t)||onlineVoting(t)||mailVoting(t)||receiveDonation(t)||hireEmployee(t)||lendToChair(t)||branchOrg(t)||supervisorMeeting(t)||noAnnualMeeting(t)||chairSpendingAuth(t)||communityVsGeneral(t)||coopDissolutionProperty(t)||charterAmendment(t)||coopSupervisorAudit(t)||publicSolicitation(t)||decisionRevoked(t)||chairResign(t)||memberExpulsion(t)||sealChange(t)||noHandover(t)||communityDissolutionProperty(t)||boardFinanceAgenda(t)||vacancyQuorum(t)||boardQuorumGeneral(t)||delegated(t)||chairNoMeeting(t)||feeAnswer(t)||coopAssemblyQuorum(t)||proxyCount(t)||concurrent(t)||financeQuestioned(t)||financeDeadline(t)||meetingFrequency(t)||videoMeeting(t)||coopMinimum(t)||financeForms(t)||formsDownload(t,ctx&&ctx.catalog)||dissolutionHowTo(t)||null;
+ return supervisorAsDirector(t)||electionReportDeadline(t)||checkSignature(t)||feePeriods(t)||feeDeferral(t)||threeMonthsWording(t)||electionCandidates(t)||electionObjection(t)||newChairTodo(t)||minutesDeadline(t)||coopBoardQuorum(t)||coopTax(t)||communityRename(t)||communityReportTownship(t)||addressCertificate(t)||bankChairChange(t)||eventFee(t)||communityChairTerm(t)||invalidBallot(t)||feeAmount(t)||personalAccount(t)||supervisorConvenerNoMeeting(t)||delegateAssembly(t)||noSupervisor(t)||foundingDocs(t)||investStocks(t)||membershipRefused(t)||coopCapital(t)||onlineVoting(t)||mailVoting(t)||receiveDonation(t)||hireEmployee(t)||lendToChair(t)||branchOrg(t)||supervisorMeeting(t)||noAnnualMeeting(t)||chairSpendingAuth(t)||communityVsGeneral(t)||coopDissolutionProperty(t)||charterAmendment(t)||coopSupervisorAudit(t)||publicSolicitation(t)||decisionRevoked(t)||chairResign(t)||memberExpulsion(t)||sealChange(t)||noHandover(t)||communityDissolutionProperty(t)||boardFinanceAgenda(t)||vacancyQuorum(t)||boardQuorumGeneral(t)||delegated(t)||chairNoMeeting(t)||feeAnswer(t)||coopAssemblyQuorum(t)||proxyCount(t)||concurrent(t)||financeQuestioned(t)||financeDeadline(t)||meetingFrequency(t)||videoMeeting(t)||coopMinimum(t)||financeForms(t)||formsDownload(t,ctx&&ctx.catalog)||dissolutionHowTo(t)||null;
 }
 const api={normalizeQuestion,withContext,verifiedRoundAnswer};
 if(typeof module!=='undefined'&&module.exports)module.exports=api;
