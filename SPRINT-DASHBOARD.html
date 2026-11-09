@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>屏東縣人民團體數位櫃檯 - 衝刺儀表板</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .date-info {
+            font-size: 0.9em;
+            margin-top: 5px;
+            opacity: 0.8;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        /* 進度條 */
+        .progress-container {
+            margin-bottom: 20px;
+        }
+        
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9em;
+            margin-bottom: 8px;
+            color: #666;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: #e0e0e0;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.8em;
+        }
+        
+        /* 工作流卡片 */
+        .workflow-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .workflow-card {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 0.9em;
+        }
+        
+        .workflow-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        
+        .workflow-hours {
+            color: #666;
+            font-size: 0.85em;
+            margin-bottom: 5px;
+        }
+        
+        .workflow-owner {
+            color: #999;
+            font-size: 0.8em;
+        }
+        
+        /* 優先級標籤 */
+        .priority {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75em;
+            font-weight: bold;
+            margin-left: 5px;
+        }
+        
+        .priority-p0 {
+            background: #ff4757;
+            color: white;
+        }
+        
+        .priority-p1 {
+            background: #ffa502;
+            color: white;
+        }
+        
+        /* 狀態標籤 */
+        .status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75em;
+            font-weight: bold;
+        }
+        
+        .status-pending {
+            background: #e0e0e0;
+            color: #666;
+        }
+        
+        .status-in-progress {
+            background: #ffd700;
+            color: #333;
+        }
+        
+        .status-completed {
+            background: #2ed573;
+            color: white;
+        }
+        
+        /* 里程碑時間表 */
+        .timeline {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+        }
+        
+        .milestone {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.85em;
+            background: #f0f0f0;
+            margin: 0 5px;
+            transition: all 0.3s ease;
+        }
+        
+        .milestone.active {
+            background: #667eea;
+            color: white;
+            transform: scale(1.05);
+        }
+        
+        .milestone.completed {
+            background: #2ed573;
+            color: white;
+        }
+        
+        .milestone-date {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .milestone-progress {
+            font-size: 0.75em;
+            opacity: 0.8;
+        }
+        
+        /* 風險警告 */
+        .risk {
+            background: #ffe5e5;
+            border-left: 4px solid #ff4757;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+        }
+        
+        .risk-title {
+            font-weight: bold;
+            color: #ff4757;
+            margin-bottom: 5px;
+        }
+        
+        .risk-content {
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        /* 檢查清單 */
+        .checklist {
+            list-style: none;
+        }
+        
+        .checklist li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+        }
+        
+        .checklist li:last-child {
+            border-bottom: none;
+        }
+        
+        .checklist-icon {
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+        
+        /* 統計卡片 */
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        
+        /* 底部按鈕 */
+        .button-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.95em;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+        
+        .btn-secondary:hover {
+            background: #f8f9fa;
+        }
+        
+        /* 實時更新指示器 */
+        .live-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            background: #2ed573;
+            border-radius: 50%;
+            margin-right: 5px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        /* 響應式設計 */
+        @media (max-width: 1024px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .workflow-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8em;
+            }
+            
+            .workflow-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .timeline {
+                flex-direction: column;
+            }
+        }
+        
+        /* 打印樣式 */
+        @media print {
+            body {
+                background: white;
+            }
+            
+            .card {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚀 屏東縣人民團體數位櫃檯</h1>
+            <p class="subtitle">最後 10 天衝刺 - 實時進度儀表板</p>
+            <p class="date-info">
+                <span class="live-indicator"></span>
+                實時更新 | 2026-11-11 ~ 2026-11-20
+            </p>
+        </header>
+
+        <div class="dashboard">
+            <!-- 總體進度卡片 -->
+            <div class="card">
+                <div class="card-title">📊 衝刺總體進度</div>
+                
+                <div class="progress-container">
+                    <div class="progress-label">
+                        <span>第 1 天進度 (11/11)</span>
+                        <span id="today-progress">30-40%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 35%; animation: fillProgress 2s ease;">
+                            35%
+                        </div>
+                    </div>
+                </div>
+
+                <div class="progress-container">
+                    <div class="progress-label">
+                        <span>衝刺計畫進度 (11/11-11/20)</span>
+                        <span id="overall-progress">0%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 0%; background: linear-gradient(90deg, #667eea, #764ba2);">
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 20px;">
+                    <div class="stat-card">
+                        <div class="stat-number">10</div>
+                        <div class="stat-label">天數剩餘</div>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #764ba2 0%, #667eea 100%); margin-top: 10px;">
+                        <div class="stat-number">45-60</div>
+                        <div class="stat-label">小時工作量</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 里程碑時間表 -->
+            <div class="card">
+                <div class="card-title">📅 衝刺里程碑</div>
+                
+                <div class="timeline">
+                    <div class="milestone active">
+                        <div class="milestone-date">11/11</div>
+                        <div class="milestone-progress">30-40%</div>
+                    </div>
+                    <div class="milestone">
+                        <div class="milestone-date">11/12</div>
+                        <div class="milestone-progress">50%</div>
+                    </div>
+                    <div class="milestone">
+                        <div class="milestone-date">11/13</div>
+                        <div class="milestone-progress">60-70%</div>
+                    </div>
+                    <div class="milestone">
+                        <div class="milestone-date">11/14</div>
+                        <div class="milestone-progress">80%</div>
+                    </div>
+                    <div class="milestone">
+                        <div class="milestone-date">11/15</div>
+                        <div class="milestone-progress">90%</div>
+                    </div>
+                    <div class="milestone">
+                        <div class="milestone-date">11/20</div>
+                        <div class="milestone-progress">100% 🎉</div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 15px; padding: 15px; background: #f0f7ff; border-radius: 8px;">
+                    <strong style="color: #667eea;">目標日期: 2026-11-20 正式上線</strong>
+                    <p style="color: #666; font-size: 0.9em; margin-top: 5px;">
+                        所有功能完成 | 所有測試通過 | 部署準備完成
+                    </p>
+                </div>
+            </div>
+
+            <!-- 6 個工作流狀態 -->
+            <div class="card" style="grid-column: 1 / -1;">
+                <div class="card-title">🔄 6 個並行工作流狀態</div>
+                
+                <div class="workflow-grid">
+                    <!-- 工作流 A -->
+                    <div class="workflow-card">
+                        <div class="workflow-name">
+                            工作流 A: 測試驗證
+                            <span class="priority priority-p0">P0</span>
+                        </div>
+                        <div class="workflow-hours">⏰ 15-20 小時</div>
+                        <div class="workflow-owner">👤 QA 主管</div>
+                        <div style="margin-top: 8px;">
+                            <span class="status status-in-progress">進行中</span>
+                        </div>
+                    </div>
+
+                    <!-- 工作流 B -->
+                    <div class="workflow-card" style="border-left-color: #ff4757;">
+                        <div class="workflow-name">
+                            工作流 B: 技術配置 ⭐
+                            <span class="priority priority-p0">CRITICAL</span>
+                        </div>
+                        <div class="workflow-hours">⏰ 3-5 小時</div>
+                        <div class="workflow-owner">👤 DevOps</div>
+                        <div style="margin-top: 8px;">
+                            <span class="status status-pending">11/11 09:30 開始</span>
+                        </div>
+                    </div>
+
+                    <!-- 工作流 C -->
+                    <div class="workflow-card">
+                        <div class="workflow-name">
+                            工作流 C: 文檔完善
+                            <span class="priority priority-p1">P1</span>
+                        </div>
+                        <div class="workflow-hours">⏰ 8-10 小時</div>
+                        <div class="workflow-owner">👤 Content</div>
+                        <div style="margin-top: 8px;">
+                            <span class="status status-pending">準備中</span>
+                        </div>
+                    </div>
+
+                    <!-- 工作流 D -->
+                    <div class="workflow-card">
+                        <div class="workflow-name">
+                            工作流 D: 反饻優化
+                            <span class="priority priority-p0">P0</span>
+                        </div>
+                        <div class="workflow-hours">⏰ 6-8 小時</div>
+                        <div class="workflow-owner">👤 Backend</div>
+                        <div style="margin-top: 8px;">
+                            <span class="status status-in-progress">進行中</span>
+                        </div>
+                    </div>
+
+                    <!-- 工作流 E -->
+                    <div class="workflow-card" style="border-left-color: #ff4757;">
+                        <div class="workflow-name">
+                            工作流 E: 社區規則 🔴
+                            <span class="priority priority-p0">URGENT</span>
+                        </div>
+                        <div class="workflow-hours">⏰ 5-7 小時</div>
+                        <div class="workflow-owner">👤 Business</div>
+                        <div style="margin-top: 8px;">
+                            <span class="status status-pending">11/12 上午發送</span>
+                        </div>
+                    </div>
+
+                    <!-- 工作流 F -->
+                    <div class="workflow-card">
+                        <div class="workflow-name">
+                            工作流 F: 內部驗收
+                            <span class="priority priority-p0">P0</span>
+                        </div>
+                        <div class="workflow-hours">⏰ 8-10 小時</div>
+                        <div class="workflow-owner">👤 PM</div>
+                        <div style="margin-top: 8px;">
+                            <span class="status status-pending">11/14 開始</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 今日任務檢查清單 -->
+            <div class="card">
+                <div class="card-title">✅ 今日任務 (11/11)</div>
+                
+                <ul class="checklist">
+                    <li>
+                        <span class="checklist-icon">09:00</span>
+                        <span>團隊站會 (15 分鐘)</span>
+                    </li>
+                    <li>
+                        <span class="checklist-icon">09:30</span>
+                        <span><strong>DevOps: GitHub Token 配置開始</strong> ⭐</span>
+                    </li>
+                    <li>
+                        <span class="checklist-icon">09:30</span>
+                        <span>QA: 功能完整性檢查</span>
+                    </li>
+                    <li>
+                        <span class="checklist-icon">09:30</span>
+                        <span>Backend: 反饻系統 Debug</span>
+                    </li>
+                    <li>
+                        <span class="checklist-icon">09:30</span>
+                        <span>Content: FAQ 框架準備</span>
+                    </li>
+                    <li>
+                        <span class="checklist-icon">09:30</span>
+                        <span>Business: 準備社會處聯繫郵件</span>
+                    </li>
+                    <li>
+                        <span class="checklist-icon">12:00</span>
+                        <span>進度同步 (10 分鐘)</span>
+                    </li>
+                    <li>
+                        <span class="checklist-icon">17:00</span>
+                        <span>日終總結 (20 分鐘)</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- 風險警告 -->
+            <div class="card">
+                <div class="card-title">⚠️ 關鍵風險與提醒</div>
+                
+                <div class="risk">
+                    <div class="risk-title">🔴 工作流 B - GitHub Token 配置</div>
+                    <div class="risk-content">
+                        優先級: CRITICAL PATH<br>
+                        必須在 11/11 09:30-11:30 完成<br>
+                        是後續 CI/CD 的基礎<br>
+                        <strong>負責人: DevOps | 若超時立即上報</strong>
+                    </div>
+                </div>
+
+                <div class="risk">
+                    <div class="risk-title">🔴 工作流 E - 社會處聯繫</div>
+                    <div class="risk-content">
+                        優先級: TIME SENSITIVE<br>
+                        必須在 11/12 上午發送郵件<br>
+                        截止日期: 11/17 前收到回應<br>
+                        <strong>負責人: Business | 延遲會影響上線</strong>
+                    </div>
+                </div>
+
+                <div class="risk">
+                    <div class="risk-title">🟡 應急預案</div>
+                    <div class="risk-content">
+                        進度滯後 >20% → 啟動加班 + 資源調整<br>
+                        社區規則未回 → 先發佈基礎版本<br>
+                        重大 Bug → 24 小時應急修復
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部按鈕 -->
+        <div class="button-group">
+            <button class="btn-primary" onclick="location.href='ALL-WORKFLOWS-READY.md'">
+                📚 查看完整指南
+            </button>
+            <button class="btn-primary" onclick="location.href='QUICK-START-TODAY.md'">
+                🚀 查看今日任務
+            </button>
+            <button class="btn-secondary" onclick="refreshDashboard()">
+                🔄 刷新儀表板
+            </button>
+            <button class="btn-secondary" onclick="printDashboard()">
+                🖨️ 打印儀表板
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // 模擬實時更新
+        function updateProgress() {
+            // 這裡可以連接到實際的數據源
+            // 目前是示例代碼
+            console.log('進度已更新');
+        }
+
+        function refreshDashboard() {
+            location.reload();
+        }
+
+        function printDashboard() {
+            window.print();
+        }
+
+        // 每 30 秒自動刷新一次（如果連接到實時數據）
+        setInterval(updateProgress, 30000);
+    </script>
+</body>
+</html>
