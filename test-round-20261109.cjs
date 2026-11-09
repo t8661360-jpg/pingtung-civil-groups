@@ -12,7 +12,7 @@ assert.equal(A('理事會開會要幾天前通知'),null);
 assert(A('合作社可以視訊開社員大會嗎').title.includes('無法確認'));
 // 3 合作社最少人數：7人（合作社法第8條）
 for(const q of['合作社成立最少幾個人','要幾人才能設立合作社'])assert(A(q).title.includes('7人'),q);
-assert.equal(A('合作社社員大會出席要多少人'),null);
+assert(A('合作社社員大會出席要多少人').title.includes('過半數'));// 第2輪起由社員大會出席規則回答，不可答成7人
 // 4 財務報表：依官方範本
 assert(A('資產負債表不平怎麼辦').summary.includes('兩方合計金額必須相同'));
 assert(A('基金收支表沒有基金也要交嗎').summary.startsWith('要。'));

@@ -3,7 +3,7 @@ const vm = require('node:vm');
 const assert = require('node:assert/strict');
 const s = fs.readFileSync('counter-upgrade.js', 'utf8');
 function load(name, next) {
-  return vm.runInNewContext('(' + s.slice(s.indexOf('function '+name+'('),s.indexOf('function '+next+'(')).trim() + ')');
+  const i=s.indexOf('function '+name+'(');return vm.runInNewContext('(' + s.slice(i,s.indexOf('\nfunction ',i+10)).trim() + ')');
 }
 const social = load('socialProxyAnswer','proxyRatioAnswer');
 assert.ok(social('\u5354\u6703\u6703\u54e1\u5927\u6703\u6211\u53ef\u4ee5\u63a5\u53d7\u5169\u500b\u4eba\u7684\u59d4\u8a17\u55ce'));
