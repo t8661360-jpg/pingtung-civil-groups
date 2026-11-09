@@ -465,9 +465,82 @@ function electionObjection(t){
  return{category:'人民團體會務說明',title:'對改選決議有異議',summary:'改選大會當場揭曉結果時，會員可當場提出質疑選票有效性或計票程序，應記錄在會議紀錄。大會結束後，部分團體允許事後申請複查，但須在章程預先規定。通常不會推翻已做成的決議，除非程序嚴重違法（如出席人數不足）。建議章程或改選辦法裡預先說明監票員檢驗機制。',statutes:[P(25),E(10)],questionState:{focus:'election-objection',domain:'social'},notes:['改選程序依人民團體選舉罷免辦法辦理。'],actions:[{label:'看改選流程',view:'meet',sub:'m-elect'}]};
 }
 
+
+
+// 12-1 理事長無故缺席：人民團體法第30、32條；會務輔導辦法第13條
+function chairmanAbsence(t){
+ if(!/理事長|主席/.test(t)||!/缺席|不出席|不來|無故|不執行職務/.test(t))return null;
+ if(/不開會|不召開|拒絕|不肯/.test(t))return null;  // 這些由 chairNoMeeting 處理
+ if(/合作社/.test(t)||/監事/.test(t))return null;
+ return {title:'理事長無故不召開會或無故缺席：應解除職務',summary:'人民團體法第30條規定理事長應召集並主持理事會。若理事長無故缺席理事會超過規定次數、或連續15日以上無故不執行職務，該理事長可由理事會以全體理事三分之二以上決議解除職務。',statutes:[P(30),P(32),G(13)]};
+}
+
+// 12-2 帳務報表保存期限：中華民國會計法、一般協會10年
+function recordRetentionPeriod(t){
+ if(!/保存|留存|保留|存放/.test(t)||!/(帳|報表|紀錄|憑證|簽到|多久|幾年)/.test(t))return null;
+ if(/合作社/.test(t))return null;  // 合作社另有規定
+ if(/多少錢|幾萬|金額/.test(t))return null;
+ return {title:'帳務與會議紀錄保存期限：至少10年',summary:'社會團體會計紀錄、簽到名簿、會議紀錄原本應至少保存10年，特別是涉及財產處分、接受捐贈、舉辦活動的紀錄。超過保存期限後確認無調查需求再銷毀。',statutes:[P(19),F(11)]};
+}
+
+// 12-3 廣告費記帳：屬收入，列入決算收支表
+function advertisingIncome(t){
+ if(!/廣告|廣告費|廣告收入/.test(t)||!/(記帳|怎麼|怎樣|要|列入)/.test(t))return null;
+ if(/合作社/.test(t))return null;
+ return {title:'廣告費收入：列入決算收支表收入項',summary:'協會收取廣告費屬於收入，應開立收據，完整記錄於會計帳簿，列入年度決算收支決算表收入欄。金額、來源、經費用途（若有指定）都要記錄清楚。',statutes:[P(33),F(11)]};
+}
+
+// 12-4 總幹事開戶資料：身分證、章程、理事會決議
+function staffBankAccountSetup(t){
+ if(!/總幹事|工作人員|職員/.test(t)||!/(銀行|開戶|帳戶|資料|帶|要)/.test(t))return null;
+ if(/聘僱|聘用|招聘|薪水|薪資/.test(t))return null;
+ return {title:'總幹事開戶需帶資料：身分證、章程、理事會決議',summary:'協會若以總幹事或其他人員名義開設銀行帳戶，銀行通常要求：(1)該人員身分證影本 (2)協會章程 (3)理事會授權決議 (4)協會印鑑。建議先洽詢要開戶的銀行最新要求。',statutes:[F(17)]};
+}
+
+// 12-5 會員大會簽到期限：沒有強制規定，由章程決定
+function meetingSigninDuration(t){
+ if(!/簽到|簽名|簽署|簽?.{0,2}到/.test(t)||!/(多久|幾分|要.{0,2}久|時間|期限)/.test(t))return null;
+ if(!/會.{0,2}大會|出席/.test(t))return null;
+ return {title:'會員大會簽到時間限制：由章程決定',summary:'人民團體法沒有規定簽到的具體時間限制。通常做法是在會議開始前15分鐘開始簽到，於會議開始時截止，但確切時間可由團體自行決定並在章程或會議規則中明定。',statutes:[P(25),G(12)]};
+}
+
+// 12-6 決議表決方式：舉手表決可以，決議須記錄方式
+function meetingVotingMethod(t){
+ if(!(/表決|舉手|決議/.test(t)&&!/投票/.test(t))||!/(可以|可不|允|行|方式)/.test(t))return null;
+ if(/改選|投票|線上|通訊/.test(t))return null;  // 這些由其他規則處理
+ return {title:'理事會決議表決方式：舉手表決可以',summary:'理事會決議可採舉手表決，只要符合法定人數與出席人數過半數或較多數同意即可。表決方式由章程決定，但會議紀錄應記錄表決結果與表決方式。',statutes:[P(25),G(12)]};
+}
+
+// 12-7 改選前理監事會：不是一定要開，但法律無禁止
+function preElectionBoardMeeting(t){
+ if(!/改選|選舉/.test(t)||!/(前|之前|預|選前|準備|一定)/.test(t)||!/(理|監)/.test(t))return null;
+ if(/當選|當選後|結束|完/.test(t))return null;
+ return {title:'改選前理監事會：不是必定要開',summary:'人民團體法沒有強制規定改選前一定要開理監事會。但由於改選涉及選舉、計票、文件驗收等多個環節，實務上許多團體在改選前召開理監事會討論改選程序，以避免爭議。建議在章程訂明。',statutes:[P(25),P(43)]};
+}
+
+// 12-8 監事會主席選舉：由監事會自行選舉常務監事為主席
+function supervisorChairmanElection(t){
+ if(!/監事|監察/.test(t)||!/(主席|主任|選舉|選出|怎麼選)/.test(t))return null;
+ if(/不開會|不召開|不肯|拒絕|不執行/.test(t))return null;
+ if(/副|解除|罷免|理事/.test(t))return null;
+ return {title:'監事會主席（常務監事）：由監事會選舉',summary:'監事會由監事組成，監事會內部應自行選舉常務監事作為監事會主席，主持監事會會議。選舉方式由章程或監事會規則決定。',statutes:[P(29),P(43)]};
+}
+
+// 12-9 改選日期計算：新理監事就任日期應在大會閉會當日
+function electionEffectiveDate(t){
+ if(!/改選|當選|新/.test(t)||!/(哪一天|什麼時候|日期|才能|能.{0,2}算|從哪一天|開始|開始計算)/.test(t))return null;
+ if(!/一屆|屆|新的|新人/.test(t))return null;
+ return {title:'改選當選日期計算：大會閉會當日即為新屆開始',summary:'新任理監事的任期從改選大會閉會當日起算。改選大會通常在同一天完成報到、投票、計票與當選人就任，即為新屆理監事開始任期的時間。',statutes:[P(19),G(12)]};
+}
+
+// 12-10 政治獻金：協會不得接受
+function politicalDonation(t){
+ if(!/政治|獻金|政治獻金/.test(t)||!/(接受|可以|不可|行不行|能.{0,2}接)/.test(t))return null;
+ return {title:'協會不得接受政治獻金',summary:'人民團體法第33條禁止社會團體接受境外資金，也禁止政治獻金。協會若收到來自政治人物、候選人或政治團體的獻金應即拒絕，以維持團體的中立性。',statutes:[P(33)]};
+}
 function verifiedRoundAnswer(q,ctx){
  const t=norm(q);
- return supervisorAsDirector(t)||electionReportDeadline(t)||checkSignature(t)||feePeriods(t)||feeDeferral(t)||threeMonthsWording(t)||electionCandidates(t)||electionObjection(t)||newChairTodo(t)||minutesDeadline(t)||coopBoardQuorum(t)||coopTax(t)||communityRename(t)||communityReportTownship(t)||addressCertificate(t)||bankChairChange(t)||eventFee(t)||communityChairTerm(t)||invalidBallot(t)||feeAmount(t)||personalAccount(t)||supervisorConvenerNoMeeting(t)||delegateAssembly(t)||noSupervisor(t)||foundingDocs(t)||investStocks(t)||membershipRefused(t)||coopCapital(t)||onlineVoting(t)||mailVoting(t)||receiveDonation(t)||hireEmployee(t)||lendToChair(t)||branchOrg(t)||supervisorMeeting(t)||noAnnualMeeting(t)||chairSpendingAuth(t)||communityVsGeneral(t)||coopDissolutionProperty(t)||charterAmendment(t)||coopSupervisorAudit(t)||publicSolicitation(t)||decisionRevoked(t)||chairResign(t)||memberExpulsion(t)||sealChange(t)||noHandover(t)||communityDissolutionProperty(t)||boardFinanceAgenda(t)||vacancyQuorum(t)||boardQuorumGeneral(t)||delegated(t)||chairNoMeeting(t)||feeAnswer(t)||coopAssemblyQuorum(t)||proxyCount(t)||concurrent(t)||financeQuestioned(t)||financeDeadline(t)||meetingFrequency(t)||videoMeeting(t)||coopMinimum(t)||financeForms(t)||formsDownload(t,ctx&&ctx.catalog)||dissolutionHowTo(t)||null;
+ return chairmanAbsence(t)||recordRetentionPeriod(t)||advertisingIncome(t)||staffBankAccountSetup(t)||meetingSigninDuration(t)||meetingVotingMethod(t)||preElectionBoardMeeting(t)||supervisorChairmanElection(t)||electionEffectiveDate(t)||politicalDonation(t)||supervisorAsDirector(t)||electionReportDeadline(t)||checkSignature(t)||feePeriods(t)||feeDeferral(t)||threeMonthsWording(t)||electionCandidates(t)||electionObjection(t)||newChairTodo(t)||minutesDeadline(t)||coopBoardQuorum(t)||coopTax(t)||communityRename(t)||communityReportTownship(t)||addressCertificate(t)||bankChairChange(t)||eventFee(t)||communityChairTerm(t)||invalidBallot(t)||feeAmount(t)||personalAccount(t)||supervisorConvenerNoMeeting(t)||delegateAssembly(t)||noSupervisor(t)||foundingDocs(t)||investStocks(t)||membershipRefused(t)||coopCapital(t)||onlineVoting(t)||mailVoting(t)||receiveDonation(t)||hireEmployee(t)||lendToChair(t)||branchOrg(t)||supervisorMeeting(t)||noAnnualMeeting(t)||chairSpendingAuth(t)||communityVsGeneral(t)||coopDissolutionProperty(t)||charterAmendment(t)||coopSupervisorAudit(t)||publicSolicitation(t)||decisionRevoked(t)||chairResign(t)||memberExpulsion(t)||sealChange(t)||noHandover(t)||communityDissolutionProperty(t)||boardFinanceAgenda(t)||vacancyQuorum(t)||boardQuorumGeneral(t)||delegated(t)||chairNoMeeting(t)||feeAnswer(t)||coopAssemblyQuorum(t)||proxyCount(t)||concurrent(t)||financeQuestioned(t)||financeDeadline(t)||meetingFrequency(t)||videoMeeting(t)||coopMinimum(t)||financeForms(t)||formsDownload(t,ctx&&ctx.catalog)||dissolutionHowTo(t)||null;
 }
 const api={normalizeQuestion,withContext,verifiedRoundAnswer};
 if(typeof module!=='undefined'&&module.exports)module.exports=api;

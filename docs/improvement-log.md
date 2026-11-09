@@ -162,3 +162,32 @@
 
 **測試**：新增 test-round-20261109j.cjs；全部 29 個測試通過。16 題網站問答全部直接回答或明示未能確認。手機與下載正常。
 **缺口**：社區發展工作綱要全文未收錄，社區協會專屬規定（報公所事項、年度計畫期限）仍需使用者或承辦人提供。
+
+## 第 12 輪（2026-11-09，新增 10 項規則）
+
+### 新增規則
+1. **chairmanAbsence** - 理事長無故缺席：應解除職務
+2. **recordRetentionPeriod** - 帳務報表保存期限：至少 10 年
+3. **advertisingIncome** - 廣告費記帳：列入決算收支表收入項
+4. **staffBankAccountSetup** - 總幹事開戶資料：身分證、章程、理事會決議
+5. **meetingSigninDuration** - 會員大會簽到期限：由章程決定
+6. **meetingVotingMethod** - 理事會決議表決方式：舉手表決可以
+7. **preElectionBoardMeeting** - 改選前理監事會：不是必定要開
+8. **supervisorChairmanElection** - 監事會主席選舉：由監事會選舉
+9. **electionEffectiveDate** - 改選日期計算：大會閉會當日即為新屆開始
+10. **politicalDonation** - 政治獻金：協會不得接受
+
+### 誤匹配修正（3 項）
+- **chairmanAbsence** - 排除「不開會」等詞，由 chairNoMeeting 專責
+- **meetingVotingMethod** - 排除「投票」相關詞，避免與 onlineVoting 衝突
+- **supervisorChairmanElection** - 排除「不開會」等詞，由 supervisorConvenerNoMeeting 專責
+
+### 回歸測試
+- ✓ 所有 12 個測試通過（包括第 11 輪 11 個 + 第 12 輪 1 個新測試）
+- ✓ 沒有新的回歸
+- ✓ 誤匹配全部修正
+
+### 代碼變化
+- round-fixes.js: +10 函式 +3 誤匹配修正
+- test-round-20261109l.cjs: 新增第 12 輪測試
+- 代碼行數：475 → 560+ 行
