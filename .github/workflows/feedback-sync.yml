@@ -1,0 +1,45 @@
+name: Feedback Sync
+
+on:
+  schedule:
+    # 每天 03:00 UTC (台灣時間 11:00) 發佈反饋
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+
+jobs:
+  post-feedback:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22'
+      
+      - name: 同步用戶反饋到 Issues
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPO: ${{ github.repository }}
+        run: |
+          echo "🔄 開始同步反饋..."
+          node feedback-github-poster.js --post-all
+          
+      - name: 生成週報
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPO: ${{ github.repository }}
+        run: |
+          echo "📊 生成週報..."
+          node feedback-github-poster.js --report
+      
+      - name: 提交変更
+        if: always()
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add -A
+          git diff --quiet && git diff --staged --quiet || (
+            git commit -m "🤖 自動同步反饋 ($(date -u +'%Y-%m-%d %H:%M:%S'))"
+            git push
+          )
