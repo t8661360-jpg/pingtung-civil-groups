@@ -598,9 +598,95 @@ function chairmanReelectionLimit(t){
  return null;
 }
 
+
+
+// 14-1 合作社決算表vs協會6項
+function coopVsAssocAccountingForms(t){
+ if(/合作社/.test(t)&&/(決算表|報表|財務|帳|表格)/.test(t)&&/(怎麼|怎樣|填|怎|哪些|6項)/.test(t))
+  return{title:'合作社決算表vs協會6項：不同報表與期限',summary:'一般協會要報6項財務報表（收支預算表、決算表、現金出納表、資產負債表、財產目錄、基金收支表）。合作社的規定不同：年度決算報請社員大會承認後，應於一個月內報主管機關備查，包含業務報告書、資產負債表、收支餘絀表、財產目錄及結餘分配案（合作社法第36條）。兩者報表形式、項目、期限都不同，不能混用。',statutes:[C(36),F(11)]};
+ return null;
+}
+
+// 14-2 合作社資產負債表報送
+function coopBalanceSheetReport(t){
+ if(/合作社/.test(t)&&/(資產負債表|資產)/.test(t)&&/(要報|要不要|報|送)/.test(t))
+  return{title:'合作社資產負債表：年度決算後1個月內報備查',summary:'是的，合作社的資產負債表是年度決算報表的重要部分，應於社員大會承認決算後一個月內，連同業務報告書、收支餘絀表、財產目錄、結餘分配案等，報請主管機關備查（合作社法第36條）。',statutes:[C(36)]};
+ return null;
+}
+
+// 14-3 會員代表名額計算
+function delegateQuotaCalculation(t){
+ if(/(會員代表|代表|代表制)/.test(t)&&/(名額|幾個|多少|怎麼.{0,2}算|計算|比例)/.test(t)&&!/選/.test(t))
+  return{title:'會員代表名額：依章程規定的比例和區域分配',summary:'會員大會改為會員代表制後，代表人數及分配比例由章程規定。通常按地域或會員類別分配，例如每10名會員選1名代表，或按鄰里分配。關鍵是章程要明確規定名額、比例、產生方式，並報主管機關核備（人民團體法第17、25條）。',statutes:[P(17),P(25)]};
+ return null;
+}
+
+// 14-4 代表能否兼任理事
+function delegateConcurrentRole(t){
+ if(/(會員代表|代表)/.test(t)&&/(兼|當|當選|再當|同時)/.test(t)&&/(理事|主席|職|職務)/.test(t))
+  return{title:'會員代表能否兼任理事：法律未禁止，由章程決定',summary:'人民團體法沒有禁止會員代表同時兼任理事。實務上可以，但最好在章程裡明確規定：是否允許兼任、兼任人數上限、是否要迴避等。有些協會規定代表只代表會員發言不兼任職位，以保持代表的中立性。',statutes:[P(25)]};
+ return null;
+}
+
+// 14-5 會員大會表決方式
+function assemblyVotingMethod(t){
+ if(/(會員大會|大會)/.test(t)&&/(表決|投票|舉手|無記名|怎麼.{0,2}決)/.test(t)&&!/理事會/.test(t))
+  return{title:'會員大會表決方式：視議案性質決定',summary:'會員大會對一般提案通常用舉手表決，快速簡便。選舉理監事或重大決議要用無記名投票，確保秘密性（人民團體選舉罷免辦法第4條）。具體方式由章程訂定，大會也可視議案性質臨時決議。例如選舉用無記名投票，一般議案用舉手表決。',statutes:[E(4),P(25)]};
+ return null;
+}
+
+// 14-6 理事會表決方式細化
+function boardVotingMethodDetail(t){
+ if(/(理事會|理監事會)/.test(t)&&/(表決|投票|舉手|無記名|怎麼.{0,2}決)/.test(t))
+  return{title:'理事會決議表決方式：通常舉手表決，選舉用無記名',summary:'理事會日常決議通常用舉手表決。但選舉理事長、常務理事或常務監事時，應改用無記名投票（人民團體選舉罷免辦法第4條）。法律沒強制規定所有決議都要無記名，由章程決定，現場也可因議案重要性決議改投票方式。',statutes:[E(4),P(43)]};
+ return null;
+}
+
+// 14-7 會員代表選舉方式
+function delegateElectionProcess(t){
+ if(/(會員代表|代表)/.test(t)&&/(選舉|選|產生|怎麼.{0,2}選)/.test(t))
+  return{title:'會員代表選舉：依章程規定的時間、地點、方式',summary:'會員大會選舉代表，具體程序由章程訂定。常見方式：(1)全體會員在會員大會上選舉；(2)按分會/區域各選舉各自代表，再彙總成代表大會代表；(3)推薦+會員大會審認。須確保代表的代表性，禁止理事長或理事會直接指派（人民團體法第17、25條）。',statutes:[P(17),P(25)]};
+ return null;
+}
+
+// 14-8 代表大會召開規則
+function delegateAssemblyRules(t){
+ if(/(代表大會|代表.{0,2}大會|會員代表大會)/.test(t)&&/(召開|開|怎麼|規則|須知)/.test(t))
+  return{title:'會員代表大會：比照會員大會規則，需提前通知',summary:'會員代表大會是代表制協會的最高權力機關，運作比照會員大會，應提前十五日通知各代表（人民團體法第25條）。紀錄應記載決議，閉會後三十日內報縣府備查。代表也可在會員大會上提案或質詢。',statutes:[P(25),G(12)]};
+ return null;
+}
+
+// 14-9 合作社社員罷免
+function coopMemberRemoval(t){
+ if(/合作社/.test(t)&&/(罷免|除名|開除|除|辭退)/.test(t)&&/(社員|理事|監事)/.test(t))
+  return{title:'合作社社員罷免：依合作社法程序',summary:'合作社社員或理監事的罷免程序由合作社法、章程規定，與一般協會不完全相同。社員罷免由社員大會決議，理事或監事罷免由各自的會議決議。具體投票門檻、期限等，請查閱貴社章程或洽承辦。',statutes:[C(37)]};
+ return null;
+}
+
+// 14-10 合作社向銀行借貸
+function coopBankLoan(t){
+ if(/合作社/.test(t)&&/(借|貸|借錢|借貸|向銀行|金融|能|可以|要)/.test(t))
+  return{title:'合作社向銀行借貸：理事會或社務會決議後辦理',summary:'合作社可以向銀行借貸進行業務經營，通常由理事會或社務會決議，並檢附授權文件向銀行申請。稅務、融資利率等涉及金融法規，本站無詳細規定。建議先諮詢銀行融資部門，了解合作社借貸的資格與流程。',statutes:[C(53)]};
+ return null;
+}
+
+// 14-11 分支機構帳務操作
+function branchAccountingPractice(t){
+ if(/(分支機構|分支|支部)/.test(t)&&/(帳|帳務|會計|帳簿|怎麼)/.test(t)&&/(分開|分|操作|記)/.test(t))
+  return{title:'分支機構帳務操作：分開設帳、定期彙報、年終併報',summary:'分支機構帳務應單獨設帳，記錄分支的收支情形。月度或季度向母會彙報分支帳況，年度決算時分支帳應併入母會決算，由母會統籌報備。母會保留分支帳帳簿供檢查（財務處理辦法第5、19條）。',statutes:[F(5),F(19),P(19)]};
+ return null;
+}
+
+// 14-12 改選後帳務期限確認
+function postElectionAccountingDeadline(t){
+ if(/(改選|選舉|換人|新任)/.test(t)&&/(帳|決算|財務|報表|多久)/.test(t)&&/(要|做|要.{0,2}報|何時)/.test(t))
+  return{title:'改選後帳務處理：同年度決算於年終前三個月內完成',summary:'改選當年的決算仍按原規定辦理：年度終了後三個月內編造、經會員大會通過後報備查。改選不影響帳務年度。新任理事長上任後15日內要完成移交（含帳務交接），之後配合會計做決算與報告（人民團體會務輔導辦法第18條）。',statutes:[G(18),F(11),P(43)]};
+ return null;
+}
+
 function verifiedRoundAnswer(q,ctx){
  const t=norm(q);
- return memberDelegateElection(t)||branchOrgSetup(t)||delegateProposalProcess(t)||annualMeetingVsAssembly(t)||supervisorMinimumMembers(t)||supervisorAuditPowers(t)||branchOrgAccounting(t)||chairmanReelectionLimit(t)||chairmanAbsence(t)||recordRetentionPeriod(t)||advertisingIncome(t)||staffBankAccountSetup(t)||meetingSigninDuration(t)||meetingVotingMethod(t)||preElectionBoardMeeting(t)||supervisorChairmanElection(t)||electionEffectiveDate(t)||politicalDonation(t)||supervisorAsDirector(t)||electionReportDeadline(t)||checkSignature(t)||feePeriods(t)||feeDeferral(t)||threeMonthsWording(t)||electionCandidates(t)||electionObjection(t)||newChairTodo(t)||minutesDeadline(t)||coopBoardQuorum(t)||coopTax(t)||communityRename(t)||communityReportTownship(t)||addressCertificate(t)||bankChairChange(t)||eventFee(t)||communityChairTerm(t)||invalidBallot(t)||feeAmount(t)||personalAccount(t)||supervisorConvenerNoMeeting(t)||delegateAssembly(t)||noSupervisor(t)||foundingDocs(t)||investStocks(t)||membershipRefused(t)||coopCapital(t)||onlineVoting(t)||mailVoting(t)||receiveDonation(t)||hireEmployee(t)||lendToChair(t)||branchOrg(t)||supervisorMeeting(t)||noAnnualMeeting(t)||chairSpendingAuth(t)||communityVsGeneral(t)||coopDissolutionProperty(t)||charterAmendment(t)||coopSupervisorAudit(t)||publicSolicitation(t)||decisionRevoked(t)||chairResign(t)||memberExpulsion(t)||sealChange(t)||noHandover(t)||communityDissolutionProperty(t)||boardFinanceAgenda(t)||vacancyQuorum(t)||boardQuorumGeneral(t)||delegated(t)||chairNoMeeting(t)||feeAnswer(t)||coopAssemblyQuorum(t)||proxyCount(t)||concurrent(t)||financeQuestioned(t)||financeDeadline(t)||meetingFrequency(t)||videoMeeting(t)||coopMinimum(t)||financeForms(t)||formsDownload(t,ctx&&ctx.catalog)||dissolutionHowTo(t)||null;
+ return coopVsAssocAccountingForms(t)||coopBalanceSheetReport(t)||delegateQuotaCalculation(t)||delegateConcurrentRole(t)||assemblyVotingMethod(t)||boardVotingMethodDetail(t)||delegateElectionProcess(t)||delegateAssemblyRules(t)||coopMemberRemoval(t)||coopBankLoan(t)||branchAccountingPractice(t)||postElectionAccountingDeadline(t)||memberDelegateElection(t)||branchOrgSetup(t)||delegateProposalProcess(t)||annualMeetingVsAssembly(t)||supervisorMinimumMembers(t)||supervisorAuditPowers(t)||branchOrgAccounting(t)||chairmanReelectionLimit(t)||chairmanAbsence(t)||recordRetentionPeriod(t)||advertisingIncome(t)||staffBankAccountSetup(t)||meetingSigninDuration(t)||meetingVotingMethod(t)||preElectionBoardMeeting(t)||supervisorChairmanElection(t)||electionEffectiveDate(t)||politicalDonation(t)||supervisorAsDirector(t)||electionReportDeadline(t)||checkSignature(t)||feePeriods(t)||feeDeferral(t)||threeMonthsWording(t)||electionCandidates(t)||electionObjection(t)||newChairTodo(t)||minutesDeadline(t)||coopBoardQuorum(t)||coopTax(t)||communityRename(t)||communityReportTownship(t)||addressCertificate(t)||bankChairChange(t)||eventFee(t)||communityChairTerm(t)||invalidBallot(t)||feeAmount(t)||personalAccount(t)||supervisorConvenerNoMeeting(t)||delegateAssembly(t)||noSupervisor(t)||foundingDocs(t)||investStocks(t)||membershipRefused(t)||coopCapital(t)||onlineVoting(t)||mailVoting(t)||receiveDonation(t)||hireEmployee(t)||lendToChair(t)||branchOrg(t)||supervisorMeeting(t)||noAnnualMeeting(t)||chairSpendingAuth(t)||communityVsGeneral(t)||coopDissolutionProperty(t)||charterAmendment(t)||coopSupervisorAudit(t)||publicSolicitation(t)||decisionRevoked(t)||chairResign(t)||memberExpulsion(t)||sealChange(t)||noHandover(t)||communityDissolutionProperty(t)||boardFinanceAgenda(t)||vacancyQuorum(t)||boardQuorumGeneral(t)||delegated(t)||chairNoMeeting(t)||feeAnswer(t)||coopAssemblyQuorum(t)||proxyCount(t)||concurrent(t)||financeQuestioned(t)||financeDeadline(t)||meetingFrequency(t)||videoMeeting(t)||coopMinimum(t)||financeForms(t)||formsDownload(t,ctx&&ctx.catalog)||dissolutionHowTo(t)||null;
 }
 const api={normalizeQuestion,withContext,verifiedRoundAnswer};
 if(typeof module!=='undefined'&&module.exports)module.exports=api;
