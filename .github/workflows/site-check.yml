@@ -12,17 +12,17 @@ permissions:
   contents: read
   issues: write
 concurrency:
-  group: site-check
+  group: site-check-${{ github.event_name }}
   cancel-in-progress: true
 jobs:
   check:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
       - name: 回歸測試
         run: for t in test-*.cjs; do echo "== $t"; node "$t" || exit 1; done
       - name: 快取瀏覽器
@@ -30,7 +30,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/ms-playwright
-          key: pw-1.56.0
+          key: pw-1.56.0-ubuntu-24.04
       - name: 安裝檢查工具
         if: github.event_name != 'push'
         run: npm install --no-save playwright@1.56.0 && npx playwright install --with-deps chromium
