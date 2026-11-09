@@ -134,12 +134,24 @@ function vacancyQuorum(t){
  const nums=[...t.matchAll(/(\d+|[一二兩三四五六七八九十]+)\s*(?:人|位|名)/g)].map(m=>cnum(m[1])).filter(n=>n>0&&n<200);
  if(nums.length<2)return null;
  let N=nums[0],M=nums[1];
+ // 改進: 更清晰的出缺檢測邏輯
+ // 檢查"走了X人"或"少了X人"等情況 - 此時第二個數字是出缺人數，需要轉換為現任人數
  if(/(少了|走了|辭職了?|出缺了?|缺了)\s*(\d+|[一二兩三四五六七八九十]+)\s*(人|位|名)/.test(t)&&M<N&&!/(剩|現有|只有|目前|在任)/.test(t))M=N-M;
  if(!(M>0&&M<=N))return null;
  const body=/監事/.test(t)&&!/理事/.test(t)?'監事':'理事';
  const coop=/合作社/.test(t),pro=/公會|職業團體/.test(t);
  const q=Math.floor(M/2)+1,qN=Math.floor(N/2)+1,two=Math.ceil(N*2/3);
  const law=coop?[C(body==='理事'?53:45)]:pro?[{title:'商業團體法第32條',source:LAW+'D0050100'}]:[P(29),G(16),E(17)];
+ 
+ // 改進: 當 M < N 且題目不夠清楚時，提供兩個情況的答案
+ // 檢查是否明確提到出缺、剩下等情況
+ const isClearAboutVacancy=/(出缺|辭職|少了|走了|現在剩|只剩|剩\d+|剩[一二兩三四五六七八九十]|現在只[有剩]|剩下|現有|在任)/.test(t);
+ if(M<N&&!isClearAboutVacancy){
+  const summary=`【情況 A】如果現任${body}就是 ${M} 人（原定 ${N} 人有人出缺）：\n需要 ${q} 人出席才能開會。\n\n【情況 B】如果原定 ${N} 人都還在任，現在只有 ${M} 人出席：\n需要 ${qN} 人出席才能開會。\n\n請確認現任${body}的實際人數，或告訴我是否有人出缺，我會幫您精確計算。`;
+  return{category:coop?'合作社會務':'人民團體會務說明',title:`${body}${N}人，出席${M}人 - 需要澄清`,summary:summary,statutes:law,questionState:{focus:'vacancy-quorum',domain:coop?'coop':pro?'pro':'social'},notes:[`出席人數以簽到或報到人數計算；${body}應親自出席，不得委託他人代理（人民團體法第31條）。`,'「應出席人員」為人民團體會務輔導辦法第16條用語；章程另有規定時，依章程辦理。'],actions:[{label:'看理監事會辦理',view:'meet',sub:'m-board'},{label:'聯絡承辦',view:'contact',sub:''}]};
+ }
+ 
+ // 原有邏輯繼續 (確定有人出缺或無人出缺的情況)
  const fill=coop?'':(M>=two?`另外，現任 ${M} 人仍達章程名額 ${N} 人的三分之二（${two} 人），不必補選；有候補${body}時應先依序遞補（人民團體選舉罷免辦法第17條），遞補後應出席人數也會跟著增加。`:`另外，現任 ${M} 人已不足章程名額 ${N} 人的三分之二（${two} 人）：依人民團體選舉罷免辦法第17條，應先由候補${body}依次遞補，遞補後仍不足三分之二時，應補選足額。`);
  return{category:coop?'合作社會務':'人民團體會務說明',title:`現任${body} ${M} 人：至少要 ${q} 人出席才能開會`,summary:`至少要 ${q} 人出席。${body}會要有應出席人員過半數出席才能成會；${body}出缺後，應出席的是現任的 ${M} 位${body}，${M} 人的過半數是 ${q} 人。決議再以出席${body}過半數或較多數同意（${coop?'合作社法':'人民團體法第29條、人民團體會務輔導辦法第16條'}）。\n`+(qN!==q?`如果對計算基準有疑義（例如以章程定額 ${N} 人計算，需要 ${qN} 人），保守做法是出席 ${qN} 人以上，兩種算法都成會；仍有疑義請洽承辦人確認。\n`:'')+fill,statutes:law,questionState:{focus:'vacancy-quorum',domain:coop?'coop':pro?'pro':'social'},notes:[`出席人數以簽到或報到人數計算；${body}應親自出席，不得委託他人代理（人民團體法第31條）。`,'「應出席人員」為人民團體會務輔導辦法第16條用語；章程另有規定時，依章程辦理。'],actions:[{label:'看理監事會辦理',view:'meet',sub:'m-board'},{label:'聯絡承辦',view:'contact',sub:''}]};
 }
