@@ -910,11 +910,11 @@ function dirQueryFrom(q,intent){
   if(intent.name)kw=intent.name;
   else{
     kw=kw.replace(LEAD_RE,"");
+    ["社區發展協會","社區協會","合作社","職業團體","社會團體","人民團體","團體名稱","名稱","團體","老人會","宗親會","同鄉會","校友會","教師會","教育會","商業會","工業會"].forEach(w=>kw=kw.split(w).join(""));
     if(c){const re=CAT_ALIAS.find(x=>x[0]===c)[1];kw=kw.replace(new RegExp(re.source,"g"),"")}
-    ["社區發展協會","社區協會","合作社","職業團體","社會團體","人民團體","團體名稱","名稱","團體"].forEach(w=>kw=kw.split(w).join(""));
     if(d){const nd=d.replace(/臺/g,"台");kw=kw.split(nd).join("");const base=nd.slice(0,-1);if(base!=="屏東")kw=kw.split(base).join("")}
     kw=kw.replace(/屏東縣|縣內|本縣|目前|所有|全部|有哪些|哪些|有沒有|是否|列出|清單|名冊|名單|資料|幾個|多少個|多少家|多少|共有|立案了嗎|有立案|有登記|的電話|電話|的地址|地址|在哪裡|在哪|理事長是誰|理事長|負責人|是誰|重複|可以用|能用|被用|有人用|我想取的|我想取|想取的|一下|查詢|查/g,"");
-    kw=kw.replace(/類別|類型|類的|類|性質|方面|相關/g,"").replace(/有幾個|有多少|現在|請問|總共|一共/g,"");
+    kw=kw.replace(/類別|類型|類的|類|性質|方面|相關/g,"").replace(/有幾個|有多少|有哪幾個|有哪些|有嗎|有沒有|現在|請問|總共|一共|的/g,"");
     kw=kw.replace(/[「」『』]/g,"").replace(/[嗎呢吧了啊的有？?！!，,。\s]+$/g,"").replace(/^[的在有]+/,"");
     if((c||t||d)&&kw.length<=2)kw="";
     if(/^(協會|學會|公會|社區|團體|會|的|有|的團體|的協會|的社區)?$/.test(kw))kw="";
@@ -1739,7 +1739,7 @@ touch();
   route();
 })();
 </script>
-<script src="round-fixes.js?v=20261109-8"></script>
+<script src="round-fixes.js?v=20261109-9"></script>
 <script src="question-understanding.js?v=20261109-1"></script>
 <script src="counter-upgrade.js?v=20261107-38"></script>
 </body>

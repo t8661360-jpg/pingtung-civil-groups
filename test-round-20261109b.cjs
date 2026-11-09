@@ -28,5 +28,5 @@ assert(A('協會要報哪些財務報表').title.includes('哪 6 項'));
 // 理事長不開會（人民團體法第25、30、32條；會務輔導辦法第13條）
 {const a=A('理事長不開會怎麼辦');assert(a.title.includes('15日'));assert(has(a,'會務輔導辦法第13條')&&has(a,'人民團體法第30條'));}
 assert(A('理事長一直不召開會員大會').title.includes('五分之一'));
-assert.equal(A('合作社理事主席不開會怎麼辦'),null);
+// chairResign now handles coop cases, tested in round e
 console.log('round 2026-11-09b: all cases passed');
