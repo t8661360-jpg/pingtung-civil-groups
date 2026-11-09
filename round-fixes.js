@@ -563,7 +563,8 @@ function delegateProposalProcess(t){
 
 // 13-4 常年會vs會員大會
 function annualMeetingVsAssembly(t){
- if(!/常年會|會員大會/.test(t)||!/差別|差異|一樣|是否|同|就是|嗎/.test(t))return null;
+ if(!/常年會|會員大會/.test(t)||!/差別|差異|一樣|是否|同|就是/.test(t))return null;
+ if(/簽到|簽|多久|時間|期限|要.{0,2}久/.test(t))return null;
  return {title:'常年會=會員大會：定期會的習慣稱法',summary:'「常年會」和「會員大會」是同一概念。人民團體法用「會員大會」，但實務中常稱「常年會」指定期召開的會議。臨時會是因特殊事由召開。',statutes:[P(25),G(12)]};
 }
 
@@ -665,7 +666,7 @@ function coopMemberRemoval(t){
 
 // 14-10 合作社向銀行借貸
 function coopBankLoan(t){
- if(/合作社/.test(t)&&/(借|貸|借錢|借貸|向銀行|金融|能|可以|要)/.test(t))
+ if(/合作社/.test(t)&&/(借|貸|借錢|借貸|向銀行|金融)/.test(t))
   return{title:'合作社向銀行借貸：理事會或社務會決議後辦理',summary:'合作社可以向銀行借貸進行業務經營，通常由理事會或社務會決議，並檢附授權文件向銀行申請。稅務、融資利率等涉及金融法規，本站無詳細規定。建議先諮詢銀行融資部門，了解合作社借貸的資格與流程。',statutes:[C(53)]};
  return null;
 }
@@ -708,7 +709,7 @@ function coopBankLoanProcedure(t){
 // 15-4 社區協會報公所項目：部分確認
 function communityReportingRequirements(t){
  if(/(社區|社區協會)/.test(t)&&/(報公所|報|送|要報|備查|報|上報)/.test(t)&&/(哪些|什麼|項目|事項)/.test(t))
-  return{title:'[部分規定確認] 社區發展協會報公所項目',summary:'✅ 法律明文要求：\\n• 會員大會紀錄（閉會後30日內報備查）- 人民團體會務輔導辦法第12條\\n• 年度決算報告（年終後3個月內報備查）- 財務處理辦法第11條\\n• 理監事名冊變動（改選後30日內報備查）- 人民團體法第28條\\n\\n❓ 需要確認（各鄉鎮可能不同）：年度計畫、社務報告、活動計畫書等。\\n\\n建議洽詢：\\n📍 所在地鄉鎮市公所社會課（民政課）\\n📞 屏東縣政府社會處 (08)7360316\\n*不同鄉鎮要求可能有差異*',statutes:[P(28),G(12),F(11)]};
+  return{title:'[未能確認] 社區發展協會報公所項目',summary:'✅ 法律明文要求：\\n• 會員大會紀錄（閉會後30日內報備查）- 人民團體會務輔導辦法第12條\\n• 年度決算報告（年終後3個月內報備查）- 財務處理辦法第11條\\n• 理監事名冊變動（改選後30日內報備查）- 人民團體法第28條\\n\\n❓ 其他項目因各鄉鎮要求不同，本站無法一一確認。建議洽詢所在地鄉鎮公所。\\n\\n建議洽詢：\\n📍 所在地鄉鎮市公所社會課（民政課）\\n📞 屏東縣政府社會處 (08)7360316\\n*不同鄉鎮要求可能有差異*',statutes:[P(28),G(12),F(11)]};
  return null;
 }
 
@@ -728,7 +729,7 @@ function communityVsAssociationDifferences(t){
 
 function verifiedRoundAnswer(q,ctx){
  const t=norm(q);
- return coopVsAssocAccountingForms(t)||coopBalanceSheetReport(t)||delegateQuotaCalculation(t)||delegateConcurrentRole(t)||assemblyVotingMethod(t)||boardVotingMethodDetail(t)||delegateElectionProcess(t)||delegateAssemblyRules(t)||coopMemberRemoval(t)||coopAdvertisingTaxability(t)||coopLoanToMemberTax(t)||coopBankLoanProcedure(t)||coopBankLoan(t)||branchAccountingPractice(t)||postElectionAccountingDeadline(t)||memberDelegateElection(t)||branchOrgSetup(t)||delegateProposalProcess(t)||annualMeetingVsAssembly(t)||supervisorMinimumMembers(t)||supervisorAuditPowers(t)||branchOrgAccounting(t)||chairmanReelectionLimit(t)||chairmanAbsence(t)||recordRetentionPeriod(t)||advertisingIncome(t)||staffBankAccountSetup(t)||meetingSigninDuration(t)||meetingVotingMethod(t)||preElectionBoardMeeting(t)||supervisorChairmanElection(t)||electionEffectiveDate(t)||politicalDonation(t)||communityReportingRequirements(t)||communityYearlyPlanDeadline(t)||communityVsAssociationDifferences(t)||supervisorAsDirector(t)||electionReportDeadline(t)||checkSignature(t)||feePeriods(t)||feeDeferral(t)||threeMonthsWording(t)||electionCandidates(t)||electionObjection(t)||newChairTodo(t)||minutesDeadline(t)||coopBoardQuorum(t)||coopTax(t)||communityRename(t)||communityReportTownship(t)||addressCertificate(t)||bankChairChange(t)||eventFee(t)||communityChairTerm(t)||invalidBallot(t)||feeAmount(t)||personalAccount(t)||supervisorConvenerNoMeeting(t)||delegateAssembly(t)||noSupervisor(t)||foundingDocs(t)||investStocks(t)||membershipRefused(t)||coopCapital(t)||onlineVoting(t)||mailVoting(t)||receiveDonation(t)||hireEmployee(t)||lendToChair(t)||branchOrg(t)||supervisorMeeting(t)||noAnnualMeeting(t)||chairSpendingAuth(t)||communityVsGeneral(t)||coopDissolutionProperty(t)||charterAmendment(t)||coopSupervisorAudit(t)||publicSolicitation(t)||decisionRevoked(t)||chairResign(t)||memberExpulsion(t)||sealChange(t)||noHandover(t)||communityDissolutionProperty(t)||boardFinanceAgenda(t)||vacancyQuorum(t)||boardQuorumGeneral(t)||delegated(t)||chairNoMeeting(t)||feeAnswer(t)||coopAssemblyQuorum(t)||proxyCount(t)||concurrent(t)||financeQuestioned(t)||financeDeadline(t)||meetingFrequency(t)||videoMeeting(t)||coopMinimum(t)||financeForms(t)||formsDownload(t,ctx&&ctx.catalog)||dissolutionHowTo(t)||null;
+ return coopVsAssocAccountingForms(t)||coopBalanceSheetReport(t)||delegateQuotaCalculation(t)||delegateConcurrentRole(t)||onlineVoting(t)||mailVoting(t)||assemblyVotingMethod(t)||boardVotingMethodDetail(t)||delegateElectionProcess(t)||delegateAssemblyRules(t)||coopMemberRemoval(t)||coopAdvertisingTaxability(t)||coopLoanToMemberTax(t)||coopBankLoanProcedure(t)||coopBankLoan(t)||branchAccountingPractice(t)||postElectionAccountingDeadline(t)||memberDelegateElection(t)||branchOrgSetup(t)||delegateProposalProcess(t)||annualMeetingVsAssembly(t)||vacancyQuorum(t)||supervisorConvenerNoMeeting(t)||supervisorMinimumMembers(t)||supervisorAuditPowers(t)||branchOrgAccounting(t)||chairmanReelectionLimit(t)||chairmanAbsence(t)||recordRetentionPeriod(t)||advertisingIncome(t)||staffBankAccountSetup(t)||meetingSigninDuration(t)||meetingVotingMethod(t)||preElectionBoardMeeting(t)||supervisorChairmanElection(t)||electionEffectiveDate(t)||politicalDonation(t)||communityReportingRequirements(t)||communityYearlyPlanDeadline(t)||communityVsAssociationDifferences(t)||supervisorAsDirector(t)||electionReportDeadline(t)||checkSignature(t)||feePeriods(t)||feeDeferral(t)||threeMonthsWording(t)||electionCandidates(t)||electionObjection(t)||newChairTodo(t)||minutesDeadline(t)||coopBoardQuorum(t)||coopTax(t)||communityRename(t)||communityReportTownship(t)||addressCertificate(t)||bankChairChange(t)||eventFee(t)||communityChairTerm(t)||invalidBallot(t)||feeAmount(t)||personalAccount(t)||delegateAssembly(t)||noSupervisor(t)||foundingDocs(t)||investStocks(t)||membershipRefused(t)||coopCapital(t)||receiveDonation(t)||hireEmployee(t)||lendToChair(t)||branchOrg(t)||supervisorMeeting(t)||noAnnualMeeting(t)||chairSpendingAuth(t)||communityVsGeneral(t)||coopDissolutionProperty(t)||charterAmendment(t)||coopSupervisorAudit(t)||publicSolicitation(t)||decisionRevoked(t)||chairResign(t)||memberExpulsion(t)||sealChange(t)||noHandover(t)||communityDissolutionProperty(t)||boardFinanceAgenda(t)||boardQuorumGeneral(t)||delegated(t)||chairNoMeeting(t)||feeAnswer(t)||coopAssemblyQuorum(t)||proxyCount(t)||concurrent(t)||financeQuestioned(t)||financeDeadline(t)||meetingFrequency(t)||videoMeeting(t)||coopMinimum(t)||financeForms(t)||formsDownload(t,ctx&&ctx.catalog)||dissolutionHowTo(t)||null;
 }
 const api={normalizeQuestion,withContext,verifiedRoundAnswer};
 if(typeof module!=='undefined'&&module.exports)module.exports=api;
