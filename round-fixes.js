@@ -159,20 +159,18 @@ function boardFinanceAgenda(t){
  if(!/(財報|財務報表|財務|報表|決算|預算|審議|審查|審什麼|議什麼|報什麼|討論什麼|要審|要討論|該審|應該審|應審)/.test(t))return null;
  const m=mon?+mon[1]:({'一':1,'二':2,'三':3,'四':4,'五':5,'六':6,'七':7,'八':8,'九':9,'十':10,'十一':11,'十二':12})[monCh[1]];
  if(!(m>=1&&m<=12))return null;
- const Y=new Date().getFullYear();
- const prev=Y-1, cur=Y;
- let title,summary,notes=[];
+  let title,summary,notes=[];
  if(m>=1&&m<=3){
-  title=`${m} 月理監事會：審議 ${prev} 年度決算與 ${cur} 年度工作計畫`;
+  title=`${m} 月理監事會：審議上年度決算與當年度工作計畫`;
   summary=`${m} 月份召開的理監事會，主要審議兩大項：\n`+
-   `一、${prev} 年度決算：收支決算表、資產負債表、財產目錄、基金收支表（社會團體財務處理辦法第11、12條，年度終了後三個月內由理事會編造）。審議後送監事會審核，再提會員大會通過。\n`+
-   `二、${cur} 年度工作計畫與收支預算表（如尚未提報）。\n`+
+   `一、上年度決算：收支決算表、資產負債表、財產目錄、基金收支表（社會團體財務處理辦法第11、12條，年度終了後三個月內由理事會編造）。審議後送監事會審核，再提會員大會通過。\n`+
+   `二、當年度工作計畫與收支預算表（如尚未提報）。\n`+
    `如果來不及在 ${m} 月開會員大會，可先經理監事聯席會議通過，事後提報大會追認（財務處理辦法第11條）。`;
   notes=['決算報告應先送監事會審核，再提報會員大會（人民團體法第34條）。'];
  }else if(m>=4&&m<=6){
   title=`${m} 月理監事會：確認上年度決算是否已報送、檢視半年度收支`;
   summary=`${m} 月份的理監事會，財務方面通常處理：\n`+
-   `一、確認 ${prev} 年度決算是否已經會員大會通過並報送縣府備查。如果上年度決算還沒完成，應儘速處理。\n`+
+   `一、確認 上年度決算是否已經會員大會通過並報送縣府備查。如果上年度決算還沒完成，應儘速處理。\n`+
    `二、報告今年上半年度經費收支執行情形，檢視預算執行是否正常。\n`+
    `三、如有不動產買賣、基金動支等提案，視情形審議。`;
   notes=['上年度決算金額達新臺幣 1,500 萬元以上者，得委請會計師簽證（財務處理辦法第11條）。'];
@@ -180,13 +178,13 @@ function boardFinanceAgenda(t){
   title=`${m} 月理監事會：審議半年度收支報告、籌劃下年度工作計畫`;
   summary=`${m} 月份的理監事會，財務方面通常處理：\n`+
    `一、報告上半年度（1 至 6 月）經費收支執行情形，對照預算檢討差異。\n`+
-   `二、開始籌劃 ${cur+1} 年度工作計畫與收支預算表的編列方向（依財務處理辦法第11條，年度開始前應由理事會編造，提經會員大會通過）。\n`+
+   `二、開始籌劃 下年度工作計畫與收支預算表的編列方向（依財務處理辦法第11條，年度開始前應由理事會編造，提經會員大會通過）。\n`+
    `三、如有基金提列或動支、不動產處理、設備採購等提案，視情形審議。`;
   notes=['屆滿改選的年度，要同時籌備改選事宜，改選大會通常一併審議財務報表。'];
  }else{
-  title=`${m} 月理監事會：審議 ${cur+1} 年度工作計畫與收支預算表`;
+  title=`${m} 月理監事會：審議下年度工作計畫與收支預算表`;
   summary=`${m} 月份的理監事會，財務方面主要審議：\n`+
-   `一、${cur+1} 年度工作計畫與收支預算表（依財務處理辦法第11條，年度開始前應由理事會編造；預算表依收支平衡原則編列，本期餘絀歸零，上年度結餘不列入收入）。\n`+
+   `一、下年度工作計畫與收支預算表（依財務處理辦法第11條，年度開始前應由理事會編造；預算表依收支平衡原則編列，本期餘絀歸零，上年度結餘不列入收入）。\n`+
    `二、報告本年度截至目前的經費收支執行情形。\n`+
    `三、討論常年會（會員大會）的召開時間與議程安排。\n`+
    `審議後提會員大會通過，並在年度開始前報送縣府備查。`;
@@ -355,7 +353,7 @@ function personalAccount(t){
 function supervisorConvenerNoMeeting(t){
  if(!/(監事會召集人|常務監事|監事會主席)/.test(t)||!/(不開|不召開|拒絕開|沒開|不肯開)/.test(t))return null;
  if(/合作社/.test(t))return null;
- return{category:'會務爭議',title:'監事會召集人不開會：監事過半數書面連署，15日內應召開',summary:'監事過半數以書面連署請求時，監事會召集人（常務監事）應在收到連署後 15 日內召開臨時監事會議完畢；連署書要以雙掛號寄給召集人並取得回執，再報主管機關備查（人民團體會務輔導辦法第13條）。\n監事會不能依法召開時，得由主管機關指定監事一人召集（人民團體法第32條）。',statutes:[G(13),P(32)],questionState:{focus:'supervisor-no-meeting',domain:'social'},notes:['請保留連署書與掛號回執，向縣府承辦人反映。'],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
+ return{category:'會務爭議',title:'監事會召集人不開會：監事過半數書面連署，15日內應召開',summary:'監事過半數以書面連署請求時，監事會召集人（常務監事）應在收到連署後 15 日內召開臨時監事會議完畢；連署書要以雙掛號寄給召集人並取得回執，再報主管機關備查（人民團體會務輔導辦法第13條）。\n監事會不能依法召開時，得由主管機關指定監事一人召集（人民團體法第32條）；監事會召集人無正當理由不召開監事會超過二個會次的，應由主管機關解除其職務，另行改推（人民團體法第30條）。',statutes:[G(13),P(32),P(30)],questionState:{focus:'supervisor-no-meeting',domain:'social'},notes:['請保留連署書與掛號回執，向縣府承辦人反映。'],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
 }
 function delegateAssembly(t){
  if(!/會員代表大會|會員代表/.test(t)||!/(是什麼|什麼是|意思|怎麼產生|怎麼選|何時|幾人以上|要不要)/.test(t))return null;
@@ -372,6 +370,58 @@ function foundingDocs(t){
  if(/合作社/.test(t))return null;
  return{category:'業務辦理',title:'成立大會後 30 日內，檢具章程、會員名冊、職員簡歷冊報請立案',summary:'人民團體應於成立大會後三十日內，檢具章程、會員名冊、選任職員簡歷冊，報請主管機關核准立案，並發給立案證書（人民團體法第10條）。\n書表下載頁「成立大會」分類有本縣範本可用，包括：成立大會議程、開會通知書、會員大會簽到簿、選舉票範例、第一屆第一次會員大會及理監事聯席會議紀錄格式、組織章程、會員名冊、理監事暨會務人員一覽表、年度工作計畫、年度經費收支預算表、籌備期間經費收支報告、會址同意書、申請理事長當選證明書表，以及函報申請立案公文。\n立案後，協會圖記由協會自行製用，拓具印模送主管機關備查（同條）。',statutes:[P(10)],questionState:{focus:'founding-docs',domain:'social'},notes:['成立大會應報請主管機關派員列席（人民團體法第26條）。','實際應附份數依縣府通知辦理，送件前可先洽承辦人。'],actions:[{label:'下載成立大會書表',view:'forms',sub:'成立大會'},{label:'看籌組流程',view:'biz',sub:'social'}]};
 }
+
+function communityChairTerm(t){
+ if(!/(社區發展協會|社區協會)/.test(t)||!/理事長/.test(t)||!/(連任|幾屆|任期|做幾年|當幾次|第三屆|三屆)/.test(t))return null;
+ return{category:'社區發展協會',title:'社區發展協會理事長：連任以一次為限',summary:'社區發展協會也是依人民團體法立案的社會團體，理事長的連任以一次為限，也就是最多連續做兩屆（人民團體法第20條）。\n理事、監事的任期依章程訂定，最長不超過四年；除法律另有規定或章程另有限制外，連選得連任。任期從召開本屆第一次理事會之日起計算（本縣章程範例第20條）。',statutes:[P(20),{title:'屏東縣社會團體章程草案範例第20條',source:'本站書表下載｜申請表'}],questionState:{focus:'chair-term',domain:'social'},notes:['已連任一次的理事長，下一屆不能再當選理事長，但仍可以當選理事。'],actions:[{label:'看改選流程',view:'meet',sub:'m-elect'}]};
+}
+function invalidBallot(t){
+ if(!/(無效票|廢票|選票.{0,6}(無效|不算)|怎樣算無效|哪些票無效|圈錯)/.test(t))return null;
+ if(/合作社/.test(t))return{category:'合作社會務',title:'合作社選舉票無效的情形',summary:'合作社選舉票有下列情形之一者無效，例如：圈寫被選舉人超出應選名額或限制連記名額；姓名與社員名冊不符；圈寫位置不能辨別；圈寫後塗改；字跡模糊；夾寫其他文字或符號；附有暗號；簽名、蓋章或捺指模；用鉛筆圈寫；撕破不完整；完全空白（合作社選舉罷免辦法第31條）。部分性質者，該部分無效；有疑義時由會議主席及監票員會商決定。',statutes:[{title:'合作社選舉罷免辦法第31條',source:LAW+'D0050117'}],questionState:{focus:'invalid-ballot',domain:'coop'},notes:[],actions:[]};
+ return{category:'人民團體會務說明',title:'選舉票無效的 13 種情形',summary:'人民團體的選舉票或罷免票有下列情形之一者無效（人民團體選舉罷免辦法第10條）：\n1. 不是團體提供的選票。\n2. 圈寫人數超過應選名額或連記額數。\n3. 夾寫其他文字或符號（同姓名註明區別者除外）。\n4. 圈寫的姓名與會員名冊不符。\n5. 圈的位置無法辨別是誰。\n6. 圈寫後塗改。\n7. 字跡模糊無法辨識。\n8. 用鉛筆圈寫（電腦劃卡除外）。\n9. 附任何物件，顯有暗號作用。\n10. 污染致不能辨別。\n11. 簽名、蓋章或捺指模。\n12. 撕破不完整。\n13. 完全空白。\n第4到第7款如屬部分性質，由會議主席會同全體監票員當場認定該部分無效。',statutes:[E(10)],questionState:{focus:'invalid-ballot',domain:'social'},notes:['選舉方式：應選1名用無記名單記法，2名以上用無記名連記法；集會選舉經出席三分之一以上同意，可用限制連記法，連記額數為應選名額二分之一以內（選罷辦法第4條）。'],actions:[{label:'下載選舉票範例',view:'forms',sub:'改選'}]};
+}
+
+function minutesDeadline(t){
+ if(!/(紀錄|記錄)/.test(t)||!/(多久|要報|要送|報縣府|送縣府|備查|期限|幾天|報主管)/.test(t))return null;
+ if(/合作社/.test(t))return{category:'合作社會務',title:'合作社會議紀錄報送期限：本站未能確認一般規定',summary:'合作社的業務報告書、資產負債表、收支餘絀表、財產目錄及結餘分配案，應於社員大會承認後一個月內，以書面報請主管機關備查（合作社法第36條）；選舉會議紀錄應報主管機關備查（合作社選舉罷免辦法第29條）。其他會議紀錄的報送期限，本站資料未能確認，請洽承辦人。',statutes:[C(36),{title:'合作社選舉罷免辦法第29條',source:LAW+'D0050117'}],questionState:{focus:'minutes-deadline',domain:'coop'},notes:[],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
+ const board=/(理監事|理事會|監事會|聯席)/.test(t)&&!/大會/.test(t);
+ return{category:'人民團體會務說明',title:board?'理監事會議紀錄：自行留存供會員查閱，須核辦事項另報':'會員大會紀錄：閉會後 30 日內報縣府備查',summary:(board?'理監事會議紀錄不用每次都報縣府：閉會後自行留存，提供會員查閱；只有依法令須報主管機關核辦的事項（例如會址變更、工作人員聘免、選前會議），才檢附相關文件報送。\n會員（會員代表）大會紀錄則應於閉會後三十日內報請主管機關備查。':'會員（會員代表）大會紀錄應於閉會後三十日內報請主管機關備查。\n理事會、監事會及理監事聯席會議紀錄閉會後自行留存，提供會員查閱；依法令須報主管機關核辦的事項，再檢附相關文件辦理。')+'\n紀錄應載明開會日期、出缺席狀況、會議決議等事項（人民團體會務輔導辦法第12條）。',statutes:[G(12)],questionState:{focus:'minutes-deadline',domain:'social'},notes:['公會另依商業團體法施行細則第25條，會議後15日內將紀錄分送會員並報主管機關備查。'],actions:[{label:'下載常年會書表',view:'forms',sub:'常年會'}]};
+}
+function coopBoardQuorum(t){
+ if(!/合作社/.test(t)||!/(理事會|社務會)/.test(t)||!/(幾人|幾個人|多少人|出席|才能開|成會|開會門檻)/.test(t))return null;
+ if(/社務會/.test(t))return{category:'合作社會務',title:'合作社社務會：全體理事、監事三分之二出席才能開會',summary:'社務會應有全體理事、監事三分之二之出席，始得開會；出席理事、監事過半數之同意，始得決議（合作社法第52條）。社務會每六個月至少召開一次（第45條）。',statutes:[C(52),C(45)],questionState:{focus:'coop-board-quorum',domain:'coop'},notes:[],actions:[]};
+ return{category:'合作社會務',title:'合作社理事會：理事過半數出席才能開會',summary:'合作社理事會由主席召集，應有理事過半數之出席，始得開會；出席理事過半數之同意，始得決議（合作社法第53條）。理事會每三個月至少召開一次（第45條）。\n例如理事 7 人，至少 4 人出席才能開會。',statutes:[C(53),C(45)],questionState:{focus:'coop-board-quorum',domain:'coop'},notes:['社務會（理事加監事）門檻不同：全體三分之二出席（第52條）。'],actions:[]};
+}
+function coopTax(t){
+ if(!/合作社/.test(t)||!/(稅|繳稅|所得稅|營業稅|報稅)/.test(t))return null;
+ return{category:'合作社財務',title:'合作社稅務：本站無法確認，請洽國稅局',summary:'合作社的結餘是否課稅、營業稅如何申報，涉及所得稅法、營業稅法及合作社類型（例如消費、生產、勞動合作社），本站收錄的合作社法規沒有相關規定，所以無法直接回答。\n請洽財政部南區國稅局（免付費電話 0800-000-321），說明合作社名稱、業務類型與收入來源，由國稅局依個案認定。',statutes:[],questionState:{focus:'coop-tax',domain:'coop'},notes:['合作社年度決算書類應於社員大會承認後一個月內報主管機關備查（合作社法第36條）。'],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
+}
+function communityRename(t){
+ if(!/(社區發展協會|社區協會)/.test(t)||!/(改名|更名|名稱變更|換名字|改名稱)/.test(t))return null;
+ return{category:'社區發展協會',title:'社區發展協會可以改名，但要修改章程並先確認社區名稱',summary:'可以。名稱是章程記載事項，改名就是修改章程，須經會員（會員代表）大會出席人數三分之二以上同意（人民團體法第27條），再檢附會議紀錄、章程修改條文對照表報縣府核備。\n社區發展協會的名稱原則上依鄉鎮市公所劃定的社區名稱，改名前請先向公所確認社區名稱或範圍是否也要調整。',statutes:[P(27)],questionState:{focus:'community-rename',domain:'social'},notes:['有法人登記的，另向法院辦理變更登記；銀行、國稅局資料也要一併更新。'],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
+}
+function communityReportTownship(t){
+ if(!/(社區發展協會|社區協會)/.test(t)||!/公所/.test(t)||!/(報什麼|要報|送什麼|要送|報哪些|資料)/.test(t))return null;
+ return{category:'社區發展協會',title:'社區發展協會要報公所的事項：本站未能確認完整清單',summary:'社區發展協會的會務、年度計畫和補助核銷，實務上常經鄉鎮市公所轉送縣府，但各公所要求的報送項目、格式和期限不一定相同；本站目前沒有收錄社區發展工作綱要全文，無法列出確定清單。\n可以確定的是，社區發展協會也是社會團體：會員大會紀錄應於閉會後30日內報主管機關備查（人民團體會務輔導辦法第12條），年度決算於年度終了後三個月內編造、經大會通過後報備查（社會團體財務處理辦法第11條）。其他公所要求的事項，請直接洽所在地公所社會（民政）課。',statutes:[G(12),F(11)],questionState:{focus:'community-township',domain:'social'},notes:[],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
+}
+function addressCertificate(t){
+ if(!/(會址|地址|搬家|搬遷)/.test(t)||!/(證書|立案證書|換證|換發)/.test(t))return null;
+ return{category:'人民團體會務說明',title:'改會址：先經理監事會決議報縣府，證書是否換發請洽承辦',summary:'會址變更依本縣範本，經理監事聯席會議決議後，檢附會議紀錄、新會址使用同意書，以「專案呈報會址變更」公文報縣府備查。\n立案證書是否需要換發，本站資料未能確認，請在報送時向承辦人確認。有法人登記的，另向法院辦理變更登記；國稅局、銀行的地址也要一併更新。',statutes:[],questionState:{focus:'address-certificate',domain:'social'},notes:['如果章程寫有具體會址地址，就要先修改章程（會員大會三分之二同意）。'],actions:[{label:'下載會址變更範本',view:'forms',sub:'理監事會'},{label:'聯絡承辦',view:'contact',sub:''}]};
+}
+function bankChairChange(t){
+ if(!/(理事長|負責人)/.test(t)||!/(換人|改選|新任|卸任|交接|換了)/.test(t)||!/(銀行|帳戶|印鑑|存款|郵局|農會)/.test(t))return null;
+ return{category:'人民團體財務',title:'要。理事長換人後，要到銀行辦理負責人及印鑑變更',summary:'要。提用存款時應由團體負責人、總幹事及財務人員共同蓋章（社會團體財務處理辦法第17條），理事長換人後若不變更，新任理事長無法依規定動用存款，前任理事長的印鑑也可能仍有效。\n一般要帶：改選會議紀錄、新任理事長當選證明書、立案證書、統編資料、協會圖記、新任理事長身分證件與印章。各金融機構要求不同，請先電話確認。',statutes:[F(17)],questionState:{focus:'bank-chair-change',domain:'social'},notes:['國稅局的負責人資料、法人登記（有辦的話）也要一併變更。'],actions:[{label:'看移交流程',view:'meet',sub:'m-roster'}]};
+}
+function eventFee(t){
+ if(!/(報名費|活動費|門票|收費|課程費|材料費)/.test(t)||!/(活動|課程|辦|收)/.test(t))return null;
+ if(/合作社/.test(t))return null;
+ return{category:'人民團體財務',title:'可以收活動報名費，但要開收據並列入帳務',summary:'可以。人民團體經費來源包括事業費及其他收入（人民團體法第33條），辦理活動向參加者收取報名費、材料費屬於這類收入。\n處理時要注意：收入要開正式收據並留存根（社會團體財務處理辦法第17條）；存入協會帳戶、列入年度決算，不得匿報或虛報（第16、20條）。是否涉及營業稅等稅務問題，依活動性質由國稅局個案認定（免付費電話 0800-000-321）。',statutes:[P(33),F(17),F(20)],questionState:{focus:'event-fee',domain:'social'},notes:['如果是向不特定大眾募集款項，屬公益勸募，另須申請許可。'],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
+}
+function newChairTodo(t){
+ if(!/(新任理事長|新上任|剛當選|接任理事長|當選理事長|新理事長)/.test(t))return null;
+ if(!/(做什麼|要辦|注意|多久|哪些事|要做|流程|怎麼辦|期限|完成)/.test(t))return null;
+ return{category:'人民團體會務說明',title:'新任理事長要辦的事：15 日內接收移交，大會紀錄 30 日內報備',summary:'有期限的事：\n1. 移交接收：就任後由新任理事長會同監交人（新任常務監事或監事互推一人），於 15 日內完成接收立案證書、圖記、檔案、財務、人事等；屆期未完成，可報縣府註銷原證書重新發給（人民團體會務輔導辦法第18條）。\n2. 改選大會紀錄：閉會後 30 日內報縣府備查（同辦法第12條），連同理事長當選證明書申請表及書表下載「改選」分類的附件。\n接著要辦的事：\n3. 到銀行辦理負責人與印鑑變更（社會團體財務處理辦法第17條）。\n4. 向國稅局更新負責人資料；有法人登記的，向法院辦理變更登記。\n5. 依章程提名總幹事、會計、出納，經理事會通過聘任（工作人員不得由理監事擔任）。',statutes:[G(18),G(12),F(17)],questionState:{focus:'new-chair',domain:'social'},notes:['理事長連任以一次為限（人民團體法第20條）。'],actions:[{label:'下載改選書表',view:'forms',sub:'改選'},{label:'看移交流程',view:'meet',sub:'m-roster'}]};
+}
 function delegated(t){
  const g=typeof root!=='undefined'?root:{};
  if(/社區/.test(t)&&/(年度計畫|工作計畫|計畫)/.test(t)&&/(什麼時候|何時|幾月|要送|多久|截止)/.test(t)&&!/成立|籌組/.test(t)&&typeof g.communityAnnualPlanAnswer==='function')return g.communityAnnualPlanAnswer((/社區發展協會/.test(t)?t:t.replace(/社區協會|社區/,'社區發展協會'))+(/年度計畫|工作計畫/.test(t)?'':'年度計畫')+'期限');
@@ -380,7 +430,7 @@ function delegated(t){
 }
 function verifiedRoundAnswer(q,ctx){
  const t=norm(q);
- return feeAmount(t)||personalAccount(t)||supervisorConvenerNoMeeting(t)||delegateAssembly(t)||noSupervisor(t)||foundingDocs(t)||investStocks(t)||membershipRefused(t)||coopCapital(t)||onlineVoting(t)||mailVoting(t)||receiveDonation(t)||hireEmployee(t)||lendToChair(t)||branchOrg(t)||supervisorMeeting(t)||noAnnualMeeting(t)||chairSpendingAuth(t)||communityVsGeneral(t)||coopDissolutionProperty(t)||charterAmendment(t)||coopSupervisorAudit(t)||publicSolicitation(t)||decisionRevoked(t)||chairResign(t)||memberExpulsion(t)||sealChange(t)||noHandover(t)||communityDissolutionProperty(t)||boardFinanceAgenda(t)||vacancyQuorum(t)||boardQuorumGeneral(t)||delegated(t)||chairNoMeeting(t)||feeAnswer(t)||coopAssemblyQuorum(t)||proxyCount(t)||concurrent(t)||financeQuestioned(t)||financeDeadline(t)||meetingFrequency(t)||videoMeeting(t)||coopMinimum(t)||financeForms(t)||formsDownload(t,ctx&&ctx.catalog)||dissolutionHowTo(t)||null;
+ return newChairTodo(t)||minutesDeadline(t)||coopBoardQuorum(t)||coopTax(t)||communityRename(t)||communityReportTownship(t)||addressCertificate(t)||bankChairChange(t)||eventFee(t)||communityChairTerm(t)||invalidBallot(t)||feeAmount(t)||personalAccount(t)||supervisorConvenerNoMeeting(t)||delegateAssembly(t)||noSupervisor(t)||foundingDocs(t)||investStocks(t)||membershipRefused(t)||coopCapital(t)||onlineVoting(t)||mailVoting(t)||receiveDonation(t)||hireEmployee(t)||lendToChair(t)||branchOrg(t)||supervisorMeeting(t)||noAnnualMeeting(t)||chairSpendingAuth(t)||communityVsGeneral(t)||coopDissolutionProperty(t)||charterAmendment(t)||coopSupervisorAudit(t)||publicSolicitation(t)||decisionRevoked(t)||chairResign(t)||memberExpulsion(t)||sealChange(t)||noHandover(t)||communityDissolutionProperty(t)||boardFinanceAgenda(t)||vacancyQuorum(t)||boardQuorumGeneral(t)||delegated(t)||chairNoMeeting(t)||feeAnswer(t)||coopAssemblyQuorum(t)||proxyCount(t)||concurrent(t)||financeQuestioned(t)||financeDeadline(t)||meetingFrequency(t)||videoMeeting(t)||coopMinimum(t)||financeForms(t)||formsDownload(t,ctx&&ctx.catalog)||dissolutionHowTo(t)||null;
 }
 const api={normalizeQuestion,withContext,verifiedRoundAnswer};
 if(typeof module!=='undefined'&&module.exports)module.exports=api;
