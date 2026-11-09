@@ -122,6 +122,7 @@ function staffClarificationAnswer(q){
 function focusedQuestionAnswer(q){return window.CounterQuestions?window.CounterQuestions.resolve(q,{prior:lastQuestionContext,electionDocuments:(MEET.find(item=>item.id==='m-elect')||{}).docs||[]}):null;}
 function socialRegionalNameAnswer(q){
  const t=String(q||'').normalize('NFKC').replace(/\s+/g,'').replace(/團題|團休|團提/g,'團體');
+ if(/社區發展協會|社區協會/.test(t)&&/(?:取名|命名|名稱|名字|叫什麼|怎麼叫|冠)/.test(t)&&!/(?:政府|機關|公司|廟|寺|宮|教會)/.test(t))return {category:'協會名稱預查',title:'社區發展協會名稱怎麼取？',summary:'社區發展協會是以鄉鎮市公所劃定的社區為組織區域，所以名稱原則上就用劃定的社區名稱來取，常見格式是「屏東縣○○鄉（鎮、市）○○社區發展協會」。\n先向鄉鎮市公所確認社區名稱和範圍；同一個社區原則上只成立一個社區發展協會，名稱也不能和已立案的團體相同。\n實際名稱以公所劃定的社區名稱和縣府核定為準，送件前可以先洽公所或社會處確認。',steps:['向鄉鎮市公所確認已劃定的社區名稱與範圍。','依「屏東縣＋鄉鎮市＋社區名稱＋社區發展協會」擬定名稱。','向公所或社會處確認該社區還沒有成立協會、名稱沒有重複。','把確定的名稱填入申請書、章程草案和發起人名冊，三份文件的名稱要一致。'],questionState:{focus:'community-name',domain:'social'},notes:['不要使用容易讓人誤認為政府機關或營利團體的文字。','本站團體名冊目前未收錄社區發展協會，名稱是否重複請向公所或社會處確認。'],actions:[{label:'看社區發展協會成立流程',view:'biz',sub:'community'},{label:'聯絡承辦',view:'contact',sub:''}]};
  if(!/(?:協會|人民團體|社會團體|團體|社團|學會)/.test(t))return null;
  const nameAsk=/(?:名稱|取名|命名|名字|冠名)/.test(t)&&/(?:加冠|冠上|冠(?!軍)|加上|前面加|一定要有|一定要加|加(?=屏東|縣|鄉|鎮|市|行政|地名)|行政區域|屏東縣|鄉鎮市級|縣級)/.test(t);
  const crownAsk=/(?:加冠|冠上|冠(?!軍)|(?:要不要|需不需要|一定要|需要|要)加(?=屏東|縣|鄉|鎮|行政|地名))/.test(t)&&/(?:屏東縣|屏東|縣名|鄉鎮|[鄉鎮市]|行政區域|地名)/.test(t);
