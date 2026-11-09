@@ -430,11 +430,13 @@ function delegated(t){
 }
 
 function supervisorAsDirector(t){
+ if(/合作社/.test(t))return null;
+ if(/開會|召開|自己開|會議/.test(t))return null;
  if(!/(監事|監察人)/.test(t)||!/(理事|兼任|同時當|可以當)/.test(t))return null;
  return{category:'人民團體會務說明',title:'協會監事可否兼任理事：本站無法確認，請洽承辦',summary:'監事會與理事會是不同的監察與執行組織，人民團體法未明文禁止或限制監事兼任理事。實務上是否允許，取決於各團體章程規定或承辦機關解釋。建議直接洽承辦人確認。',statutes:[P(17),P(29)],questionState:{focus:'supervisor-director',domain:'social'},notes:['監事名額不得超過理事名額三分之一（人民團體法第17條）。'],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
 }
 function electionReportDeadline(t){
- if(!/(改選|選舉|新任|理監事|改選完)/.test(t)||!/(多久|要報|要送|報縣府|期限)/.test(t)||/(改選)(時間|怎麼|一步)/.test(t))return null;
+ if(!/改選|選舉|當選|改選後/.test(t)||!/(多久|要報|要送|報縣府|期限)/.test(t))return null;
  return{category:'人民團體會務說明',title:'改選後報縣府期限：大會紀錄 30 日內',summary:'改選大會召開後，會員（會員代表）大會紀錄應於閉會後三十日內報請主管機關備查（人民團體會務輔導辦法第12條）。新任理事長當選證明書應連同改選大會紀錄等書表，也在 30 日內完成報送。',statutes:[G(12)],questionState:{focus:'election-report-deadline',domain:'social'},notes:['改選應在任期屆滿前一個月內完成（人民團體選舉罷免辦法第6條）。'],actions:[{label:'下載改選書表',view:'forms',sub:'改選'}]};
 }
 function checkSignature(t){
