@@ -659,7 +659,7 @@ function delegateAssemblyRules(t){
 
 // 14-9 合作社社員罷免
 function coopMemberRemoval(t){
- if(/合作社/.test(t)&&/(罷免|除名|開除|除|辭退)/.test(t)&&/(社員|理事|監事)/.test(t))
+ if(/合作社/.test(t)&&/(罷免|開除|辭退)/.test(t)&&/(社員|理事|監事)/.test(t))
   return{title:'合作社社員罷免：依合作社法程序',summary:'合作社社員或理監事的罷免程序由合作社法、章程規定，與一般協會不完全相同。社員罷免由社員大會決議，理事或監事罷免由各自的會議決議。具體投票門檻、期限等，請查閱貴社章程或洽承辦。',statutes:[C(37)]};
  return null;
 }
@@ -673,14 +673,14 @@ function coopBankLoan(t){
 
 // 14-11 分支機構帳務操作
 function branchAccountingPractice(t){
- if(/(分支機構|分支|支部)/.test(t)&&/(帳|帳務|會計|帳簿|怎麼)/.test(t)&&/(分開|分|操作|記)/.test(t))
+ if(/(分支機構|分支|支部)/.test(t)&&/(帳|帳務|會計|帳簿)/.test(t)&&/(分開|帳分|單獨|操作|記)/.test(t))
   return{title:'分支機構帳務操作：分開設帳、定期彙報、年終併報',summary:'分支機構帳務應單獨設帳，記錄分支的收支情形。月度或季度向母會彙報分支帳況，年度決算時分支帳應併入母會決算，由母會統籌報備。母會保留分支帳帳簿供檢查（財務處理辦法第5、19條）。',statutes:[F(5),F(19),P(19)]};
  return null;
 }
 
 // 14-12 改選後帳務期限確認
 function postElectionAccountingDeadline(t){
- if(/(改選|選舉|換人|新任)/.test(t)&&/(帳|決算|財務|報表|多久)/.test(t)&&/(要|做|要.{0,2}報|何時)/.test(t))
+ if(/(改選|選舉|換人|新任)/.test(t)&&/(帳|決算|財務|報表|做帳)/.test(t)&&/(要|做|要.{0,2}報|何時)/.test(t)&&!/報縣府|報主管/.test(t))
   return{title:'改選後帳務處理：同年度決算於年終前三個月內完成',summary:'改選當年的決算仍按原規定辦理：年度終了後三個月內編造、經會員大會通過後報備查。改選不影響帳務年度。新任理事長上任後15日內要完成移交（含帳務交接），之後配合會計做決算與報告（人民團體會務輔導辦法第18條）。',statutes:[G(18),F(11),P(43)]};
  return null;
 }
@@ -729,7 +729,7 @@ function communityVsAssociationDifferences(t){
 
 function verifiedRoundAnswer(q,ctx){
  const t=norm(q);
- return coopVsAssocAccountingForms(t)||coopBalanceSheetReport(t)||delegateQuotaCalculation(t)||delegateConcurrentRole(t)||onlineVoting(t)||mailVoting(t)||assemblyVotingMethod(t)||boardVotingMethodDetail(t)||delegateElectionProcess(t)||delegateAssemblyRules(t)||coopMemberRemoval(t)||coopAdvertisingTaxability(t)||coopLoanToMemberTax(t)||coopBankLoanProcedure(t)||coopBankLoan(t)||branchAccountingPractice(t)||postElectionAccountingDeadline(t)||memberDelegateElection(t)||branchOrgSetup(t)||delegateProposalProcess(t)||annualMeetingVsAssembly(t)||vacancyQuorum(t)||supervisorConvenerNoMeeting(t)||supervisorMinimumMembers(t)||supervisorAuditPowers(t)||branchOrgAccounting(t)||chairmanReelectionLimit(t)||chairmanAbsence(t)||recordRetentionPeriod(t)||advertisingIncome(t)||staffBankAccountSetup(t)||meetingSigninDuration(t)||meetingVotingMethod(t)||preElectionBoardMeeting(t)||supervisorChairmanElection(t)||electionEffectiveDate(t)||politicalDonation(t)||communityReportingRequirements(t)||communityYearlyPlanDeadline(t)||communityVsAssociationDifferences(t)||supervisorAsDirector(t)||electionReportDeadline(t)||checkSignature(t)||feePeriods(t)||feeDeferral(t)||threeMonthsWording(t)||electionCandidates(t)||electionObjection(t)||newChairTodo(t)||minutesDeadline(t)||coopBoardQuorum(t)||coopTax(t)||communityRename(t)||communityReportTownship(t)||addressCertificate(t)||bankChairChange(t)||eventFee(t)||communityChairTerm(t)||invalidBallot(t)||feeAmount(t)||personalAccount(t)||delegateAssembly(t)||noSupervisor(t)||foundingDocs(t)||investStocks(t)||membershipRefused(t)||coopCapital(t)||receiveDonation(t)||hireEmployee(t)||lendToChair(t)||branchOrg(t)||supervisorMeeting(t)||noAnnualMeeting(t)||chairSpendingAuth(t)||communityVsGeneral(t)||coopDissolutionProperty(t)||charterAmendment(t)||coopSupervisorAudit(t)||publicSolicitation(t)||decisionRevoked(t)||chairResign(t)||memberExpulsion(t)||sealChange(t)||noHandover(t)||communityDissolutionProperty(t)||boardFinanceAgenda(t)||boardQuorumGeneral(t)||delegated(t)||chairNoMeeting(t)||feeAnswer(t)||coopAssemblyQuorum(t)||proxyCount(t)||concurrent(t)||financeQuestioned(t)||financeDeadline(t)||meetingFrequency(t)||videoMeeting(t)||coopMinimum(t)||financeForms(t)||formsDownload(t,ctx&&ctx.catalog)||dissolutionHowTo(t)||null;
+ return coopVsAssocAccountingForms(t)||coopBalanceSheetReport(t)||delegateQuotaCalculation(t)||delegateConcurrentRole(t)||onlineVoting(t)||mailVoting(t)||assemblyVotingMethod(t)||boardVotingMethodDetail(t)||delegateElectionProcess(t)||delegateAssemblyRules(t)||coopMemberRemoval(t)||coopAdvertisingTaxability(t)||coopLoanToMemberTax(t)||coopBankLoanProcedure(t)||coopBankLoan(t)||branchAccountingPractice(t)||memberDelegateElection(t)||branchOrgSetup(t)||delegateProposalProcess(t)||annualMeetingVsAssembly(t)||vacancyQuorum(t)||supervisorConvenerNoMeeting(t)||supervisorMinimumMembers(t)||supervisorChairmanElection(t)||supervisorAuditPowers(t)||branchOrgAccounting(t)||chairmanReelectionLimit(t)||chairmanAbsence(t)||recordRetentionPeriod(t)||advertisingIncome(t)||staffBankAccountSetup(t)||meetingSigninDuration(t)||meetingVotingMethod(t)||preElectionBoardMeeting(t)||electionEffectiveDate(t)||politicalDonation(t)||communityReportingRequirements(t)||communityYearlyPlanDeadline(t)||communityVsAssociationDifferences(t)||supervisorAsDirector(t)||newChairTodo(t)||postElectionAccountingDeadline(t)||electionReportDeadline(t)||checkSignature(t)||feePeriods(t)||feeDeferral(t)||threeMonthsWording(t)||electionCandidates(t)||electionObjection(t)||minutesDeadline(t)||coopBoardQuorum(t)||coopTax(t)||communityRename(t)||communityReportTownship(t)||addressCertificate(t)||bankChairChange(t)||eventFee(t)||communityChairTerm(t)||invalidBallot(t)||feeAmount(t)||personalAccount(t)||delegateAssembly(t)||noSupervisor(t)||foundingDocs(t)||investStocks(t)||membershipRefused(t)||coopCapital(t)||receiveDonation(t)||hireEmployee(t)||lendToChair(t)||branchOrg(t)||supervisorMeeting(t)||noAnnualMeeting(t)||chairSpendingAuth(t)||communityVsGeneral(t)||coopDissolutionProperty(t)||charterAmendment(t)||coopSupervisorAudit(t)||publicSolicitation(t)||decisionRevoked(t)||chairResign(t)||memberExpulsion(t)||sealChange(t)||noHandover(t)||communityDissolutionProperty(t)||boardFinanceAgenda(t)||boardQuorumGeneral(t)||delegated(t)||chairNoMeeting(t)||feeAnswer(t)||coopAssemblyQuorum(t)||proxyCount(t)||concurrent(t)||financeQuestioned(t)||financeDeadline(t)||meetingFrequency(t)||videoMeeting(t)||coopMinimum(t)||financeForms(t)||formsDownload(t,ctx&&ctx.catalog)||dissolutionHowTo(t)||null;
 }
 const api={normalizeQuestion,withContext,verifiedRoundAnswer};
 if(typeof module!=='undefined'&&module.exports)module.exports=api;
