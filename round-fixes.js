@@ -538,9 +538,69 @@ function politicalDonation(t){
  if(!/政治|獻金|政治獻金/.test(t)||!/(接受|可以|不可|行不行|能.{0,2}接)/.test(t))return null;
  return {title:'協會不得接受政治獻金',summary:'人民團體法第33條禁止社會團體接受境外資金，也禁止政治獻金。協會若收到來自政治人物、候選人或政治團體的獻金應即拒絕，以維持團體的中立性。',statutes:[P(33)]};
 }
+
+
+// 13-1 會員代表選舉
+function memberDelegateElection(t){
+ if(!/會員代表|代表/.test(t)||!/(怎麼|選|選出|產生|選舉|怎樣|怎)/.test(t))return null;
+ if(/大會|開會|召開|人數|幾人/.test(t))return null;
+ return {title:'會員代表選舉：由會員大會選舉產生',summary:'超過300名會員的協會改為會員代表制後，會員代表由會員大會依章程規定的比例和名額選舉產生。代表不得由理事長或理事會指派。',statutes:[P(17),P(25)]};
+}
+
+// 13-2 分支機構設立
+function branchOrgSetup(t){
+ if(!/分支|支部|分會/.test(t)||!/(設立|成立|設置|怎麼|程序|步驟|怎)/.test(t))return null;
+ if(/財務|帳|稅|報|會計/.test(t))return null;
+ return {title:'分支機構設立程序：理事會決議、向主管機關報核准',summary:'協會欲設立分支機構，應先由理事會決議並納入章程修正，經會員大會通過後，向屏東縣政府社會處報告並取得核准。分支機構應依母會決議執行會務。',statutes:[P(6),G(12)]};
+}
+
+// 13-3 會員代表提案
+function delegateProposalProcess(t){
+ if(!/提案|議案|建議/.test(t)||!/(怎麼|怎樣|怎|要.{0,2}提|流程)/.test(t))return null;
+ if(!/代表|會員|大會/.test(t))return null;
+ return {title:'會員大會提案方式：當面或事先提案',summary:'在會員代表大會上，代表可現場舉手提案，或於會議開始前書面提案給理事會。提案內容應明確，由大會主席決定是否納入議程。',statutes:[P(25),G(12)]};
+}
+
+// 13-4 常年會vs會員大會
+function annualMeetingVsAssembly(t){
+ if(!/常年會|會員大會/.test(t)||!/差別|差異|一樣|是否|同|就是|嗎/.test(t))return null;
+ return {title:'常年會=會員大會：定期會的習慣稱法',summary:'「常年會」和「會員大會」是同一概念。人民團體法用「會員大會」，但實務中常稱「常年會」指定期召開的會議。臨時會是因特殊事由召開。',statutes:[P(25),G(12)]};
+}
+
+// 13-5 監事會成立人數
+function supervisorMinimumMembers(t){
+ if(/監事會|監察/.test(t)&&/(幾人|幾?.{0,2}人|最少|多少人|幾?.{0,2}人|人數|才能|成立)/.test(t))
+  return{title:'監事會成立法定人數：至少3人',summary:'監事會應由3人以上的監事組成。人數不足時無法行使監察權。',statutes:[P(17)]};
+ return null;
+}
+
+// 13-6 監事會帳目檢查
+function supervisorAuditPowers(t){
+ if(/監事|監察/.test(t)&&/(檢查|審查|審視|查帳|帳目|帳務|怎麼|怎樣|怎)/.test(t))
+  return {title:'監事會帳目檢查：定期檢查帳簿、簽署確認',summary:'監事會應定期檢查協會的帳簿、憑證、出納狀況，並於財務報告上簽署確認。若發現問題應記錄、通知理事長並報會員大會。',statutes:[P(22),F(4)]};
+ return null;
+}
+
+// 13-7 分支機構帳務
+function branchOrgAccounting(t){
+ if(/分支|支部|分會/.test(t)&&/(帳|報表|決算|帳務|帳目|分開|分?.{0,2}帳)/.test(t))
+  return{title:'分支機構帳務：應分開設帳記錄',summary:'分支機構所屬的帳務應分開設帳，以便與母會帳務清楚分別。分支機構收支定期彙報母會，由母會統籌決算。',statutes:[P(19),F(5)]};
+ return null;
+}
+
+// 13-8 理事長連任限制
+function chairmanReelectionLimit(t){
+ if(/理事長|主席|理長/.test(t)&&/(連任|連選|幾次|幾任|幾屆|限制|能.{0,2}連|改選.{0,3}連)/.test(t)){
+  const is_community=/社區|發展/.test(t);
+  if(is_community) return {title:'社區發展協會理事長：不得連任',summary:'依人民團體法第20條，社區發展協會理事長任期屆滿不得連任，只能一屆。',statutes:[P(20)]};
+  return {title:'一般協會理事長連任限制：以一次為限',summary:'一般社會團體（不含社區發展協會）理事長可以連任，但連任以一次為限，也就是最多可當兩屆。',statutes:[P(19)]};
+ }
+ return null;
+}
+
 function verifiedRoundAnswer(q,ctx){
  const t=norm(q);
- return chairmanAbsence(t)||recordRetentionPeriod(t)||advertisingIncome(t)||staffBankAccountSetup(t)||meetingSigninDuration(t)||meetingVotingMethod(t)||preElectionBoardMeeting(t)||supervisorChairmanElection(t)||electionEffectiveDate(t)||politicalDonation(t)||supervisorAsDirector(t)||electionReportDeadline(t)||checkSignature(t)||feePeriods(t)||feeDeferral(t)||threeMonthsWording(t)||electionCandidates(t)||electionObjection(t)||newChairTodo(t)||minutesDeadline(t)||coopBoardQuorum(t)||coopTax(t)||communityRename(t)||communityReportTownship(t)||addressCertificate(t)||bankChairChange(t)||eventFee(t)||communityChairTerm(t)||invalidBallot(t)||feeAmount(t)||personalAccount(t)||supervisorConvenerNoMeeting(t)||delegateAssembly(t)||noSupervisor(t)||foundingDocs(t)||investStocks(t)||membershipRefused(t)||coopCapital(t)||onlineVoting(t)||mailVoting(t)||receiveDonation(t)||hireEmployee(t)||lendToChair(t)||branchOrg(t)||supervisorMeeting(t)||noAnnualMeeting(t)||chairSpendingAuth(t)||communityVsGeneral(t)||coopDissolutionProperty(t)||charterAmendment(t)||coopSupervisorAudit(t)||publicSolicitation(t)||decisionRevoked(t)||chairResign(t)||memberExpulsion(t)||sealChange(t)||noHandover(t)||communityDissolutionProperty(t)||boardFinanceAgenda(t)||vacancyQuorum(t)||boardQuorumGeneral(t)||delegated(t)||chairNoMeeting(t)||feeAnswer(t)||coopAssemblyQuorum(t)||proxyCount(t)||concurrent(t)||financeQuestioned(t)||financeDeadline(t)||meetingFrequency(t)||videoMeeting(t)||coopMinimum(t)||financeForms(t)||formsDownload(t,ctx&&ctx.catalog)||dissolutionHowTo(t)||null;
+ return memberDelegateElection(t)||branchOrgSetup(t)||delegateProposalProcess(t)||annualMeetingVsAssembly(t)||supervisorMinimumMembers(t)||supervisorAuditPowers(t)||branchOrgAccounting(t)||chairmanReelectionLimit(t)||chairmanAbsence(t)||recordRetentionPeriod(t)||advertisingIncome(t)||staffBankAccountSetup(t)||meetingSigninDuration(t)||meetingVotingMethod(t)||preElectionBoardMeeting(t)||supervisorChairmanElection(t)||electionEffectiveDate(t)||politicalDonation(t)||supervisorAsDirector(t)||electionReportDeadline(t)||checkSignature(t)||feePeriods(t)||feeDeferral(t)||threeMonthsWording(t)||electionCandidates(t)||electionObjection(t)||newChairTodo(t)||minutesDeadline(t)||coopBoardQuorum(t)||coopTax(t)||communityRename(t)||communityReportTownship(t)||addressCertificate(t)||bankChairChange(t)||eventFee(t)||communityChairTerm(t)||invalidBallot(t)||feeAmount(t)||personalAccount(t)||supervisorConvenerNoMeeting(t)||delegateAssembly(t)||noSupervisor(t)||foundingDocs(t)||investStocks(t)||membershipRefused(t)||coopCapital(t)||onlineVoting(t)||mailVoting(t)||receiveDonation(t)||hireEmployee(t)||lendToChair(t)||branchOrg(t)||supervisorMeeting(t)||noAnnualMeeting(t)||chairSpendingAuth(t)||communityVsGeneral(t)||coopDissolutionProperty(t)||charterAmendment(t)||coopSupervisorAudit(t)||publicSolicitation(t)||decisionRevoked(t)||chairResign(t)||memberExpulsion(t)||sealChange(t)||noHandover(t)||communityDissolutionProperty(t)||boardFinanceAgenda(t)||vacancyQuorum(t)||boardQuorumGeneral(t)||delegated(t)||chairNoMeeting(t)||feeAnswer(t)||coopAssemblyQuorum(t)||proxyCount(t)||concurrent(t)||financeQuestioned(t)||financeDeadline(t)||meetingFrequency(t)||videoMeeting(t)||coopMinimum(t)||financeForms(t)||formsDownload(t,ctx&&ctx.catalog)||dissolutionHowTo(t)||null;
 }
 const api={normalizeQuestion,withContext,verifiedRoundAnswer};
 if(typeof module!=='undefined'&&module.exports)module.exports=api;
