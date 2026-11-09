@@ -4,7 +4,7 @@
 name: 櫃檯自動檢查
 on:
   schedule:
-    - cron: '*/5 * * * *'
+    - cron: '*/3 * * * *'
   push:
     branches: [main]
   workflow_dispatch:

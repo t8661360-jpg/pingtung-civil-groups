@@ -150,6 +150,50 @@ function boardQuorumGeneral(t){
  const b=/監事會/.test(t)&&!/理事會/.test(t)?'監事':'理事';
  return{category:'人民團體會務說明',title:`${b}會要全體${b}過半數出席才能開會`,summary:`${b}會要有應出席${b}過半數出席才能成會，例如應出席 9 人時至少 5 人、應出席 7 人時至少 4 人；決議再以出席${b}過半數或較多數同意（人民團體法第29條、人民團體會務輔導辦法第16條）。\n${b}應親自出席，不得委託他人代理（人民團體法第31條）。如果有${b}出缺，請告訴我章程名額和現任人數，我幫您算。`,statutes:[P(29),G(16),P(31)],questionState:{focus:'board-quorum',domain:'social'},notes:['合作社理事會依合作社法第53條，同樣是理事過半數出席。'],actions:[{label:'看理監事會辦理',view:'meet',sub:'m-board'}]};
 }
+
+function boardFinanceAgenda(t){
+ const mon=t.match(/(\d{1,2})\s*月/);
+ const monCh=t.match(/(一|二|三|四|五|六|七|八|九|十|十一|十二)\s*月/);
+ if(!mon&&!monCh)return null;
+ if(!/(理監事會|理事會|理監事聯席|聯席會)/.test(t))return null;
+ if(!/(財報|財務報表|財務|報表|決算|預算|審議|審查|審什麼|議什麼|報什麼|討論什麼|要審|要討論|該審|應該審|應審)/.test(t))return null;
+ const m=mon?+mon[1]:({'一':1,'二':2,'三':3,'四':4,'五':5,'六':6,'七':7,'八':8,'九':9,'十':10,'十一':11,'十二':12})[monCh[1]];
+ if(!(m>=1&&m<=12))return null;
+ const Y=new Date().getFullYear();
+ const prev=Y-1, cur=Y;
+ let title,summary,notes=[];
+ if(m>=1&&m<=3){
+  title=`${m} 月理監事會：審議 ${prev} 年度決算與 ${cur} 年度工作計畫`;
+  summary=`${m} 月份召開的理監事會，主要審議兩大項：\n`+
+   `一、${prev} 年度決算：收支決算表、資產負債表、財產目錄、基金收支表（社會團體財務處理辦法第11、12條，年度終了後三個月內由理事會編造）。審議後送監事會審核，再提會員大會通過。\n`+
+   `二、${cur} 年度工作計畫與收支預算表（如尚未提報）。\n`+
+   `如果來不及在 ${m} 月開會員大會，可先經理監事聯席會議通過，事後提報大會追認（財務處理辦法第11條）。`;
+  notes=['決算報告應先送監事會審核，再提報會員大會（人民團體法第34條）。'];
+ }else if(m>=4&&m<=6){
+  title=`${m} 月理監事會：確認上年度決算是否已報送、檢視半年度收支`;
+  summary=`${m} 月份的理監事會，財務方面通常處理：\n`+
+   `一、確認 ${prev} 年度決算是否已經會員大會通過並報送縣府備查。如果上年度決算還沒完成，應儘速處理。\n`+
+   `二、報告今年上半年度經費收支執行情形，檢視預算執行是否正常。\n`+
+   `三、如有不動產買賣、基金動支等提案，視情形審議。`;
+  notes=['上年度決算金額達新臺幣 1,500 萬元以上者，得委請會計師簽證（財務處理辦法第11條）。'];
+ }else if(m>=7&&m<=9){
+  title=`${m} 月理監事會：審議半年度收支報告、籌劃下年度工作計畫`;
+  summary=`${m} 月份的理監事會，財務方面通常處理：\n`+
+   `一、報告上半年度（1 至 6 月）經費收支執行情形，對照預算檢討差異。\n`+
+   `二、開始籌劃 ${cur+1} 年度工作計畫與收支預算表的編列方向（依財務處理辦法第11條，年度開始前應由理事會編造，提經會員大會通過）。\n`+
+   `三、如有基金提列或動支、不動產處理、設備採購等提案，視情形審議。`;
+  notes=['屆滿改選的年度，要同時籌備改選事宜，改選大會通常一併審議財務報表。'];
+ }else{
+  title=`${m} 月理監事會：審議 ${cur+1} 年度工作計畫與收支預算表`;
+  summary=`${m} 月份的理監事會，財務方面主要審議：\n`+
+   `一、${cur+1} 年度工作計畫與收支預算表（依財務處理辦法第11條，年度開始前應由理事會編造；預算表依收支平衡原則編列，本期餘絀歸零，上年度結餘不列入收入）。\n`+
+   `二、報告本年度截至目前的經費收支執行情形。\n`+
+   `三、討論常年會（會員大會）的召開時間與議程安排。\n`+
+   `審議後提會員大會通過，並在年度開始前報送縣府備查。`;
+  notes=['員工待遇表也應在此時提出。'];
+ }
+ return{category:'社會團體財務報表',title,summary,statutes:[F(11),F(12),P(34)],questionState:{focus:'board-finance-agenda',domain:'social'},notes:[...notes,'實際審議事項以各團體章程及當年度業務需要為準；本站依法規時程整理，供參考。','合作社、公會另有專屬規定，本回答以一般協會（社會團體）為範圍。'],actions:[{label:'看年度報告流程',view:'meet',sub:'m-finance'},{label:'下載常年會書表',view:'forms',sub:'常年會'}]};
+}
 function delegated(t){
  const g=typeof root!=='undefined'?root:{};
  if(/社區/.test(t)&&/(年度計畫|工作計畫|計畫)/.test(t)&&/(什麼時候|何時|幾月|要送|多久|截止)/.test(t)&&!/成立|籌組/.test(t)&&typeof g.communityAnnualPlanAnswer==='function')return g.communityAnnualPlanAnswer((/社區發展協會/.test(t)?t:t.replace(/社區協會|社區/,'社區發展協會'))+(/年度計畫|工作計畫/.test(t)?'':'年度計畫')+'期限');
@@ -158,7 +202,7 @@ function delegated(t){
 }
 function verifiedRoundAnswer(q,ctx){
  const t=norm(q);
- return vacancyQuorum(t)||boardQuorumGeneral(t)||delegated(t)||chairNoMeeting(t)||feeAnswer(t)||coopAssemblyQuorum(t)||proxyCount(t)||concurrent(t)||financeQuestioned(t)||financeDeadline(t)||meetingFrequency(t)||videoMeeting(t)||coopMinimum(t)||financeForms(t)||formsDownload(t,ctx&&ctx.catalog)||dissolutionHowTo(t)||null;
+ return boardFinanceAgenda(t)||vacancyQuorum(t)||boardQuorumGeneral(t)||delegated(t)||chairNoMeeting(t)||feeAnswer(t)||coopAssemblyQuorum(t)||proxyCount(t)||concurrent(t)||financeQuestioned(t)||financeDeadline(t)||meetingFrequency(t)||videoMeeting(t)||coopMinimum(t)||financeForms(t)||formsDownload(t,ctx&&ctx.catalog)||dissolutionHowTo(t)||null;
 }
 const api={normalizeQuestion,withContext,verifiedRoundAnswer};
 if(typeof module!=='undefined'&&module.exports)module.exports=api;
