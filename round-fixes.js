@@ -258,6 +258,46 @@ function decisionRevoked(t){
  if(!/理事/.test(t)&&!/監事/.test(t)&&!/大會/.test(t)&&!/會議/.test(t))return null;
  return{category:'人民團體會務說明',title:'決議被撤銷：依主管機關處分或法院判決重新辦理',summary:'人民團體的決議可能因兩種原因被撤銷：\n一、主管機關撤銷：團體有違反法令、章程或妨害公益情事時，主管機關得撤銷其決議（人民團體法第58條）。收到處分後應依指定期限改善，例如重新召開合法會議、補正程序瑕疵。\n二、法院裁判：會員認為決議內容或程序有瑕疵，依民法規定向法院提訴，法院判決撤銷或確認無效。\n處理方式：先確認撤銷的範圍（是全部決議還是特定議案），再依撤銷理由重新召開合法的會議，補正程序後函報縣府備查。涉及選舉結果的，可能需要重新辦理選舉。整個過程建議先洽承辦人確認。',statutes:[P(58)],questionState:{focus:'decision-revoked',domain:'social'},notes:['目的事業主管機關也得撤銷決議或停止業務，但應先會商主管機關（人民團體法第58條第2項）。'],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
 }
+
+function lendToChair(t){
+ if(!/(協會|團體|社團)/.test(t))return null;
+ if(!/(錢|經費|資金|款項)/.test(t))return null;
+ if(!/(借|貸|借給|貸給|貸與|挪用|預支)/.test(t))return null;
+ if(!/(理事長|理事|監事|會員|個人|私人)/.test(t))return null;
+ return{category:'人民團體財務',title:'協會的錢不可以借給理事長或私人',summary:'不可以。社會團體的經費應由團體統收統支，專款專用；將團體資金貸與理事長、理事或其他私人，不但章程沒有依據，還可能構成侵占或背信。\n依社會團體財務處理辦法：提用存款應由負責人、總幹事及財務人員共同蓋章（第17條）；財務查核由監事會為之（第22條）。\n如果已經發生資金被借用的情形，應由監事會查核後，在理監事會提出報告，並函報主管機關。涉及刑事責任的，另依司法程序處理。',statutes:[F(17),F(22)],questionState:{focus:'lend-to-chair',domain:'social'},notes:['合作社亦同：經費不能貸給理事或個人使用。'],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
+}
+function branchOrg(t){
+ if(!/(分支|分會|分部|辦事處|設點|分社|分機構)/.test(t))return null;
+ if(!/(可以|能不能|可不可以|怎麼|如何|設|成立|設立)/.test(t))return null;
+ if(/合作社/.test(t))return null;
+ return{category:'人民團體會務說明',title:'協會可以設分支機構，但要報主管機關核准',summary:'可以。人民團體得報經主管機關核准後設分支機構（人民團體法第6條）。設立時應依章程規定擬具分支機構的組織簡則，經會員大會決議通過，報主管機關核准後實施（人民團體會務輔導辦法第6條）。\n分支機構的財務應由團體統收統支，年度終了時編製合併報表（社會團體財務處理辦法第18條）。',statutes:[P(6),G(6),F(18)],questionState:{focus:'branch',domain:'social'},notes:['公會得經會員大會決議設辦事處（商業團體法第7條、工業團體法第6條）。','分支機構不是獨立法人，以主體團體的名義對外。'],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
+}
+function supervisorMeeting(t){
+ if(!/(監事會|監事)/.test(t))return null;
+ if(!/(自己開|自行召開|可以開|獨立開|不經過|不用理事長|理事長同意)/.test(t))return null;
+ return{category:'人民團體會務說明',title:'監事會可以自行召開，不需要理事長同意',summary:'可以。監事會是獨立於理事會的機關，由監事會召集人（常務監事）召集，不需要經過理事長同意。監事會至少每六個月舉行一次（社會團體適用人民團體法第43條），必要時得召開臨時監事會議。\n如果監事會召集人不召開監事會，監事過半數得以書面連署請求召開（人民團體會務輔導辦法第13條）。監事並得列席理事會議（人民團體法第29條）。',statutes:[P(43),G(13),P(29)],questionState:{focus:'supervisor-meeting',domain:'social'},notes:['合作社監事會亦為獨立機關（合作社法第40條）。'],actions:[{label:'看理監事會辦理',view:'meet',sub:'m-board'}]};
+}
+function noAnnualMeeting(t){
+ if(!/(沒有開|沒開|未開|不開|未召開)/.test(t))return null;
+ if(!/(會員大會|大會|常年會|定期會)/.test(t))return null;
+ if(!/(會怎樣|怎麼辦|後果|處罰|違法|罰|可以嗎|被停|被處分)/.test(t)&&!/(年度|整年|一年|今年)/.test(t))return null;
+ return{category:'人民團體會務說明',title:'年度沒有開會員大會：有行政處分風險',summary:'會員大會每年應至少召開一次（人民團體法第25條）。如果整個年度都沒有召開，主管機關得視為「廢弛會務」，依人民團體法第58條予以處分：警告 → 限期改善 → 撤免職員 → 限期整理 → 廢止許可 → 解散。\n而且，年度工作計畫和收支預算要經大會通過才能報縣府備查（社會團體財務處理辦法第11條）；沒開大會就無法完成法定報備，連帶會務報表全部延宕。\n補救方式：儘快召開臨時會員大會或常年會，追認應由大會通過的議案，並函報主管機關說明原因。',statutes:[P(25),P(58),F(11)],questionState:{focus:'no-annual-meeting',domain:'social'},notes:['如果是理事長故意不召開，會員五分之一以上可以連署請求召開（人民團體法第25條）。'],actions:[{label:'看會員大會辦理',view:'meet',sub:'m-assembly'},{label:'聯絡承辦',view:'contact',sub:''}]};
+}
+function chairSpendingAuth(t){
+ if(!/(理事長|負責人)/.test(t))return null;
+ if(!/(自己|一個人|獨自|單獨|決定|可以)/.test(t))return null;
+ if(!/(花錢|支出|動用|經費|款項|用錢|買東西|購買|開支|開銷|開銀行|提款|採購)/.test(t))return null;
+ return{category:'人民團體財務',title:'理事長不能自己決定花錢：須依章程與財務規定辦理',summary:'不行。社會團體提用存款，應由負責人（理事長）、總幹事及財務人員共同蓋章（社會團體財務處理辦法第17條）；重大支出（例如不動產處分）應經會員大會決議（人民團體法第27條）。理事長可以在理事會授權範圍內處理日常業務支出，但超出授權範圍的必須提理事會或大會決議。\n各團體章程通常會訂定理事長的經費核定權限，例如「每筆新臺幣○萬元以下由理事長核定，超過○萬元須經理事會決議」；請核對貴會章程和經費處理規定。',statutes:[F(17),P(27)],questionState:{focus:'chair-spending',domain:'social'},notes:['基金動支另須經理事會通過（社會團體財務處理辦法第15條）。','理監事是無給職，理事長不能用團體經費支付個人報酬（第19條）。'],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
+}
+function communityVsGeneral(t){
+ if(!/(社區發展協會|社區協會)/.test(t))return null;
+ if(!/(一般協會|普通協會|社會團體|差|不同|不一樣|差別|差異|區別|比較)/.test(t))return null;
+ return{category:'人民團體會務說明',title:'社區發展協會 vs 一般協會：主要差別在法規依據和組織範圍',summary:'社區發展協會與一般社會團體的共同點是都依人民團體法立案，理監事的選舉、任期、會議規定大致相同。主要差別：\n1. 法規：社區發展協會另適用社區發展工作綱要，由鄉鎮市公所劃定社區範圍，同一社區原則只成立一個。\n2. 組織區域：以公所劃定的社區為範圍，不像一般協會可以自定全縣性或鄉鎮市級。\n3. 發起門檻：鄉鎮市級社會團體要 30 人，社區發展協會由社區居民發起。\n4. 經費來源：社區發展協會可以接受鄉鎮市公所或縣府的補助計畫，例如社區營造、環境改善等。\n5. 監督：公所扮演較積極角色，會務輔導和計畫核銷通常經公所轉送縣府。',statutes:[{title:'社區發展工作綱要',source:LAW+'D0050098'}],questionState:{focus:'community-vs-general',domain:'social'},notes:['本站名冊未收錄社區發展協會，相關業務請洽鄉鎮市公所或縣府社會處。'],actions:[{label:'看社區發展協會成立',view:'biz',sub:'community'},{label:'聯絡承辦',view:'contact',sub:''}]};
+}
+function coopDissolutionProperty(t){
+ if(!/合作社/.test(t)||!/解散/.test(t)||!/(財產|歸誰|歸屬|剩餘|怎麼處理|怎麼辦|清算)/.test(t))return null;
+ return{category:'合作社會務',title:'合作社解散後財產：先清償債務，餘額依出資比例或章程辦理',summary:'合作社解散後進入清算程序，清算順序依合作社法第61、62條：先清償債務（含社員股金）→ 剩餘財產依章程規定處理，章程沒寫的依社員大會決議。\n合作社解散事由包括：社員不滿七人、章程所定解散事由發生、社員大會四分之三以上出席且出席三分之二以上決議解散、破產、主管機關命令解散、與他社合併（合作社法第55條）。',statutes:[C(55),C(61),C(62)],questionState:{focus:'coop-dissolution-property',domain:'coop'},notes:['合作社的剩餘財產處理方式與一般社會團體不同：社會團體歸地方自治團體，合作社則依章程或大會決議。'],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
+}
 function delegated(t){
  const g=typeof root!=='undefined'?root:{};
  if(/社區/.test(t)&&/(年度計畫|工作計畫|計畫)/.test(t)&&/(什麼時候|何時|幾月|要送|多久|截止)/.test(t)&&!/成立|籌組/.test(t)&&typeof g.communityAnnualPlanAnswer==='function')return g.communityAnnualPlanAnswer((/社區發展協會/.test(t)?t:t.replace(/社區協會|社區/,'社區發展協會'))+(/年度計畫|工作計畫/.test(t)?'':'年度計畫')+'期限');
@@ -266,7 +306,7 @@ function delegated(t){
 }
 function verifiedRoundAnswer(q,ctx){
  const t=norm(q);
- return charterAmendment(t)||coopSupervisorAudit(t)||publicSolicitation(t)||decisionRevoked(t)||chairResign(t)||memberExpulsion(t)||sealChange(t)||noHandover(t)||communityDissolutionProperty(t)||boardFinanceAgenda(t)||vacancyQuorum(t)||boardQuorumGeneral(t)||delegated(t)||chairNoMeeting(t)||feeAnswer(t)||coopAssemblyQuorum(t)||proxyCount(t)||concurrent(t)||financeQuestioned(t)||financeDeadline(t)||meetingFrequency(t)||videoMeeting(t)||coopMinimum(t)||financeForms(t)||formsDownload(t,ctx&&ctx.catalog)||dissolutionHowTo(t)||null;
+ return lendToChair(t)||branchOrg(t)||supervisorMeeting(t)||noAnnualMeeting(t)||chairSpendingAuth(t)||communityVsGeneral(t)||coopDissolutionProperty(t)||charterAmendment(t)||coopSupervisorAudit(t)||publicSolicitation(t)||decisionRevoked(t)||chairResign(t)||memberExpulsion(t)||sealChange(t)||noHandover(t)||communityDissolutionProperty(t)||boardFinanceAgenda(t)||vacancyQuorum(t)||boardQuorumGeneral(t)||delegated(t)||chairNoMeeting(t)||feeAnswer(t)||coopAssemblyQuorum(t)||proxyCount(t)||concurrent(t)||financeQuestioned(t)||financeDeadline(t)||meetingFrequency(t)||videoMeeting(t)||coopMinimum(t)||financeForms(t)||formsDownload(t,ctx&&ctx.catalog)||dissolutionHowTo(t)||null;
 }
 const api={normalizeQuestion,withContext,verifiedRoundAnswer};
 if(typeof module!=='undefined'&&module.exports)module.exports=api;
