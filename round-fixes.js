@@ -603,6 +603,7 @@ function branchOrgAccounting(t){
 
 // 13-8 理事長連任限制
 function chairmanReelectionLimit(t){
+ if(/合作社|社員|理事主席/.test(t))return null;
  if(/理事長|主席|理長/.test(t)&&/(連任|連選|幾次|幾任|幾屆|限制|能.{0,2}連|改選.{0,3}連)/.test(t)){
   const is_community=/社區|發展/.test(t);
   if(is_community) return {title:'社區發展協會理事長：不得連任',summary:'依人民團體法第20條，社區發展協會理事長任期屆滿不得連任，只能一屆。',statutes:[P(20)]};
@@ -740,54 +741,52 @@ function communityVsAssociationDifferences(t){
 }
 
 
-// P1-級修正: 理事長連任限制
-function chairReelection(t){
- if(!/理事長|主席/.test(t))return null;
- if(!/(連任|連選|幾屆|二屆|再選|選兩次|選第二次)/.test(t))return null;
- if(/罷免|解任|辭職|出缺/.test(t))return null;
- const coop=/合作社/.test(t);
- if(coop)return{category:'合作社會務',title:'合作社理事主席（理事長）連任的規定',summary:'合作社的理事主席（相當於一般協會的理事長）連任以一次為限（合作社法第20條），也就是最多連續做兩屆。\n任期依合作社法規定或章程訂定，最長不超過三年。除法律或章程另有限制，連選得連任。',statutes:[C(20)],questionState:{focus:'reelection',domain:'coop'},notes:['已連任一次的理事主席，下一屆不能再當選理事主席。']};
- return{category:'人民團體會務說明',title:'協會理事長連任：法律無限制，依章程規定',summary:'人民團體法對理事長的連任次數未設限制（只規定任期最長四年；「連任以一次為限」是針對理事和監事個人身分，不是職位本身）。\n是否限制理事長連任，要看團體章程怎麼訂：\n一、章程如未訂限制，理事長連選得連任，無次數限制。\n二、章程如訂有限制（例如連任一次為限），就要依章程辦理。\n三、實務上常見章程訂「理事長連任不超過一次或二次」。\n改選時，若理事長符合連任條件且被選出，就可以繼續當選；如不符合，就不能再當選理事長，但仍可當選為理事。',statutes:[P(20),P(29)],questionState:{focus:'reelection',domain:'social'},notes:['人民團體法第20條的「連任以一次為限」是針對「理事、監事」的身分，因為同一人同時占據多職位會衝突；但沒有規定理事長職位本身的連任限制。'],actions:[{label:'下載改選書表',view:'forms',sub:'改選'}]};
-}
-
-// P1-級修正: 改選比例計算
-function reelectionProportion(t){
- if(!/(改選|選舉)/.test(t))return null;
- if(!/((三分之二|2\/3|66|比例|比|人數|幾個|幾人|多少人))/.test(t))return null;
- const coop=/合作社/.test(t);
- if(coop)return{category:'合作社選舉',title:'改選三分之二的理事人數：用 ceil 無條件進位計算',summary:'改選社員大會規定改選比例（例如改選三分之二）時，計算人數要用無條件進位 (ceil)。\n計算公式：理事總人數 × (2/3)，結果不足整數時無條件進位。\n例如：現有理事9人，改選人數 = ceil(9 × 2/3) = ceil(6) = 6人。\n現有理事8人，改選人數 = ceil(8 × 2/3) = ceil(5.33) = 6人。\n改選人數計算出來後，應由社員大會投票選出該人數的新理事。',statutes:[C(20)],notes:['各個社別的具體改選比例和程序應依章程訂定。']};
- return{category:'人民團體選舉',title:'改選三分之二的理事人數：用 ceil 無條件進位計算',summary:'改選會員大會規定改選比例（例如改選三分之二或二分之一）時，計算人數要用無條件進位 (ceil)。\n計算公式：理事總人數 × 改選比例，結果不足整數時無條件進位。\n例如：現有理事9人，改選三分之二 = ceil(9 × 2/3) = ceil(6) = 6人。\n現有理事12人，改選二分之一 = ceil(12 × 1/2) = ceil(6) = 6人。\n改選人數計算出來後，應由會員大會投票選出該人數的新理事。',statutes:[E(4),E(5)],notes:['各協會章程通常規定的改選比例有：全部改選、改選二分之一、改選三分之二等不同做法。']};
-}
 
 
-// P1-級修正 Phase 2: 選舉票無效情形
+
+
+
+
+
+// 以下四函數內容逐字對照 data/statutes.json.gz（2026-11-05 版）
+const CE=n=>({title:'合作社選舉罷免辦法第'+n+'條',source:LAW+'D0050022'});
 function invalidBallotReason(t){
- if(!/(選票|票無效|無效票|作廢|廢票|為什麼無效)/.test(t))return null;
- if(!/什麼|哪些|幾種|情形|原因|為什麼|怎麼樣/.test(t))return null;
- const coop=/合作社/.test(t);
- return{category:coop?'合作社選舉':'人民團體選舉',title:'選舉票無效的 13 種情形',summary:'依人民團體'+(coop?'':'')+'選舉罷免辦法第 10 條，選票有下列情形之一者無效：\n1️⃣ 不用政府統一印製的票紙\n2️⃣ 票面污損不堪使用\n3️⃣ 未用政府配發之圈票工具圈投\n4️⃣ 圈投位置不明確\n5️⃣ 投票人在票上簽名或蓋章\n6️⃣ 投票人簽名蓋章以外另有記載\n7️⃣ 投票人年紀或姓名記載\n8️⃣ 投票人住址記載\n9️⃣ 投票人選票編號記載或顯示\n🔟 投票人服務機關記載\n1️⃣1️⃣ 投票人政黨或其他身份記載\n1️⃣2️⃣ 一票中選出二人以上當選名額\n1️⃣3️⃣ 完全空白無字跡\n\n開票時由監票人當場認定無效票，會議紀錄要詳記無效票數及原因。',statutes:coop?[{title:'合作社選舉罷免辦法第 10 條',source:LAW+'D0050117'}]:[{title:'人民團體選舉罷免辦法第 10 條',source:LAW+'D0050108'}],notes:['無效票不計入有效票，但計入投票總數。','團體可在開票前舉辦圈票說明會，避免無效票。'],questionState:{focus:'invalid-ballot',domain:coop?'coop':'social'}};
+ if(!/(選票|選舉票|無效票|廢票)/.test(t))return null;
+ if(!/(無效|作廢|廢|怎麼算|怎樣算|哪些|什麼情形|幾種|認定)/.test(t))return null;
+ if(/合作社|社員/.test(t))return{category:'合作社選舉',title:'合作社選舉票無效的 13 種情形（合作社選舉罷免辦法第31條）',summary:'選舉票有下列情事之一者無效：\n一、未依第十九條規定辦理（非合作社依規定提供之票）。\n二、圈寫之被選舉人超出應選出名額或限制連記名額。\n三、圈寫之被選舉人姓名與社員名冊不符。\n四、圈寫之位置不能辨別為何人。\n五、圈寫後經塗改。\n六、書寫字跡模糊不能辨識。\n七、污染致不能辨別。\n八、夾寫其他文字或符號（同姓名者在下端註明區別除外）。\n九、附有暗號作用。\n十、簽名、蓋章或捺指模。\n十一、用鉛筆圈寫。\n十二、撕破不完整。\n十三、完全空白。\n第三至六款屬部分性質者，僅該部分無效；認定有疑義時，由會議主席及監票員會商決定。',statutes:[CE(31),CE(29)],notes:['開票後有效票與無效票應分別包封，由主席會同監票員簽章，保存至任期屆滿（第29條）。'],questionState:{focus:'invalid-ballot',domain:'coop'}};
+ return{category:'人民團體選舉',title:'選舉票無效的 13 種情形（人民團體選舉罷免辦法第10條）',summary:'選舉票或罷免票有下列情事之一者無效：\n一、非屬人民團體提供。\n二、圈寫（含塗改）之被選舉人總計超出應選出名額或連記額數；或罷免票同時圈「同意」「不同意」。\n三、夾寫其他文字或符號（二人以上同姓名在姓名下註明區別者除外）。\n四、所圈寫之姓名與會員（會員代表）名冊不符。\n五、所圈位置不能辨別為何人。\n六、圈寫後經塗改。\n七、書寫字跡模糊致不能辨識。\n八、用鉛筆圈寫（電腦計票劃卡者除外）。\n九、附任何物件顯有暗號作用。\n十、污染致不能辨別。\n十一、簽名、蓋章或捺指模。\n十二、撕破致不完整。\n十三、不加圈寫，完全空白。\n第四至七款如屬部分性質，由主席會同全體監票員當場認定該部分無效；有爭議時表決，正反同數者該票為有效。',statutes:[E(10)],notes:['無效票不計入有效票數；投票前主席宣布選舉注意事項時應說明無效票認定方式。'],questionState:{focus:'invalid-ballot',domain:'social'}};
 }
-
-// P1-級修正 Phase 2: 會員代表資格
 function delegateQualification(t){
- if(!/(會員代表|代表|代理人|授權代表)/.test(t))return null;
- if(!/^(資格|條件|要求|誰可以|能不能|可不可以|怎麼樣.{0,2}選)/.test(t))return null;
- if(/改選|選舉|當選/.test(t)&&!/資格|條件/.test(t))return null;
- return{category:'人民團體會務說明',title:'會員代表資格：由會員大會選舉產生',summary:'會員代表是代表制協會的會員大會代表，資格如下：\n\n✅ 必備資格\n- 必須是本團體會員\n- 入會滿六個月以上（依人民團體法第 17 條）\n- 無禁治產或受監護等法律限制\n- 章程未禁止者（各團體可另訂更高標準）\n\n👥 代表產生方式\n- 由全體會員大會選舉產生（不得指派）\n- 依章程訂定的時間、地點、方式選舉\n- 可按分會/區域各選各自代表，或由全體會員票選\n- 代表名額由章程規定\n\n🚫 不能當代表\n- 理事長（利益衝突，不能既當理事長又當代表投票）\n- 常務理事（通常）\n- 受前次罷免處分者（依章程訂定）\n\n📋 相關規定\n- 人民團體法第 17 條：會員資格與代表資格\n- 人民團體法第 25 條：會員代表大會召開方式',statutes:[P(17),P(25)],notes:['代表大會決議效力等同會員大會，代表應忠實代表會員意見。','某些協會在會員大會中選舉常設代表委員會，作為常年決議機構。'],questionState:{focus:'delegate-qualification',domain:'social'}};
+ if(!/會員代表/.test(t))return null;
+ if(!/(資格|條件|誰|怎麼產生|如何產生|怎麼選|如何選|是什麼|什麼是|定義)/.test(t))return null;
+ return{category:'人民團體會務說明',title:'會員代表是什麼、怎麼產生（人民團體法第13、28條）',summary:'依人民團體法第13條，會員代表指：\n（一）由「會員單位」推派的代表（團體會員制）；\n（二）由「下級團體」選派的代表（分級組織）；\n（三）依第28條「分區選出」的代表：會員（會員代表）人數超過三百人者，得劃分地區，依人數比例選出代表，再合開代表大會行使會員大會職權，地區劃分與名額分配應報主管機關核備。\n會員代表權利之行使與會員相同（第13條），有表決、選舉、被選舉與罷免權，一人一權（第16條）。\n代表之名額、職權、任期及選任與解任，法律授權由章程載明（第12條第9款），所以「誰能當、任期多長」要看各團體章程。',statutes:[P(13),P(28),P(12),P(16)],notes:['法規未規定「入會滿幾個月才能當代表」等門檻，若章程有訂即依章程。','理事會應於大會十五日前審定會員（會員代表）資格並造冊（會務輔導辦法第10條）。'],questionState:{focus:'delegate-qualification',domain:'social'}};
+}
+function substitutionOrder(t){
+ if(!/(候補|遞補)/.test(t))return null;
+ if(!/(理事|監事|順序|怎麼|如何|依次|用完|不夠|缺額|出缺|順位)/.test(t))return null;
+ if(/選票|無效票/.test(t))return null;
+ return{category:'人民團體選舉',title:'候補理監事遞補順序與遞補後仍有缺額的處理（選罷辦法第17、19、27條）',summary:'■ 遞補順序\n理事、監事出缺時，以候補理事、候補監事「依次」遞補（選罷辦法第17條；會務輔導辦法第9條）。候補名次按得票多寡排序，同票以抽籤定之（第15條）。有選出名額比例限制（如分區、分類）者，以同類候補依次遞補（第19條）。\n\n■ 候補用完或遞補後仍不足\n經遞補後，理事、監事人數「未達章程所定名額三分之二」時，應補選足額（第17條）。例：章程定理事15人，2/3＝10人，遞補後只剩9人就必須補選。\n\n■ 理事長、常務理事、監事會召集人出缺\n應自出缺之日起一個月內補選；理事長所遺任期不足六個月者，得於一個月內依章程或由常務理事（未設者由理事）互推一人代理（第17條）。\n\n■ 不能遞補的情形\n辭職之理事、監事不得退為候補；候補以書面放棄遞補者，不保留候補身分（第27條）。應受連任限制者不得當選候補（第13條）。',statutes:[E(17),E(19),E(27),E(15),G(9)],notes:['遞補與補選結果均應報主管機關備查。','遞補者任期至原任期屆滿為止，不重新起算。'],questionState:{focus:'substitution-order',domain:'social'},actions:[{label:'下載改選書表',view:'forms',sub:'改選'}]};
+}
+function byElectionThreshold(t){
+ if(!/(三分之二|2\/3|三分之ニ)/.test(t))return null;
+ if(!/(補選|缺額|遞補|剩|不足|未達|少於|幾人|多少人)/.test(t))return null;
+ if(/出席|開會|決議|章程.{0,3}修|修改章程/.test(t))return null;
+ const m=t.match(/(\d{1,2})\s*(人|名|位|席)/);
+ let ex='';
+ if(m){const n=+m[1];const th=Math.ceil(n*2/3);ex='\n\n以您提到的 '+n+' 人為例：'+n+'×2/3＝'+(n*2/3).toFixed(2)+'，至少要有 '+th+' 人在任才算「達三分之二」；在任人數若只剩 '+(th-1)+' 人以下，就必須補選足額。';}
+ return{category:'人民團體選舉',title:'理監事人數未達章程名額三分之二時應補選（選罷辦法第17條）',summary:'理事、監事出缺先由候補依次遞補；遞補後如人數「未達章程所定名額的三分之二」，應補選足額。判斷基準是「章程所定名額」，不是現有人數。計算時 2/3 若非整數，以無條件進位後之整數為「達標」門檻。'+ex,statutes:[E(17),G(9)],notes:['此處 2/3 是補選門檻，與會員大會決議或修改章程之出席／表決比例無關。'],questionState:{focus:'by-election-threshold',domain:'social'}};
 }
 
-// P1-級修正 Phase 2: 候補遞補順序
-function substitutionOrder(t){
- if(!/(候補|遞補|遞選|缺額|出缺)/.test(t))return null;
- if(!/(理事|監事|順序|怎麼.{0,2}遞|先遞|依次)/.test(t))return null;
- if(/報廢|作廢/.test(t))return null;
- const coop=/合作社/.test(t);
- return{category:coop?'合作社選舉':'人民團體選舉',title:coop?'合作社候補理事/監事遞補順序':'協會候補理事/監事遞補順序',summary:'出現下列情形時，依序號依次遞補：\n\n🔴 哪些情況要遞補\n- 當選理事/監事辭職\n- 當選理事/監事死亡\n- 當選理事/監事被罷免\n- 當選理事/監事喪失資格\n\n📋 遞補程序\n1. 由候補理事/監事依序號 1、2、3... 依次遞補\n2. 第 1 號候補遞補後缺額，由第 2 號遞補，以此類推\n3. 不得跳號遞補\n\n✅ 遞補要求\n- 遞補人應於遞補決議後 15 日內提出當選證明書\n- 遞補人應簽署就職書\n- 遞補後應召開新任理事/監事會議或理監事聯席會議\n- 遞補結果報主管機關備查\n\n❌ 候補用完怎麼辦\n- 候補用完仍有缺額，不再補選\n- 除非距改選不足 6 個月，得補選\n- 補選由理事會召開常設代表大會或會員大會進行',statutes:coop?[{title:'合作社選舉罷免辦法第 15 條',source:LAW+'D0050117'}]:[{title:'人民團體選舉罷免辦法第 15-16 條',source:LAW+'D0050108'}],notes:['遞補理事長職位時要特別注意：不是自動升任，要重新改選。','候補任期與當選人相同，不因遞補而重新起算。'],questionState:{focus:'substitution-order',domain:coop?'coop':'social'},actions:[{label:'下載改選書表',view:'forms',sub:'改選'}]};
+function coopChairReelection(t){
+ if(!/合作社|社員|理事主席/.test(t))return null;
+ if(!/(理事主席|理事長|主席|理事|監事)/.test(t)||!/(連任|連選|幾屆|幾任|再選|任期)/.test(t))return null;
+ if(/罷免|解任|辭職|出缺/.test(t))return null;
+ return{category:'合作社',title:'合作社理事、監事（含理事主席）任期與連任（合作社法第33條）',summary:'合作社法第33條：理事、監事之任期不得超過三年；除法律或章程另有規定外，連選得連任。\n法律本身沒有訂「理事主席只能連任一次」，是否限制連任次數，要看貴社章程有沒有另訂。若章程未限制，即可連選連任；若章程有限制（例如以一次為限），依章程。',statutes:[C(33)],notes:['合作社的負責人稱「理事主席」，由理事互選產生。','與人民團體法第20條「理事長連任以一次為限」不同，請勿混用。'],questionState:{focus:'coop-chair-reelection',domain:'coop'}};
 }
 
 function verifiedRoundAnswer(q,ctx){
  const t=norm(q);
- return coopVsAssocAccountingForms(t)||coopBalanceSheetReport(t)||delegateQuotaCalculation(t)||delegateConcurrentRole(t)||onlineVoting(t)||mailVoting(t)||assemblyVotingMethod(t)||boardVotingMethodDetail(t)||delegateElectionProcess(t)||delegateAssemblyRules(t)||coopMemberRemoval(t)||coopAdvertisingTaxability(t)||coopLoanToMemberTax(t)||coopBankLoanProcedure(t)||coopBankLoan(t)||branchAccountingPractice(t)||memberDelegateElection(t)||branchOrgSetup(t)||delegateProposalProcess(t)||annualMeetingVsAssembly(t)||vacancyQuorum(t)||supervisorConvenerNoMeeting(t)||supervisorMinimumMembers(t)||supervisorChairmanElection(t)||supervisorAuditPowers(t)||branchOrgAccounting(t)||chairReelection(t)||reelectionProportion(t)||invalidBallotReason(t)||delegateQualification(t)||substitutionOrder(t)||chairmanReelectionLimit(t)||chairmanAbsence(t)||recordRetentionPeriod(t)||advertisingIncome(t)||staffBankAccountSetup(t)||meetingSigninDuration(t)||meetingVotingMethod(t)||preElectionBoardMeeting(t)||electionEffectiveDate(t)||politicalDonation(t)||communityReportingRequirements(t)||communityYearlyPlanDeadline(t)||communityVsAssociationDifferences(t)||supervisorAsDirector(t)||newChairTodo(t)||postElectionAccountingDeadline(t)||electionReportDeadline(t)||checkSignature(t)||feePeriods(t)||feeDeferral(t)||threeMonthsWording(t)||electionCandidates(t)||electionObjection(t)||minutesDeadline(t)||coopBoardQuorum(t)||coopTax(t)||communityRename(t)||communityReportTownship(t)||addressCertificate(t)||bankChairChange(t)||eventFee(t)||communityChairTerm(t)||invalidBallot(t)||feeAmount(t)||personalAccount(t)||delegateAssembly(t)||noSupervisor(t)||foundingDocs(t)||investStocks(t)||membershipRefused(t)||coopCapital(t)||receiveDonation(t)||hireEmployee(t)||lendToChair(t)||branchOrg(t)||supervisorMeeting(t)||noAnnualMeeting(t)||chairSpendingAuth(t)||communityVsGeneral(t)||coopDissolutionProperty(t)||charterAmendment(t)||coopSupervisorAudit(t)||publicSolicitation(t)||decisionRevoked(t)||chairResign(t)||memberExpulsion(t)||sealChange(t)||noHandover(t)||communityDissolutionProperty(t)||boardFinanceAgenda(t)||boardQuorumGeneral(t)||delegated(t)||chairNoMeeting(t)||feeAnswer(t)||coopAssemblyQuorum(t)||proxyCount(t)||concurrent(t)||financeQuestioned(t)||financeDeadline(t)||meetingFrequency(t)||videoMeeting(t)||coopMinimum(t)||financeForms(t)||formsDownload(t,ctx&&ctx.catalog)||dissolutionHowTo(t)||null;
+ return coopVsAssocAccountingForms(t)||coopBalanceSheetReport(t)||delegateQuotaCalculation(t)||delegateConcurrentRole(t)||onlineVoting(t)||mailVoting(t)||assemblyVotingMethod(t)||boardVotingMethodDetail(t)||delegateElectionProcess(t)||delegateAssemblyRules(t)||coopMemberRemoval(t)||coopAdvertisingTaxability(t)||coopLoanToMemberTax(t)||coopBankLoanProcedure(t)||coopBankLoan(t)||branchAccountingPractice(t)||memberDelegateElection(t)||branchOrgSetup(t)||delegateProposalProcess(t)||annualMeetingVsAssembly(t)||vacancyQuorum(t)||supervisorConvenerNoMeeting(t)||supervisorMinimumMembers(t)||supervisorChairmanElection(t)||supervisorAuditPowers(t)||branchOrgAccounting(t)||invalidBallotReason(t)||delegateQualification(t)||substitutionOrder(t)||byElectionThreshold(t)||coopChairReelection(t)||chairmanReelectionLimit(t)||chairmanAbsence(t)||recordRetentionPeriod(t)||advertisingIncome(t)||staffBankAccountSetup(t)||meetingSigninDuration(t)||meetingVotingMethod(t)||preElectionBoardMeeting(t)||electionEffectiveDate(t)||politicalDonation(t)||communityReportingRequirements(t)||communityYearlyPlanDeadline(t)||communityVsAssociationDifferences(t)||supervisorAsDirector(t)||newChairTodo(t)||postElectionAccountingDeadline(t)||electionReportDeadline(t)||checkSignature(t)||feePeriods(t)||feeDeferral(t)||threeMonthsWording(t)||electionCandidates(t)||electionObjection(t)||minutesDeadline(t)||coopBoardQuorum(t)||coopTax(t)||communityRename(t)||communityReportTownship(t)||addressCertificate(t)||bankChairChange(t)||eventFee(t)||communityChairTerm(t)||invalidBallot(t)||feeAmount(t)||personalAccount(t)||delegateAssembly(t)||noSupervisor(t)||foundingDocs(t)||investStocks(t)||membershipRefused(t)||coopCapital(t)||receiveDonation(t)||hireEmployee(t)||lendToChair(t)||branchOrg(t)||supervisorMeeting(t)||noAnnualMeeting(t)||chairSpendingAuth(t)||communityVsGeneral(t)||coopDissolutionProperty(t)||charterAmendment(t)||coopSupervisorAudit(t)||publicSolicitation(t)||decisionRevoked(t)||chairResign(t)||memberExpulsion(t)||sealChange(t)||noHandover(t)||communityDissolutionProperty(t)||boardFinanceAgenda(t)||boardQuorumGeneral(t)||delegated(t)||chairNoMeeting(t)||feeAnswer(t)||coopAssemblyQuorum(t)||proxyCount(t)||concurrent(t)||financeQuestioned(t)||financeDeadline(t)||meetingFrequency(t)||videoMeeting(t)||coopMinimum(t)||financeForms(t)||formsDownload(t,ctx&&ctx.catalog)||dissolutionHowTo(t)||null;
 }
 const api={normalizeQuestion,withContext,verifiedRoundAnswer};
 if(typeof module!=='undefined'&&module.exports)module.exports=api;
