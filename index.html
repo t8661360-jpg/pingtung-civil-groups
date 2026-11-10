@@ -2,7 +2,8 @@
 <html lang="zh-Hant-TW">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="unanswered-endpoint" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>屏東縣人民團體數位櫃檯</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -468,7 +469,7 @@ footer div{max-width:1200px;margin:0 auto;padding:18px 24px}
 </section>
 </main>
 
-<footer><div>屏東縣人民團體數位櫃檯｜屏東縣政府社會處｜本站內容為辦理指引，實際規定以屏東縣政府及中央主管機關最新公告為準。</div></footer>
+<footer><div>屏東縣人民團體數位櫃檯｜屏東縣政府社會處｜本站內容為辦理指引，實際規定以屏東縣政府及中央主管機關最新公告為準。您的提問可能用於改善本站回答品質，請勿輸入個人資料。</div></footer>
 
 <script>
 "use strict";
@@ -1303,6 +1304,7 @@ function dirRender(q,query,res,intent){
   }
   if(!res.total){
     const s=staffFor(query.t||detectType(q),query.c||detectCat(q));
+    try{reportUnanswered(q)}catch(e){}
     return{category:"團體查詢",title:"查無符合資料",summary:`本縣名冊中查無「${query.kw||label}」相關團體。可能是名稱用字不同（例如臺、台），或屬社區發展協會、合作社等未納入本名冊之團體。`,groups:[],staff:s,dirMeta:meta,notes:["可改用名稱中的兩三個關鍵字再查一次。","如需確認立案狀況，請洽承辦人。"],actions:[{label:"到團體查詢頁搜尋",view:"search",sub:JSON.stringify({kw:query.kw,t:query.t,c:query.c,d:query.d})},{label:"聯絡承辦",view:"contact",sub:""}]};
   }
   if(query.kw&&res.exact.length===1&&!res.fuzzy){
@@ -1386,6 +1388,19 @@ ${knowledgeText()}
     groups:r.showGroups&&lastGroups?lastGroups.rows.slice(0,10):[],dirMeta:r.showGroups?dirMetaLine():"",staff:r.showStaff&&lastStaff?lastStaff:[],
     actions:(Array.isArray(r.actions)?r.actions:[]).filter(a=>a&&VIEWS.includes(a.view)&&a.view!=="admin").slice(0,3).map(a=>({label:String(a.label||"前往"),view:a.view,sub:String(a.sub||"")}))};
 }
+
+// 無法回答的問題 → 送到中繼端點開 GitHub Issue（每日排程會讀取、查法條、補答案）；未設定端點時只存本機
+const UNANSWERED_ENDPOINT=(document.querySelector('meta[name="unanswered-endpoint"]')||{}).content||"";
+function scrubPII(t){return String(t||"").replace(/\b09\d{2}[- ]?\d{3}[- ]?\d{3}\b/g,"[電話]").replace(/\b0\d{1,2}[- ]?\d{6,8}(?:\s*(?:轉|#)\s*\d+)?\b/g,"[電話]").replace(/\b[A-Z][12]\d{8}\b/g,"[身分證]").replace(/[\w.+-]+@[\w-]+\.[\w.]+/g,"[email]").slice(0,300)}
+function reportUnanswered(q){
+  try{
+    const clean=scrubPII(q); if(!clean||clean.length<2) return;
+    const key="unanswered-sent", sent=JSON.parse(localStorage.getItem(key)||"[]");
+    if(sent.includes(clean)) return; sent.push(clean); localStorage.setItem(key,JSON.stringify(sent.slice(-200)));
+    if(!UNANSWERED_ENDPOINT) return;
+    fetch(UNANSWERED_ENDPOINT,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({q:clean,page:location.pathname,ua:navigator.userAgent.slice(0,80),at:new Date().toISOString()}),keepalive:true}).catch(()=>{});
+  }catch(e){}
+}
 function smartFallback(q,kb){
   const parts={};
   if(kb&&kb.cat==="打招呼")return kbAnswer(kb);
@@ -1424,7 +1439,7 @@ function smartFallback(q,kb){
   else if(!parts.staff&&!kb&&!parts.summary){const t=detectType(q),c=detectCat(q);const sf=staffFor(t,c);if(sf.length)parts.staff=sf}
   if(!parts.summary){
     const sf=staffFor(detectType(q),detectCat(q));
-    return{category:"其他",title:"建議洽詢承辦人",summary:"這個問題我手邊的資料不太夠，怕回答不夠精確，建議直接打電話問承辦人比較放心。"+contactLine(sf)+"可以給您最正確的答覆。您也可以換個問法試試，例如直接輸入團體名稱就能查詳細資料。",staff:sf,notes:[],actions:[{label:"聯絡承辦",view:"contact",sub:""},{label:"回到常見問題",view:"home",sub:""}]};
+    reportUnanswered(q);return{category:"其他",title:"抱歉，這個問題難倒小屏了",summary:"抱歉，這個問題難倒小屏了，小屏暫時無法回答喔！建議您先電洽承辦人員詢問～"+contactLine(sf)+"小屏已經把這個問題記下來，會請承辦人員補上答案，下次您再問就有囉。",staff:sf,notes:[],actions:[{label:"聯絡承辦",view:"contact",sub:""},{label:"回到常見問題",view:"home",sub:""}],unanswered:true};
   }
   return{related:parts.related||[],category:parts.category||"服務說明",title:parts.title||"小屏的回覆",summary:parts.summary,steps:parts.steps||[],docs:parts.docs||[],where:parts.where||[],guide:parts.guide||[],laws:parts.laws||[],notes:parts.notes||[],refs:parts.refs||[],groups:parts.groups||[],dirMeta:parts.dirMeta||"",staff:parts.staff||[],actions:parts.actions||[]};
 }
