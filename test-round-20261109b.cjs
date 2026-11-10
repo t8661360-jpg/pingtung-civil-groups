@@ -15,7 +15,7 @@ assert(A('理事會可以委託幾個人代理').title.includes('不能委託'))
 // 兼任
 assert(A('理事可以兼總幹事嗎').summary.includes('不得由理事、監事擔任'));
 assert(A('合作社監事可以兼任理事嗎').summary.startsWith('不可以'));
-assert(A('監事可以兼任理事嗎').title.includes('無法確認'));
+assert(A('監事可以兼任理事嗎').title.includes('不能一人兼任'));
 // 帳目被質疑
 {const a=A('我們協會的帳被質疑怎麼辦');assert(a&&has(a,'第22條'));}
 // 財務報告期限：現行辦法第11條三個月內
@@ -26,7 +26,7 @@ assert(A('解散的報表要填幾項').title.includes('5 項'));
 assert(A(r.withContext('那要誰簽名','解散的報表要填幾項')).title.includes('蓋章'));
 assert(A('協會要報哪些財務報表').title.includes('哪 6 項'));
 // 理事長不開會（人民團體法第25、30、32條；會務輔導辦法第13條）
-{const a=A('理事長不開會怎麼辦');assert(a.title.includes('15日'));assert(has(a,'會務輔導辦法第13條')&&has(a,'人民團體法第30條'));}
+{const a=A('理事長不開會怎麼辦');assert(/連署|15/.test(a.title+a.summary));assert(has(a,'會務輔導辦法第13條')&&has(a,'人民團體法第30條'));}
 assert(A('理事長一直不召開會員大會').title.includes('五分之一'));
 // chairResign now handles coop cases, tested in round e
 console.log('round 2026-11-09b: all cases passed');

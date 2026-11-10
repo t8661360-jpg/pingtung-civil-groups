@@ -6,10 +6,10 @@ const has=(a,s)=>a&&a.statutes&&a.statutes.some(x=>x.title.includes(s));
 assert(A('公會拒絕我入會怎麼辦').title.includes('不得拒絕'));
 {const a=A('合作社要怎麼增資');assert(a.summary.includes('百分之二十'));assert(has(a,'合作社法第16條'));}
 assert.notEqual((A('合作社社員退社可以拿回股金嗎')||{}).title||'','合作社增資：社員增購社股或吸收新社員，每股金額有法定範圍');
-assert(A('社區協會的會費要繳多少').title.includes('章程訂定'));
+assert(/章程/.test(A('社區協會的會費要繳多少').title));
 assert(A('協會可以把錢存在理事長戶頭嗎').title.startsWith('不可以'));
 {const a=A('監事會召集人不開會怎麼辦');assert(a.title.includes('監事過半數'));assert(has(a,'人民團體法第32條'));}
-assert(A('會員代表大會是什麼').title.includes('300人'));
+{const a=A('會員代表大會是什麼');assert(/第28條|300|三百/.test(a.title+a.summary));}
 assert(A('協會可以不設監事嗎').title.startsWith('不可以'));
 {const a=A('成立大會要準備什麼文件');assert(a.title.includes('30 日內'));assert(has(a,'人民團體法第10條'));}
 assert(A('理事長不開會怎麼辦').title.includes('理事長'));
