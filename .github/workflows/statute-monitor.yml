@@ -1,158 +1,63 @@
-name: 📜 每週法規監測（週一凌晨 2 時）
+name: 📜 每週法規監測
 
 on:
   schedule:
-    - cron: '0 18 * * 0'  # 每週日 18:00 UTC = 台灣週一 02:00
-  workflow_dispatch:      # 手動觸發
+    - cron: '0 18 * * 0'   # 週日 18:00 UTC = 台灣週一 02:00
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
 
 jobs:
   monitor:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    
     steps:
-    - name: 簽出 repo
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 1
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
 
-    - name: 設定 Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
+      # 比對 data/statutes.json.gz 內全部法規（69 部）與法務部開放資料
+      # 來源：kong0107/mojLawSplitJSON（每日自全國法規資料庫整包拆分，一部一檔）
+      # 結束碼 0 無異動 / 1 有異動 / 2 抓取全部失敗
+      - name: 比對法規
+        id: cmp
+        run: |
+          set +e
+          node scripts/statute-monitor.cjs --out STATUTE_CHANGES.md
+          echo "code=$?" >> "$GITHUB_OUTPUT"
+          cat STATUTE_CHANGES.md >> "$GITHUB_STEP_SUMMARY"
 
-    - name: 下載現有法規
-      run: |
-        cd data
-        if [ -f statutes.json.gz ]; then 
-          gunzip -k statutes.json.gz
-          mv statutes.json statutes-previous.json
-        fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: statute-monitor-${{ github.run_number }}
+          path: STATUTE_CHANGES.md
+          retention-days: 90
 
-    - name: 抓取最新法規（7部）
-      run: |
-        node -e "
-        const https=require('https');const fs=require('fs');const zlib=require('zlib');
-        const laws={
-          'D0050091':'人民團體法',
-          'D0050093':'人民團體選舉罷免辦法',
-          'D0020094':'人民團體會務輔導辦法',
-          'D0050097':'社會團體財務處理辦法',
-          'D0050112':'合作社法',
-          'D0050022':'合作社選舉罷免辦法',
-          'D0050114':'合作社財務報表及經費處理準則'
-        };
-        const base='https://law.moj.gov.tw/api/';
-        let done=0,err=0;
-        Object.entries(laws).forEach(([pc,name])=>{
-          https.get(base+'LawContent?pcode='+pc,(r)=>{
-            let d='';r.on('data',c=>d+=c);
-            r.on('end',()=>{
-              try{
-                const j=JSON.parse(d);
-                if(j&&j.PCode){
-                  const art={};
-                  (j.Contents||[]).forEach(x=>{ if(x.Serial) art[x.Serial]=x.Content; });
-                  fs.appendFileSync('data/statutes-fetched.jsonl',
-                    JSON.stringify({name,pcode:pc,url:j.DocURL||'',fetched:new Date().toISOString(),articles:art})+'\n');
-                }
-              }catch(e){console.error('解析 '+pc+': '+e.message); err++;}
-              done++; if(done===Object.keys(laws).length) process.exit(err?1:0);
-            });
-          }).on('error',e=>{console.error('抓取 '+pc+': '+e.message); err++; done++; 
-            if(done===Object.keys(laws).length) process.exit(1);});
-        });
-        setTimeout(()=>{ console.error('超時'); process.exit(1); }, 13000);
-        " 2>&1 | tee /tmp/fetch.log || echo "fetch_status=\$?" >> \$GITHUB_ENV
-        [ -f data/statutes-fetched.jsonl ] && wc -l data/statutes-fetched.jsonl
-      continue-on-error: true
-
-    - name: 比對法規內容變化
-      id: compare
-      run: |
-        node -e "
-        const fs=require('fs');const path=require('path');
-        if(!fs.existsSync('data/statutes-fetched.jsonl')){
-          console.log('✗ 本次抓取失敗，跳過比對');
-          fs.writeFileSync('STATUTE_CHANGES.md','## ⚠️ 本週抓取失敗\n抓取 moj.gov.tw 時逾時或無法連線。下週重試。\n');
-          process.exit(0);
-        }
-        const prev=fs.existsSync('data/statutes-previous.json')?JSON.parse(fs.readFileSync('data/statutes-previous.json')):{};
-        const fetched=fs.readFileSync('data/statutes-fetched.jsonl','utf-8').trim().split('\n')
-          .map(l=>JSON.parse(l)).reduce((o,x)=>(o[x.pcode]=x,o),{});
-        let changes=[];
-        Object.entries(fetched).forEach(([pc,law])=>{
-          const prevLaw=prev[pc];
-          if(!prevLaw){
-            changes.push({type:'新增',pcode:pc,name:law.name,detail:'知識庫尚未納入'});
-            return;
-          }
-          const prevArts=prevLaw.articles||{};
-          const currArts=law.articles||{};
-          Object.entries(currArts).forEach(([n,t])=>{
-            if(prevArts[n]!==t){
-              changes.push({type:'修訂條文',pcode:pc,name:law.name,article:n,
-                before:prevArts[n]?.substring(0,80),after:t.substring(0,80)});
+      - name: 有異動時開 Issue
+        if: steps.cmp.outputs.code == '1'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const body = fs.readFileSync('STATUTE_CHANGES.md', 'utf8');
+            const title = '📜 法規異動：' + new Date().toISOString().slice(0, 10);
+            const { data: open } = await github.rest.issues.listForRepo({ owner: context.repo.owner, repo: context.repo.repo, state: 'open', labels: '法規監測' });
+            if (open.length) {
+              await github.rest.issues.createComment({ owner: context.repo.owner, repo: context.repo.repo, issue_number: open[0].number, body: '### 本週重跑\n' + body });
+            } else {
+              await github.rest.issues.create({ owner: context.repo.owner, repo: context.repo.repo, title, body, labels: ['法規監測'] });
             }
-          });
-          Object.keys(prevArts).forEach(n=>{ if(!currArts[n]) 
-            changes.push({type:'刪除條文',pcode:pc,name:law.name,article:n}); });
-        });
-        if(changes.length){
-          let md='## 📋 本週法規監測結果 ('+new Date().toISOString().split('T')[0]+')\n\n';
-          changes.forEach(c=>{
-            if(c.type==='新增') md+='- ✨ **新增**: '+c.name+' ('+c.pcode+')\n';
-            else if(c.type==='修訂條文')
-              md+='- ⚠️  **修訂**: '+c.name+' § '+c.article+'\n  前：'+c.before+'...\n  後：'+c.after+'...\n';
-            else md+='- ❌ **刪除**: '+c.name+' § '+c.article+'\n';
-          });
-          md+='\n**行動**\n1. 複查 [moj.gov.tw](https://law.moj.gov.tw) 原文\n2. 如屬法規修正，請更新 `data/statutes.json.gz` 並編寫對應知識庫\n3. 若涉及使用者常問的條文，優先更新並重新評測\n';
-          fs.writeFileSync('STATUTE_CHANGES.md',md);
-          console.log('✓ 發現 '+changes.length+' 項變化');
-        }else{
-          fs.writeFileSync('STATUTE_CHANGES.md','## ✅ 本週無法規變化\n全部 7 部法規內容與上週相同。\n');
-          console.log('✓ 無變化');
-        }
-        " 2>&1
 
-    - name: 上傳結果至 Artifacts
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: statute-monitor-${{ github.run_number }}
-        path: |
-          data/statutes-fetched.jsonl
-          STATUTE_CHANGES.md
-          /tmp/fetch.log
-        retention-days: 30
-
-    - name: 建立 Issue（若有變化）
-      if: always() && hashFiles('STATUTE_CHANGES.md') != ''
-      uses: actions/github-script@v7
-      with:
-        script: |
-          const fs = require('fs');
-          const content = fs.readFileSync('STATUTE_CHANGES.md', 'utf-8');
-          if (content.includes('無法規變化')) {
-            console.log('✓ 無異動，不建立 Issue');
-            return;
-          }
-          const issue = await github.rest.issues.create({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            title: '📜 法規監測警告：' + new Date().toISOString().split('T')[0],
-            body: content + '\n\n---\n**自動生成** by GitHub Actions statute-monitor',
-            labels: ['法規監測', 'urgent']
-          });
-          console.log('✓ Issue #' + issue.data.number + ' 已建立');
-
-    - name: 推送更新（若有變化）
-      if: github.event_name == 'schedule' && hashFiles('STATUTE_CHANGES.md') != ''
-      run: |
-        git config user.name "屏東數位櫃檯監測機器人"
-        git config user.email "noreply@github.com"
-        git add STATUTE_CHANGES.md data/statutes-fetched.jsonl 2>/dev/null || true
-        git diff --cached --quiet || (
-          git commit -m "📜 法規監測：$(date +%Y-%m-%d) 發現變化" &&
-          git push origin main
-        )
+      - name: 抓取失敗時開 Issue
+        if: steps.cmp.outputs.code == '2'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.create({ owner: context.repo.owner, repo: context.repo.repo,
+              title: '⚠️ 法規監測抓取失敗 ' + new Date().toISOString().slice(0, 10),
+              body: '無法取得任何法規資料，請檢查 raw.githubusercontent.com / kong0107/mojLawSplitJSON 是否可用。\n\n' + require('fs').readFileSync('STATUTE_CHANGES.md','utf8'),
+              labels: ['法規監測'] });
