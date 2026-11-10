@@ -1455,7 +1455,28 @@ async function ask(q){
     const coopSurplus=typeof coopSurplusDistributionAnswer==='function'?coopSurplusDistributionAnswer(q):null;
     const roundFix=typeof verifiedRoundAnswer==='function'?verifiedRoundAnswer(q,{catalog:STORE.forms.catalog}):null;
     const dissolveKB=roundFix==='KB:解散'?KB.find(x=>x.k.includes('辦理解散')):null;
-    if(dissolveKB)ans=kbAnswer(dissolveKB);
+    /* 先理解再回答：把所有規則候選交給仲裁層，不對題就不給 */
+    let _rejected=false;
+    if(window.AnswerArbiter&&!dissolveKB){
+      const _ctx=typeof lastQuestionContext!=='undefined'?lastQuestionContext:null;
+      const _pick=window.AnswerArbiter.pickOption(q,_ctx);
+      if(_pick)ans=_pick;
+      else{
+        const _cands=[roundFix&&roundFix!=='KB:解散'?roundFix:null,regionalName,nameRestriction,staffClarify,coopAnnual,communityAnnual,coopSurplus,boardProxy,socialDissolution,coopDissolution,socialExpulsion,coopExpulsion,socialFeeRefund,coopWithdrawal,socialFinanceConcern,coopFinanceConcern,coopProperty,coopDispute,meetingDispute,fundForm,cashForm,propertyForm,boardQuorum,quorum,proxyRatio,socialProxy,creditProxy,proxy,basis,boardSeats,taxAnswer,exact,focused].filter(Boolean);
+        if(_cands.length){
+          const _u=window.CounterQuestions?window.CounterQuestions.understand(q,_ctx):null;
+          const _v=window.AnswerArbiter.judge(q,_cands,_u);
+          if(_v.answer)ans=_v.answer;else if(_v.clarify)ans=_v.clarify;else if(_v.rejected){_rejected=true;console.info('仲裁層退回規則答案：',window.__lastArbiter);}
+        }
+      }
+    }
+    if(ans){}
+    else if(_rejected){
+      if(intent.kind==="dir")ans=dirAnswer(q,intent);
+      else if(intent.kind==="staff")ans=staffAnswer(q,intent);
+      else{const kb=matchKB(q);if(caps.sample){try{ans=await aiAnswer(q,kb)}catch(e){if(e&&e.code==="not_granted")caps.sample=null}}if(!ans)ans=smartFallback(q,kb);}
+    }
+    else if(dissolveKB)ans=kbAnswer(dissolveKB);
     else if(roundFix&&roundFix!=='KB:解散')ans=roundFix;
     else if(regionalName)ans=regionalName;
     else if(nameRestriction)ans=nameRestriction;
@@ -1740,7 +1761,8 @@ touch();
 })();
 </script>
 <script src="feedback-collector.js"></script>
-<script src="round-fixes.js?v=20261109-17"></script>
+<script src="round-fixes.js?v=20261110-1"></script>
+<script src="answer-arbiter.js?v=20261110-1"></script>
 <script src="question-understanding.js?v=20261109-1"></script>
 <script src="counter-upgrade.js?v=20261107-38"></script>
 </body>
