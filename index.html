@@ -858,12 +858,14 @@ function knIndex(){
   KN_IDX={n:rows.length,df,docs};return KN_IDX;
 }
 function revCov(title,q){const tb=bigrams(title);if(!tb.length)return 0;const qn=norm(q);return tb.filter(b=>qn.includes(b)).length/tb.length}
+const KN_OTHER_LAW=/商業團體法|工業團體法|同業公會|商業會|工業會/;
+const KN_ASK_OTHER_TYPE=/商業|工業|同業|公會|職業|商會|工會|工廠/;
 function searchKn(q,limit){
   const rows=STORE.kn.rows;if(!rows.length)return[];
   const bg=[...new Set(bigrams(String(q).replace(KSTOP,"")))];if(!bg.length)return[];
   const ix=knIndex();const N=ix.n;
   const w=bg.map(b=>Math.log((N+1)/(1+(ix.df.get(b)||0))));const wsum=w.reduce((a,b)=>a+b,0)||1;
-  const sc=rows.map((r,k)=>{const {ti,tx}=ix.docs[k];let s=0,t=0;bg.forEach((b,j)=>{if(ti.includes(b)){s+=3*w[j];t+=w[j]}if(tx.includes(b))s+=w[j]});return{s,r,tc:t/wsum}}).filter(x=>x.s>0).sort((a,b)=>b.s-a.s).slice(0,limit||5).filter(x=>x.s>=wsum*0.6);
+  const sc=rows.map((r,k)=>{const {ti,tx}=ix.docs[k];let s=0,t=0;bg.forEach((b,j)=>{if(ti.includes(b)){s+=3*w[j];t+=w[j]}if(tx.includes(b))s+=w[j]});return{s,r,tc:t/wsum}}).filter(x=>x.s>0).filter(x=>KN_ASK_OTHER_TYPE.test(q)||!KN_OTHER_LAW.test(x.r.title)).sort((a,b)=>b.s-a.s).slice(0,limit||5).filter(x=>x.s>=wsum*0.6);
   return sc.map(({r,tc})=>{const raw=String(r.text);const key=bg.find(b=>norm(raw).includes(b));let i=key?raw.indexOf(key[0]+key[1]):0;if(i<0)i=0;const start=raw.length<=600?0:Math.max(0,i-120);const o={標題:r.title,類別:r.cat||"",文號或來源:r.source||"",日期:r.date||"",內容摘錄:(start>0?"…":"")+raw.slice(start,start+600)+(raw.length>start+600?"…":""),資料狀態:STORE.kn.meta&&STORE.kn.meta.note||"",追問:r.ask||""};Object.defineProperty(o,"_tc",{value:tc});Object.defineProperty(o,"_r",{value:r});return o});
 }
 
