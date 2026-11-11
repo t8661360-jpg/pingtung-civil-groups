@@ -801,7 +801,7 @@ async function saveChunked(coll,rows,metaExtra){
 async function loadAll(force){
   if(loadPromise&&!force)return loadPromise;
   loadPromise=(async()=>{
-    const base=document.baseURI.replace(/[^/]*$/,"")+"data/";const DV="?v=20261111-18";
+    const base=document.baseURI.replace(/[^/]*$/,"")+"data/";const DV="?v=20261111-19";
     const jf=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);return r.json()};
     const jgz=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);const b=new Uint8Array(await r.arrayBuffer());if(b[0]!==31||b[1]!==139)return JSON.parse(new TextDecoder().decode(b));if(typeof DecompressionStream==="undefined")throw new Error("gzip unsupported");const text=await new Response(new Blob([b]).stream().pipeThrough(new DecompressionStream("gzip"))).text();return JSON.parse(text)};
     const [d,s,k,f]=await Promise.allSettled([jf(base+"directory.json"+DV),jf(base+"staff.json"+DV),jgz(base+"knowledge.json.gz"+DV).catch(()=>jf(base+"knowledge.json"+DV)),jf(base+"forms-catalog.json?v=20261105-5")]);
@@ -900,7 +900,7 @@ function specificName(q){
     const suf=cand.match(new RegExp("("+SUFFIX+")$"));const pre=suf?cand.slice(0,-suf[1].length):cand;
     if(!pre&&/^屏東縣/.test(full)&&suf&&!/^(協會|學會|公會|合作社|社區發展協會)$/.test(suf[1]))return full;
     if(!pre||pre.length<2||GENERIC_PREFIX.test(pre))continue;
-    if(/(可以|能不能|可不可以|能否|是否|要不要|怎麼|如何|加入|參加|申請|檢舉|投訴|陳情|舉報|未滿|未成年|\d+歲|十八歲)/.test(pre))continue;
+    if(/(可以|能不能|可不可以|能否|是否|要不要|怎麼|如何|加入|參加|申請|檢舉|投訴|陳情|舉報|魅力社區|要問|找誰|電話是|未滿|未成年|\d+歲|十八歲)/.test(pre))continue;
     if(/^(社區發展|社會|職業|人民)/.test(cand)&&pre.length<=4)continue;
     const preN=norm(pre);const town=TOWNS.find(t=>preN.startsWith(norm(t))||(norm(t).slice(0,-1)!=="屏東"&&preN.startsWith(norm(t).slice(0,-1))));
     if(town){let rest=preN.startsWith(norm(town))?preN.slice(norm(town).length):preN.slice(norm(town).length-1);rest=rest.replace(/^[有的在之]+|[有的在之]+$/g,"");
@@ -1818,11 +1818,11 @@ touch();
   route();
 })();
 </script>
-<script src="feedback-collector.js?v=20261111-18"></script>
-<script src="round-fixes.js?v=20261111-18"></script>
-<script src="answer-arbiter.js?v=20261111-18"></script>
-<script src="question-understanding.js?v=20261111-18"></script>
-<script src="counter-upgrade.js?v=20261111-18"></script>
+<script src="feedback-collector.js?v=20261111-19"></script>
+<script src="round-fixes.js?v=20261111-19"></script>
+<script src="answer-arbiter.js?v=20261111-19"></script>
+<script src="question-understanding.js?v=20261111-19"></script>
+<script src="counter-upgrade.js?v=20261111-19"></script>
 </body>
 </html>
 
