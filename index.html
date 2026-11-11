@@ -798,10 +798,10 @@ async function saveChunked(coll,rows,metaExtra){
 async function loadAll(force){
   if(loadPromise&&!force)return loadPromise;
   loadPromise=(async()=>{
-    const base=document.baseURI.replace(/[^/]*$/,"")+"data/";
+    const base=document.baseURI.replace(/[^/]*$/,"")+"data/";const DV="?v=20261111-3";
     const jf=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);return r.json()};
     const jgz=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);const b=new Uint8Array(await r.arrayBuffer());if(b[0]!==31||b[1]!==139)return JSON.parse(new TextDecoder().decode(b));if(typeof DecompressionStream==="undefined")throw new Error("gzip unsupported");const text=await new Response(new Blob([b]).stream().pipeThrough(new DecompressionStream("gzip"))).text();return JSON.parse(text)};
-    const [d,s,k,f]=await Promise.allSettled([jf(base+"directory.json"),jf(base+"staff.json"),jgz(base+"knowledge.json.gz").catch(()=>jf(base+"knowledge.json")),jf(base+"forms-catalog.json?v=20261105-5")]);
+    const [d,s,k,f]=await Promise.allSettled([jf(base+"directory.json"+DV),jf(base+"staff.json"+DV),jgz(base+"knowledge.json.gz"+DV).catch(()=>jf(base+"knowledge.json"+DV)),jf(base+"forms-catalog.json?v=20261105-5")]);
     if(d.status==="fulfilled"){const v=d.value;STORE.dir={rows:(v.rows||[]).map(fixGarbledRow),meta:v.meta||null}}
     if(s.status==="fulfilled"){const v=s.value;STORE.staff={rows:v.rows||[],updatedAt:v.updatedAt,source:v.source||""}}
     if(k.status==="fulfilled")STORE.kn={rows:k.value.rows||[],meta:k.value.meta||null};
@@ -1814,11 +1814,11 @@ touch();
   route();
 })();
 </script>
-<script src="feedback-collector.js"></script>
-<script src="round-fixes.js?v=20261110-1"></script>
-<script src="answer-arbiter.js?v=20261110-1"></script>
-<script src="question-understanding.js?v=20261109-1"></script>
-<script src="counter-upgrade.js?v=20261107-38"></script>
+<script src="feedback-collector.js?v=20261111-3"></script>
+<script src="round-fixes.js?v=20261111-3"></script>
+<script src="answer-arbiter.js?v=20261111-3"></script>
+<script src="question-understanding.js?v=20261111-3"></script>
+<script src="counter-upgrade.js?v=20261111-3"></script>
 </body>
 </html>
 
