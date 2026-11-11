@@ -4,7 +4,7 @@
 // 環境變數（Settings → Variables）：REPO、PROVIDER（cloudflare|groq，預設 cloudflare）、CF_MODEL、GROQ_MODEL
 // 綁定（Settings → Bindings）：AI（Workers AI）
 // 密鑰（Settings → Secrets）：GITHUB_TOKEN、GROQ_API_KEY（選用）、DRAFT_KEY（內部路由用，自行設定一組隨機字串）
-const DRAFT_SYSTEM = "你是屏東縣人民團體數位櫃檯的草稿助理。只能根據使用者提供的法條原文作答；每一點都要標註條號；若法條原文沒有依據，請只回覆 NO_BASIS，不得推測或引用未提供的條文。";
+const DRAFT_SYSTEM = "你是屏東縣人民團體數位櫃檯的草稿助理。只能根據使用者提供的法條原文作答，每一點都要標註條號。民眾用語與法條用語可能不同，請對應理解：理事長＝理事長；總幹事、秘書長、幹事＝工作人員（人民團體法第24條）；協會、社團、團體＝人民團體（社會團體）。若法條原文中有相關規定，即使只能部分回答，也請直接作答並說明條號與不確定之處；只有在法條原文完全沒有相關規定時，才只回覆 NO_BASIS。不得推測或引用未提供的條文。";
 
 async function callModel(env, messages) {
   if ((env.PROVIDER || "cloudflare") === "groq") {
