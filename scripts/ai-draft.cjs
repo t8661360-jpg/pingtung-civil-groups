@@ -42,6 +42,45 @@ function coreChunks() {
   return chunks;
 }
 
+// 條號核對：草稿引用的每個「第N條」都必須存在於提供的核心法規中，否則整則不採用
+function providedArticleNumbers() {
+  const d = JSON.parse(zlib.gunzipSync(fs.readFileSync("data/statutes.json.gz")).toString());
+  const set = new Set();
+  for (const law of Object.values(d.laws || {})) {
+    if (!CORE.test(law.name)) continue;
+    for (const no of Object.keys(law.articles || {})) set.add(no);
+  }
+  return set;
+}
+function checkCitations(answer) {
+  const provided = providedArticleNumbers();
+  const cited = [...String(answer).matchAll(/第\s*(\d+(?:-\d+)?)\s*條/g)].map(m => m[1]);
+  const unknown = [...new Set(cited.filter(n => !provided.has(n)))];
+  // 內容對應：引用條號所在的句子，要與該條原文有足夠的文字重疊（bigram）
+  const text = articleTextMap();
+  const mismatched = [];
+  for (const line of String(answer).split("\n")) {
+    for (const m of line.matchAll(/第\s*(\d+(?:-\d+)?)\s*條/g)) {
+      const body = text.get(m[1]) || "";
+      const claim = line.replace(/第\s*\d+(?:-\d+)?\s*條/g, "").replace(/[（(].*?[）)]/g, "");
+      const cg = bigrams(claim);
+      if (!cg.length || !body) continue;
+      const hit = cg.filter(b => body.includes(b)).length;
+      if (hit / cg.length < 0.35) mismatched.push(m[1]);
+    }
+  }
+  return { cited: [...new Set(cited)], unknown, mismatched: [...new Set(mismatched)] };
+}
+function articleTextMap() {
+  const d = JSON.parse(zlib.gunzipSync(fs.readFileSync("data/statutes.json.gz")).toString());
+  const m = new Map();
+  for (const law of Object.values(d.laws || {})) {
+    if (!CORE.test(law.name)) continue;
+    for (const [no, t] of Object.entries(law.articles || {})) m.set(no, (m.get(no) || "") + String(t));
+  }
+  return m;
+}
+
 async function gh(path, init = {}) {
   const r = await fetch("https://api.github.com" + path, {
     ...init,
@@ -80,9 +119,18 @@ async function draft(question, statutes) {
     catch (e) { console.error(`#${issue.number} ${e.message}`); continue; }
     const noBasis = !answer.trim() || /NO_BASIS/.test(answer);
     const refs = statutes.map(s => `- ${s.title}`).join("\n");
-    const body = noBasis
-      ? "【AI 草稿】依提供的法條原文，AI 判定沒有依據，未產生答案。請人工查證。"
-      : `【AI 草稿｜僅供人工審核，未經核對不得上線】\n\n${answer.trim()}\n\n---\n參考的法條（檢索結果，請核對）：\n${refs}`;
+    const chk = checkCitations(answer);
+    let body;
+    if (noBasis) {
+      body = "【AI 草稿】依提供的法條原文，AI 判定沒有依據，未產生答案。請人工查證。";
+    } else if (chk.unknown.length || chk.mismatched.length) {
+      const parts = [];
+      if (chk.unknown.length) parts.push(`不存在的條號：${chk.unknown.map(n => "第" + n + "條").join("、")}`);
+      if (chk.mismatched.length) parts.push(`條文內容與所引句子可能不對應：${chk.mismatched.map(n => "第" + n + "條").join("、")}`);
+      body = `【AI 草稿｜核對未通過，本草稿不採用】\n${parts.join("；")}。請人工查證。`;
+    } else {
+      body = `【AI 草稿｜僅供人工審核，未經核對不得上線】\n條號已核對存在於提供的法條中；條文內容是否對應，仍須人工核對。\n\n${answer.trim()}\n\n---\n參考的法條（檢索結果，請核對）：\n${refs}`;
+    }
     await gh(`/repos/${REPO}/issues/${issue.number}/comments`, { method: "POST", body: JSON.stringify({ body }) });
     await gh(`/repos/${REPO}/issues/${issue.number}/labels`, { method: "POST", body: JSON.stringify({ labels: ["AI草稿"] }) });
     console.log(`#${issue.number} 已留言${noBasis ? "（NO_BASIS）" : ""}`);
