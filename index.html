@@ -105,7 +105,7 @@ main{max-width:1200px;margin:0 auto;padding:28px 24px 72px}
 
 .board{background:var(--surface);border:2px solid var(--primary);border-radius:28px;box-shadow:var(--shadow);position:relative;min-height:460px;display:flex;flex-direction:column}
 .board::before{content:"";position:absolute;left:-14px;top:120px;width:24px;height:24px;background:var(--surface);border-left:2px solid var(--primary);border-bottom:2px solid var(--primary);transform:rotate(45deg);border-radius:0 0 0 6px}
-@media (max-width:960px){.hero{grid-template-columns:1fr;gap:14px}.clerkcard{position:relative;top:0;display:grid;grid-template-columns:120px 1fr;gap:0 14px;padding:14px 14px 0;align-items:end}.clerkcard .status{grid-column:1/-1}.clerkwrap{grid-row:2}.nameplate{grid-column:2;grid-row:2;margin:0 -14px 0 0;border-radius:18px 0 0 0;align-self:end}.nudge{display:none}.mood{display:none}.clerkprompt.show{display:flex;grid-column:1/-1;align-items:center;justify-content:space-between;gap:10px;background:var(--soft2);border-top:1px solid var(--line);margin:0 -14px;padding:10px 14px;font-size:.92rem;line-height:1.45}.clerkprompt button{flex-shrink:0;border:0;border-radius:999px;background:var(--primary);color:var(--primary-ink);padding:7px 12px;font-weight:700}.board::before{left:60px;top:-14px;border-left:2px solid var(--primary);border-top:2px solid var(--primary);border-bottom:0;border-radius:6px 0 0 0}}
+@media (max-width:960px){.hero{grid-template-columns:minmax(0,1fr);gap:14px}.hero>*{min-width:0}.clerkcard{position:relative;top:0;display:grid;grid-template-columns:120px 1fr;gap:0 14px;padding:14px 14px 0;align-items:end}.clerkcard .status{grid-column:1/-1}.clerkwrap{grid-row:2}.nameplate{grid-column:2;grid-row:2;margin:0 -14px 0 0;border-radius:18px 0 0 0;align-self:end}.nudge{display:none}.mood{display:none}.clerkprompt.show{display:flex;grid-column:1/-1;align-items:center;justify-content:space-between;gap:10px;background:var(--soft2);border-top:1px solid var(--line);margin:0 -14px;padding:10px 14px;font-size:.92rem;line-height:1.45}.clerkprompt button{flex-shrink:0;border:0;border-radius:999px;background:var(--primary);color:var(--primary-ink);padding:7px 12px;font-weight:700}.board::before{left:60px;top:-14px;border-left:2px solid var(--primary);border-top:2px solid var(--primary);border-bottom:0;border-radius:6px 0 0 0}}
 .boardbody{padding:28px 32px 24px;flex:1}
 @media (max-width:640px){.boardbody{padding:20px 18px}}
 .qline{display:flex;gap:10px;align-items:flex-start;color:var(--muted);font-size:.95rem;margin-bottom:10px}
@@ -188,6 +188,26 @@ main{max-width:1200px;margin:0 auto;padding:28px 24px 72px}
 .recent{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;align-items:center;font-size:.85rem;color:var(--muted)}
 .chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:3px 12px;cursor:pointer;font-size:.86rem;color:var(--ink)}
 .chip:hover{border-color:var(--primary)}
+
+/* 2026-11-11 首頁簡化：分類頁籤一次只顯示一個主題 */
+.ttabs{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+.ttab{display:inline-flex;align-items:center;gap:6px;border:2px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:8px 15px;font-size:.98rem;font-weight:700;cursor:pointer;font-family:inherit}
+.ttab span{font-size:1.1rem;line-height:1}
+.ttab:hover{border-color:var(--c)}
+.ttab[aria-selected="true"]{background:var(--c);border-color:var(--c);color:#fff}
+.ttab:focus-visible,.qmore:focus-visible,.task:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+.tqs{margin-top:14px;border-left:5px solid var(--c);background:var(--soft2);border-radius:6px 18px 18px 6px;padding:8px 16px 14px}
+.tqs .qbtn{padding:11px 14px;font-size:1rem;border-radius:12px;margin-top:8px}
+.qmore{margin-top:10px;background:none;border:0;color:var(--primary);font-weight:700;cursor:pointer;font-size:.95rem;font-family:inherit;padding:4px 2px}
+.qmore:hover{text-decoration:underline}
+.taskgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.task{display:flex;align-items:center;gap:12px;background:var(--primary);color:#fff;text-decoration:none;border-radius:18px;padding:18px 20px;font-size:1.1rem}
+.task span{font-size:1.7rem;line-height:1}
+.task:hover{filter:brightness(1.08);box-shadow:var(--shadow)}
+.svcitem i{font-style:normal;font-size:1.8rem;line-height:1;display:block;margin-bottom:8px}
+.recent:empty{display:none}
+@media (max-width:900px){.taskgrid{grid-template-columns:repeat(2,1fr)}.nav{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;overflow:visible}.nav a{text-align:center;padding:7px 4px;font-size:.9rem;background:var(--soft2)}.nav a[hidden]{display:none}html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 160px)}}
+@media (max-width:640px){.ttabs{gap:6px;margin-top:16px}.ttab{padding:6px 11px;font-size:.9rem;border-width:1.5px}.ttab span{font-size:1rem}.tqs{padding:6px 12px 12px}.task{padding:14px;font-size:1rem}.task span{font-size:1.4rem}}
 .svc{margin-top:44px}
 .svc h2{font-size:1.35rem;margin-bottom:14px}
 .svcgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
@@ -312,7 +332,7 @@ footer div{max-width:1200px;margin:0 auto;padding:18px 24px}
       <form class="askbar" id="askform" autocomplete="off">
         <div class="askrow">
           <label for="q" class="sr">輸入您的問題</label>
-          <input id="q" placeholder="用自己的話描述問題，例如：協會多久要改選？" maxlength="300">
+          <input id="q" placeholder="請輸入問題或團體名稱，例如：協會多久要改選？" maxlength="300">
           <div class="sug" id="sug" role="listbox" hidden></div>
           <button class="btn" type="submit">詢問</button>
         </div>
@@ -321,12 +341,21 @@ footer div{max-width:1200px;margin:0 auto;padding:18px 24px}
     </section>
   </div>
   <div class="svc">
+    <h2>我想要…</h2>
+    <div class="taskgrid">
+      <a class="task" href="#search"><span aria-hidden="true">🔎</span><b>查團體資料</b></a>
+      <a class="task" href="#forms"><span aria-hidden="true">📄</span><b>下載書表</b></a>
+      <a class="task" href="#apply"><span aria-hidden="true">📝</span><b>線上申辦</b></a>
+      <a class="task" href="#contact"><span aria-hidden="true">☎️</span><b>找承辦人</b></a>
+    </div>
+  </div>
+  <div class="svc">
     <h2>依團體類型辦理</h2>
     <div class="svcgrid">
-      <a class="svcitem" href="#biz" data-type="social" style="--c:#C2531A"><b>社會團體</b><span>協會、學會、聯誼會之籌組、立案、變更</span></a>
-      <a class="svcitem" href="#biz" data-type="community" style="--c:#F4B23A"><b>社區發展協會</b><span>依社區發展工作綱要成立與運作</span></a>
-      <a class="svcitem" href="#biz" data-type="coop" style="--c:#3F8A5C"><b>合作社</b><span>設立登記、變更登記、年度社務</span></a>
-      <a class="svcitem" href="#biz" data-type="pro" style="--c:#DE5F72"><b>職業團體</b><span>工商及自由職業團體組織與會務</span></a>
+      <a class="svcitem" href="#biz" data-type="social" style="--c:#C2531A"><i aria-hidden="true">👥</i><b>社會團體</b><span>協會、學會、聯誼會的成立與變更</span></a>
+      <a class="svcitem" href="#biz" data-type="community" style="--c:#F4B23A"><i aria-hidden="true">🏘️</i><b>社區發展協會</b><span>社區協會的成立與運作</span></a>
+      <a class="svcitem" href="#biz" data-type="coop" style="--c:#3F8A5C"><i aria-hidden="true">🤝</i><b>合作社</b><span>設立、變更登記與年度社務</span></a>
+      <a class="svcitem" href="#biz" data-type="pro" style="--c:#DE5F72"><i aria-hidden="true">💼</i><b>職業團體</b><span>商業、工業與自由職業公會</span></a>
     </div>
   </div>
 </section>
@@ -497,7 +526,7 @@ const ART={
  zc15:{law:"屏東縣社會團體章程草案範例",art:"第15條註",text:"理事名額不得超過15人，監事名額不得超過理事名額三分之一，候補者不得超過正選者三分之一；建議理事至少9人、監事至少3人，理監事應定額並為奇數。"},
  zc17:{law:"屏東縣社會團體章程草案範例",art:"第17條",text:"理事長、常務理事出缺時，應於一個月內補選之；理事名額9人以上得互選常務理事，名額不得超過理事總額三分之一。"},
  zc20:{law:"屏東縣社會團體章程草案範例",art:"第20條",text:"理事、監事均為無給職，任期1至4年（建議至少2年），連選得連任，理事長之連任以一次為限；任期自召開本屆第一次理事會之日起計算，理事長任期與理監事相同。"},
- zc25:{law:"屏東縣社會團體章程草案範例",art:"第25、26條",text:"會員大會由理事長召集，除緊急事故之臨時會議外，應於15日前以書面通知；定期會議每年召開一次，臨時會議於理事會認為必要、會員五分之一以上請求或監事會函請召集時召開。會員不能親自出席時，得以書面委託其他會員代理，每一會員以代理一人為限。"},
+ zc25:{law:"屏東縣社會團體章程草案範例",art:"第25、26條",text:"會員大會由理事長召集，除緊急事故之臨時會議外，應於15日前通知；定期會議每年召開一次，臨時會議於理事會認為必要、會員五分之一以上請求或監事會函請召集時召開。會員不能親自出席時，得以書面委託其他會員代理，每一會員以代理一人為限。"},
  zc27:{law:"屏東縣社會團體章程草案範例",art:"第27條",text:"辦理法人登記後，章程之變更以出席人數四分之三以上之同意或全體會員三分之二以上書面之同意行之；團體之解散，得隨時以全體會員三分之二以上之可決解散之。"},
  zc28:{law:"人民團體法",art:"第29、31、43條",text:"社會團體（協會、社區發展協會）理事會、監事會每6個月至少舉行會議一次（第43條；職業團體依第29條為每3個月）；會議通知應依人民團體會務輔導辦法第11條辦理，決議以過半數出席、出席人數過半數或較多數同意行之；理事、監事不得委託出席，連續二次無故缺席者視同辭職。"},
  zc32:{law:"屏東縣社會團體章程草案範例",art:"第31、32條",text:"會計年度以曆年為準。會計年度開始前二個月由理事會編造年度工作計畫、收支預算表、員工待遇表，提會員大會通過，於會計年度開始前報主管機關核備；會計年度終了後二個月內編造年度工作報告、收支決算表、現金出納表、資產負債表、財產目錄及基金收支表，送監事會審核後提會員大會通過，於三月底前報主管機關核備。（本縣章程範例文字；現行社會團體財務處理辦法第11條為年度終了後三個月內編造，以現行規定為準）"},
@@ -536,8 +565,8 @@ const BIZ={
   {id:"o-annual",title:"合作社年度決算",steps:[["編造決算表冊","理事會準備業務報告書、資產負債表、收支餘絀表、財產目錄，以及結餘分配或短絀分攤資料。"],["監事會審核","監事會審核並提出審核報告。"],["社員大會承認","提社員（代表）大會承認後報縣府。"]],docs:["公文","社員大會紀錄（含簽到）","監事會決算審核報告書","業務報告書","資產負債表","收支餘絀表","財產目錄","結餘分配表／短絀分攤表","業務計畫書暨收支預算表"],laws:["cpfin"],forms:[]}]}
 };
 const MEET=[
- {id:"m-assembly",title:"召開會員大會（常年會）",steps:[["大會前理監事聯席會議","審議工作報告、收支決算、工作計畫、預算與大會議程。"],["呈報大會前會議紀錄","檢附會議紀錄及大會手冊內容（議程、理事會工作報告、監事會監察報告、收支決算表、財產目錄、資產負債表、收支報表、年度工作計畫、經費收支預算表、會員名冊及章程）一式二份函報縣府。"],["寄發開會通知","除緊急事故之臨時會議外，應於15日前以書面通知會員。"],["召開會員大會","會員過半數出席始得開會；不能出席者得書面委託其他會員代理，每人以代理一人為限。"],["會後函報備查","檢送會議紀錄及會員名冊、收支決算表（含財產目錄及資產負債表）、年度工作計畫、經費收支預算表、章程、大會手冊各一式二份。"]],docs:["開會通知書","大會議程","委託書","會員大會簽到簿","會議紀錄","大會手冊","6項財務報表"],laws:["pg25","zc25","pg27"],forms:["常年會"]},
- {id:"m-elect",title:"理監事改選",steps:[["選前理監事會","決定改選日期、選舉方式與選舉票格式，並備妥大會手冊。"],["呈報選前會議紀錄","檢附會議紀錄、選票樣張及大會手冊內容一式二份，報請縣府派員列席。"],["寄發開會通知","15日前以書面通知會員。"],["改選會員大會","選出理事、監事；選舉票應蓋團體圖記並由監事會推派監事簽章。"],["第一次理監事會","選出常務理事、理事長及常務監事，並聘任總幹事等工作人員（工作人員不得由理監事擔任，社會團體工作人員管理辦法第4條）。"],["檢送改選資料","會議紀錄、收支決算表（含財產目錄及資產負債表）、收支報表、工作計畫、預算表、會員名冊、新任理監事暨聘僱人員名冊、移交清冊、會址使用同意書、章程、理事長當選證明書申請表及大會手冊，各一式二份。"],["辦理移交","新舊任理事長依圖記、電子檔案、業務、財產、人事5項清冊移交，由監事會代表監交。"]],docs:["開會通知書","選舉票","委託書","會員大會簽到簿","改選會議紀錄","理監事暨會務人員一覽表","申請理事長當選證明書表","理事長移交清冊","會址同意書","6項財務報表"],laws:["pg20","zc20","zc15"],forms:["改選"]},
+ {id:"m-assembly",title:"召開會員大會（常年會）",steps:[["大會前理監事聯席會議","審議工作報告、收支決算、工作計畫、預算與大會議程。"],["呈報大會前會議紀錄","檢附會議紀錄及大會手冊內容（議程、理事會工作報告、監事會監察報告、收支決算表、財產目錄、資產負債表、收支報表、年度工作計畫、經費收支預算表、會員名冊及章程）一式二份函報縣府。"],["寄發開會通知","除緊急事故之臨時會議外，應於15日前通知會員。"],["召開會員大會","會員過半數出席始得開會；不能出席者得書面委託其他會員代理，每人以代理一人為限。"],["會後函報備查","檢送會議紀錄及會員名冊、收支決算表（含財產目錄及資產負債表）、年度工作計畫、經費收支預算表、章程、大會手冊各一式二份。"]],docs:["開會通知書","大會議程","委託書","會員大會簽到簿","會議紀錄","大會手冊","6項財務報表"],laws:["pg25","zc25","pg27"],forms:["常年會"]},
+ {id:"m-elect",title:"理監事改選",steps:[["選前理監事會","決定改選日期、選舉方式與選舉票格式，並備妥大會手冊。"],["呈報選前會議紀錄","檢附會議紀錄、選票樣張及大會手冊內容一式二份，報請縣府派員列席。"],["寄發開會通知","15日前通知會員。"],["改選會員大會","選出理事、監事；選舉票應蓋團體圖記並由監事會推派監事簽章。"],["第一次理監事會","選出常務理事、理事長及常務監事，並聘任總幹事等工作人員（工作人員不得由理監事擔任，社會團體工作人員管理辦法第4條）。"],["檢送改選資料","會議紀錄、收支決算表（含財產目錄及資產負債表）、收支報表、工作計畫、預算表、會員名冊、新任理監事暨聘僱人員名冊、移交清冊、會址使用同意書、章程、理事長當選證明書申請表及大會手冊，各一式二份。"],["辦理移交","新舊任理事長依圖記、電子檔案、業務、財產、人事5項清冊移交，由監事會代表監交。"]],docs:["開會通知書","選舉票","委託書","會員大會簽到簿","改選會議紀錄","理監事暨會務人員一覽表","申請理事長當選證明書表","理事長移交清冊","會址同意書","6項財務報表"],laws:["pg20","zc20","zc15"],forms:["改選"]},
  {id:"m-board",title:"理監事會議與理事長補選",steps:[["定期召開","協會（社會團體）理事會、監事會每6個月至少舉行一次（人民團體法第43條），必要時得召開聯席會議或臨時會議。"],["寄發通知","應於7日前通知；因緊急事故召集臨時會議，並於會前一日送達通知者例外。"],["出席與決議","過半數出席、出席人數過半數或較多數同意；理監事不得委託出席，連續二次無故缺席視同辭職。"],["函報備查","會後檢送會議紀錄函報縣府備查。"],["理事長出缺","原則應於一個月內補選；遺任期不足六個月時得依規定推人代理，理事缺額由候補理事依序遞補。"]],docs:["開會通知書","理監事會簽到簿","會議紀錄","辭職書"],laws:["zc28","zc17"],forms:["理監事會"]},
  {id:"m-finance",title:"年度工作計畫與財務報告",steps:[["年度開始前","理事會編造年度工作計畫及收支預算表，提會員大會通過後報縣府備查（社會團體財務處理辦法第11條）。"],["年度終了後三個月內","理事會編造上年度工作報告、會計報告（收支決算表、現金出納表、資產負債表、財產目錄及基金收支表）。"],["審核與報備","經監事會查核後，連同當年度工作計畫、收支預算表提會員大會通過，報縣府備查；未能如期開大會者，可先經理事會及監事會或理監事聯席會議通過，事後提報大會追認。"]],docs:["年度工作計畫","收支預算表","員工待遇表","工作報告","收支決算表","現金出納表","資產負債表","財產目錄","基金收支表"],laws:["fp11","zc32"],forms:["常年會"]},
  {id:"m-roster",title:"會員、職員異動與移交",steps:[["會員入會","填具入會申請書，經理事會通過並繳納會費。"],["會員除名","危害團體情節重大者，經會員大會出席三分之二以上同意除名。"],["理監事辭職與遞補","提出辭職書經理事會或監事會決議通過，由候補理監事依序遞補。"],["工作人員聘免","總幹事等工作人員由理事長提名經理事會通過聘免，報縣府備查；工作人員不得由理監事擔任，也不得聘僱現任理事長的配偶及三親等以內親屬（社會團體工作人員管理辦法第4條、第5條）。"],["理事長交接","依移交清冊辦理圖記、電子檔案、業務、財產、人事移交。"]],docs:["入會申請書","辭職書","理監事暨會務人員一覽表","移交清冊"],laws:["pg27"],forms:["籌備會","理監事會","改選"]}
@@ -604,7 +633,7 @@ const KB=[
   act:[["下載常年會範本","forms","常年會"],["下載理監事會範本","forms","理監事會"]]},
  {k:["改選","選票","選舉票","圈選","選後","選舉前","選前","怎麼選","改選公文","辦改選","理監事改選"],cat:"會務辦理",title:"改選一步一步怎麼辦",
   summary:"改選是協會最重要的會務之一，我一步一步帶您：先開選前理監事會、報縣府；再開大會選出理監事；接著開理監事會選理事長；最後把資料報縣府、辦理移交。",
-  steps:["選前理監事會：決定改選日期、地點、選舉方式、選票格式，並準備大會手冊。","報縣府：選前理監事會紀錄、選票樣張、大會手冊各一式二份函報縣府，請縣府派員列席。","寄開會通知：大會 15 天前書面通知會員。","製作選舉票：選票要蓋團體圖記，並由監事會推派監事簽章；應選名額和圈選方式要印在選票上。","大會投票：推定發票、監票、唱票、計票人員。採無記名連記法，圈選不能超過應選名額；如經出席人數三分之一以上同意，可用限制連記法，圈選額數在應選名額二分之一以內。圈選方式是在圈選欄打「○」。","選後理監事會：選出常務理事，再由理事就常務理事中選出理事長，監事選出常務監事；並聘任總幹事、會計、出納（不得由理監事兼任）。","報縣府備查：附決算表（含財產目錄、資產負債表）、1~6 月收支報表、工作計畫、預算表、會員名冊、新任理監事暨聘僱人員名冊、移交清冊、會址使用同意書、章程、理事長當選證明書申請表、大會手冊，各一式二份。","辦理移交：新舊任理事長依 5 合 1 移交清冊（圖記、電子檔案、業務、財產、人事）移交，由監事會代表監交。"],
+  steps:["選前理監事會：決定改選日期、地點、選舉方式、選票格式，並準備大會手冊。","報縣府：選前理監事會紀錄、選票樣張、大會手冊各一式二份函報縣府，請縣府派員列席。","寄開會通知：大會 15 天前通知會員。","製作選舉票：選票要蓋團體圖記，並由監事會推派監事簽章；應選名額和圈選方式要印在選票上。","大會投票：推定發票、監票、唱票、計票人員。採無記名連記法，圈選不能超過應選名額；如經出席人數三分之一以上同意，可用限制連記法，圈選額數在應選名額二分之一以內。圈選方式是在圈選欄打「○」。","選後理監事會：選出常務理事，再由理事就常務理事中選出理事長，監事選出常務監事；並聘任總幹事、會計、出納（不得由理監事兼任）。","報縣府備查：附決算表（含財產目錄、資產負債表）、1~6 月收支報表、工作計畫、預算表、會員名冊、新任理監事暨聘僱人員名冊、移交清冊、會址使用同意書、章程、理事長當選證明書申請表、大會手冊，各一式二份。","辦理移交：新舊任理事長依 5 合 1 移交清冊（圖記、電子檔案、業務、財產、人事）移交，由監事會代表監交。"],
   guide:["公文寫法：受文者「屏東縣政府」。主旨：「檢送本會第○屆第一次會員大會暨理監事會會議紀錄及相關附件各一式二份，敬請鈞府准予備查見復，請 鑒核。」說明一寫依據（例如依本會○年度工作計畫辦理）；說明二寫開會日期、地點，並列出附件。最後理事長蓋章，正本屏東縣政府、副本本會。","選舉結果寫法：會議紀錄要列出所有得票的候選人和票數，包含沒當選的人，並寫明候補順序。"],
   laws:["pg20","zc20","zc15"],notes:["選後多久要報？社會處範本沒有寫明天數，建議開完會儘快函報；如有特定期限，以承辦人通知為準。","理事、監事除法律另有規定或章程另有限制外，連選得連任；理事長連任以一次為限。","有辦法人登記的，改選後也要向法院辦理理事變更登記。"],
   act:[["下載改選書表","forms","改選"],["看改選流程","meet","m-elect"]]},
@@ -616,7 +645,7 @@ const KB=[
   act:[["下載會址變更範本","forms","理監事會"]]},
  {k:["罷免","撤換","下台","罷免理事長","罷免監事","換掉"],cat:"會務辦理",title:"怎麼罷免理事長或常務監事",
   summary:"罷免由當初選出他的人來處理：理事、監事是會員大會選的，就由會員大會罷免；理事長、常務理事是理事會選的，就由理事會罷免；常務監事是監事會選的，就由監事會罷免。依人民團體法第27條，會員大會罷免理監事，要出席人數三分之二以上同意。",
-  steps:["依「人民團體選舉罷免辦法」，由原選舉人連署提出罷免案，並附理由。","召集會議（會員大會 15 天前、理監事會 7 天前書面通知），並通知縣府派員列席。","給被罷免人答辯的機會。","投票表決，達法定門檻才算通過。","罷免通過後依規定補選或遞補；理事長出缺要在一個月內補選。","會議紀錄函報縣府備查。"],
+  steps:["依「人民團體選舉罷免辦法」，由原選舉人連署提出罷免案，並附理由。","召集會議（會員大會 15 天前、理監事會 7 天前通知），並通知縣府派員列席。","給被罷免人答辯的機會。","投票表決，達法定門檻才算通過。","罷免通過後依規定補選或遞補；理事長出缺要在一個月內補選。","會議紀錄函報縣府備查。"],
   laws:["pg27","zc17"],notes:["連署人數比例、提出時點限制等細節，請依「人民團體選舉罷免辦法」辦理；正式提案前建議先洽承辦人確認程序，以免決議無效。","如果只是想換理事長，也可以由理事長請辭，再依規定補選。"],
   act:[["聯絡承辦","contact",""]]},
  {k:["全國性","層級","內政部","全國","各層級","縣級","鄉鎮級","哪一級"],cat:"業務辦理",title:"各層級團體要向誰申請",
@@ -627,7 +656,7 @@ const KB=[
   act:[["下載申請表","forms","申請表"],["看籌組流程","biz","social"]]},
  {k:["解散","清算","收掉","辦理解散","解散會議","結束協會","不想辦了"],cat:"業務辦理",title:"協會怎麼解散",
   summary:"解散可以分成三塊：開會、做報表、報縣府。我一步一步教您。",
-  steps:["寄開會通知：大會 15 天前書面通知會員，召開解散會員大會。","大會討論四個案子：①解散及解散日期；②剩餘財產歸屬；③選任清算人（通常是理事長）；④是否登報公告（可自行決定）。","解散決議：依人民團體法第27條，會員（會員代表）過半數出席，出席人數三分之二以上同意；已登記為社團法人者，另應核對民法第57條全體社員三分之二以上可決等規定，並向主管機關或法院確認適用方式。","編 5 項財務報表：收支決算表、現金出納表、資產負債表、財產目錄、基金收支表，計算到解散日為止，缺一不可。","填「人民團體解散報告表」：團體名稱、會址、立案證書字號、有無法人登記、解散原因及經過、解散時間、清算人、清算期間、剩餘財產金額。","函報縣府：會議紀錄、5 項財務報表、解散報告表各一式二份，並繳回立案證書、圖記、理事長當選證明書。","剩餘財產捐給地方政府或指定的公益團體，附上捐款收據或財產轉移清冊；有法人登記的，另向法院辦理解散及清算登記。"],
+  steps:["寄開會通知：大會 15 天前通知會員，召開解散會員大會。","大會討論四個案子：①解散及解散日期；②剩餘財產歸屬；③選任清算人（通常是理事長）；④是否登報公告（可自行決定）。","解散決議：依人民團體法第27條，會員（會員代表）過半數出席，出席人數三分之二以上同意；已登記為社團法人者，另應核對民法第57條全體社員三分之二以上可決等規定，並向主管機關或法院確認適用方式。","編 5 項財務報表：收支決算表、現金出納表、資產負債表、財產目錄、基金收支表，計算到解散日為止，缺一不可。","填「人民團體解散報告表」：團體名稱、會址、立案證書字號、有無法人登記、解散原因及經過、解散時間、清算人、清算期間、剩餘財產金額。","函報縣府：會議紀錄、5 項財務報表、解散報告表各一式二份，並繳回立案證書、圖記、理事長當選證明書。","剩餘財產捐給地方政府或指定的公益團體，附上捐款收據或財產轉移清冊；有法人登記的，另向法院辦理解散及清算登記。"],
   guide:["解散會議紀錄重點：報告事項要寫清楚解散原因，例如會員減少、會務無法推動；每個決議都寫出同意人數。","報表填法：用書表下載頁「解散」分類裡的 5 項財務報表 Excel，期間填到解散日止。"],
   laws:["pg27","zc33"],notes:["剩餘財產不能分給會員或理監事。","有銀行帳戶、統一編號的，清算完記得結清帳戶，並向國稅局辦理註銷。"],
   act:[["下載解散書表","forms","解散"]]},
@@ -668,7 +697,7 @@ const KB=[
   summary:"一般議案只要會員過半數出席、出席人數的多數同意就可以。但以下重要事項，要出席人數三分之二以上同意：章程訂定和修改、會員除名、理監事罷免、財產處分、團體解散。如果已辦法人登記，修改章程的門檻更高：出席四分之三以上同意，或全體會員三分之二以上書面同意。",
   laws:["pg27","zc27"],notes:[],act:[["看會員大會辦理","meet","m-assembly"]]},
  {k:["會員大會","常年會","開會","大會","通知","幾天前","15天","十五天"],cat:"會務辦理",title:"會員大會怎麼開",
-  summary:"會員大會分定期會和臨時會。定期會每年開一次，除了緊急的臨時會，都要在 15 天前書面通知會員。開會前先開理監事聯席會議審議議程和報表，把紀錄和大會手冊一式二份報縣府。大會要會員過半數出席才能開；不能來的會員可以書面委託其他會員代理，但一人只能代理一人。會後把紀錄和附件一式二份報縣府備查。",
+  summary:"會員大會分定期會和臨時會。定期會每年開一次，除了緊急的臨時會，都要在 15 天前通知會員。開會前先開理監事聯席會議審議議程和報表，把紀錄和大會手冊一式二份報縣府。大會要會員過半數出席才能開；不能來的會員可以書面委託其他會員代理，但一人只能代理一人。會後把紀錄和附件一式二份報縣府備查。",
   ref:"m-assembly",notes:[],act:[["看完整流程","meet","m-assembly"],["下載常年會書表","forms","常年會"]]},
  {k:["理監事會","理事會","監事會","補選","缺席","辭職"],cat:"會務辦理",title:"理監事會議怎麼開",
   summary:"協會（社會團體）的理事會和監事會每 6 個月至少開一次（人民團體法第43條；公會等職業團體是每 3 個月），原則應在7天前通知；僅緊急事故臨時會議並於會前一日送達通知時例外。理監事會議不能委託別人出席，連續兩次沒有正當理由不來，就視同辭職。理事長出缺原則應於一個月內補選，遺任期不足六個月時得依規定推人代理；理事出缺由候補理事依序遞補。",
@@ -735,14 +764,14 @@ const KB=[
   notes:[],act:[["查看承辦人","contact",""]]}
 ];
 const TOPICS=[
- {name:"團體查詢",c:"#DE5F72",q:["屏東縣商業會的理事長是誰？","潮州鎮有哪些體育運動團體？","屏東縣有多少個宗教團體？","我想取名「屏東縣快樂登山協會」，有沒有重複？"]},
- {name:"協會會務",c:"#C2531A",q:["成立協會需要準備哪些文件？","屏東縣級協會名稱一定要加屏東縣嗎？","鄉鎮市級協會名稱要加行政區域嗎？","協會取名可以用政府、公司或宮廟名稱嗎？","協會多久要辦理改選？","會員大會可以委託別人出席嗎？","理事會可以委託別人出席嗎？"]},
- {name:"社區發展協會",c:"#E28A37",q:["成立社區發展協會要怎麼辦？","社區發展協會理監事至少要幾人？","社區發展協會要去哪裡申請統一編號？","社區協會年度計畫要怎麼報？"]},
- {name:"合作社",c:"#3F8A5C",q:["成立合作社至少要幾位社員？","合作社社員可以委託別人開會嗎？","合作社年度決算要準備哪些報表？","合作社盈餘怎麼分配給社員？"]},
- {name:"財務與爭議",c:"#6B64A8",q:["6項財務報表是哪六項？","現金出納表期末餘額怎麼填？","會員退會可以要求退還會費嗎？","理事長一直不開會怎麼辦？"]},
- {name:"法規與承辦",c:"#327C91",q:["理事長可以連任幾次？","理事、監事名額上限？","協會解散要多少人同意？","我的團體業務要找哪位承辦人？"]}
+ {name:"團體查詢",icon:"🔎",c:"#DE5F72",q:["屏東縣商業會的理事長是誰？","潮州鎮有哪些體育運動團體？","屏東縣有多少個宗教團體？","我想取名「屏東縣快樂登山協會」，有沒有重複？"]},
+ {name:"協會會務",icon:"📋",c:"#C2531A",q:["成立協會需要準備哪些文件？","屏東縣級協會名稱一定要加屏東縣嗎？","鄉鎮市級協會名稱要加行政區域嗎？","協會取名可以用政府、公司或宮廟名稱嗎？","協會多久要辦理改選？","會員大會可以委託別人出席嗎？","理事會可以委託別人出席嗎？"]},
+ {name:"社區發展協會",icon:"🏘️",c:"#E28A37",q:["成立社區發展協會要怎麼辦？","社區發展協會理監事至少要幾人？","社區發展協會要去哪裡申請統一編號？","社區協會年度計畫要怎麼報？"]},
+ {name:"合作社",icon:"🤝",c:"#3F8A5C",q:["成立合作社至少要幾位社員？","合作社社員可以委託別人開會嗎？","合作社年度決算要準備哪些報表？","合作社盈餘怎麼分配給社員？"]},
+ {name:"財務與爭議",icon:"💰",c:"#6B64A8",q:["6項財務報表是哪六項？","現金出納表期末餘額怎麼填？","會員退會可以要求退還會費嗎？","理事長一直不開會怎麼辦？"]},
+ {name:"法規與承辦",icon:"⚖️",c:"#327C91",q:["理事長可以連任幾次？","理事、監事名額上限？","協會解散要多少人同意？","我的團體業務要找哪位承辦人？"]}
 ];
-const TIPS=["小提醒：會員大會除緊急臨時會外，要在 15 日前以書面通知會員喔。","小提醒：協會的理監事會每 6 個月至少開一次，要在 7 日前通知。","小提醒：理事長連任以一次為限。","小提醒：籌組許可後 6 個月內要完成成立。","小提醒：直接把團體名稱告訴我，就能查立案資料和承辦人。","不知道法規名稱也沒關係，用自己的話描述遇到的事情，我會幫您找。"];
+const TIPS=["小提醒：會員大會除緊急臨時會外，要在 15 日前通知會員喔。","小提醒：協會的理監事會每 6 個月至少開一次，要在 7 日前通知。","小提醒：理事長連任以一次為限。","小提醒：籌組許可後 6 個月內要完成成立。","小提醒：直接把團體名稱告訴我，就能查立案資料和承辦人。","不知道法規名稱也沒關係，用自己的話描述遇到的事情，我會幫您找。"];
 const QUESTION_SUGGESTIONS=[...new Set(TOPICS.flatMap(t=>t.q))];
 const CAT_ALIAS=[["社會服務團體",/社會服務|社服|社福/],["學術文化團體",/學術|文化|藝術|音樂|文史|書法|美術|藝文/],["體育運動團體",/體育|運動|登山|健行|球類|武術|太極/],["經濟業務團體",/經濟業務|經濟|產業|觀光/],["宗教團體",/宗教|佛教|道教|基督|天主/],["慈善團體",/慈善|公益|救助/],["老人會",/老人|長青|銀髮|長者/],["商業團體",/商業團體|商業同業公會/],["國際團體",/國際|獅子會|扶輪社|青商會|同濟會/],["教育會",/教育會/],["環保團體",/環保|生態|保育/],["同學校友會",/校友|同學會/],["醫療衛生團體",/醫療|衛生/],["宗親會",/宗親/],["教師會",/教師會/],["自由職業團體",/自由職業|律師|會計師|醫師公會|地政士|技師/],["同鄉會",/同鄉/],["工業團體",/工業團體/]];
 
@@ -801,7 +830,7 @@ async function saveChunked(coll,rows,metaExtra){
 async function loadAll(force){
   if(loadPromise&&!force)return loadPromise;
   loadPromise=(async()=>{
-    const base=document.baseURI.replace(/[^/]*$/,"")+"data/";const DV="?v=20261111-19";
+    const base=document.baseURI.replace(/[^/]*$/,"")+"data/";const DV="?v=20261111-20";
     const jf=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);return r.json()};
     const jgz=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);const b=new Uint8Array(await r.arrayBuffer());if(b[0]!==31||b[1]!==139)return JSON.parse(new TextDecoder().decode(b));if(typeof DecompressionStream==="undefined")throw new Error("gzip unsupported");const text=await new Response(new Blob([b]).stream().pipeThrough(new DecompressionStream("gzip"))).text();return JSON.parse(text)};
     const [d,s,k,f]=await Promise.allSettled([jf(base+"directory.json"+DV),jf(base+"staff.json"+DV),jgz(base+"knowledge.json.gz"+DV).catch(()=>jf(base+"knowledge.json"+DV)),jf(base+"forms-catalog.json?v=20261105-5")]);
@@ -896,11 +925,12 @@ function specificName(q){
   const src=String(q).replace(/\s/g,"");
   for(const m of src.matchAll(NAME_RE_G)){
     const full=m[1].replace(CUT_RE,"").replace(LEAD_RE,"");
+    const tail=src.slice(m.index+m[0].length);if(/^(要多少|要花|有什麼不|有何不同|差在哪|的差別|有沒有立案|是否立案|跟|和|與|還是)/.test(tail))continue;
     let cand=full.replace(/^屏東縣/,"");
     const suf=cand.match(new RegExp("("+SUFFIX+")$"));const pre=suf?cand.slice(0,-suf[1].length):cand;
     if(!pre&&/^屏東縣/.test(full)&&suf&&!/^(協會|學會|公會|合作社|社區發展協會)$/.test(suf[1]))return full;
     if(!pre||pre.length<2||GENERIC_PREFIX.test(pre))continue;
-    if(/(可以|能不能|可不可以|能否|是否|要不要|怎麼|如何|加入|參加|申請|檢舉|投訴|陳情|舉報|魅力社區|要問|找誰|電話是|未滿|未成年|\d+歲|十八歲)/.test(pre))continue;
+    if(/(可以|能不能|可不可以|能否|是否|要不要|怎麼|如何|加入|參加|申請|檢舉|投訴|陳情|舉報|魅力社區|要問|找誰|電話是|多少錢|有什麼|差在哪|不一樣|差別|有沒有立案|可以有|幾個|成立|籌組|跟|要查|一個村|一個里|未滿|未成年|\d+歲|十八歲)/.test(pre))continue;
     if(/^(社區發展|社會|職業|人民)/.test(cand)&&pre.length<=4)continue;
     const preN=norm(pre);const town=TOWNS.find(t=>preN.startsWith(norm(t))||(norm(t).slice(0,-1)!=="屏東"&&preN.startsWith(norm(t).slice(0,-1))));
     if(town){let rest=preN.startsWith(norm(town))?preN.slice(norm(town).length):preN.slice(norm(town).length-1);rest=rest.replace(/^[有的在之]+|[有的在之]+$/g,"");
@@ -926,8 +956,8 @@ function intentOf(q){
   if(sn&&!PROCESS_RE.test(q))return{kind:"dir",name:sn};
   if(STAFF_RE.test(q))return{kind:"staff"};
   if(QUERY_RE.test(q)&&ENTITY_RE.test(q)&&!PROCESS_RE.test(q))return{kind:"dir",name:sn};
-  if(!PROCESS_RE.test(q)&&(/有.{0,10}(合作社|協會|團體|社區|學會|公會|老人會|宗親會)(嗎|呢)?[？?]?$/.test(q)||(townOf(q)&&(detectType(q)||detectCat(q))&&q.length<=16)))return{kind:"dir",name:sn};
-  if(/多少|幾個|幾家|幾間|共有|總共|數量|統計|有哪些|哪些|列出/.test(q)&&!PROCESS_RE.test(q)&&(townOf(q)||detectType(q)||detectCat(q)||ENTITY_RE.test(q))&&(detectType(q)||detectCat(q)||ENTITY_RE.test(q)))return{kind:"dir",name:sn};
+  if(!PROCESS_RE.test(q)&&!/可以有|能有|可不可以有|能不能有/.test(q)&&(/有.{0,10}(合作社|協會|團體|社區|學會|公會|老人會|宗親會)(嗎|呢)?[？?]?$/.test(q)||(townOf(q)&&(detectType(q)||detectCat(q))&&q.length<=16)))return{kind:"dir",name:sn};
+  if(/多少|幾個|幾家|幾間|共有|總共|數量|統計|有哪些|哪些|列出/.test(q)&&!/多少錢|多少費用|要花多少|幾個人|幾個月|幾個發起人/.test(q)&&!PROCESS_RE.test(q)&&(townOf(q)||detectType(q)||detectCat(q)||ENTITY_RE.test(q))&&(detectType(q)||detectCat(q)||ENTITY_RE.test(q)))return{kind:"dir",name:sn};
   return{kind:"ai"};
 }
 function dirQueryFrom(q,intent){
@@ -1234,17 +1264,22 @@ function greetWord(){const h=new Date().getHours();return h<11?"早安":h<18?"�
 /* ================= 回覆看板 ================= */
 const board=$("#board");
 let busy=false,qcount=1;const recent=[];const convo=[];let lastDir=null;
+let topicIdx=0,topicMore=false;
+function topicHTML(){const t=TOPICS[topicIdx];const list=topicMore?t.q:t.q.slice(0,4);
+  return `<div class="ttabs" role="tablist" aria-label="問題分類">${TOPICS.map((x,i)=>`<button type="button" role="tab" class="ttab" aria-selected="${i===topicIdx}" data-topic="${i}" style="--c:${x.c}"><span aria-hidden="true">${x.icon}</span>${x.name}</button>`).join("")}</div>
+  <div class="tqs" role="tabpanel" style="--c:${t.c}">${list.map(q=>`<button type="button" class="qbtn" data-q="${esc(q)}">${esc(q)}</button>`).join("")}${t.q.length>4&&!topicMore?`<button type="button" class="qmore" data-topicmore>再看 ${t.q.length-4} 題</button>`:""}</div>`}
 function showGreeting(){
-  board.innerHTML=`<div class="greet"><h2>${greetWord()}，我是小屏。</h2><p class="sub">我可以幫您查詢本縣人民團體的立案資料、說明籌組與會務辦理流程和相關規定、提供社會處公告的書表，並找到負責的承辦人與分機。請點選常見問題，或在下方直接輸入。</p>
-  <div class="topics">${TOPICS.map(t=>`<div class="topic" style="--c:${t.c}"><h3><i></i>${t.name}</h3>${t.q.map(q=>`<button type="button" class="qbtn" data-q="${esc(q)}">${esc(q)}</button>`).join("")}</div>`).join("")}</div></div>`;
+  board.innerHTML=`<div class="greet"><h2>${greetWord()}，我是小屏。</h2><p class="sub">想問什麼，直接在下面打字；或先挑一個主題看看。</p><div id="topicbox">${topicHTML()}</div></div>`;
 }
 board.addEventListener("click",e=>{
+  const tp=e.target.closest("[data-topic]");if(tp){topicIdx=+tp.dataset.topic;topicMore=false;$("#topicbox").innerHTML=topicHTML();const cur=board.querySelector('.ttab[aria-selected="true"]');if(cur)cur.focus();return}
+  if(e.target.closest("[data-topicmore]")){topicMore=true;$("#topicbox").innerHTML=topicHTML();return}
   const q=e.target.closest("[data-q]");if(q){ask(q.dataset.q);return}
   const g=e.target.closest("[data-go]");if(g){goTo(g.dataset.go,g.dataset.sub);return}
   if(e.target.closest("[data-home]")){showGreeting();pose("wave",1500,"請問還有什麼需要？")}
 });
 function renderRecent(){
-  $("#recent").innerHTML=recent.length?`<span>剛才問過：</span>`+recent.map((r,i)=>`<button type="button" class="chip" data-r="${i}">${esc(r.q.length>14?r.q.slice(0,14)+"…":r.q)}</button>`).join(""):`<span>直接輸入團體名稱即可查詢，例如「屏東縣商業會」。</span>`;
+  $("#recent").innerHTML=recent.length?`<span>剛才問過：</span>`+recent.map((r,i)=>`<button type="button" class="chip" data-r="${i}">${esc(r.q.length>14?r.q.slice(0,14)+"…":r.q)}</button>`).join(""):"";
 }
 $("#recent").addEventListener("click",e=>{const b=e.target.closest("[data-r]");if(b){const r=recent[+b.dataset.r];renderAnswer(r.q,r.a)}});
 function thinkingView(q,lines){
@@ -1805,7 +1840,7 @@ $("#apps-admin").addEventListener("click",async e=>{
 
 /* ================= 啟動 ================= */
 showGreeting();renderRecent();route();
-setTimeout(()=>{pose("wave",2400,"歡迎光臨");say(`${greetWord()}！歡迎來到人民團體數位櫃檯，直接說出團體名稱我就能幫您查。`)},500);
+setTimeout(()=>{pose("wave",2400,"歡迎光臨");say(`${greetWord()}！有問題直接問我就可以囉。`)},500);
 touch();
 (async()=>{
   if(window.claude&&window.claude.use){
@@ -1818,11 +1853,11 @@ touch();
   route();
 })();
 </script>
-<script src="feedback-collector.js?v=20261111-19"></script>
-<script src="round-fixes.js?v=20261111-19"></script>
-<script src="answer-arbiter.js?v=20261111-19"></script>
-<script src="question-understanding.js?v=20261111-19"></script>
-<script src="counter-upgrade.js?v=20261111-19"></script>
+<script src="feedback-collector.js?v=20261111-20"></script>
+<script src="round-fixes.js?v=20261111-20"></script>
+<script src="answer-arbiter.js?v=20261111-20"></script>
+<script src="question-understanding.js?v=20261111-20"></script>
+<script src="counter-upgrade.js?v=20261111-20"></script>
 </body>
 </html>
 

@@ -1165,10 +1165,101 @@ function staffHiring(t){
 const CHR=n=>({title:'公益勸募條例第'+n+'條',source:LAW+'D0050138'});
 const ER=n=>({title:'人民團體選舉罷免辦法第'+n+'條',source:LAW+'D0050093'});
 /* ── 2026-11-11 深層校正：直接回答「可不可以／幾個／怎麼辦」的規則 ── */
+/* ── 2026-11-11 第二輪深層校正 ── */
+function directorAbsence(t){
+ if(!/(理事|監事|理監事)/.test(t)||/理事長|會長|召集人|常務監事/.test(t))return null;
+ if(!/(請假|缺席|不來|沒來|不出席|沒出席|都不到|不參加|無故)/.test(t))return null;
+ if(/合作社|社員|會員大會|代理|委託/.test(t))return null;
+ return{direct:true,category:'人民團體會務說明',title:'理事、監事連續兩次無故缺席，視同辭職，由候補遞補',
+ summary:'法規沒有規定可以請幾次假，但有一條底線：理事、監事要親自出席理事會、監事會，不能委託別人代理；連續二次無故缺席的，視同辭職，由候補理事、候補監事依次遞補（人民團體法第31條）。\n\n所以重點在「無故」：\n• 事先請假、有正當理由的，不算無故缺席。請假要怎麼辦、怎樣算正當理由，建議在章程或會議規則裡寫清楚。\n• 沒請假、連續兩次沒到的，不需要另外表決解任，直接視同辭職，由候補遞補，並把異動報縣府。\n\n協會請保留開會通知和簽到表，才能證明對方確實是連續兩次無故缺席。',
+ statutes:[P(31)],notes:['遞補之後，理事或監事人數不到章程名額三分之二的，要辦理補選（人民團體選舉罷免辦法第17條）。']};
+}
+function chairElectionMethod(t){
+ if(!/(理事長|會長)/.test(t))return null;
+ if(!/(怎麼選|如何選|誰選|怎麼產生|如何產生|由誰選|選出來|怎麼當|直選|會員選|大會選)/.test(t))return null;
+ if(/合作社|社員|連任|補選|出缺|辭職|過世/.test(t))return null;
+ return{direct:true,category:'人民團體會務說明',title:'理事長由理事互選產生：有常務理事的，從常務理事中選一人',
+ summary:'理事長不是會員大會直接選的，而是分兩步：\n\n1. 會員大會先選出理事、監事。\n2. 理事再開理事會：設有常務理事的，先由理事互選常務理事，再從常務理事中選一人當理事長；沒有設常務理事的，直接由理事互選理事長（人民團體法第17條）。\n\n選舉理事長的理事會，要在大會閉會後第7日起到15日內召開，由原任理事長召集；也可以在大會當天接著開，但要在大會的開會通知裡一併通知（人民團體選舉罷免辦法第12條）。',
+ statutes:[P(17),ER(12)],notes:['理事長的連任以一次為限（人民團體法第20條）。'],actions:[{label:'看改選流程',view:'meet',sub:'m-elect'}]};
+}
+function officerNumbers(t){
+ if(!/(理事|監事|理監事|候補)/.test(t))return null;
+ if(!/(幾個|幾人|幾名|幾位|多少人|多少個|名額|選幾個|選幾位|選幾名|選幾人)/.test(t)&&!(/候補/.test(t)&&/(是什麼|什麼意思|做什麼|幹嘛)/.test(t)))return null;
+ if(/常務|出席|職權|查核|委託|代理|開會|才能|通知|走了|辭|[一二兩三四五六七八九十]人|圈|選票|連任|合作社|社員|社區|任期|不足|出缺|剩|最少|至少|\d/.test(t))return null;
+ const sub=/候補/.test(t);
+ return{direct:true,category:'人民團體會務說明',title:sub?'候補理事、候補監事：正式理監事出缺時依序遞補，名額不超過理監事的三分之一':'理事、監事的名額：縣級團體理事最多15人，監事不超過理事的三分之一',
+ summary:(sub?'候補理事、候補監事是「備取」：選舉時依得票順序排在正式當選人後面，等理事、監事出缺時，依次遞補（人民團體選舉罷免辦法第17條）。候補的名額不得超過理事、監事名額的三分之一（人民團體法第17條）。\n\n':'')+'理事、監事的名額由章程決定，法律定的是上限（人民團體法第17條）：\n• 理事：縣（市）以下的團體不得超過15人。\n• 監事：不得超過理事名額的三分之一。\n• 候補理事、候補監事：可以設，名額不得超過理事、監事名額的三分之一。\n\n舉例：章程訂理事15人，監事最多5人，候補理事最多5人，候補監事最多1人。',
+ statutes:sub?[ER(17),P(17)]:[P(17)],notes:['名額要寫在章程裡（人民團體法第12條）；要增減名額，須先修改章程。']};
+}
+function meetingNoticeChannel(t){
+ if(!/(通知)/.test(t))return null;
+ if(!/(line|LINE|Line|賴|簡訊|email|e-mail|電子郵件|電郵|訊息|群組|電話|口頭|臉書|FB|書面|紙本|掛號)/.test(t))return null;
+ if(/合作社|社員|除名|連署/.test(t))return null;
+ return{direct:true,category:'人民團體會務說明',title:'開會通知的方式：法規只要求在期限前「通知」到每位應出席的人',
+ summary:'現行法規沒有限定一定要用紙本。規定是：\n• 會員大會：開會15日前，把會議種類、時間、地點和議程通知應出席的人（人民團體法第26條；人民團體會務輔導辦法第10條）。\n• 理事會、監事會：開會7日前通知（人民團體會務輔導辦法第11條）。\n\n所以用LINE、簡訊或電子郵件通知，法規沒有禁止，但要注意兩件事：\n1. 章程如果寫了通知的方式（例如「以書面通知」），就要照章程。\n2. 要能證明每一位都通知到了。不用LINE或沒有讀訊息的會員，要另外用書面或電話補通知，並留下紀錄；日後有人主張沒收到通知，決議的效力可能有爭議。',
+ statutes:[P(26),G(10),G(11)],notes:['因緊急事故召開臨時會議的，開會前一日送達通知即可。']};
+}
+function budgetHowTo(t){
+ if(!/(預算|工作計畫)/.test(t))return null;
+ if(!/(怎麼編|如何編|怎麼做|怎麼寫|誰編|誰來編|要編|怎麼訂)/.test(t))return null;
+ if(/合作社|社員|補助|核銷|魅力/.test(t))return null;
+ return{direct:true,category:'社會團體財務報表',title:'年度預算：會計年度開始前由理事會編好，提會員大會通過後報縣府備查',
+ summary:'預算由理事會負責編。在會計年度開始前，理事會要編好「年度工作計畫」和「收支預算表」；等年度結束後三個月內編好上年度的工作報告和會計報告（決算），連同當年度的工作計畫、收支預算表，一起提會員大會通過，再報縣府備查（社會團體財務處理辦法第11條）。\n\n編的時候可以這樣想：\n1. 先寫工作計畫：這一年要辦哪些活動、會務。\n2. 再估收入：會費、捐款、補助、其他收入各多少。\n3. 最後排支出：人事、辦公、業務活動等，和工作計畫一項一項對起來。\n\n來不及開大會的，可以先經理事會和監事會（或理監事聯席會議）通過，之後再提大會追認。',
+ statutes:[F(11)],notes:[],actions:[{label:'下載財務書表',view:'forms',sub:''}]};
+}
+function renameGroup(t){
+ if(!/(改名|更名|換名字|換名稱|改名稱|名稱變更|變更名稱|名字要改|改會名)/.test(t))return null;
+ if(/合作社|社員|社區/.test(t))return null;
+ return{direct:true,category:'人民團體會務說明',title:'協會改名：名稱寫在章程裡，要走修改章程的程序再報縣府',
+ summary:'可以改，但不是理事會決定就好。團體名稱是章程必須記載的事項（人民團體法第12條），所以改名就是修改章程：\n\n1. 理事會先討論新名稱，列入會員大會的提案。\n2. 召開會員大會：會員過半數出席，出席人數三分之二以上同意（人民團體法第27條）。\n3. 大會通過後30日內，把修改後的章程和會議紀錄報縣府核備（人民團體法第54條）。\n\n新名稱不能和已經許可的團體相同，也不能讓人誤以為和政府機關或營利團體有關（人民團體法第7條），建議開會前先用「團體查詢」查一下有沒有同名的團體。\n\n核備之後，立案證書、圖記、統一編號的登記資料、銀行帳戶和法人登記（有辦的話）也要跟著更新，細節請洽承辦人。',
+ statutes:[P(12),P(27),P(54),P(7)],notes:[],actions:[{label:'查詢團體名稱',view:'search',sub:''},{label:'聯絡承辦',view:'contact',sub:''}]};
+}
+function certificateLost(t){
+ if(!/(立案證書|證書|當選證明)/.test(t))return null;
+ if(!/(遺失|不見|弄丟|掉了|找不到|毀損|破損|補發|換發|重新申請)/.test(t))return null;
+ if(/合作社|社員|會址|地址|搬/.test(t))return null;
+ return{direct:true,category:'人民團體會務說明',title:'立案證書遺失或毀損：由理事長檢具申請書向縣府申請補發',
+ summary:'可以補發。紙本的立案證書或其他會務證明書遺失、毀損的，由負責人（理事長）檢具申請書並說明理由，向主管機關申請補發或換發（人民團體會務輔導辦法第3條）。\n\n在屏東縣立案的團體，請向縣府社會處該團體的承辦人提出；申請書的格式和要附的文件，請先打電話確認。',
+ statutes:[G(3)],notes:['縣府總機 08-7320415，可請總機轉該團體的承辦人。'],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
+}
+function dormantGroup(t){
+ const gov=/(縣府|主管機關|政府|社會處).{0,8}(解散|廢止|撤銷|註銷)|被(解散|廢止|撤銷)/.test(t);
+ const idle=/(沒運作|沒有運作|沒在運作|停擺|沒在動|沒活動|都沒開會|沒開會|停止運作|空殼|放著不管|荒廢|沒人管|好幾年沒)/.test(t);
+ if(!gov&&!idle)return null;
+ if(/合作社|社員|決議|理事長.{0,4}(不開|不召開)/.test(t))return null;
+ return{direct:true,category:'人民團體會務說明',title:gov?'主管機關可以解散協會：通常先警告、限期改善，限期整理沒完成才解散':'協會很久沒運作：可以恢復開會改選，或經會員大會決議解散',
+ summary:(gov?'會，但有先後順序，不會一下子就解散。\n\n團體有違反法令、章程或妨害公益的情形（例如長期不開會、任期屆滿不改選），主管機關可以先警告、撤銷決議、停止業務並限期改善；逾期不改善或情節重大的，才會撤免職員、限期整理、廢止許可或解散（人民團體法第58條）。被廢止許可，或限期整理沒有如期完成的，就應予解散（人民團體法第59條）。\n\n':'')+'協會停擺了，有兩條路可以走：\n\n1. 恢復運作：請理事長召開理事會和會員大會，辦理改選。理事長不開或聯絡不上的，理事過半數或會員五分之一以上可以書面連署請求召開臨時會員大會（人民團體會務輔導辦法第15條）；會議還是開不成的，可以請縣府指定理事一人召集（人民團體法第32條）。\n\n2. 結束協會：召開會員大會決議解散，要會員過半數出席、出席人數三分之二以上同意（人民團體法第27條），再報縣府。\n\n放著不處理的話，主管機關可以依規定限期整理，甚至廢止許可、解散（人民團體法第58條、第59條）。建議先和承辦人聯絡，說明目前的狀況。',
+ statutes:gov?[P(58),P(59),G(15),P(32),P(27)]:[G(15),P(32),P(27),P(58),P(59)],notes:[],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
+}
+function lookupRegistered(t){
+ if(!/(有沒有立案|是否立案|立案了沒|有立案嗎|合不合法|是不是合法|是真的嗎|存不存在|有沒有登記)/.test(t))return null;
+ if(!/(查|協會|團體|公會|社團)/.test(t))return null;
+ if(/合作社|社員/.test(t))return null;
+ return{direct:true,category:'團體查詢',title:'查協會有沒有立案：直接輸入團體名稱就能查',
+ summary:'請直接在下面輸入團體的名稱（例如「屏東縣商業會」），我會比對屏東縣政府社會處的立案名冊，告訴您這個團體是不是存續中、理事長是誰、由哪位承辦人負責。\n\n記不清楚全名也沒關係，輸入名稱裡的兩三個字，或到「團體查詢」頁用鄉鎮和類別篩選。\n\n名冊收錄的是在屏東縣政府立案的社會團體和職業團體；全國性團體（向內政部立案）、合作社和社區發展協會不在這份名冊裡。',
+ statutes:[],notes:[],actions:[{label:'前往團體查詢',view:'search',sub:''}]};
+}
+function coopWithdraw(t){
+ if(!/(合作社|社員)/.test(t))return null;
+ if(!/(退社|退股|退出|退還股金|領回股金|拿回股金)/.test(t))return null;
+ if(/除名|過世|死亡|繼承/.test(t))return null;
+ return{direct:true,category:'合作社會務',title:'合作社社員可以退社：年度終了時退，三個月前提出，股金依章程退還',
+ summary:'可以。社員可以在年度終了的時候退社，但要在三個月前提出請求書；章程可以把這個期間延長到六個月（合作社法第27條）。\n\n退社之後，可以依章程的規定請求退還股金的一部或全部；金額是依合作社營業年度終了時的財產狀況計算，章程另有規定的依章程（合作社法第30條）。所以合作社有虧損的時候，退回來的不一定等於當初繳的金額，也不是提出當天就能領。\n\n建議先看章程裡關於退社和退還股金的規定，再用書面向合作社提出，並留下送達的證明。',
+ statutes:[C(27),C(30)],notes:[]};
+}
+function groupTypeDifference(t){
+ const kinds=[/協會|社會團體|社團/,/公會|職業團體|工會/,/合作社/].filter(r=>r.test(t)).length;
+ if(kinds<2)return null;
+ if(!/(差在哪|差別|不一樣|不同|有什麼分別|怎麼分|區別|比較)/.test(t))return null;
+ if(/社區發展/.test(t))return null;
+ return{direct:true,category:'人民團體會務說明',title:'協會、公會、合作社的差別：目的不同，依據的法律也不同',
+ summary:'簡單說，是「為了什麼而組成」不一樣：\n\n• 協會（社會團體）：為了文化、學術、醫療、衛生、宗教、慈善、體育、聯誼、社會服務等公益目的，由個人或團體組成（人民團體法第39條）。誰都可以依章程加入。\n\n• 公會（職業團體）：由同一個行業的單位，或同一種職業的從業人員組成，目的是協調同業關係、增進共同利益（人民團體法第35條）。醫師、社工師等專業公會，另外還要看各自的專業法律。\n\n• 合作社：社員共同出資、共同經營，目的是改善社員的經濟利益和生活，本身就是法人（合作社法第1條、第2條）。它依的是合作社法，不是人民團體法，社員要認購股金，結餘可以依規定分配。\n\n想辦公益活動、聯誼或服務，通常是成立協會；同業要組織起來，是公會；想一起做生意、共同採購或共同銷售，才是合作社。',
+ statutes:[P(39),P(35),C(1),C(2)],notes:['工會（勞工組成）依工會法，由勞工主管機關主管，和公會不同。']};
+}
 function charmCommunityContact(t){
  if(!/魅力社區/.test(t))return null;
  if(!/(電話|找誰|問誰|要問|承辦|聯絡|窗口|分機|哪位|誰負責)/.test(t))return null;
- return{category:'屏東魅力社區計畫',title:'魅力社區計畫承辦人：社會處陳怡伶（08-7320415 轉 5314）',
+ return{direct:true,category:'屏東魅力社區計畫',title:'魅力社區計畫承辦人：社會處陳怡伶（08-7320415 轉 5314）',
  summary:'魅力社區計畫請找屏東縣政府社會處陳怡伶，電話 08-7320415 轉分機 5314。\n\n打電話時先說明您的鄉鎮市和「魅力社區計畫」，再說想問的事情（申請資格、送件、核銷等）。社區發展協會的申請要經所在地的鄉鎮市公所轉送，也可以先問公所。\n\n縣府地址：屏東市自由路527號。',
  statutes:[],notes:['這是魅力社區計畫的窗口，和一般人民團體會務的承辦人不同。'],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
 }
@@ -1180,7 +1271,7 @@ function termLengthLimit(t){
  const map={'一':1,'二':2,'兩':2,'三':3,'四':4,'五':5,'六':6,'七':7,'八':8,'九':9,'十':10};
  const n=map[m[1]]||parseInt(m[1],10);if(!n)return null;
  const over=n>4;
- return{category:'人民團體會務說明',title:over?'不可以：理事、監事的任期最長四年，章程不能訂'+n+'年':'可以：任期'+n+'年沒有超過四年的上限，由章程訂定',
+ return{direct:true,category:'人民團體會務說明',title:over?'不可以：理事、監事的任期最長四年，章程不能訂'+n+'年':'可以：任期'+n+'年沒有超過四年的上限，由章程訂定',
  summary:(over?'不可以。':'可以。')+'人民團體理事、監事的任期不得超過四年（人民團體法第20條），理事長是由理事互選產生的，任期跟著理事走，所以也不能超過四年。\n\n'+(over?'章程如果訂成'+n+'年，會和法律牴觸，報縣府核備時會被要求修正。想讓幹部做久一點，法律允許的方式是連選連任：理事、監事可以連選連任，理事長的連任則以一次為限。':'任期要寫在章程裡（人民團體法第12條）；任期屆滿要辦理改選。理事、監事可以連選連任，理事長的連任以一次為限。'),
  statutes:[P(20),P(12)],
  notes:['醫師、社工師等專業公會的任期，另依各該專業法律的規定。']};
@@ -1189,7 +1280,7 @@ function officeAtHome(t){
  if(!/(住宅|住家|家裡|家中|自宅|自家|我家|租的|租屋|住處)/.test(t))return null;
  if(!/(會址|設址|地址|辦公)/.test(t))return null;
  if(/稅|合作社|社員|證書|換發/.test(t))return null;
- return{category:'人民團體會務說明',title:'協會會址可以設在住家：法規沒有禁止，但要在組織區域內，並取得屋主同意',
+ return{direct:true,category:'人民團體會務說明',title:'協會會址可以設在住家：法規沒有禁止，但要在組織區域內，並取得屋主同意',
  summary:'可以。人民團體法沒有限制會址一定要是辦公室或店面，設在理事長或會員的住家是常見的做法。\n\n要注意三件事：\n1. 地點：會址要設在主管機關所在的地區，也就是在屏東縣立案的團體，會址要在屏東縣內；要設在其他地區，須報經主管機關核准（人民團體法第6條）。\n2. 章程：會址是章程必須記載的事項（人民團體法第12條）。章程如果寫了完整的門牌，以後搬家就要先修改章程；只寫到縣市或鄉鎮，彈性比較大。\n3. 使用同意：房子不是協會自有的，報送時要附屋主出具的會址使用同意書。',
  statutes:[P(6),P(12)],
  notes:['住家設為會址之後，房屋稅、地價稅會不會受影響，屬於地方稅的問題，請洽屏東縣政府財稅局。'],
@@ -1199,7 +1290,7 @@ function dissolvedAssets(t){
  if(!/(解散|結束|收掉|註銷)/.test(t))return null;
  if(!/(財產|資產|剩下|剩餘|賸餘|餘款|存款|錢|設備)/.test(t))return null;
  if(/合作社|社員|社區發展|補助/.test(t))return null;
- return{category:'人民團體會務說明',title:'協會解散後的剩餘財產：不能分給會員，依章程歸屬地方自治團體或主管機關指定的團體',
+ return{direct:true,category:'人民團體會務說明',title:'協會解散後的剩餘財產：不能分給會員，依章程歸屬地方自治團體或主管機關指定的團體',
  summary:'不能分給會員或理監事。\n\n協會解散後，要先清償債務；清償後剩下的財產，依章程的規定或會員大會的決議決定歸屬。但以公益為目的的法人解散時，剩餘財產不得歸屬於自然人或以營利為目的的團體；章程和大會都沒有決定的，歸屬於會址所在地的地方自治團體（民法第44條）。\n\n另外，協會要適用所得稅的免稅規定，章程必須明定解散後剩餘財產歸屬所在地的地方自治團體，或政府主管機關指定的機關、團體（教育文化公益慈善機關或團體免納所得稅適用標準第2條第1項第3款）。所以多數協會的章程已經有這一條，請先翻章程確認。',
  statutes:[CIV(44),TX(2)],
  notes:['有辦法人登記的協會，解散後還要依民法辦理清算，並向法院辦理解散、清算終結登記。','政府補助款購置的財產或未用完的補助款，另依補助機關的規定處理。'],
@@ -1209,7 +1300,7 @@ function groupNameDuplicate(t){
  if(!/(名稱|名字|會名|取名|命名)/.test(t))return null;
  if(!/(重複|相同|一樣|同名|撞名|類似|相似|被用|用過|限制|規定)/.test(t))return null;
  if(/合作社|社員|公司|商號|改名|更名|變更/.test(t))return null;
- return{category:'人民團體會務說明',title:'團體名稱不能和已經許可的團體相同',
+ return{direct:true,category:'人民團體會務說明',title:'團體名稱不能和已經許可的團體相同',
  summary:'不可以重複。同一個組織區域內可以成立兩個以上同級、同類的團體，但名稱不得有下列情形（人民團體法第7條）：\n1. 和已經許可的團體名稱相同。\n2. 容易讓人誤認和政府機關（構）、政府捐助的財團法人或營利團體有關。\n3. 有歧視性或仇恨性的文字。\n\n籌組之前，可以先用本站的「團體查詢」輸入想用的名稱，看看屏東縣有沒有同名的團體；最後能不能使用，以縣府審查的結果為準。',
  statutes:[P(7)],notes:[],
  actions:[{label:'查詢團體名稱',view:'dir',sub:''}]};
@@ -1218,7 +1309,7 @@ function standingDirectorCount(t){
  if(!/常務理事|常務監事|常務理監事/.test(t))return null;
  if(!/(幾|多少|名額|人數|上限|最多|可以設|要設|一定要)/.test(t))return null;
  if(/合作社|社員|代理|出缺|補選/.test(t))return null;
- return{category:'人民團體會務說明',title:'常務理事、常務監事的名額：不得超過理事或監事總額的三分之一',
+ return{direct:true,category:'人民團體會務說明',title:'常務理事、常務監事的名額：不得超過理事或監事總額的三分之一',
  summary:'法規只定了上限，實際名額由章程決定。\n\n理事、監事的名額在三人以上的，可以分別互選常務理事和常務監事，名額不得超過理事或監事總額的三分之一；理事長由理事從常務理事中選出一人擔任，沒有設常務理事的，就由理事互選（人民團體法第17條）。\n\n舉例：理事15人，常務理事最多5人；理事9人，最多3人。監事5人，常務監事最多1人。常務監事有三人以上時，要互推一人擔任監事會召集人。\n\n常務理事不是一定要設，規模小的協會可以不設，直接由理事互選理事長。',
  statutes:[P(17)],notes:['名額要寫在章程裡；想增減名額，要先修改章程。']};
 }
@@ -1227,7 +1318,7 @@ function memberViewAccounts(t){
  if(!/(帳本|帳簿|帳冊|帳目|帳|財務報表|收支|財報|會議紀錄)/.test(t))return null;
  if(!/(看|查閱|查看|調閱|閱覽|影印|公開|公布|公告|提供)/.test(t))return null;
  if(/合作社|社員|保存|幾年/.test(t))return null;
- return{category:'人民團體財務',title:'會員想看協會的帳：財務收支應定期公告，決算要提會員大會，會議紀錄可以查閱',
+ return{direct:true,category:'人民團體財務',title:'會員想看協會的帳：財務收支應定期公告，決算要提會員大會，會議紀錄可以查閱',
  summary:'會員了解協會財務，法規上有三個管道：\n\n1. 定期公告：社會團體處理財務收支，不得有匿報或虛報，並應定期公告（社會團體財務處理辦法第20條）。\n2. 會員大會：每年的工作報告和會計報告（決算）要提會員大會通過（同辦法第11條），會員可以在大會上提問、要求說明。\n3. 會議紀錄：會員大會、理事會、監事會的會議紀錄，協會要留存並提供會員查閱（人民團體會務輔導辦法第12條）。\n\n至於個別會員能不能直接翻閱帳簿和憑證，法規沒有明文規定，要看章程；章程沒有規定時，可以請監事會查核，財務的查核本來就是監事會的職權（社會團體財務處理辦法第22條）。協會拒絕公開又不說明的，可以向縣府承辦人反映。',
  statutes:[F(20),F(11),G(12),F(22)],notes:[],
  actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
@@ -1237,7 +1328,7 @@ function howToReportGroup(t){
  if(!/(要|想|怎麼|如何|去哪|哪裡|向誰|找誰|可以)/.test(t)||/被檢舉|被投訴|被陳情|被舉報/.test(t))return null;
  if(!/(協會|團體|社團|理事長|總幹事|公會|老人會|婦女會)/.test(t))return null;
  if(/合作社|社員|募款|勸募/.test(t))return null;
- return{category:'會務爭議',title:'想檢舉協會：備妥具體事證，向屏東縣政府社會處反映',
+ return{direct:true,category:'會務爭議',title:'想檢舉協會：備妥具體事證，向屏東縣政府社會處反映',
  summary:'在屏東縣立案的協會，主管機關是屏東縣政府社會處，可以用書面或電話向該團體的承辦人反映。\n\n反映時請說清楚：\n1. 團體的全名。\n2. 具體的事情和發生的時間，例如多久沒開會、沒有改選、帳目不公開。\n3. 手上的證明，例如開會通知、會議紀錄、收據、對話紀錄。\n\n縣府查證後，團體確有違反法令、章程或妨害公益的，可以警告、撤銷決議、停止業務並限期改善；逾期不改善或情節重大的，可以撤免職員、限期整理、廢止許可或解散（人民團體法第58條）。\n\n如果您本身是會員，也可以先走內部的管道：請監事會查核，或由會員五分之一以上請求召開臨時會員大會（人民團體法第25條）。',
  statutes:[P(58),P(25)],notes:['涉及侵占、詐欺等刑事問題，請向警察機關或地檢署提出。','縣府總機 08-7320415，可請總機轉該團體的承辦人。'],
  actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
@@ -1246,7 +1337,7 @@ function groupReported(t){
  if(!/(檢舉|投訴|陳情|舉報|被告發)/.test(t))return null;
  if(!/(協會|團體|社團|理事長|我們|本會)/.test(t))return null;
  if(/合作社|社員|帳|財務|經費|募款|勸募|去哪|向誰|怎麼檢舉|如何檢舉|要檢舉|想檢舉/.test(t))return null;
- return{category:'會務爭議',title:'協會被檢舉：主管機關會先查證並請團體說明，確有違規才會要求改善或處分',
+ return{direct:true,category:'會務爭議',title:'協會被檢舉：主管機關會先查證並請團體說明，確有違規才會要求改善或處分',
  summary:'被檢舉不等於已經違規。縣府收到檢舉後，通常會先請協會提出說明和相關資料，查證之後再決定怎麼處理。\n\n建議這樣準備：\n1. 先弄清楚被檢舉的事項，是會務（開會、改選）、財務，還是業務活動。\n2. 把相關的會議紀錄、簽到表、帳簿和憑證整理好，在期限內以書面答覆。\n3. 確實有缺失的，儘快補正，例如補開會議、補報資料。\n\n查證後確有違反法令、章程或妨害公益的，主管機關可以警告、撤銷決議、停止業務的一部或全部，並限期改善；逾期不改善或情節重大的，才會進一步撤免職員、限期整理、廢止許可或解散（人民團體法第58條）。',
  statutes:[P(58)],notes:['涉及刑事責任（例如侵占、偽造文書）的，由司法機關處理，不是縣府能認定的。'],
  actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
@@ -1255,7 +1346,7 @@ function anonymousDonation(t){
  if(!/(匿名|不具名|無名氏|不願具名|善心人士|不留名)/.test(t))return null;
  if(!/(捐|收據)/.test(t))return null;
  if(/合作社|社員/.test(t))return null;
- return{category:'人民團體財務',title:'匿名捐款也要開收據、入帳：收據存根留存備查',
+ return{direct:true,category:'人民團體財務',title:'匿名捐款也要開收據、入帳：收據存根留存備查',
  summary:'要開。社會團體的經費收入，都要開立正式收據並留存根備查（社會團體財務處理辦法第17條），沒有「匿名就可以不開」的例外；款項也要照常入帳。\n\n捐款人不願意具名的，收據還是照開、照編號，存根留在協會；捐款人欄位要怎麼記載（例如寫「無名氏」），法規沒有明文規定，建議先向縣府承辦人確認。\n\n要提醒捐款人：收據上沒有姓名，就沒辦法拿來申報所得稅的捐贈扣除。',
  statutes:[F(17)],
  notes:['如果是經許可的公益勸募活動，收據還要載明勸募許可文號、捐贈人、金額或物品和日期（公益勸募條例第16條）。'],
@@ -1303,7 +1394,7 @@ function boardBelowHalf(t){
 
 function verifiedRoundAnswer(q,ctx){
  const t=norm(q);
- return charmCommunityContact(t)||termLengthLimit(t)||officeAtHome(t)||dissolvedAssets(t)||groupNameDuplicate(t)||standingDirectorCount(t)||memberViewAccounts(t)||howToReportGroup(t)||groupReported(t)||anonymousDonation(t)||chairRelativeStaff(t)||minorJoinAssoc(t)||volunteerTopics(t)||volunteerTeam(t)||memberCourseFee(t)||staffMustBeMember(t)||chairFundraising(t)||boardBelowHalf(t)||assocMayNotMeet(t)||assocNurseryCenter(t)||assocCareStation(t)||assocDonateGoods(t)||assocGovTender(t)||subsidySettlement(t)||corpRegistration(t)||assocBoardPay(t)||financeStaffConcurrent(t)||staffHiring(t)||coopVsAssocAccountingForms(t)||coopBalanceSheetReport(t)||delegateQuotaCalculation(t)||delegateConcurrentRole(t)||onlineVoting(t)||mailVoting(t)||assemblyVotingMethod(t)||boardVotingMethodDetail(t)||delegateElectionProcess(t)||delegateAssemblyRules(t)||coopMemberRemoval(t)||coopAdvertisingTaxability(t)||coopLoanToMemberTax(t)||coopBankLoanProcedure(t)||coopBankLoan(t)||branchAccountingPractice(t)||memberDelegateElection(t)||branchOrgSetup(t)||delegateProposalProcess(t)||annualMeetingVsAssembly(t)||vacancyQuorum(t)||supervisorConvenerNoMeeting(t)||supervisorMinimumMembers(t)||supervisorChairmanElection(t)||supervisorAuditPowers(t)||branchOrgAccounting(t)||runClassesPermit(t)||residentialCarePermit(t)||chairConvicted(t)||chairDismissStaff(t)||chairDissolve(t)||homeAsOfficeTax(t)||nonprofitTaxThreshold(t)||sameAddressGroups(t)||chairStaffConflict(t)||orgDisposeProperty(t)||orgAcquireEquipment(t)||sellGoodsAllowed(t)||staffActingChair(t)||p2MembershipFee(t)||p2BoardNotice(t)||p2RecordRetention(t)||p2CharterAmend(t)||p2SupervisorAudit(t)||p2CoopShares(t)||p2FoundingMeeting(t)||p2ElectionPrep(t)||p2MinutesContent(t)||p2DelegateSystem(t)||chairAbandonsOffice(t)||chairOtherGroupPosition(t)||chairSpendWithoutBoard(t)||supervisorSpend(t)||supervisorActingChair(t)||candidateSeatCount(t)||ballotRetention(t)||officerResignation(t)||invalidBallotReason(t)||delegateQualification(t)||substitutionOrder(t)||byElectionThreshold(t)||coopChairReelection(t)||chairmanReelectionLimit(t)||chairmanAbsence(t)||recordRetentionPeriod(t)||advertisingIncome(t)||staffBankAccountSetup(t)||meetingSigninDuration(t)||meetingVotingMethod(t)||preElectionBoardMeeting(t)||electionEffectiveDate(t)||politicalDonation(t)||communityReportingRequirements(t)||communityYearlyPlanDeadline(t)||communityVsAssociationDifferences(t)||supervisorAsDirector(t)||newChairTodo(t)||postElectionAccountingDeadline(t)||electionReportDeadline(t)||checkSignature(t)||feePeriods(t)||feeDeferral(t)||threeMonthsWording(t)||electionCandidates(t)||electionObjection(t)||minutesDeadline(t)||coopBoardQuorum(t)||coopTax(t)||communityRename(t)||communityReportTownship(t)||addressCertificate(t)||bankChairChange(t)||eventFee(t)||communityChairTerm(t)||invalidBallot(t)||feeAmount(t)||personalAccount(t)||delegateAssembly(t)||noSupervisor(t)||foundingDocs(t)||investStocks(t)||membershipRefused(t)||coopCapital(t)||receiveDonation(t)||hireEmployee(t)||lendToChair(t)||branchOrg(t)||supervisorMeeting(t)||noAnnualMeeting(t)||chairSpendingAuth(t)||communityVsGeneral(t)||coopDissolutionProperty(t)||charterAmendment(t)||coopSupervisorAudit(t)||publicSolicitation(t)||decisionRevoked(t)||chairResign(t)||memberExpulsion(t)||sealChange(t)||noHandover(t)||communityDissolutionProperty(t)||boardFinanceAgenda(t)||boardQuorumGeneral(t)||delegated(t)||chairNoMeeting(t)||feeAnswer(t)||coopAssemblyQuorum(t)||proxyCount(t)||concurrent(t)||financeQuestioned(t)||financeDeadline(t)||meetingFrequency(t)||videoMeeting(t)||coopMinimum(t)||financeForms(t)||formsDownload(t,ctx&&ctx.catalog)||dissolutionHowTo(t)||null;
+ return charmCommunityContact(t)||groupTypeDifference(t)||directorAbsence(t)||chairElectionMethod(t)||officerNumbers(t)||meetingNoticeChannel(t)||budgetHowTo(t)||renameGroup(t)||certificateLost(t)||dormantGroup(t)||lookupRegistered(t)||coopWithdraw(t)||termLengthLimit(t)||officeAtHome(t)||dissolvedAssets(t)||groupNameDuplicate(t)||standingDirectorCount(t)||memberViewAccounts(t)||howToReportGroup(t)||groupReported(t)||anonymousDonation(t)||chairRelativeStaff(t)||minorJoinAssoc(t)||volunteerTopics(t)||volunteerTeam(t)||memberCourseFee(t)||staffMustBeMember(t)||chairFundraising(t)||boardBelowHalf(t)||assocMayNotMeet(t)||assocNurseryCenter(t)||assocCareStation(t)||assocDonateGoods(t)||assocGovTender(t)||subsidySettlement(t)||corpRegistration(t)||assocBoardPay(t)||financeStaffConcurrent(t)||staffHiring(t)||coopVsAssocAccountingForms(t)||coopBalanceSheetReport(t)||delegateQuotaCalculation(t)||delegateConcurrentRole(t)||onlineVoting(t)||mailVoting(t)||assemblyVotingMethod(t)||boardVotingMethodDetail(t)||delegateElectionProcess(t)||delegateAssemblyRules(t)||coopMemberRemoval(t)||coopAdvertisingTaxability(t)||coopLoanToMemberTax(t)||coopBankLoanProcedure(t)||coopBankLoan(t)||branchAccountingPractice(t)||memberDelegateElection(t)||branchOrgSetup(t)||delegateProposalProcess(t)||annualMeetingVsAssembly(t)||vacancyQuorum(t)||supervisorConvenerNoMeeting(t)||supervisorMinimumMembers(t)||supervisorChairmanElection(t)||supervisorAuditPowers(t)||branchOrgAccounting(t)||runClassesPermit(t)||residentialCarePermit(t)||chairConvicted(t)||chairDismissStaff(t)||chairDissolve(t)||homeAsOfficeTax(t)||nonprofitTaxThreshold(t)||sameAddressGroups(t)||chairStaffConflict(t)||orgDisposeProperty(t)||orgAcquireEquipment(t)||sellGoodsAllowed(t)||staffActingChair(t)||p2MembershipFee(t)||p2BoardNotice(t)||p2RecordRetention(t)||p2CharterAmend(t)||p2SupervisorAudit(t)||p2CoopShares(t)||p2FoundingMeeting(t)||p2ElectionPrep(t)||p2MinutesContent(t)||p2DelegateSystem(t)||chairAbandonsOffice(t)||chairOtherGroupPosition(t)||chairSpendWithoutBoard(t)||supervisorSpend(t)||supervisorActingChair(t)||candidateSeatCount(t)||ballotRetention(t)||officerResignation(t)||invalidBallotReason(t)||delegateQualification(t)||substitutionOrder(t)||byElectionThreshold(t)||coopChairReelection(t)||chairmanReelectionLimit(t)||chairmanAbsence(t)||recordRetentionPeriod(t)||advertisingIncome(t)||staffBankAccountSetup(t)||meetingSigninDuration(t)||meetingVotingMethod(t)||preElectionBoardMeeting(t)||electionEffectiveDate(t)||politicalDonation(t)||communityReportingRequirements(t)||communityYearlyPlanDeadline(t)||communityVsAssociationDifferences(t)||supervisorAsDirector(t)||newChairTodo(t)||postElectionAccountingDeadline(t)||electionReportDeadline(t)||checkSignature(t)||feePeriods(t)||feeDeferral(t)||threeMonthsWording(t)||electionCandidates(t)||electionObjection(t)||minutesDeadline(t)||coopBoardQuorum(t)||coopTax(t)||communityRename(t)||communityReportTownship(t)||addressCertificate(t)||bankChairChange(t)||eventFee(t)||communityChairTerm(t)||invalidBallot(t)||feeAmount(t)||personalAccount(t)||delegateAssembly(t)||noSupervisor(t)||foundingDocs(t)||investStocks(t)||membershipRefused(t)||coopCapital(t)||receiveDonation(t)||hireEmployee(t)||lendToChair(t)||branchOrg(t)||supervisorMeeting(t)||noAnnualMeeting(t)||chairSpendingAuth(t)||communityVsGeneral(t)||coopDissolutionProperty(t)||charterAmendment(t)||coopSupervisorAudit(t)||publicSolicitation(t)||decisionRevoked(t)||chairResign(t)||memberExpulsion(t)||sealChange(t)||noHandover(t)||communityDissolutionProperty(t)||boardFinanceAgenda(t)||boardQuorumGeneral(t)||delegated(t)||chairNoMeeting(t)||feeAnswer(t)||coopAssemblyQuorum(t)||proxyCount(t)||concurrent(t)||financeQuestioned(t)||financeDeadline(t)||meetingFrequency(t)||videoMeeting(t)||coopMinimum(t)||financeForms(t)||formsDownload(t,ctx&&ctx.catalog)||dissolutionHowTo(t)||null;
 }
 const api={normalizeQuestion,withContext,verifiedRoundAnswer};
 if(typeof module!=='undefined'&&module.exports)module.exports=api;
