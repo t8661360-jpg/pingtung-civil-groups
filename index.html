@@ -750,7 +750,13 @@ const CAT_ALIAS=[["社會服務團體",/社會服務|社服|社福/],["學術文
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const norm=s=>String(s??"").replace(/臺/g,"台").replace(/[\s\u3000「」『』（）()〔〕【】、，,。.．:：;；!！?？"'“”‘’\-－—_/／]/g,"").toLowerCase();
-const nameKey=s=>norm(s).replace(/^社團法人/,"").replace(/^屏東縣/,"");
+const NAME_ALIAS=[[/社會工作師/g,"社工師"],[/社會工作/g,"社工"],[/臺/g,"台"]];
+/* 名冊匯出檔的罕用字會變成「?」：顯示時以□表示，理事長姓名只保留姓氏並註明，避免顯示亂碼 */
+function fixGarbledRow(r){if(!r||!/\?/.test(JSON.stringify(r)))return r;const o={...r};const NOTE="（原始名冊含罕用字，無法正確顯示）";
+  for(const k of Object.keys(o)){const v=o[k];if(typeof v!=="string"||!v.includes("?"))continue;
+    if(k==="p"){o[k]=/^[\u4e00-\u9fa5]/.test(v)?v[0]+"○"+NOTE:"○○"+NOTE}else o[k]=v.replace(/\?[\u3105-\u3129^_]?|[\u3105-\u3129]/g,"□")}
+  return o}
+const nameKey=s=>NAME_ALIAS.reduce((x,[a,b])=>x.replace(a,b),norm(s).replace(/^社團法人/,"").replace(/^屏東縣/,""));
 function bigrams(s){s=norm(s);const a=[];for(let i=0;i<s.length-1;i++)a.push(s.slice(i,i+2));return a.length?a:(s?[s]:[])}
 const fmtDate=iso=>iso?String(iso).slice(0,10):"";
 function withTimeout(p,ms){return Promise.race([p,new Promise((_,rej)=>setTimeout(()=>rej(new Error("連線逾時")),ms))])}
@@ -796,7 +802,7 @@ async function loadAll(force){
     const jf=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);return r.json()};
     const jgz=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);const b=new Uint8Array(await r.arrayBuffer());if(b[0]!==31||b[1]!==139)return JSON.parse(new TextDecoder().decode(b));if(typeof DecompressionStream==="undefined")throw new Error("gzip unsupported");const text=await new Response(new Blob([b]).stream().pipeThrough(new DecompressionStream("gzip"))).text();return JSON.parse(text)};
     const [d,s,k,f]=await Promise.allSettled([jf(base+"directory.json"),jf(base+"staff.json"),jgz(base+"knowledge.json.gz").catch(()=>jf(base+"knowledge.json")),jf(base+"forms-catalog.json?v=20261105-5")]);
-    if(d.status==="fulfilled"){const v=d.value;STORE.dir={rows:v.rows||[],meta:v.meta||null}}
+    if(d.status==="fulfilled"){const v=d.value;STORE.dir={rows:(v.rows||[]).map(fixGarbledRow),meta:v.meta||null}}
     if(s.status==="fulfilled"){const v=s.value;STORE.staff={rows:v.rows||[],updatedAt:v.updatedAt,source:v.source||""}}
     if(k.status==="fulfilled")STORE.kn={rows:k.value.rows||[],meta:k.value.meta||null};
     if(f.status==="fulfilled"){const v=f.value;if(v&&Array.isArray(v.files))STORE.forms.catalog=v}
@@ -1714,7 +1720,7 @@ async function importGroups(){
   try{
     const mode=$("#g-mode").value;const types=new Set(gPending.map(r=>r.t));
     let keep=mode==="all"?[]:mode==="type"?STORE.dir.rows.filter(r=>!types.has(r.t)):STORE.dir.rows.slice();
-    const merged=keep.concat(gPending);
+    const merged=keep.concat(gPending.map(fixGarbledRow));
     const sources=[...new Set(gPending.map(r=>r.src))];
     const meta=await saveChunked("directory",merged,{sources:[...((STORE.dir.meta&&STORE.dir.meta.sources)||[]).filter(s=>!sources.includes(s)),...sources].slice(-30)});
     STORE.dir={rows:merged,meta};
