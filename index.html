@@ -801,7 +801,7 @@ async function saveChunked(coll,rows,metaExtra){
 async function loadAll(force){
   if(loadPromise&&!force)return loadPromise;
   loadPromise=(async()=>{
-    const base=document.baseURI.replace(/[^/]*$/,"")+"data/";const DV="?v=20261111-16";
+    const base=document.baseURI.replace(/[^/]*$/,"")+"data/";const DV="?v=20261111-17";
     const jf=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);return r.json()};
     const jgz=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);const b=new Uint8Array(await r.arrayBuffer());if(b[0]!==31||b[1]!==139)return JSON.parse(new TextDecoder().decode(b));if(typeof DecompressionStream==="undefined")throw new Error("gzip unsupported");const text=await new Response(new Blob([b]).stream().pipeThrough(new DecompressionStream("gzip"))).text();return JSON.parse(text)};
     const [d,s,k,f]=await Promise.allSettled([jf(base+"directory.json"+DV),jf(base+"staff.json"+DV),jgz(base+"knowledge.json.gz"+DV).catch(()=>jf(base+"knowledge.json"+DV)),jf(base+"forms-catalog.json?v=20261105-5")]);
@@ -863,26 +863,26 @@ const KSTOP=/請問|一下|可以|是否|如何|怎麼|什麼|需要|的|嗎|呢
 let KN_IDX=null;
 function knIndex(){
   const rows=STORE.kn.rows;if(KN_IDX&&KN_IDX.n===rows.length)return KN_IDX;
-  const df=new Map();const docs=rows.map(r=>{const ti=norm(r.title),tx=norm(r.text);const set=new Set(bigrams(ti+"｜"+tx));set.forEach(b=>df.set(b,(df.get(b)||0)+1));return{ti,tx}});
+  const df=new Map();const docs=rows.map(r=>{const ti=norm(r.title+"｜"+(r.alias||"")),tx=norm(r.text),ta=norm(r.alias||r.title);const set=new Set(bigrams(ti+"｜"+tx));set.forEach(b=>df.set(b,(df.get(b)||0)+1));return{ti,tx,ta}});
   KN_IDX={n:rows.length,df,docs};return KN_IDX;
 }
 /* 主題詞覆蓋率：只看問句中較少見的詞（含知識庫完全沒有的詞，如「托嬰」），避免只靠「協會」「申請」等常見詞就配到無關條目 */
 function knTopicCov(q,r){const ix=knIndex();const N=ix.n;const lim=Math.max(20,N*0.02);
   const bg=[...new Set(bigrams(String(q).replace(KSTOP,"")))].filter(b=>!/[0-9a-z]/.test(b)||/[\u4e00-\u9fa5]/.test(b));
   const tb=bg.filter(b=>(ix.df.get(b)||0)<=lim);if(!tb.length)return 1;
-  const doc=norm(r.title)+"｜"+norm(r.text);let hit=0,all=0;
+  const doc=norm(r.title+"｜"+(r.alias||""))+"｜"+norm(r.text);let hit=0,all=0;
   tb.forEach(b=>{const w=Math.log((N+1)/(1+(ix.df.get(b)||0)));all+=w;if(doc.includes(b))hit+=w});
   return all?hit/all:1}
 function revCov(title,q){const tb=bigrams(title);if(!tb.length)return 0;const qn=norm(q);return tb.filter(b=>qn.includes(b)).length/tb.length}
-const KN_OTHER_LAW=/商業團體法|工業團體法|同業公會|商業會|工業會/;
+const KN_OTHER_LAW=/商業團體法|工業團體法|同業公會|商業會|工業會|適用對象：商業/;
 const KN_ASK_OTHER_TYPE=/商業|工業|同業|公會|職業|商會|工會|工廠/;
-function searchKn(q,limit){
+function searchKn(q,limit,legacy){
   const rows=STORE.kn.rows;if(!rows.length)return[];
   const bg=[...new Set(bigrams(String(q).replace(KSTOP,"")))];if(!bg.length)return[];
   const ix=knIndex();const N=ix.n;
   const w=bg.map(b=>Math.log((N+1)/(1+(ix.df.get(b)||0))));const wsum=w.reduce((a,b)=>a+b,0)||1;
-  const sc=rows.map((r,k)=>{const {ti,tx}=ix.docs[k];let s=0,t=0;bg.forEach((b,j)=>{if(ti.includes(b)){s+=3*w[j];t+=w[j]}if(tx.includes(b))s+=w[j]});return{s,r,tc:t/wsum}}).filter(x=>x.s>0).filter(x=>KN_ASK_OTHER_TYPE.test(q)||!KN_OTHER_LAW.test(x.r.title)).sort((a,b)=>b.s-a.s).slice(0,limit||5).filter(x=>x.s>=wsum*0.6);
-  return sc.map(({r,tc})=>{const raw=String(r.text);const key=bg.find(b=>norm(raw).includes(b));let i=key?raw.indexOf(key[0]+key[1]):0;if(i<0)i=0;const start=raw.length<=600?0:Math.max(0,i-120);const o={標題:r.title,類別:r.cat||"",文號或來源:r.source||"",日期:r.date||"",內容摘錄:(start>0?"…":"")+raw.slice(start,start+600)+(raw.length>start+600?"…":""),資料狀態:STORE.kn.meta&&STORE.kn.meta.note||"",追問:r.ask||""};Object.defineProperty(o,"_tc",{value:tc});Object.defineProperty(o,"_r",{value:r});return o});
+  const sc=rows.map((r,k)=>{const {ti,tx,ta}=ix.docs[k];let s=0,t=0,a=0,sa=0;bg.forEach((b,j)=>{if(ti.includes(b)){s+=3*w[j];t+=w[j]}if(ta.includes(b)){a+=w[j];sa+=3*w[j]}if(tx.includes(b)){s+=w[j];sa+=w[j]}});return legacy?{s:sa,r,tc:a/wsum,tca:a/wsum}:{s,r,tc:t/wsum,tca:a/wsum}}).filter(x=>x.s>0).filter(x=>KN_ASK_OTHER_TYPE.test(q)||!KN_OTHER_LAW.test(x.r.title)).sort((a,b)=>b.s-a.s).slice(0,limit||5).filter(x=>x.s>=wsum*0.6);
+  return sc.map(({r,tc,tca})=>{const raw=String(r.text);const key=bg.find(b=>norm(raw).includes(b));let i=key?raw.indexOf(key[0]+key[1]):0;if(i<0)i=0;const start=raw.length<=600?0:Math.max(0,i-120);const o={標題:r.title,類別:r.cat||"",文號或來源:r.source||"",日期:r.date||"",內容摘錄:(start>0?"…":"")+raw.slice(start,start+600)+(raw.length>start+600?"…":""),資料狀態:STORE.kn.meta&&STORE.kn.meta.note||"",追問:r.ask||""};Object.defineProperty(o,"_tc",{value:tc});Object.defineProperty(o,"_tca",{value:tca});Object.defineProperty(o,"_r",{value:r});return o});
 }
 
 /* ================= 意圖判斷 ================= */
@@ -900,7 +900,7 @@ function specificName(q){
     const suf=cand.match(new RegExp("("+SUFFIX+")$"));const pre=suf?cand.slice(0,-suf[1].length):cand;
     if(!pre&&/^屏東縣/.test(full)&&suf&&!/^(協會|學會|公會|合作社|社區發展協會)$/.test(suf[1]))return full;
     if(!pre||pre.length<2||GENERIC_PREFIX.test(pre))continue;
-    if(/(可以|能不能|可不可以|能否|是否|要不要|怎麼|如何|加入|參加|申請|未滿|未成年|\d+歲|十八歲)/.test(pre))continue;
+    if(/(可以|能不能|可不可以|能否|是否|要不要|怎麼|如何|加入|參加|申請|檢舉|投訴|陳情|舉報|未滿|未成年|\d+歲|十八歲)/.test(pre))continue;
     if(/^(社區發展|社會|職業|人民)/.test(cand)&&pre.length<=4)continue;
     const preN=norm(pre);const town=TOWNS.find(t=>preN.startsWith(norm(t))||(norm(t).slice(0,-1)!=="屏東"&&preN.startsWith(norm(t).slice(0,-1))));
     if(town){let rest=preN.startsWith(norm(town))?preN.slice(norm(town).length):preN.slice(norm(town).length-1);rest=rest.replace(/^[有的在之]+|[有的在之]+$/g,"");
@@ -1039,7 +1039,7 @@ function renderLaw(){
   $("#lawtabs").innerHTML=all.map(k=>`<button class="tab" role="tab" aria-selected="${k===lawCat}" data-l="${k}">${k}</button>`).join("");
   if(lawCat==="函釋與問答"){
     $("#lawbody").innerHTML=`<div class="panel"><div class="field" style="max-width:360px"><label for="lq">搜尋函釋與問答</label><input id="lq" placeholder="例如：連任、會員代表"></div><div id="lres"></div></div>`;
-    const draw=()=>{const q=$("#lq").value.trim();const list=q?STORE.kn.rows.filter(r=>norm(r.title+r.text+r.source).includes(norm(q))):STORE.kn.rows;
+    const draw=()=>{const q=$("#lq").value.trim();const list=q?STORE.kn.rows.filter(r=>norm(r.title+(r.alias||"")+r.text+r.source).includes(norm(q))):STORE.kn.rows;
       $("#lres").innerHTML=list.slice(0,80).map(r=>`<details class="kitem" style="display:block"><summary style="cursor:pointer"><b>${esc(r.title)}</b><small>${esc([r.cat,r.source,r.date].filter(Boolean).join("｜"))}</small></summary><p style="white-space:pre-wrap;margin:8px 0 0">${esc(r.text)}</p></details>`).join("")||`<div class="empty">找不到相關資料，請換個關鍵字。</div>`};
     $("#lq").addEventListener("input",draw);draw();return;
   }
@@ -1424,12 +1424,12 @@ function smartFallback(q,kb){
   const parts={};
   if(kb&&kb.cat==="打招呼")return kbAnswer(kb);
   if(kb){Object.assign(parts,kbAnswer(kb))}
-  const kn=searchKn(q,5).filter(x=>!/^書表範本/.test(x.標題));
+  const kn=searchKn(q,5,!!parts.summary).filter(x=>!/^書表範本/.test(x.標題));
   if(kn.length){
-    const top=kn[0];const strong=top._tc>=0.45;
-    const near=top._tc>=0.8&&revCov(top.標題,q)>=0.6;
-    const onTopic=strong||knTopicCov(q,top._r)>=0.6&&top._tc>=0.3;
-    if(onTopic&&(!parts.summary||near||(strong&&KB_LAST_SCORE<6))){
+    const top=kn[0];/* 已有櫃檯內建答案時，用原標題（別名）判斷是否足以取代，避免口語化後較長的新標題搶走內建流程答案 */const tcv=parts.summary?top._tca:top._tc;const strong=tcv>=0.45;
+    const near=tcv>=0.8&&Math.max(revCov(top.標題,q),top._r.alias?revCov(top._r.alias,q):0)>=0.6;
+    const onTopic=strong||knTopicCov(q,top._r)>=0.6&&tcv>=0.3;
+    if(onTopic&&(!parts.summary||near||(strong&&KB_LAST_SCORE<6&&knTopicCov(q,top._r)>=0.5))){
       const r=top._r;
       Object.assign(parts,{category:r.cat||"法規查詢",title:r.title,summary:r.text,steps:[],docs:[],guide:[],where:[],laws:[],actions:parts.actions||[]});
       parts.notes=[...(r.ask?["想給您更精確的答案，請告訴我："+r.ask.replace(/^請問/,"")]:[]),"這則說明整理自法規與主管機關資料（初版），個案仍以主管機關最新規定為準。"];
@@ -1818,11 +1818,11 @@ touch();
   route();
 })();
 </script>
-<script src="feedback-collector.js?v=20261111-16"></script>
-<script src="round-fixes.js?v=20261111-16"></script>
-<script src="answer-arbiter.js?v=20261111-16"></script>
-<script src="question-understanding.js?v=20261111-16"></script>
-<script src="counter-upgrade.js?v=20261111-16"></script>
+<script src="feedback-collector.js?v=20261111-17"></script>
+<script src="round-fixes.js?v=20261111-17"></script>
+<script src="answer-arbiter.js?v=20261111-17"></script>
+<script src="question-understanding.js?v=20261111-17"></script>
+<script src="counter-upgrade.js?v=20261111-17"></script>
 </body>
 </html>
 

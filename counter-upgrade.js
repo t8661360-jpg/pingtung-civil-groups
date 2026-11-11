@@ -22,9 +22,22 @@ function statuteFor(row){
  const law=statuteData.laws[code[1]];if(!law||!law.articles[number[1]]||!norm(row.title).startsWith(norm(law.name)))return null;
  return {...law,number:number[1],text:law.articles[number[1]],url:`https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=${code[1]}&flno=${number[1]}`};
 }
+/* 只顯示與回答正文相關的條文：正文（含注意事項）引用到該條號，或條文內容與正文高度重疊；避免把無關條文硬附在答案下方 */
+function citedArticleNumbers(text){const out=new Set();String(text||'').replace(/第\s*([\d\s、，,及和與至到\-－~～之]+)\s*[條點]/g,(m,g)=>{g.split(/[、，,及和與\s]+/).forEach(x=>{const r=x.match(/^(\d+)\s*[至到\-－~～]\s*(\d+)$/);if(r){for(let i=+r[1];i<=+r[2]&&i-+r[1]<30;i++)out.add(String(i))}else{const n=x.match(/\d+(?:[之\-]\d+)?/);if(n)out.add(n[0].replace('之','-'))}});return m});return out}
+function relevantStatutes(a){const list=a.statutes||[];if(list.length<=1)return list;
+ const body=String(a.summary||'')+'\n'+(a.notes||[]).join('\n')+'\n'+(a.steps||[]).join('\n');const cited=citedArticleNumbers(body);const nb=norm(body);
+ const grams=t=>{const x=norm(t).replace(/[^\u4e00-\u9fa5]/g,'');const g=new Set();for(let i=0;i<x.length-1;i++)g.add(x.slice(i,i+2));return g};const bg=grams(body);
+ const scored=list.map(row=>{const no=(String(row.title||'').match(/第\s*(\d+(?:-\d+)?)\s*[條點]/)||[])[1];const o=statuteFor(row);
+  let overlap=0;if(o){const ag=[...grams(o.text)];overlap=ag.length?ag.filter(g=>bg.has(g)).length/ag.length:0}
+  const lawName=norm(String(row.title||'').replace(/第\s*\d.*$/,''));const named=lawName&&nb.includes(lawName.slice(0,Math.min(lawName.length,4)));
+  const sameNo=no?list.filter(x=>(String(x.title||'').match(/第\s*(\d+(?:-\d+)?)\s*[條點]/)||[])[1]===no).length:0;
+  return {row,keep:!o||!no||(cited.has(no)&&(named||overlap>=0.12||sameNo===1))||overlap>=0.45,overlap}});
+ const kept=scored.filter(x=>x.keep).map(x=>x.row);
+ if(kept.length)return kept;
+ const best=scored.slice().sort((x,y)=>y.overlap-x.overlap)[0];return best&&best.overlap>=0.15?[best.row]:[list[0]]}
 function originalLawBlock(row){
  const original=statuteFor(row);
- if(!original)return '<section class="statute-original"><h3>法條原文</h3><p>這則資料的條文原文尚未完成對應，請先查閱官方原文。</p><p>'+sourceLinks(row&&row.source)+'</p></section>';
+ if(!original){const src=String(row&&row.source||'');const link=/^https?:/.test(src)?`<a href="${esc(src)}" target="_blank" rel="noopener">查閱官方原文 ↗</a>`:esc(src);return `<p class="statute-ref"><strong>${esc(row&&row.title||'相關規定')}</strong>${link?'｜'+link:''}</p>`;}
  return `<section class="statute-original"><h3>法條原文</h3><p class="statute-caption">${esc(original.name)} 第${esc(original.number)}條</p><div class="statute-text">${esc(original.text)}</div><p class="statute-version">${esc(original.modified||'版本日期請見官方來源')}｜原文核對：${esc(original.verifiedAt)}</p><a href="${esc(original.url)}" target="_blank" rel="noopener">查閱官方本條原文 ↗</a></section>`;
 }
 function knowledgeCard(r){return `<details class="plain-card"><summary>${esc(r.title.replaceAll('白話說明','法規說明'))}<small>${esc(r.cat==='正式函釋索引'?'函釋資料與現行對照':r.cat==='逐條法規白話導讀'?'法規導讀':'實務問題說明')}</small></summary><div class="plain-content">${r.cat==='逐條法規白話導讀'?originalLawBlock(r):''}<h3>法規說明</h3>${readable(r.text)}<details><summary>資料來源與適用提醒</summary><p>${sourceLinks(r.source)}</p><p>資料日期：${esc(r.date||'未標示')}。這是輔助說明，個案應核對現行法規、章程與原函適用情況。</p>${r.review?`<p>${esc(r.review)}</p>`:''}</details></div></details>`}
@@ -263,13 +276,13 @@ function exactArticleAnswer(q){
 }
 // Scope retrieval before selecting the best result, rather than filtering only the top hit.
 const unscopedSearchKn=searchKn;
-searchKn=function(q,limit){
+searchKn=function(q,limit,legacy){
   const comparison=/合作社|合作農場/.test(q)&&/協會|社會團體|人民團體/.test(q);
   const coop=/合作社|合作農場/.test(q);
   const people=!coop&&/協會|社會團體|人民團體/.test(q);
   const exact=articleRows(q);
-  const results=unscopedSearchKn(String(q).replaceAll('法規說明','白話說明'),STORE.kn.rows.length).filter(hit=>!exact.length||exact.includes(hit._r));
-  return results.filter(hit=>{if(comparison||(!coop&&!people))return true;const row=hit._r;const isCoop=/^合作社/.test(row.cat||'')||/合作社|合作農場/.test(row.title||'');if(people&&!/工會|公會|商業|工業|醫事|社工|護理|律師/.test(q)&&/工會|公會|商業團體|工業團體|醫事|社工師|護理|律師/.test(row.title+' '+row.cat))return false;return coop?isCoop:!isCoop}).slice(0,limit||5);
+  const results=unscopedSearchKn(String(q).replaceAll('法規說明','白話說明'),STORE.kn.rows.length,legacy).filter(hit=>!exact.length||exact.includes(hit._r));
+  return results.filter(hit=>{if(comparison||(!coop&&!people))return true;const row=hit._r;const isCoop=/^合作社/.test(row.cat||'')||/合作社|合作農場/.test((row.title||'')+' '+(row.alias||''));if(people&&!/工會|公會|商業|工業|醫事|社工|護理|律師/.test(q)&&/工會|公會|商業團體|工業團體|醫事|社工師|護理|律師/.test(row.title+' '+(row.alias||'')+' '+row.cat))return false;return coop?isCoop:!isCoop}).slice(0,limit||5);
 };
 const scopedFallback=smartFallback;
 smartFallback=function(q,kb){
@@ -290,7 +303,7 @@ smartFallback=function(q,kb){
   return scopedFallback(q,kb);
 };
 loadAll=async function(force){await baseLoadAll(force);await loadStatutes();if(!STORE.coopLoaded){
-  try{const responses=await Promise.all([fetch('data/coop/directory.json?v=20261111-16'),fetch('data/coop/catalog.json')]);if(responses.some(r=>!r.ok))throw Error('合作社資料載入失敗');const [dir,cat]=await Promise.all(responses.map(r=>r.json()));STORE.dir.rows=STORE.dir.rows.filter(r=>r.t!=='合作社').concat(dir.rows.map(r=>({...r,d:townOf(r.a)})));coopCatalog=cat.files;STORE.coopLoaded=true;fillCatSelect()}catch(e){console.warn(e)}
+  try{const responses=await Promise.all([fetch('data/coop/directory.json?v=20261111-17'),fetch('data/coop/catalog.json')]);if(responses.some(r=>!r.ok))throw Error('合作社資料載入失敗');const [dir,cat]=await Promise.all(responses.map(r=>r.json()));STORE.dir.rows=STORE.dir.rows.filter(r=>r.t!=='合作社').concat(dir.rows.map(r=>({...r,d:townOf(r.a)})));coopCatalog=cat.files;STORE.coopLoaded=true;fillCatSelect()}catch(e){console.warn(e)}
 }if(!STORE.kn.rows.some(r=>r.title===COOP_RULING.title)){STORE.kn.rows.push(COOP_RULING);KN_IDX=null}};
 const oldDirMetaLine=dirMetaLine;
 dirMetaLine=function(){const rows=STORE.dir.rows;const original=rows.filter(r=>r.t!=='合作社');return `人民團體 ${original.length} 筆；合作社 ${rows.filter(r=>r.t==='合作社').length} 筆（合作社名冊日期：2026/10/01）。名冊列載不代表即時營運狀態。`};
@@ -328,12 +341,12 @@ $('#form-types').addEventListener('click',e=>{const button=e.target.closest('[da
 const baseIntent=intentOf;
 intentOf=function(q){if(/(?:法|辦法|細則|準則)第[0-9一二三四五六七八九十百]+|法規說明|函釋/.test(q))return{kind:'ai'};return baseIntent(q)};
 const baseAnswer=renderAnswer;
-renderAnswer=function(q,a){const exact=exactArticleAnswer(q),focused=a&&a.questionState?a:focusedQuestionAnswer(q);if(exact||focused)a=exact||focused;const label=s=>String(s||'').replaceAll('逐條法規白話導讀','逐條法規說明').replaceAll('白話說明','法規說明');a={...a,title:label(a.title),category:label(a.category),related:(a.related||[]).map(label),refs:(a.refs||[]).map(r=>({...r,title:label(r.title),cat:label(r.cat)}))};baseAnswer(q,a);const el=board.querySelector('.summary');if(el){const row=articleRows(a.title||q)[0];const originals=a.statutes&&a.statutes.length?a.statutes:row?[row]:[];el.innerHTML='<div class="answer-first"><strong>重點回答</strong>'+readable(a.summary||'')+'</div>'+(originals.length?'<h3>法條原文</h3>'+originals.map(originalLawBlock).join(''):'');}lastQuestionContext=a.questionState||(window.CounterQuestions?window.CounterQuestions.understand(q,lastQuestionContext):null);};
+renderAnswer=function(q,a){const exact=exactArticleAnswer(q),focused=a&&a.questionState?a:focusedQuestionAnswer(q);if(exact||focused)a=exact||focused;const label=s=>String(s||'').replaceAll('逐條法規白話導讀','逐條法規說明').replaceAll('白話說明','法規說明');a={...a,title:label(a.title),category:label(a.category),related:(a.related||[]).map(label),refs:(a.refs||[]).map(r=>({...r,title:label(r.title),cat:label(r.cat)}))};baseAnswer(q,a);const el=board.querySelector('.summary');if(el){const row=articleRows(a.title||q)[0];const originals=a.statutes&&a.statutes.length?relevantStatutes(a):row?[row]:[];el.innerHTML='<div class="answer-first"><strong>重點回答</strong>'+readable(a.summary||'')+'</div>'+(originals.length?'<h3>法條原文</h3>'+originals.map(originalLawBlock).join(''):'');}lastQuestionContext=a.questionState||(window.CounterQuestions?window.CounterQuestions.understand(q,lastQuestionContext):null);};
 function renderMeetUpgrade(){
  $('#meetbody').innerHTML=`<div class="tabs" role="tablist"><button class="tab" role="tab" id="meet-people" aria-selected="true">人民團體會務</button><button class="tab" role="tab" id="meet-coop" aria-selected="false">合作社會務</button></div><div id="meet-content"></div>`;
  const draw=coop=>{$('#meet-people').setAttribute('aria-selected',!coop);$('#meet-coop').setAttribute('aria-selected',coop);$('#meet-content').innerHTML=coop?`<div class="panel"><h2>合作社會務怎麼辦？</h2><p>先確認您要辦的是開會、改選、年度財務或變更登記，再選擇下列項目。</p>${[["社員大會與理監事會","先確認章程及會議種類，再準備通知、議程與簽到表；會後整理紀錄及決議。",5],["改選與交接","先確認任期、選舉方式及候選程序，再使用對應的選票、委託書與會議紀錄表單。",6],["年度決算與預算","依合作社的會計年度準備決算、監事審核及社員大會紀錄，核對應報送的書表。",4],["理監事、章程或社址變更","先完成必要的會議決議，再準備變更申請及相關證明。",3],["解散與清算","解散及清算有不同階段，請依承辦人提供的流程與各階段書表辦理。",7]].map(([t,d,n])=>`<div class="sec"><h3>${t}</h3><p>${d}</p><a href="data/coop/forms-${n}.zip" download>下載對應書表</a>　<button class="btn ghost" data-coop-law="${t}">查法規說明</button></div>`).join('')}</div>`:MEET.map(itemPanel).join('');$('#meet-content').querySelectorAll('[data-coop-law]').forEach(b=>b.onclick=()=>{lawCat='合作社';location.hash='law';renderLaw()})};$('#meet-people').onclick=()=>draw(false);$('#meet-coop').onclick=()=>draw(true);draw(false);
 }
-const statuteStyle=document.createElement('style');statuteStyle.textContent='.statute-original{margin:0 0 24px;padding:20px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink)}.statute-original h3{margin-top:0}.statute-caption{font-weight:700}.statute-text{white-space:pre-wrap;font-size:1rem;line-height:1.9;text-align:left}.statute-version{font-size:.85rem;color:var(--muted);margin-top:16px!important}.statute-original a{font-size:.9rem}.plain-content .statute-original{margin-top:8px}.summary>h3{margin:20px 0 12px}';document.head.append(statuteStyle);
+const statuteStyle=document.createElement('style');statuteStyle.textContent='.statute-ref{margin:0 0 12px;font-size:.95em}.statute-original{margin:0 0 24px;padding:20px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink)}.statute-original h3{margin-top:0}.statute-caption{font-weight:700}.statute-text{white-space:pre-wrap;font-size:1rem;line-height:1.9;text-align:left}.statute-version{font-size:.85rem;color:var(--muted);margin-top:16px!important}.statute-original a{font-size:.9rem}.plain-content .statute-original{margin-top:8px}.summary>h3{margin:20px 0 12px}';document.head.append(statuteStyle);
 const upgradeStyle=document.createElement('style');upgradeStyle.textContent='.tabs [data-form-type][aria-pressed=true]{background:var(--primary);color:var(--primary-ink);border-color:var(--primary)}.law-group{border:1px solid var(--line);border-radius:12px;margin:12px 0;background:var(--surface);color:var(--ink)}.law-group>summary{cursor:pointer;padding:18px;font-weight:700;overflow-wrap:anywhere}.law-group>summary small{font-weight:400;color:var(--muted);margin-left:8px}.law-group-content{padding:0 14px 14px}.knowledge-filters{display:grid;grid-template-columns:1fr 1fr 2fr;gap:16px}.plain-card{border:1px solid var(--line);border-radius:12px;margin:12px 0;background:var(--surface);color:var(--ink)}.plain-card>summary{cursor:pointer;padding:18px;font-weight:600;line-height:1.7}.plain-card small{display:block;font-weight:400;color:var(--muted);margin-top:4px}.plain-content{padding:0 22px 22px;max-width:78ch;font-size:17px;line-height:1.9;overflow-wrap:anywhere}.plain-content p,.summary p{margin:0 0 14px}.plain-content details{border-top:1px solid var(--line);padding-top:12px;font-size:14px}.summary{line-height:1.9}.answer-first{padding:18px 20px;border-left:5px solid var(--sun);border-radius:14px;background:var(--soft2)}.answer-first>strong{display:block;color:var(--primary);font-size:.92rem;margin-bottom:8px}.summary>h3{margin-top:26px}@media(max-width:650px){.knowledge-filters{grid-template-columns:1fr}.plain-content{padding:0 16px 16px}.answer-first{padding:16px}}';document.head.append(upgradeStyle);
 loadAll().then(()=>{fillCatSelect();renderMeetUpgrade();route()});
 
