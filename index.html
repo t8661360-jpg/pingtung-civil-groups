@@ -830,7 +830,7 @@ async function saveChunked(coll,rows,metaExtra){
 async function loadAll(force){
   if(loadPromise&&!force)return loadPromise;
   loadPromise=(async()=>{
-    const base=document.baseURI.replace(/[^/]*$/,"")+"data/";const DV="?v=20261112-2";
+    const base=document.baseURI.replace(/[^/]*$/,"")+"data/";const DV="?v=20261112-3";
     const jf=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);return r.json()};
     const jgz=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);const b=new Uint8Array(await r.arrayBuffer());if(b[0]!==31||b[1]!==139)return JSON.parse(new TextDecoder().decode(b));if(typeof DecompressionStream==="undefined")throw new Error("gzip unsupported");const text=await new Response(new Blob([b]).stream().pipeThrough(new DecompressionStream("gzip"))).text();return JSON.parse(text)};
     const [d,s,k,f]=await Promise.allSettled([jf(base+"directory.json"+DV),jf(base+"staff.json"+DV),jgz(base+"knowledge.json.gz"+DV).catch(()=>jf(base+"knowledge.json"+DV)),jf(base+"forms-catalog.json?v=20261105-5")]);
@@ -942,8 +942,8 @@ function specificName(q){
   }
   return"";
 }
-const PROCESS_RE=/負責|債務|欠錢|合併|可以用.{0,8}(當|做|來)|哪些會|什麼會|哪些表|哪些資料|哪些文件|第一步|怎麼|如何|流程|步驟|辦理|要準備|需要什麼|準備什麼|文件|期限|幾天|連任|任期|改選|變更|解散|補助|法規|條文|規定|籌組|申請|章程|開會|會議|召開|決算|預算|名額|移交|什麼時候|何時|最少|至少|幾個人|幾人|多少人|要送/;
-const QUERY_RE=/查詢|查一下|幫我查|查查|搜尋|有沒有|有哪些|哪些|列出|名冊|清單|幾個|多少個|多少家|共有|是否立案|立案了嗎|有立案|有登記|是誰|電話|地址|在哪|重複|被用|可以用|能用|資料|還在嗎|解散了嗎/;
+const PROCESS_RE=/主管機關|要給|要通知|要報|看嗎|差在哪|負責|債務|欠錢|合併|可以用.{0,8}(當|做|來)|哪些會|什麼會|哪些表|哪些資料|哪些文件|第一步|怎麼|如何|流程|步驟|辦理|要準備|需要什麼|準備什麼|文件|期限|幾天|連任|任期|改選|變更|解散|補助|法規|條文|規定|籌組|申請|章程|開會|會議|召開|決算|預算|名額|移交|什麼時候|何時|最少|至少|幾個人|幾人|多少人|要送/;
+const QUERY_RE=/查詢|查一下|幫我查|查查|搜尋|有沒有|有哪些|哪些|列出|名冊|清單|幾個|多少個|多少家|共有|是否立案|立案了嗎|有立案|有登記|是誰|電話|地址|在哪|重複|被用|資料|還在嗎|解散了嗎/;
 const ENTITY_RE=/團體|協會|學會|社區|合作社|公會|促進會|聯誼會|獅子會|扶輪社|同濟會|老人會|宗親會|同鄉會|校友會|教師會|教育會|商業會|工業會|佛教會|道教會|功德會|婦女會|體育會|青年會/;
 const STAFF_RE=/承辦|分機|窗口|找誰|找哪位|哪位|業務聯絡|聯絡誰|打給誰|負責人員/;
 function detectType(q){if(/社區發展協會|社區協會|社區/.test(q))return"社區發展協會";if(/合作社/.test(q))return"合作社";if(/職業團體|公會/.test(q))return"職業團體";if(/社會團體/.test(q))return"社會團體";return""}
@@ -1858,12 +1858,12 @@ touch();
   route();
 })();
 </script>
-<script src="feedback-collector.js?v=20261112-2"></script>
-<script src="round-fixes.js?v=20261112-2"></script>
-<script src="answer-arbiter.js?v=20261112-2"></script>
-<script src="question-understanding.js?v=20261112-2"></script>
-<script src="counter-upgrade.js?v=20261112-2"></script>
-<script src="festive.js?v=20261112-2" defer></script>
+<script src="feedback-collector.js?v=20261112-3"></script>
+<script src="round-fixes.js?v=20261112-3"></script>
+<script src="answer-arbiter.js?v=20261112-3"></script>
+<script src="question-understanding.js?v=20261112-3"></script>
+<script src="counter-upgrade.js?v=20261112-3"></script>
+<script src="festive.js?v=20261112-3" defer></script>
 </body>
 </html>
 

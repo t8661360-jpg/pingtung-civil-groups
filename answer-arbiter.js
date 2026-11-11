@@ -78,10 +78,12 @@ function judge(q,candidates,ctx){
  const scored=cands.map((a,i)=>({a,i,...score(q,a,ctx)}));
  const PASS=0.6;
  const ok=scored.filter(x=>x.s>=PASS).sort((x,y)=>(y.s-x.s)||(x.i-y.i));
+ /* 已核對法條、觸發詞明確的直接回答：只要不是領域不合，就採用（不受主題覆蓋分數門檻限制） */
+ {const d0=scored.find(x=>x.a&&x.a.direct&&x.s>=0);if(d0)return{answer:d0.a};}
  root.__lastArbiter={q,type:askType(q),topics:topicsOf(q),scored:scored.map(x=>({title:x.a.title,s:+x.s.toFixed(2),reasons:x.reasons}))};
  if(!ok.length)return{rejected:scored.map(x=>x.a.title)};
  // 已核對法條、直接回答問句的規則答案，分數接近時優先採用，不反問
- const direct=ok.find(x=>x.a.direct&&x.s>=ok[0].s-0.25);if(direct)return{answer:direct.a};
+ const direct=ok.find(x=>x.a.direct&&x.s>=ok[0].s-0.6);if(direct)return{answer:direct.a};
  // 兩個不同主題的答案分數接近、而問題又短 → 反問，不猜
  if(ok.length>1&&ok[1].s>=ok[0].s-0.1&&(ok[0].a.title!==ok[1].a.title)&&norm(q).length<=12&&!(ok[0].a.questionState&&ok[1].a.questionState&&ok[0].a.questionState.focus===ok[1].a.questionState.focus)){
   const opts=ok.slice(0,3).map((x,k)=>(k+1)+'. '+x.a.title);
