@@ -622,7 +622,7 @@ const KB=[
  {k:["全國性","層級","內政部","全國","各層級","縣級","鄉鎮級","哪一級"],cat:"業務辦理",title:"各層級團體要向誰申請",
   summary:"人民團體依組織區域分成不同層級，申請窗口也不一樣：全國性團體向內政部申請；屏東縣的全縣性團體和鄉鎮市級團體，都向屏東縣政府社會處申請。",
   steps:["全國性：以全國為組織區域，向內政部申請許可，規定與書表請查閱內政部人民團體相關網站。","全縣性（屏東縣）：發起人 30 人以上，由本縣 11 個以上鄉鎮市的人組成，向縣府社會處申請。","鄉鎮市級：發起人 30 人以上，由該鄉鎮市三分之一以上村里的人組成（屏東市要 20 個里以上），也是向縣府社會處申請。"],
-  where:["全國性：內政部（人民團體業務）。","全縣性、鄉鎮市級：屏東縣政府社會處（羅宇軒 轉 5317、林祈宏 轉 5316、周瑜文 轉 5368，總機 08-7320415）。"],
+  where:["全國性：內政部（人民團體業務）。","全縣性、鄉鎮市級：屏東縣政府社會處（羅宇軒 轉 5317、林祈宏 轉 5316、陳佳恩 轉 5421、周瑜文 轉 5368，總機 08-7320415）。"],
   laws:["ptA"],notes:["全國性團體的發起人分布等條件與縣級不同，請依內政部「社會團體許可立案作業規定」辦理。","職業團體（公會）另有專屬法律，層級規定也不同。"],
   act:[["下載申請表","forms","申請表"],["看籌組流程","biz","social"]]},
  {k:["解散","清算","收掉","辦理解散","解散會議","結束協會","不想辦了"],cat:"業務辦理",title:"協會怎麼解散",
@@ -731,7 +731,7 @@ const KB=[
   summary:"線上申辦頁可以先填好申辦資料、確認應備文件，並下載申請摘要。簽名、用印的紙本正本，還是要送到縣府社會處才算正式收件。",
   notes:[],act:[["前往線上申辦","apply",""]]},
  {k:["承辦","承辦人","電話","分機","聯絡","找誰","窗口"],cat:"聯絡承辦",title:"承辦人怎麼聯絡",
-  summary:"社會處人民團體業務承辦人：羅宇軒（08-7320415 轉 5317），辦理商業公會、自由職業公會及社會團體；林祈宏（轉 5316），辦理國際性社團及慈善團體；周瑜文（轉 5368），辦理老人團體。已立案的團體各有指定承辦人，告訴我團體名稱就能查到。社區發展協會和合作社業務，請撥總機轉社會處詢問。",
+  summary:"社會處人民團體業務承辦人：羅宇軒（08-7320415 轉 5317），辦理商業公會、自由職業公會、國際團體及其他社會團體；林祈宏（轉 5316），辦理社會服務團體；陳佳恩（轉 5421），辦理學術文化、體育運動、宗教及慈善團體；周瑜文（轉 5368），辦理老人會。已立案的團體各有指定承辦人，告訴我團體名稱就能查到。社區發展協會和合作社業務，請撥總機轉社會處詢問。",
   notes:[],act:[["查看承辦人","contact",""]]}
 ];
 const TOPICS=[
@@ -752,8 +752,9 @@ const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&
 const norm=s=>String(s??"").replace(/臺/g,"台").replace(/[\s\u3000「」『』（）()〔〕【】、，,。.．:：;；!！?？"'“”‘’\-－—_/／]/g,"").toLowerCase();
 const NAME_ALIAS=[[/社會工作師/g,"社工師"],[/社會工作/g,"社工"],[/臺/g,"台"]];
 /* 名冊匯出檔的罕用字會變成「?」：顯示時以□表示，理事長姓名只保留姓氏並註明，避免顯示亂碼 */
-/* 承辦分工（社會處確認）：老人會一律由周瑜文承辦 */
-function fixOfficer(r){return r&&r.c==="老人會"&&r.s!=="已解散"&&r.o!=="周瑜文"?{...r,o:"周瑜文"}:r}
+/* 承辦分工（社會處確認 2026-11-11）：老人會一律由周瑜文、慈善團體一律由陳佳恩承辦 */
+const FIXED_OFFICER={"老人會":"周瑜文","慈善團體":"陳佳恩"};
+function fixOfficer(r){const o=r&&r.s!=="已解散"&&FIXED_OFFICER[r.c];return o&&r.o!==o?{...r,o}:r}
 function fixGarbledRow(r){if(!r||!/\?/.test(JSON.stringify(r)))return r;const o={...r};const NOTE="（原始名冊含罕用字，無法正確顯示）";
   for(const k of Object.keys(o)){const v=o[k];if(typeof v!=="string"||!v.includes("?"))continue;
     if(k==="p"){o[k]=/^[\u4e00-\u9fa5]/.test(v)?v[0]+"○"+NOTE:"○○"+NOTE}else o[k]=v.replace(/\?[\u3105-\u3129^_]?|[\u3105-\u3129]/g,"□")}
@@ -800,7 +801,7 @@ async function saveChunked(coll,rows,metaExtra){
 async function loadAll(force){
   if(loadPromise&&!force)return loadPromise;
   loadPromise=(async()=>{
-    const base=document.baseURI.replace(/[^/]*$/,"")+"data/";const DV="?v=20261111-7";
+    const base=document.baseURI.replace(/[^/]*$/,"")+"data/";const DV="?v=20261111-8";
     const jf=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);return r.json()};
     const jgz=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);const b=new Uint8Array(await r.arrayBuffer());if(b[0]!==31||b[1]!==139)return JSON.parse(new TextDecoder().decode(b));if(typeof DecompressionStream==="undefined")throw new Error("gzip unsupported");const text=await new Response(new Blob([b]).stream().pipeThrough(new DecompressionStream("gzip"))).text();return JSON.parse(text)};
     const [d,s,k,f]=await Promise.allSettled([jf(base+"directory.json"+DV),jf(base+"staff.json"+DV),jgz(base+"knowledge.json.gz"+DV).catch(()=>jf(base+"knowledge.json"+DV)),jf(base+"forms-catalog.json?v=20261105-5")]);
@@ -1816,11 +1817,11 @@ touch();
   route();
 })();
 </script>
-<script src="feedback-collector.js?v=20261111-7"></script>
-<script src="round-fixes.js?v=20261111-7"></script>
-<script src="answer-arbiter.js?v=20261111-7"></script>
-<script src="question-understanding.js?v=20261111-7"></script>
-<script src="counter-upgrade.js?v=20261111-7"></script>
+<script src="feedback-collector.js?v=20261111-8"></script>
+<script src="round-fixes.js?v=20261111-8"></script>
+<script src="answer-arbiter.js?v=20261111-8"></script>
+<script src="question-understanding.js?v=20261111-8"></script>
+<script src="counter-upgrade.js?v=20261111-8"></script>
 </body>
 </html>
 
