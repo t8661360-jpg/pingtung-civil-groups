@@ -47,6 +47,7 @@ const HAS_TIME=/每(?:年|月|季|半年|[一二三四五六]個月)|至少.{0,4
 const HAS_YESNO=/可以|不可以|不得|不能|得|應|須|禁止|允許|沒有限制|無限制|不需要|需要/;
 function answersAsk(type,a){const t=text(a);if(type==='quantity')return HAS_NUM.test(t);if(type==='time')return HAS_TIME.test(t);if(type==='permission')return HAS_YESNO.test(t);return true;}
 
+function bg2(x){const t=norm(x);const r=[];for(let i=0;i<t.length-1;i++)r.push(t.slice(i,i+2));return r;}
 function score(q,a,ctx){
  const qt=topicsOf(q),qStrong=qt.filter(x=>!WEAK.has(x));
  const at=new Set(topicsOf(text(a)));
@@ -62,7 +63,9 @@ function score(q,a,ctx){
  const type=askType(q);const asks=answersAsk(type,a);if(!asks)reasons.push('問'+type+'但答案裡沒有對應內容');
  // 4 理解層焦點一致加分
  let focusBonus=0;if(cover>=0.5&&ctx&&ctx.focus&&a.questionState&&a.questionState.focus===ctx.focus)focusBonus=0.15;
- let s=cover*0.7+(asks?0.3:0)+focusBonus;
+ // 5 標題與問句字面重疊度：標題直接對應問句者優先（避免同分時反問）
+ const qb=[...new Set(bg2(q))];const tt=norm(a.title||'');const titleHit=qb.length?qb.filter(b=>tt.includes(b)).length/qb.length:0;
+ let s=cover*0.7+(asks?0.3:0)+focusBonus+titleHit*0.3;
  // 問題只有泛詞、沒有強主題詞時，不能靠泛詞過關：要求問法類型一定要對上
  if(!qStrong.length&&!asks)s=0;
  return{s,reasons,cover,type};
