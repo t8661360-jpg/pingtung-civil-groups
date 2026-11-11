@@ -1182,7 +1182,8 @@ function boardBelowHalf(t){
 }
 
 function minorMembership(t){
- if(!/(未滿18|未滿十八|未成年|未滿7|未滿七|青少年|少年|兒童|17歲|十七歲|16歲|十六歲|15歲|十五歲)/.test(t))return null;
+ const pupil=/(國中生|高中生|國小|小學生|國中|高中)/.test(t)&&/(加入|入會|會員|發起人)/.test(t);
+ if(!pupil&&!/(未滿18|未滿十八|未成年|未滿7|未滿七|青少年|少年|兒童|17歲|十七歲|16歲|十六歲|15歲|十五歲)/.test(t))return null;
  if(!/(加入|入會|會員|發起人|理事|監事|協會|人民團體|社會團體)/.test(t))return null;
  if(/政黨|工會|合作社|職業團體|同業公會/.test(t))return null;
  return{category:'人民團體會員資格',title:'未滿18歲可以加入協會嗎：一般會員看章程；發起人必須成年',
