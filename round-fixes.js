@@ -1009,9 +1009,103 @@ function residentialCarePermit(t){
  return{category:'人民團體會務說明',title:'協會可以收容安置老人、兒少、身心障礙者嗎：不能只憑立案，必須另取得社會福利機構設立許可',summary:'不可以直接做。協會依人民團體法立案，只是團體合法成立；收容、安置、住宿式或日間照顧屬社會福利「目的事業」，要受各該事業主管機關指導監督（人民團體法第3條但書），而且法律上是「機構」業務，必須另行申請設立許可，未經許可即收容是違法的。\n\n要找誰、適用什麼法規（均不在本站法規庫，以下僅指引方向）：\n• 老人：老人福利法與老人福利機構設立標準 → 社會處老人福利科。\n• 兒童及少年：兒童及少年福利與權益保障法、兒少安置及教養機構設立標準 → 社會處兒少科。\n• 身心障礙者：身心障礙者權益保障法、身心障礙福利機構設立標準 → 社會處身障科。\n• 長期照顧（日照、住宿式長照）：長期照顧服務法 → 衛生局長照科。\n\n協會可以怎麼做：\n1. 以協會為「設立者」申請附設機構，須符合各該設立標準的場地、建管、消防、專業人員、財務規定，通過評鑑後才能收案；協會本身要先有經費與專業人力。\n2. 承接政府委託方案（例如社區關懷據點、日間托老、課後照顧）—— 由委託機關核定服務內容與規模，不是協會自行決定。\n3. 無住宿、非機構性質的社區服務（送餐、電話問安、共餐、關懷訪視）可以辦，但涉及餐食、醫療、用藥仍各有規範，先問承辦。\n\n理事會通過、會員大會同意，只是團體內部決議，不能取代主管機關許可（人民團體法第58條）。請先向社會處各科說明「服務對象、人數、是否住宿、是否收費」，由承辦分流。',statutes:[P(3),P(39),P(58)],notes:['社會處總機 08-7320415；各科分機請總機轉接。'],questionState:{focus:'residential-care',domain:'social'}};
 }
 
+/* ===== 2026-11-11 截圖回報校正（逐項核對：人民團體法、財務處理辦法、免稅標準取自本站法條資料；其餘來源見各則） ===== */
+const CIV=n=>({title:'民法第'+n+'條',source:LAW+'B0000001'});
+const GPA=n=>({title:'政府採購法第'+n+'條',source:LAW+'A0030057'});
+const PT_SUBSIDY=n=>({title:'屏東縣政府及所屬各機關對民間團體及個人補捐助預算執行應注意事項第'+n+'點',source:'屏東縣政府115年9月18日屏府主歲字第1150258539號'});
+function assocMayNotMeet(t){
+ if(!/(可以|能|能不能|可不可以|可否)?(不開會|不用開會|不召開|免開會|不開大會|不開理事會|沒有開會)/.test(t))return null;
+ if(/理事長.*(一直|都|遲遲|拒絕|不肯)|會員可以怎麼|合作社|社員/.test(t))return null;
+ return{category:'人民團體會務說明',title:'協會不能不開會：會員大會每年一次，理事會、監事會每六個月至少一次',
+ summary:'不行。人民團體法規定會員（會員代表）大會的定期會議每年召開一次，由理事長召集（人民團體法第25條）；社會團體的理事會、監事會每六個月至少舉行會議一次（人民團體法第43條）。\n\n如果因故無法如期召開會員大會，年度工作報告、會計報告等可以先經理事會及監事會（或理監事聯席會議）通過，事後提大會追認，再報縣府備查（社會團體財務處理辦法第11條）。\n\n長期不依法開會屬違反法令，主管機關得予警告、撤銷決議、停止業務並限期改善（人民團體法第58條）。',
+ statutes:[P(25),P(43),F(11),P(58)],
+ notes:['若是理事長不召集、會員想要求開會，可以問「理事長一直不開會，會員可以怎麼做」。']};
+}
+function assocNurseryCenter(t){
+ if(!/(托嬰|托育中心|公共托育|居家托育|托育機構)/.test(t))return null;
+ return{category:'人民團體業務範圍',title:'協會想辦托嬰（托育）中心：協會立案不等於托嬰許可，須另依兒少福利法規申請設立許可',
+ summary:'協會立案只是取得人民團體資格，不能直接收托嬰幼兒。托嬰中心屬兒童及少年福利機構，要依兒童及少年福利與權益保障法及「私立兒童及少年福利機構設立許可及管理辦法」向縣府申請設立許可，場地、人員、設施等另有專門規定。\n\n如果是承接縣府委託或招標的托育服務案，投標資格以招標或委託公告為準；政府採購法所稱「廠商」包含團體（政府採購法第8條）。\n\n不論哪一種，協會章程的宗旨與任務要涵蓋兒童福利或托育相關事項（人民團體法第39條）。',
+ statutes:[{title:'私立兒童及少年福利機構設立許可及管理辦法（依兒童及少年福利與權益保障法第82條第3項訂定）',source:'衛生福利部，106年11月27日修正'},GPA(8),P(39)],
+ notes:['設立許可的條件、程序與表件，請洽縣府社會處兒少福利／托育業務承辦人確認；本站不判斷個案是否符合設立標準。']};
+}
+function assocCareStation(t){
+ if(!/(關懷據點|照顧關懷|社區照顧據點|巷弄長照)/.test(t))return null;
+ if(!/(協會|團體|社區發展|我們|可以|能|申請|設|辦|成立)/.test(t))return null;
+ return{category:'社區發展協會',title:'立案的協會（含社區發展協會）可以申請辦理社區照顧關懷據點',
+ summary:'可以。內政部「建立社區照顧關懷據點實施計畫」所列的承辦單位，第一類就是「立案之社會團體（含社區發展協會）」，另包括章程明訂辦理社會福利事項的財團法人、宗教組織、文教基金會，以及其他非營利社區團體。\n\n實際申請時間、補助項目與表件，依縣府當年度計畫與公告辦理。\n\n關懷據點和長照機構是不同制度；據點若要提供長照服務（例如巷弄長照站），須另依長照相關規定申請。',
+ statutes:[{title:'建立社區照顧關懷據點實施計畫 第肆點（承辦單位）',source:'內政部，94年5月18日'},P(39)],
+ notes:['當年度申請窗口與補助標準，請洽縣府社會處確認。']};
+}
+function assocDonateGoods(t){
+ if(!/(協會|團體|我們|社區發展協會)/.test(t))return null;
+ if(!/(捐|捐贈|捐出|送給|贈送|贊助)/.test(t))return null;
+ if(!/(物資|物品|東西|米|食物|款|錢|經費|給)/.test(t))return null;
+ if(/(接受|收到|收受|收捐|募|勸募|捐款收據|收據|有人|別人|民眾|會員捐|企業捐|廠商捐|抵稅|扣除)/.test(t))return null;
+ return{category:'人民團體財務',title:'協會可以對外捐贈物資：須符合章程宗旨、依預算及決議辦理並留存憑證',
+ summary:'人民團體法沒有禁止協會對外捐贈。實務上要注意：\n\n1. 捐贈要符合協會宗旨；社會團體以公益為目的（人民團體法第39條）。\n2. 支出應列入年度工作計畫及收支預算，經會員大會通過（社會團體財務處理辦法第11條）。預算以外的支出，依章程經理事會決議後辦理。\n3. 支出要有原始憑證（例如受贈單位開立的收據）並登帳（社會團體財務處理辦法第5條、第7條、第8條），不得匿報或虛報（第20條）。\n4. 若協會適用所得稅免稅，不得以任何方式對捐贈人或與其有關係的人變相分配盈餘（免稅標準第2條）。\n\n另外，如果是向外界募集物資再轉送，屬於「募集」，可能涉及公益勸募條例，請改問「募物資要申請嗎」。',
+ statutes:[P(39),F(11),F(5),F(7),F(20),TX(2)]};
+}
+function assocGovTender(t){
+ if(!/(標案|投標|招標|政府採購|承攬|委託案|委辦案|委外案)/.test(t))return null;
+ if(/合作社|社員/.test(t))return null;
+ return{category:'人民團體業務範圍',title:'協會可以承接政府標案：採購法的「廠商」包含團體，但業務要符合宗旨，收入要注意課稅',
+ summary:'可以。政府採購法所稱「廠商」，包括得提供工程、財物、勞務的法人、機構或團體（政府採購法第8條），因此協會可以依招標文件規定的資格投標。\n\n要注意：\n1. 承接的業務要符合協會章程宗旨（人民團體法第39條）；若協會適用所得稅免稅，不得經營與創設目的無關的業務（免稅標準第2條）。\n2. 標案收入通常屬於銷售勞務收入，依免稅標準第3條仍應課徵所得稅（以其他收入不足支應宗旨活動支出的部分可扣除）。營業稅與統編事項請洽國稅局。\n3. 是否須具備法人登記、統編、押標金或特定實績，以各招標文件為準。',
+ statutes:[GPA(8),P(39),TX(2),TX(3)],
+ notes:['本站不判斷個別標案資格，請以招標機關公告為準。']};
+}
+function subsidySettlement(t){
+ if(!/(補助|補捐助|補助款|補助經費)/.test(t))return null;
+ if(!/(核銷|結報|單據|繳回|結餘|不核銷|沒核銷|未核銷|報帳|憑證)/.test(t))return null;
+ if(/勞退|勞保|健保|提繳/.test(t))return null;
+ return{category:'補助',title:'縣府補助的核銷：依核定公文及各機關作業規範結報，未依規定辦理可能被要求繳回或停止補助',
+ summary:'縣府對民間團體的補（捐）助，依「屏東縣政府及所屬各機關對民間團體及個人補捐助預算執行應注意事項」辦理，重點如下：\n\n1. 結報方式由補助機關擇定：檢附收支清單及單據；或只附收支清單、單據自行保存備查；或依機關規定檢附佐證資料（第3點第4款）。\n2. 未依補助用途支用、虛報或浮報，除繳回該部分經費外，得依情節停止補助一年至五年（第3點第2款）。\n3. 單據毀損、滅失，得依情節酌減後續補助款或停止補助一年至五年（第3點第5款）。\n4. 有結餘款應按補助比例繳回（第3點第7款）；申請資料不實須自負責任（第3點第10款）。\n\n注意事項沒有直接寫明「不核銷」的效果；逾期或不核銷如何處理，依補助機關的核定公文與作業規範（第2點），可能影響已撥款項及後續補助。協會帳簿與憑證另須至少保存十年（社會團體財務處理辦法第21條）。',
+ statutes:[PT_SUBSIDY(2),PT_SUBSIDY(3),F(21)],
+ notes:['核銷期限與表件以核定公文為準，有疑問請洽核定補助的業務單位。']};
+}
+function corpRegistration(t){
+ if(!/法人/.test(t))return null;
+ if(/財團法人|合作社|公司|勸募/.test(t))return null;
+ const cancel=/(註銷|撤銷|取消|廢止|解散|不要|放棄|消滅)/.test(t);
+ if(!cancel&&!/(登記|成為|變成|申請|可以|要不要|怎麼辦|哪裡)/.test(t))return null;
+ const court='臺灣屏東地方法院：屏東市棒球路9號，電話08-7550611（請轉登記處）。';
+ if(cancel)return{category:'一般協會法人登記',title:'協會想註銷社團法人：須先依法解散並清算，再向法院辦理登記',
+ summary:'社團法人登記跟著團體本身存在，法律沒有規定「團體繼續存在、只註銷法人資格」的程序。一般流程是：\n\n1. 經會員（會員代表）大會決議解散，須出席人數三分之二以上同意（人民團體法第27條第5款、第59條第1項第5款），並報縣府。\n2. 解散後由董事（即理事）辦理清算：了結現務、收取債權、清償債務、移交賸餘財產（民法第37條、第40條）。\n3. 依章程或總會決議解散的，董事應於十五日內報告法院；法人的清算屬法院監督（民法第42條）。\n\n'+court,
+ statutes:[P(27),P(59),CIV(37),CIV(40),CIV(42)],
+ notes:['法院登記應備文件與程序，請洽法院登記處確認。']};
+ return{category:'一般協會法人登記',title:'協會可以登記為社團法人：先經縣府核准立案，再向法院聲請登記',
+ summary:'可以。協會先經主管機關（縣府）核准立案，再向主事務所所在地的地方法院登記處聲請社團法人登記；法人非經登記不得成立（民法第30條），以公益為目的的社團於登記前應得主管機關許可（民法第46條）。\n\n'+court+'\n\n法人登記與否由團體自行決定；統編、銀行開戶等事項的需求，請以各受理機關規定為準。',
+ statutes:[CIV(30),CIV(46)],
+ notes:['登記應備文件請洽法院登記處確認。']};
+}
+function assocBoardPay(t){
+ if(!/(理事|監事|理監事|理事長)/.test(t))return null;
+ if(!/(薪水|薪資|月薪|支薪|領錢|報酬|酬勞|有給|待遇|津貼)/.test(t))return null;
+ if(/合作社|社員/.test(t))return null;
+ return{category:'人民團體財務',title:'協會理事、監事是無給職：可酌發出席費或交通費，不能領薪水',
+ summary:'社會團體的理事及監事均為無給職。但理事或監事因執行職務需要，協會得參照政府機關所定標準酌發出席費，或按交通工具憑票證酌發交通費（社會團體財務處理辦法第19條）。',
+ statutes:[F(19)],
+ notes:['合作社理監事的規定不同，請在問題中寫明「合作社」。']};
+}
+function financeStaffConcurrent(t){
+ if(!/(財務人員|會計|出納|財務)/.test(t))return null;
+ if(!/(兼任|兼辦|兼職|兼|同一人)/.test(t))return null;
+ if(/合作社|社員|理事.*監事|監事.*理事/.test(t))return null;
+ return{category:'人民團體財務',title:'財務人員原則專任；團體編制不足時，可由其他工作人員兼辦',
+ summary:'辦理會計、出納及財物管理的財務人員應為專任；但團體編制不足時，得由其他工作人員兼辦（社會團體財務處理辦法第17條第2項）。\n\n提用存款時，應由團體負責人、秘書長或總幹事及財務人員於領款憑證上共同蓋章（同條第1項）。',
+ statutes:[F(17)]};
+}
+function staffHiring(t){
+ if(!/(總幹事|秘書長|工作人員|會務人員|幹事)/.test(t))return null;
+ if(!/(聘|聘用|聘任|任用|僱用|雇用|找人|請人|怎麼請)/.test(t))return null;
+ if(/合作社|社員|開戶|銀行/.test(t))return null;
+ return{category:'人民團體會務說明',title:'總幹事等工作人員：由理事長提名，經理事會通過後聘任，報縣府備查',
+ summary:'總幹事等工作人員由理事長提名，經理事會通過後聘任，聘免後報縣府備查（依人民團體法第24條及章程範例第22條辦理）。人民團體法未明文禁止理監事兼任工作人員，實際規定以團體章程為準；如有疑問請洽屏東縣政府社會處。',
+ statutes:[P(24)]};
+}
+
 function verifiedRoundAnswer(q,ctx){
  const t=norm(q);
- return coopVsAssocAccountingForms(t)||coopBalanceSheetReport(t)||delegateQuotaCalculation(t)||delegateConcurrentRole(t)||onlineVoting(t)||mailVoting(t)||assemblyVotingMethod(t)||boardVotingMethodDetail(t)||delegateElectionProcess(t)||delegateAssemblyRules(t)||coopMemberRemoval(t)||coopAdvertisingTaxability(t)||coopLoanToMemberTax(t)||coopBankLoanProcedure(t)||coopBankLoan(t)||branchAccountingPractice(t)||memberDelegateElection(t)||branchOrgSetup(t)||delegateProposalProcess(t)||annualMeetingVsAssembly(t)||vacancyQuorum(t)||supervisorConvenerNoMeeting(t)||supervisorMinimumMembers(t)||supervisorChairmanElection(t)||supervisorAuditPowers(t)||branchOrgAccounting(t)||runClassesPermit(t)||residentialCarePermit(t)||chairConvicted(t)||chairDismissStaff(t)||chairDissolve(t)||homeAsOfficeTax(t)||nonprofitTaxThreshold(t)||sameAddressGroups(t)||chairStaffConflict(t)||orgDisposeProperty(t)||orgAcquireEquipment(t)||sellGoodsAllowed(t)||staffActingChair(t)||p2MembershipFee(t)||p2BoardNotice(t)||p2RecordRetention(t)||p2CharterAmend(t)||p2SupervisorAudit(t)||p2CoopShares(t)||p2FoundingMeeting(t)||p2ElectionPrep(t)||p2MinutesContent(t)||p2DelegateSystem(t)||chairAbandonsOffice(t)||chairOtherGroupPosition(t)||chairSpendWithoutBoard(t)||supervisorSpend(t)||supervisorActingChair(t)||candidateSeatCount(t)||ballotRetention(t)||officerResignation(t)||invalidBallotReason(t)||delegateQualification(t)||substitutionOrder(t)||byElectionThreshold(t)||coopChairReelection(t)||chairmanReelectionLimit(t)||chairmanAbsence(t)||recordRetentionPeriod(t)||advertisingIncome(t)||staffBankAccountSetup(t)||meetingSigninDuration(t)||meetingVotingMethod(t)||preElectionBoardMeeting(t)||electionEffectiveDate(t)||politicalDonation(t)||communityReportingRequirements(t)||communityYearlyPlanDeadline(t)||communityVsAssociationDifferences(t)||supervisorAsDirector(t)||newChairTodo(t)||postElectionAccountingDeadline(t)||electionReportDeadline(t)||checkSignature(t)||feePeriods(t)||feeDeferral(t)||threeMonthsWording(t)||electionCandidates(t)||electionObjection(t)||minutesDeadline(t)||coopBoardQuorum(t)||coopTax(t)||communityRename(t)||communityReportTownship(t)||addressCertificate(t)||bankChairChange(t)||eventFee(t)||communityChairTerm(t)||invalidBallot(t)||feeAmount(t)||personalAccount(t)||delegateAssembly(t)||noSupervisor(t)||foundingDocs(t)||investStocks(t)||membershipRefused(t)||coopCapital(t)||receiveDonation(t)||hireEmployee(t)||lendToChair(t)||branchOrg(t)||supervisorMeeting(t)||noAnnualMeeting(t)||chairSpendingAuth(t)||communityVsGeneral(t)||coopDissolutionProperty(t)||charterAmendment(t)||coopSupervisorAudit(t)||publicSolicitation(t)||decisionRevoked(t)||chairResign(t)||memberExpulsion(t)||sealChange(t)||noHandover(t)||communityDissolutionProperty(t)||boardFinanceAgenda(t)||boardQuorumGeneral(t)||delegated(t)||chairNoMeeting(t)||feeAnswer(t)||coopAssemblyQuorum(t)||proxyCount(t)||concurrent(t)||financeQuestioned(t)||financeDeadline(t)||meetingFrequency(t)||videoMeeting(t)||coopMinimum(t)||financeForms(t)||formsDownload(t,ctx&&ctx.catalog)||dissolutionHowTo(t)||null;
+ return assocMayNotMeet(t)||assocNurseryCenter(t)||assocCareStation(t)||assocDonateGoods(t)||assocGovTender(t)||subsidySettlement(t)||corpRegistration(t)||assocBoardPay(t)||financeStaffConcurrent(t)||staffHiring(t)||coopVsAssocAccountingForms(t)||coopBalanceSheetReport(t)||delegateQuotaCalculation(t)||delegateConcurrentRole(t)||onlineVoting(t)||mailVoting(t)||assemblyVotingMethod(t)||boardVotingMethodDetail(t)||delegateElectionProcess(t)||delegateAssemblyRules(t)||coopMemberRemoval(t)||coopAdvertisingTaxability(t)||coopLoanToMemberTax(t)||coopBankLoanProcedure(t)||coopBankLoan(t)||branchAccountingPractice(t)||memberDelegateElection(t)||branchOrgSetup(t)||delegateProposalProcess(t)||annualMeetingVsAssembly(t)||vacancyQuorum(t)||supervisorConvenerNoMeeting(t)||supervisorMinimumMembers(t)||supervisorChairmanElection(t)||supervisorAuditPowers(t)||branchOrgAccounting(t)||runClassesPermit(t)||residentialCarePermit(t)||chairConvicted(t)||chairDismissStaff(t)||chairDissolve(t)||homeAsOfficeTax(t)||nonprofitTaxThreshold(t)||sameAddressGroups(t)||chairStaffConflict(t)||orgDisposeProperty(t)||orgAcquireEquipment(t)||sellGoodsAllowed(t)||staffActingChair(t)||p2MembershipFee(t)||p2BoardNotice(t)||p2RecordRetention(t)||p2CharterAmend(t)||p2SupervisorAudit(t)||p2CoopShares(t)||p2FoundingMeeting(t)||p2ElectionPrep(t)||p2MinutesContent(t)||p2DelegateSystem(t)||chairAbandonsOffice(t)||chairOtherGroupPosition(t)||chairSpendWithoutBoard(t)||supervisorSpend(t)||supervisorActingChair(t)||candidateSeatCount(t)||ballotRetention(t)||officerResignation(t)||invalidBallotReason(t)||delegateQualification(t)||substitutionOrder(t)||byElectionThreshold(t)||coopChairReelection(t)||chairmanReelectionLimit(t)||chairmanAbsence(t)||recordRetentionPeriod(t)||advertisingIncome(t)||staffBankAccountSetup(t)||meetingSigninDuration(t)||meetingVotingMethod(t)||preElectionBoardMeeting(t)||electionEffectiveDate(t)||politicalDonation(t)||communityReportingRequirements(t)||communityYearlyPlanDeadline(t)||communityVsAssociationDifferences(t)||supervisorAsDirector(t)||newChairTodo(t)||postElectionAccountingDeadline(t)||electionReportDeadline(t)||checkSignature(t)||feePeriods(t)||feeDeferral(t)||threeMonthsWording(t)||electionCandidates(t)||electionObjection(t)||minutesDeadline(t)||coopBoardQuorum(t)||coopTax(t)||communityRename(t)||communityReportTownship(t)||addressCertificate(t)||bankChairChange(t)||eventFee(t)||communityChairTerm(t)||invalidBallot(t)||feeAmount(t)||personalAccount(t)||delegateAssembly(t)||noSupervisor(t)||foundingDocs(t)||investStocks(t)||membershipRefused(t)||coopCapital(t)||receiveDonation(t)||hireEmployee(t)||lendToChair(t)||branchOrg(t)||supervisorMeeting(t)||noAnnualMeeting(t)||chairSpendingAuth(t)||communityVsGeneral(t)||coopDissolutionProperty(t)||charterAmendment(t)||coopSupervisorAudit(t)||publicSolicitation(t)||decisionRevoked(t)||chairResign(t)||memberExpulsion(t)||sealChange(t)||noHandover(t)||communityDissolutionProperty(t)||boardFinanceAgenda(t)||boardQuorumGeneral(t)||delegated(t)||chairNoMeeting(t)||feeAnswer(t)||coopAssemblyQuorum(t)||proxyCount(t)||concurrent(t)||financeQuestioned(t)||financeDeadline(t)||meetingFrequency(t)||videoMeeting(t)||coopMinimum(t)||financeForms(t)||formsDownload(t,ctx&&ctx.catalog)||dissolutionHowTo(t)||null;
 }
 const api={normalizeQuestion,withContext,verifiedRoundAnswer};
 if(typeof module!=='undefined'&&module.exports)module.exports=api;

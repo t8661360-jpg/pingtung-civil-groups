@@ -545,7 +545,7 @@ const MEET=[
 const ALLITEMS={};Object.values(BIZ).forEach(b=>b.items.forEach(i=>ALLITEMS[i.id]=i));MEET.forEach(m=>ALLITEMS[m.id]=m);
 const KB=[
  {k:["補助","經費補助","申請補助","縣府補助","補助款"],cat:"業務辦理",title:"協會可以申請縣府補助嗎",
-  summary:"可以申請，但不是每個協會、每個活動都一定符合。縣府依「屏東縣政府對民間團體補助經費作業要點」審查補助，實際能申請的項目、受理期間、金額和表件，要看主辦處室當年度的公告。先確認您的團體已依法立案、活動性質符合公告的補助對象，再準備計畫書和經費概算送件。",
+  summary:"可以申請，但不是每個協會、每個活動都一定符合。縣府依「屏東縣政府及所屬各機關對民間團體及個人補捐助預算執行應注意事項」及各業務單位的作業規範審查補助，實際能申請的項目、受理期間、金額和表件，要看主辦處室當年度的公告。先確認您的團體已依法立案、活動性質符合公告的補助對象，再準備計畫書和經費概算送件。",
   steps:["確認活動屬於哪個業務（例如社會福利、文化、體育、社區），找到負責的處室。","查詢該處室當年度補助公告與受理期間。","準備活動計畫、經費概算表及公告指定文件，依公告方式送件。","收到核定函後，依核定的項目和金額辦理活動。","活動結束後，依規定期限辦理核銷。"],
   notes:["同一活動向不同機關重複申請補助，要依規定揭露，不能重複請領同一筆支出。","想給您更精確的答案，請告訴我：團體名稱、活動類型、辦理日期與想申請的年度。"],
   act:[["聯絡承辦","contact",""]]},
@@ -857,6 +857,13 @@ function knIndex(){
   const df=new Map();const docs=rows.map(r=>{const ti=norm(r.title),tx=norm(r.text);const set=new Set(bigrams(ti+"｜"+tx));set.forEach(b=>df.set(b,(df.get(b)||0)+1));return{ti,tx}});
   KN_IDX={n:rows.length,df,docs};return KN_IDX;
 }
+/* 主題詞覆蓋率：只看問句中較少見的詞（含知識庫完全沒有的詞，如「托嬰」），避免只靠「協會」「申請」等常見詞就配到無關條目 */
+function knTopicCov(q,r){const ix=knIndex();const N=ix.n;const lim=Math.max(20,N*0.02);
+  const bg=[...new Set(bigrams(String(q).replace(KSTOP,"")))].filter(b=>!/[0-9a-z]/.test(b)||/[\u4e00-\u9fa5]/.test(b));
+  const tb=bg.filter(b=>(ix.df.get(b)||0)<=lim);if(!tb.length)return 1;
+  const doc=norm(r.title)+"｜"+norm(r.text);let hit=0,all=0;
+  tb.forEach(b=>{const w=Math.log((N+1)/(1+(ix.df.get(b)||0)));all+=w;if(doc.includes(b))hit+=w});
+  return all?hit/all:1}
 function revCov(title,q){const tb=bigrams(title);if(!tb.length)return 0;const qn=norm(q);return tb.filter(b=>qn.includes(b)).length/tb.length}
 const KN_OTHER_LAW=/商業團體法|工業團體法|同業公會|商業會|工業會/;
 const KN_ASK_OTHER_TYPE=/商業|工業|同業|公會|職業|商會|工會|工廠/;
@@ -1411,7 +1418,8 @@ function smartFallback(q,kb){
   if(kn.length){
     const top=kn[0];const strong=top._tc>=0.45;
     const near=top._tc>=0.8&&revCov(top.標題,q)>=0.6;
-    if(!parts.summary||near||(strong&&KB_LAST_SCORE<6)){
+    const onTopic=strong||knTopicCov(q,top._r)>=0.6&&top._tc>=0.3;
+    if(onTopic&&(!parts.summary||near||(strong&&KB_LAST_SCORE<6))){
       const r=top._r;
       Object.assign(parts,{category:r.cat||"法規查詢",title:r.title,summary:r.text,steps:[],docs:[],guide:[],where:[],laws:[],actions:parts.actions||[]});
       parts.notes=[...(r.ask?["想給您更精確的答案，請告訴我："+r.ask.replace(/^請問/,"")]:[]),"這則說明整理自法規與主管機關資料（初版），個案仍以主管機關最新規定為準。"];
