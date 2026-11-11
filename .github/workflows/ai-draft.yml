@@ -1,0 +1,28 @@
+name: 無法回答 AI 草稿
+
+on:
+  schedule:
+    # 每天 04:30 UTC（台灣 12:30）；巡檢與反饋同步之後執行
+    - cron: '30 4 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  draft:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: 產生 AI 草稿（僅留言，需人工審核）
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          DRAFT_URL: https://pingtung-unanswered.t8661360.workers.dev/draft
+          DRAFT_KEY: ${{ secrets.DRAFT_KEY }}
+        run: node scripts/ai-draft.cjs --max 5

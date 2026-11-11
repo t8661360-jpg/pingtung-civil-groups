@@ -34,7 +34,7 @@ export default {
       if (!env.DRAFT_KEY || req.headers.get("X-Draft-Key") !== env.DRAFT_KEY) return new Response("forbidden", { status: 403 });
       let b; try { b = await req.json(); } catch { return new Response("bad json", { status: 400 }); }
       const q = String(b.q || "").slice(0, 300);
-      const law = (Array.isArray(b.statutes) ? b.statutes : []).slice(0, 12).map(s => `【${s.title}】\n${String(s.text || "").slice(0, 1500)}`).join("\n\n");
+      const law = (Array.isArray(b.statutes) ? b.statutes : []).slice(0, 20).map(s => `【${s.title}】\n${String(s.text || "").slice(0, 2000)}`).join("\n\n");
       if (!q || !law) return new Response("need q and statutes", { status: 400 });
       try {
         const answer = await callModel(env, [
