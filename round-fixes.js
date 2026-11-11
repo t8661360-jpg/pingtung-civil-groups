@@ -303,7 +303,7 @@ function chairSpendingAuth(t){
 function communityVsGeneral(t){
  if(!/(社區發展協會|社區協會)/.test(t))return null;
  if(!/(一般協會|普通協會|社會團體|差|不同|不一樣|差別|差異|區別|比較)/.test(t))return null;
- return{category:'人民團體會務說明',title:'社區發展協會 vs 一般協會：主要差別在法規依據和組織範圍',summary:'社區發展協會與一般社會團體的共同點是都依人民團體法立案，理監事的選舉、任期、會議規定大致相同。主要差別：\n1. 法規：社區發展協會另適用社區發展工作綱要，由鄉鎮市公所劃定社區範圍，同一社區原則只成立一個。\n2. 組織區域：以公所劃定的社區為範圍，不像一般協會可以自定全縣性或鄉鎮市級。\n3. 發起門檻：鄉鎮市級社會團體要 30 人，社區發展協會由社區居民發起。\n4. 經費來源：社區發展協會可以接受鄉鎮市公所或縣府的補助計畫，例如社區營造、環境改善等。\n5. 監督：公所扮演較積極角色，會務輔導和計畫核銷通常經公所轉送縣府。',statutes:[{title:'社區發展工作綱要',source:LAW+'D0050098'}],questionState:{focus:'community-vs-general',domain:'social'},notes:['本站名冊未收錄社區發展協會，相關業務請洽鄉鎮市公所或縣府社會處。'],actions:[{label:'看社區發展協會成立',view:'biz',sub:'community'},{label:'聯絡承辦',view:'contact',sub:''}]};
+ return{direct:true,category:'人民團體會務說明',title:'社區發展協會和一般協會的差別：組織區域以村里為單位，由公所輔導',summary:'兩者都是依人民團體法立案的社會團體。社區發展協會的設立、組織、會員資格、工作人員和財務，一樣適用人民團體法（社區發展工作要點第17點）；理事長連任以一次為限、任期最長四年等規定也相同（人民團體法第20條）。\n\n主要的差別有三點：\n1. 多一份規定：社區發展協會另外適用衛生福利部的「社區發展工作要點」（114年7月1日起適用；原來的「社區發展工作綱要」已在同一天廢止）。\n2. 組織區域：以村里為單位，原則上不超出鄉（鎮、市、區）的行政區域範圍（要點第4點）；一般協會則可以是全縣性或鄉鎮市級。\n3. 公所的角色：鄉（鎮、市、區）公所也是社區發展的主管機關，負責輔導居民設立社區發展協會（要點第3點、第4點），所以會務和補助計畫通常會經過公所。',statutes:[CDP(17),CDP(4),CDP(3),P(20)],questionState:{focus:'community-vs-general',domain:'social'},notes:['社區發展協會的業務請洽所在地的鄉鎮市公所，或縣府社會處。'],actions:[{label:'看社區發展協會成立',view:'biz',sub:'community'},{label:'聯絡承辦',view:'contact',sub:''}]};
 }
 function coopDissolutionProperty(t){
  if(!/合作社/.test(t)||!/解散/.test(t)||!/(財產|歸誰|歸屬|剩餘|怎麼處理|怎麼辦|清算)/.test(t))return null;
@@ -415,7 +415,7 @@ function communityRename(t){
 }
 function communityReportTownship(t){
  if(!/(社區發展協會|社區協會)/.test(t)||!/公所/.test(t)||!/(報什麼|要報|送什麼|要送|報哪些|資料)/.test(t))return null;
- return{category:'社區發展協會',title:'社區發展協會要報公所的事項：本站未能確認完整清單',summary:'社區發展協會的會務、年度計畫和補助核銷，實務上常經鄉鎮市公所轉送縣府，但各公所要求的報送項目、格式和期限不一定相同；本站目前沒有收錄社區發展工作綱要全文，無法列出確定清單。\n可以確定的是，社區發展協會也是社會團體：會員大會紀錄應於閉會後30日內報主管機關備查（人民團體會務輔導辦法第12條），年度決算於年度終了後三個月內編造、經大會通過後報備查（社會團體財務處理辦法第11條）。其他公所要求的事項，請直接洽所在地公所社會（民政）課。',statutes:[G(12),F(11)],questionState:{focus:'community-township',domain:'social'},notes:[],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
+ return{category:'社區發展協會',title:'社區發展協會要報公所的事項：本站未能確認完整清單',summary:'社區發展協會的會務、年度計畫和補助核銷，實務上常經鄉鎮市公所轉送縣府，但各公所要求的報送項目、格式和期限不一定相同；社區發展工作要點（114年7月1日起適用）沒有統一規定報送的項目，無法列出確定清單。\n可以確定的是，社區發展協會也是社會團體：會員大會紀錄應於閉會後30日內報主管機關備查（人民團體會務輔導辦法第12條），年度決算於年度終了後三個月內編造、經大會通過後報備查（社會團體財務處理辦法第11條）。其他公所要求的事項，請直接洽所在地公所社會（民政）課。',statutes:[G(12),F(11)],questionState:{focus:'community-township',domain:'social'},notes:[],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
 }
 function addressCertificate(t){
  if(!/(會址|地址|搬家|搬遷)/.test(t)||!/(證書|立案證書|換證|換發)/.test(t))return null;
@@ -730,14 +730,13 @@ function communityReportingRequirements(t){
 // 15-5 社區年度計畫送件期限：無法確認
 function communityYearlyPlanDeadline(t){
  if(/(社區|社區協會)/.test(t)&&/(年度計畫|年度|計畫|年計畫)/.test(t)&&/(期限|何時|幾月|送|報)/.test(t))
-  return{title:'[本站無法確認] 社區協會年度計畫送件期限',summary:'社區發展協會年度計畫何時提報，取決於中央社區發展工作綱要、屏東縣政府社會處要求，以及各鄉鎮市公所規定。\\n\\n常見參考（待確認）：\\n📅 上年度 11-12月 提報下年度計畫\\n📅 變更時 3月底前補報或修正\\n\\n建議洽詢：\\n📍 所在地鄉鎮市公所社會課\\n📍 屏東縣政府社會處 (08)7360316\\n*不同年份、單位可能有調整，建議提前1個月詢問*',statutes:[P(6)]};
+  return{title:'[本站無法確認] 社區協會年度計畫送件期限',summary:'社區發展協會年度計畫何時提報，取決於屏東縣政府社會處的要求，以及各鄉鎮市公所規定。\\n\\n常見參考（待確認）：\\n📅 上年度 11-12月 提報下年度計畫\\n📅 變更時 3月底前補報或修正\\n\\n建議洽詢：\\n📍 所在地鄉鎮市公所社會課\\n📍 屏東縣政府社會處 (08)7360316\\n*不同年份、單位可能有調整，建議提前1個月詢問*',statutes:[P(6)]};
  return null;
 }
 
 // 15-6 社區協會vs一般協會的差別：部分確認
 function communityVsAssociationDifferences(t){
- if(/(社區|社區協會)/.test(t)&&/(差別|差異|不同|有什麼|與|vs|vs|比較)/.test(t)&&/(協會|一般|團體)/.test(t))
-  return{title:'[部分規定確認] 社區發展協會 vs 一般協會的差別',summary:'✅ 明確不同：\\n1️⃣ 理事長連任：社區不得連任 vs 一般可連任一次\\n2️⃣ 組織名稱：社區有格式限制（屏東縣○○鄉鎮市○○社區發展協會）vs 一般無\\n3️⃣ 受理單位：社區向鄉鎮公所申請立案 vs 一般向縣府社會處\\n4️⃣ 監管機構：社區由鄉鎮公所+縣府社會處 vs 一般只由縣府社會處\\n\\n❓ 待確認（需社區發展工作綱要）：會員資格、活動範圍、補助等級、人事編制等。\\n\\n建議洽詢：\\n📋 社區發展工作綱要（全文）\\n📍 所在地鄉鎮市公所社會課\\n💡 參考已立案社區協會的章程與規則',statutes:[P(19),P(20),G(12)]};
+ if(/(社區|社區協會)/.test(t)&&/(差別|差異|不同|有什麼|與|vs|比較)/.test(t)&&/(協會|一般|團體)/.test(t)&&/(差別|差異|不同|不一樣|比較|vs)/.test(t))return communityVsGeneral(/社區發展協會|社區協會/.test(t)?t:t+'社區發展協會');
  return null;
 }
 
@@ -1005,6 +1004,7 @@ function memberCourseFee(t){
  notes:['本站法規庫不含所得稅法，講師費扣繳率與申報方式以國稅局說明為準。']};
 }
 
+const CDP=n=>({title:'社區發展工作要點第'+n+'點',source:'https://dep.mohw.gov.tw/DOSAASW/lp-553-103.html'});
 const SW=n=>({title:'社會團體工作人員管理辦法第'+n+'條',source:LAW+'D0050096'});
 const VS=n=>({title:'志願服務法第'+n+'條',source:LAW+'D0050131'});
 const VSC=n=>({title:'志願服務證及服務紀錄冊管理辦法第'+n+'條',source:LAW+'D0050132'});
@@ -1256,6 +1256,50 @@ function groupTypeDifference(t){
  summary:'簡單說，是「為了什麼而組成」不一樣：\n\n• 協會（社會團體）：為了文化、學術、醫療、衛生、宗教、慈善、體育、聯誼、社會服務等公益目的，由個人或團體組成（人民團體法第39條）。誰都可以依章程加入。\n\n• 公會（職業團體）：由同一個行業的單位，或同一種職業的從業人員組成，目的是協調同業關係、增進共同利益（人民團體法第35條）。醫師、社工師等專業公會，另外還要看各自的專業法律。\n\n• 合作社：社員共同出資、共同經營，目的是改善社員的經濟利益和生活，本身就是法人（合作社法第1條、第2條）。它依的是合作社法，不是人民團體法，社員要認購股金，結餘可以依規定分配。\n\n想辦公益活動、聯誼或服務，通常是成立協會；同業要組織起來，是公會；想一起做生意、共同採購或共同銷售，才是合作社。',
  statutes:[P(39),P(35),C(1),C(2)],notes:['工會（勞工組成）依工會法，由勞工主管機關主管，和公會不同。']};
 }
+/* ── 2026-11-11 使用者提供 FAQ 五題（逐條核對後收錄） ── */
+function foundingCost(t){
+ if(!/(成立|籌組|立案|設立|創立|籌備)/.test(t))return null;
+ if(!/(多少錢|費用|規費|要錢|收費|繳費|繳錢|花多少|要花|資本額|立案費|申請費|成本|免費)/.test(t))return null;
+ if(/合作社|社員|會費|入會費|常年會費|法人登記|研習|課程|活動/.test(t))return null;
+ return{direct:true,category:'人民團體會務說明',title:'成立協會要多少錢：法律沒有規定資本額，主要是籌備過程的實際開銷',
+ summary:'成立協會不用先準備一筆「資本額」。人民團體法規定的是程序：30位以上成年的發起人提出申請（第8條），經許可後開發起人會議、組籌備會、開成立大會（第9條），成立大會後30日內報請立案（第10條），條文裡沒有要求繳交固定金額。\n\n實際會花到的錢，大致是籌備過程的開銷：\n• 刻製圖記（印章）。圖記由協會自己刻製，再把印模送縣府備查（第10條）。\n• 文件的印製和郵寄。\n• 發起人會議、籌備會、成立大會的場地和雜支。\n\n另外兩種「錢」不要混在一起：\n• 入會費、常年會費：是協會成立之後依章程向會員收的收入，不是政府收的成立費用。\n• 法人登記：立案之後如果要向法院登記為社團法人（第11條），法院的費用另計。\n\n至於縣府受理立案申請收不收規費，請直接向承辦人確認。',
+ statutes:[P(8),P(9),P(10),P(11)],notes:['縣府總機 08-7320415，可請總機轉人民團體的承辦人。'],actions:[{label:'看成立流程',view:'biz',sub:'social'},{label:'聯絡承辦',view:'contact',sub:''}]};
+}
+function prepMeetingCount(t){
+ if(!/(籌備會|籌備會議|籌備委員)/.test(t))return null;
+ if(!/(幾次|多少次|一次|兩次|二次|三次|次數|開幾|要開)/.test(t))return null;
+ if(/合作社|社員/.test(t))return null;
+ return{direct:true,category:'人民團體會務說明',title:'籌備會要開幾次：法律沒有規定次數，把該決定的事情決定完就可以',
+ summary:'法律沒有規定籌備會一定要開兩次或三次。人民團體法第9條只規定順序：經許可設立後，先開發起人會議、推選籌備委員、組成籌備會，籌備完成後再開成立大會。\n\n所以重點是「籌備完成」：章程草案、會員入會的審查、工作計畫和預算、成立大會的時間地點和議程，這些事情如果一次會議就能決定完，不需要為了湊次數再多開；一次討論不完，就再開。\n\n要注意兩件事：\n• 每一次籌備會和成立大會，都要通知主管機關，主管機關可以派員列席（第9條）。\n• 發起人會議、籌備會、成立大會是三種不同的會議，不能合成一場，紀錄也要分開。',
+ statutes:[P(9)],notes:['屏東縣的作業上對籌備會有沒有其他要求，請向承辦人確認。'],actions:[{label:'看成立流程',view:'biz',sub:'social'},{label:'聯絡承辦',view:'contact',sub:''}]};
+}
+function assemblyShortOfQuorum(t){
+ if(!/(會員大會|大會|會員代表大會)/.test(t))return null;
+ if(!/(人數不夠|人數不足|不足額|沒過半|未過半|未達半數|不到一半|流會|出席不足|來的人太少|人太少|沒到齊|湊不到|開不成)/.test(t))return null;
+ if(/合作社|社員|理事會|監事會/.test(t))return null;
+ return{direct:true,category:'人民團體會務說明',title:'會員大會出席人數不夠：不能表決或選舉，要重新召集',
+ summary:'出席沒有過半，這次會議就不能作成決議，也不能辦選舉。會員大會的決議，要有會員（會員代表）過半數出席才算數（人民團體法第27條）。例如會員30人至少要16人、50人至少要26人、100人至少要51人。\n\n當天請這樣處理：\n1. 把實際出席的人數記下來，簽到表留存，宣布流會。\n2. 另外訂日期重新召集，一樣要在15日前通知會員，並報請主管機關派員列席（第26條）。\n3. 重開的那一次，出席門檻還是過半數，不會因為是第二次就降低。\n\n想提高出席率，可以用委託出席：社會團體的會員不能親自到場時，可以用書面委託其他會員代理，受委託的人算在出席人數裡，每位會員只能代理一人（第42條）。\n\n如果長期都開不成，請和承辦人聯絡；大會不能依法召開時，主管機關可以指定理事一人召集（第32條）。',
+ statutes:[P(27),P(26),P(42),P(32)],notes:['開會前先由理事會審定會員名冊（人民團體會務輔導辦法第10條），已經出會或喪失資格的會員不列入，應出席人數才會正確。'],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
+}
+function twoCommunityAssociations(t){
+ if(!/(社區發展協會|社區協會|社區)/.test(t))return null;
+ if(!/(兩個|二個|2個|第二個|另一個|再成立|再設|重複|幾個|只能有一個|只能一個|已經有)/.test(t))return null;
+ if(!/(村|里|社區)/.test(t)||/合作社|社員|理事|監事|幾個人|發起人/.test(t))return null;
+ return{direct:true,category:'社區發展協會',title:'一個村可以有兩個社區發展協會嗎：現行規定沒有明文禁止，要由公所和縣府審查',
+ summary:'不能直接說一定可以，也不能說一律不行。\n\n現行的規定是這樣：\n• 社區發展協會的組織區域以村里為單位，原則上不超出鄉（鎮、市、區）的行政區域範圍，由鄉（鎮、市、區）公所輔導居民依法設立（社區發展工作要點第4點）。要點沒有寫「一個村里只能有一個」。\n• 社區發展協會的設立適用人民團體法（要點第17點）；人民團體法允許同一組織區域內成立兩個以上同級同類的團體，但名稱不能和已經許可的團體相同（人民團體法第7條）。\n\n所以同一個村已經有社區發展協會，還想再成立一個，要看組織區域怎麼劃、名稱怎麼區別，以及公所和縣府的審查。建議先到所在地的鄉鎮市公所，說明想服務的範圍，再提出申請。\n\n補充：以前「由公所劃定社區範圍」的依據是社區發展工作綱要，已經在114年7月1日廢止，改用社區發展工作要點。',
+ statutes:[CDP(4),CDP(17),P(7)],notes:['屏東縣和各公所對社區發展協會的設立如果另有作業規定，以公所和縣府的說明為準。'],actions:[{label:'看社區發展協會成立',view:'biz',sub:'community'},{label:'聯絡承辦',view:'contact',sub:''}]};
+}
+function villageChiefAsChair(t){
+ if(!/(村長|里長|村里長|鄰長|代表會|鄉民代表|議員)/.test(t))return null;
+ if(!/(理事長|理事|監事|總幹事|幹部|會員)/.test(t))return null;
+ if(!/(可以|能不能|可不可以|能否|兼|當|擔任|同一人)/.test(t))return null;
+ if(/合作社|社員/.test(t))return null;
+ const staff=/總幹事|工作人員/.test(t)&&!/理事|監事/.test(t);
+ if(staff)return null;
+ return{direct:true,category:'社區發展協會',title:'村長、里長可以當社區發展協會理事長：法規沒有禁止，但要經過選舉',
+ summary:'可以。人民團體法和社區發展工作要點都沒有禁止村長、里長擔任社區發展協會的理事長或理監事。\n\n不過不是當了村長就自動是理事長，要照一般的程序：先依章程入會成為會員，由會員大會選為理事（人民團體法第17條），再由理事互選為理事長；理事長連任以一次為限（人民團體法第20條）。\n\n兩個身分同時擔任時，要注意：\n• 協會的錢和村里辦公處的經費要分開，帳目各自獨立。\n• 協會向政府申請補助時，可能有公職人員利益衝突迴避法的身分揭露問題，申請前請先向補助機關確認。\n\n要點本來就希望協會和村里辦公處多協調、聯繫（社區發展工作要點第10點），但兩者是不同的組織。',
+ statutes:[P(17),P(20),CDP(10)],notes:[],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
+}
 function intlTermStart(t){
  if(!/國際/.test(t)||!/任期/.test(t))return null;
  if(!/(起算|開始|算起|哪天|哪一天|何時|什麼時候|怎麼算|怎麼計算|從哪)/.test(t))return null;
@@ -1404,7 +1448,7 @@ function boardBelowHalf(t){
 
 function verifiedRoundAnswer(q,ctx){
  const t=norm(q);
- return intlTermStart(t)||charmCommunityContact(t)||groupTypeDifference(t)||directorAbsence(t)||chairElectionMethod(t)||officerNumbers(t)||meetingNoticeChannel(t)||budgetHowTo(t)||renameGroup(t)||certificateLost(t)||dormantGroup(t)||lookupRegistered(t)||coopWithdraw(t)||termLengthLimit(t)||officeAtHome(t)||dissolvedAssets(t)||groupNameDuplicate(t)||standingDirectorCount(t)||memberViewAccounts(t)||howToReportGroup(t)||groupReported(t)||anonymousDonation(t)||chairRelativeStaff(t)||minorJoinAssoc(t)||volunteerTopics(t)||volunteerTeam(t)||memberCourseFee(t)||staffMustBeMember(t)||chairFundraising(t)||boardBelowHalf(t)||assocMayNotMeet(t)||assocNurseryCenter(t)||assocCareStation(t)||assocDonateGoods(t)||assocGovTender(t)||subsidySettlement(t)||corpRegistration(t)||assocBoardPay(t)||financeStaffConcurrent(t)||staffHiring(t)||coopVsAssocAccountingForms(t)||coopBalanceSheetReport(t)||delegateQuotaCalculation(t)||delegateConcurrentRole(t)||onlineVoting(t)||mailVoting(t)||assemblyVotingMethod(t)||boardVotingMethodDetail(t)||delegateElectionProcess(t)||delegateAssemblyRules(t)||coopMemberRemoval(t)||coopAdvertisingTaxability(t)||coopLoanToMemberTax(t)||coopBankLoanProcedure(t)||coopBankLoan(t)||branchAccountingPractice(t)||memberDelegateElection(t)||branchOrgSetup(t)||delegateProposalProcess(t)||annualMeetingVsAssembly(t)||vacancyQuorum(t)||supervisorConvenerNoMeeting(t)||supervisorMinimumMembers(t)||supervisorChairmanElection(t)||supervisorAuditPowers(t)||branchOrgAccounting(t)||runClassesPermit(t)||residentialCarePermit(t)||chairConvicted(t)||chairDismissStaff(t)||chairDissolve(t)||homeAsOfficeTax(t)||nonprofitTaxThreshold(t)||sameAddressGroups(t)||chairStaffConflict(t)||orgDisposeProperty(t)||orgAcquireEquipment(t)||sellGoodsAllowed(t)||staffActingChair(t)||p2MembershipFee(t)||p2BoardNotice(t)||p2RecordRetention(t)||p2CharterAmend(t)||p2SupervisorAudit(t)||p2CoopShares(t)||p2FoundingMeeting(t)||p2ElectionPrep(t)||p2MinutesContent(t)||p2DelegateSystem(t)||chairAbandonsOffice(t)||chairOtherGroupPosition(t)||chairSpendWithoutBoard(t)||supervisorSpend(t)||supervisorActingChair(t)||candidateSeatCount(t)||ballotRetention(t)||officerResignation(t)||invalidBallotReason(t)||delegateQualification(t)||substitutionOrder(t)||byElectionThreshold(t)||coopChairReelection(t)||chairmanReelectionLimit(t)||chairmanAbsence(t)||recordRetentionPeriod(t)||advertisingIncome(t)||staffBankAccountSetup(t)||meetingSigninDuration(t)||meetingVotingMethod(t)||preElectionBoardMeeting(t)||electionEffectiveDate(t)||politicalDonation(t)||communityReportingRequirements(t)||communityYearlyPlanDeadline(t)||communityVsAssociationDifferences(t)||supervisorAsDirector(t)||newChairTodo(t)||postElectionAccountingDeadline(t)||electionReportDeadline(t)||checkSignature(t)||feePeriods(t)||feeDeferral(t)||threeMonthsWording(t)||electionCandidates(t)||electionObjection(t)||minutesDeadline(t)||coopBoardQuorum(t)||coopTax(t)||communityRename(t)||communityReportTownship(t)||addressCertificate(t)||bankChairChange(t)||eventFee(t)||communityChairTerm(t)||invalidBallot(t)||feeAmount(t)||personalAccount(t)||delegateAssembly(t)||noSupervisor(t)||foundingDocs(t)||investStocks(t)||membershipRefused(t)||coopCapital(t)||receiveDonation(t)||hireEmployee(t)||lendToChair(t)||branchOrg(t)||supervisorMeeting(t)||noAnnualMeeting(t)||chairSpendingAuth(t)||communityVsGeneral(t)||coopDissolutionProperty(t)||charterAmendment(t)||coopSupervisorAudit(t)||publicSolicitation(t)||decisionRevoked(t)||chairResign(t)||memberExpulsion(t)||sealChange(t)||noHandover(t)||communityDissolutionProperty(t)||boardFinanceAgenda(t)||boardQuorumGeneral(t)||delegated(t)||chairNoMeeting(t)||feeAnswer(t)||coopAssemblyQuorum(t)||proxyCount(t)||concurrent(t)||financeQuestioned(t)||financeDeadline(t)||meetingFrequency(t)||videoMeeting(t)||coopMinimum(t)||financeForms(t)||formsDownload(t,ctx&&ctx.catalog)||dissolutionHowTo(t)||null;
+ return foundingCost(t)||prepMeetingCount(t)||assemblyShortOfQuorum(t)||twoCommunityAssociations(t)||villageChiefAsChair(t)||intlTermStart(t)||charmCommunityContact(t)||groupTypeDifference(t)||directorAbsence(t)||chairElectionMethod(t)||officerNumbers(t)||meetingNoticeChannel(t)||budgetHowTo(t)||renameGroup(t)||certificateLost(t)||dormantGroup(t)||lookupRegistered(t)||coopWithdraw(t)||termLengthLimit(t)||officeAtHome(t)||dissolvedAssets(t)||groupNameDuplicate(t)||standingDirectorCount(t)||memberViewAccounts(t)||howToReportGroup(t)||groupReported(t)||anonymousDonation(t)||chairRelativeStaff(t)||minorJoinAssoc(t)||volunteerTopics(t)||volunteerTeam(t)||memberCourseFee(t)||staffMustBeMember(t)||chairFundraising(t)||boardBelowHalf(t)||assocMayNotMeet(t)||assocNurseryCenter(t)||assocCareStation(t)||assocDonateGoods(t)||assocGovTender(t)||subsidySettlement(t)||corpRegistration(t)||assocBoardPay(t)||financeStaffConcurrent(t)||staffHiring(t)||coopVsAssocAccountingForms(t)||coopBalanceSheetReport(t)||delegateQuotaCalculation(t)||delegateConcurrentRole(t)||onlineVoting(t)||mailVoting(t)||assemblyVotingMethod(t)||boardVotingMethodDetail(t)||delegateElectionProcess(t)||delegateAssemblyRules(t)||coopMemberRemoval(t)||coopAdvertisingTaxability(t)||coopLoanToMemberTax(t)||coopBankLoanProcedure(t)||coopBankLoan(t)||branchAccountingPractice(t)||memberDelegateElection(t)||branchOrgSetup(t)||delegateProposalProcess(t)||annualMeetingVsAssembly(t)||vacancyQuorum(t)||supervisorConvenerNoMeeting(t)||supervisorMinimumMembers(t)||supervisorChairmanElection(t)||supervisorAuditPowers(t)||branchOrgAccounting(t)||runClassesPermit(t)||residentialCarePermit(t)||chairConvicted(t)||chairDismissStaff(t)||chairDissolve(t)||homeAsOfficeTax(t)||nonprofitTaxThreshold(t)||sameAddressGroups(t)||chairStaffConflict(t)||orgDisposeProperty(t)||orgAcquireEquipment(t)||sellGoodsAllowed(t)||staffActingChair(t)||p2MembershipFee(t)||p2BoardNotice(t)||p2RecordRetention(t)||p2CharterAmend(t)||p2SupervisorAudit(t)||p2CoopShares(t)||p2FoundingMeeting(t)||p2ElectionPrep(t)||p2MinutesContent(t)||p2DelegateSystem(t)||chairAbandonsOffice(t)||chairOtherGroupPosition(t)||chairSpendWithoutBoard(t)||supervisorSpend(t)||supervisorActingChair(t)||candidateSeatCount(t)||ballotRetention(t)||officerResignation(t)||invalidBallotReason(t)||delegateQualification(t)||substitutionOrder(t)||byElectionThreshold(t)||coopChairReelection(t)||chairmanReelectionLimit(t)||chairmanAbsence(t)||recordRetentionPeriod(t)||advertisingIncome(t)||staffBankAccountSetup(t)||meetingSigninDuration(t)||meetingVotingMethod(t)||preElectionBoardMeeting(t)||electionEffectiveDate(t)||politicalDonation(t)||communityReportingRequirements(t)||communityYearlyPlanDeadline(t)||communityVsAssociationDifferences(t)||supervisorAsDirector(t)||newChairTodo(t)||postElectionAccountingDeadline(t)||electionReportDeadline(t)||checkSignature(t)||feePeriods(t)||feeDeferral(t)||threeMonthsWording(t)||electionCandidates(t)||electionObjection(t)||minutesDeadline(t)||coopBoardQuorum(t)||coopTax(t)||communityRename(t)||communityReportTownship(t)||addressCertificate(t)||bankChairChange(t)||eventFee(t)||communityChairTerm(t)||invalidBallot(t)||feeAmount(t)||personalAccount(t)||delegateAssembly(t)||noSupervisor(t)||foundingDocs(t)||investStocks(t)||membershipRefused(t)||coopCapital(t)||receiveDonation(t)||hireEmployee(t)||lendToChair(t)||branchOrg(t)||supervisorMeeting(t)||noAnnualMeeting(t)||chairSpendingAuth(t)||communityVsGeneral(t)||coopDissolutionProperty(t)||charterAmendment(t)||coopSupervisorAudit(t)||publicSolicitation(t)||decisionRevoked(t)||chairResign(t)||memberExpulsion(t)||sealChange(t)||noHandover(t)||communityDissolutionProperty(t)||boardFinanceAgenda(t)||boardQuorumGeneral(t)||delegated(t)||chairNoMeeting(t)||feeAnswer(t)||coopAssemblyQuorum(t)||proxyCount(t)||concurrent(t)||financeQuestioned(t)||financeDeadline(t)||meetingFrequency(t)||videoMeeting(t)||coopMinimum(t)||financeForms(t)||formsDownload(t,ctx&&ctx.catalog)||dissolutionHowTo(t)||null;
 }
 const api={normalizeQuestion,withContext,verifiedRoundAnswer};
 if(typeof module!=='undefined'&&module.exports)module.exports=api;
