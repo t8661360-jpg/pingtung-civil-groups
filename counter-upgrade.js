@@ -278,8 +278,9 @@ function exactArticleAnswer(q){
 const unscopedSearchKn=searchKn;
 searchKn=function(q,limit,legacy){
   const comparison=/合作社|合作農場/.test(q)&&/協會|社會團體|人民團體/.test(q);
-  const coop=/合作社|合作農場/.test(q);
-  const people=!coop&&/協會|社會團體|人民團體/.test(q);
+  const coop=/合作社|合作農場|社員|社股|股金|社務會|理事主席/.test(q);
+  /* 問句沒有提到合作社，就不拿合作社的條目來回答（例如「社團每年要開什麼會」） */
+  const people=!coop;
   const exact=articleRows(q);
   const results=unscopedSearchKn(String(q).replaceAll('法規說明','白話說明'),STORE.kn.rows.length,legacy).filter(hit=>!exact.length||exact.includes(hit._r));
   return results.filter(hit=>{if(comparison||(!coop&&!people))return true;const row=hit._r;const isCoop=/^合作社/.test(row.cat||'')||/合作社|合作農場/.test((row.title||'')+' '+(row.alias||''));if(people&&!/工會|公會|商業|工業|醫事|社工|護理|律師/.test(q)&&/工會|公會|商業團體|工業團體|醫事|社工師|護理|律師/.test(row.title+' '+(row.alias||'')+' '+row.cat))return false;return coop?isCoop:!isCoop}).slice(0,limit||5);
@@ -303,7 +304,7 @@ smartFallback=function(q,kb){
   return scopedFallback(q,kb);
 };
 loadAll=async function(force){await baseLoadAll(force);await loadStatutes();if(!STORE.coopLoaded){
-  try{const responses=await Promise.all([fetch('data/coop/directory.json?v=20261112-1'),fetch('data/coop/catalog.json')]);if(responses.some(r=>!r.ok))throw Error('合作社資料載入失敗');const [dir,cat]=await Promise.all(responses.map(r=>r.json()));STORE.dir.rows=STORE.dir.rows.filter(r=>r.t!=='合作社').concat(dir.rows.map(r=>({...r,d:townOf(r.a)})));coopCatalog=cat.files;STORE.coopLoaded=true;fillCatSelect()}catch(e){console.warn(e)}
+  try{const responses=await Promise.all([fetch('data/coop/directory.json?v=20261112-2'),fetch('data/coop/catalog.json')]);if(responses.some(r=>!r.ok))throw Error('合作社資料載入失敗');const [dir,cat]=await Promise.all(responses.map(r=>r.json()));STORE.dir.rows=STORE.dir.rows.filter(r=>r.t!=='合作社').concat(dir.rows.map(r=>({...r,d:townOf(r.a)})));coopCatalog=cat.files;STORE.coopLoaded=true;fillCatSelect()}catch(e){console.warn(e)}
 }if(!STORE.kn.rows.some(r=>r.title===COOP_RULING.title)){STORE.kn.rows.push(COOP_RULING);KN_IDX=null}};
 const oldDirMetaLine=dirMetaLine;
 dirMetaLine=function(){const rows=STORE.dir.rows;const original=rows.filter(r=>r.t!=='合作社');return `人民團體 ${original.length} 筆；合作社 ${rows.filter(r=>r.t==='合作社').length} 筆（合作社名冊日期：2026/10/01）。名冊列載不代表即時營運狀態。`};

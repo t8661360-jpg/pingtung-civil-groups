@@ -24,7 +24,8 @@ assert.equal(A('合作社資產負債表不平怎麼辦'),null);
 assert(A('合作社的表格在哪下載').title.includes('沒有收錄'));
 // 6 解散辦理：導向解散說明，不可答成改選
 assert.equal(A('我要辦解散'),'KB:解散');
-assert.equal(A('協會解散要多少人同意'),null);
+// 2026-11-12：改由 dissolveVote 直接回答（人民團體法第27條）
+assert(A('協會解散要多少人同意').title.includes('三分之二'));
 // 7 錯字與追問
 assert.equal(r.normalizeQuestion('協會改選要送什麼文鍵'),'協會改選要送什麼文件');
 assert(r.withContext('那要準備什麼','協會要辦理解散').startsWith('協會要辦理解散'));
