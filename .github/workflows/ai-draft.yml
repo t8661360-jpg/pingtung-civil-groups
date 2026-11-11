@@ -2,8 +2,8 @@ name: 無法回答 AI 草稿
 
 on:
   schedule:
-    # 每天 04:30 UTC（台灣 12:30）；巡檢與反饋同步之後執行
-    - cron: '30 4 * * *'
+    # 每小時整點執行（UTC 每小時 = 台灣每小時）
+    - cron: '0 * * * *'
   workflow_dispatch:
 
 permissions:
@@ -25,4 +25,4 @@ jobs:
           REPO: ${{ github.repository }}
           DRAFT_URL: https://pingtung-unanswered.t8661360.workers.dev/draft
           DRAFT_KEY: ${{ secrets.DRAFT_KEY }}
-        run: node scripts/ai-draft.cjs --max 5
+        run: node scripts/ai-draft.cjs --max 10
