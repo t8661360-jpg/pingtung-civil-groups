@@ -798,7 +798,7 @@ async function saveChunked(coll,rows,metaExtra){
 async function loadAll(force){
   if(loadPromise&&!force)return loadPromise;
   loadPromise=(async()=>{
-    const base=document.baseURI.replace(/[^/]*$/,"")+"data/";const DV="?v=20261111-3";
+    const base=document.baseURI.replace(/[^/]*$/,"")+"data/";const DV="?v=20261111-4";
     const jf=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);return r.json()};
     const jgz=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);const b=new Uint8Array(await r.arrayBuffer());if(b[0]!==31||b[1]!==139)return JSON.parse(new TextDecoder().decode(b));if(typeof DecompressionStream==="undefined")throw new Error("gzip unsupported");const text=await new Response(new Blob([b]).stream().pipeThrough(new DecompressionStream("gzip"))).text();return JSON.parse(text)};
     const [d,s,k,f]=await Promise.allSettled([jf(base+"directory.json"+DV),jf(base+"staff.json"+DV),jgz(base+"knowledge.json.gz"+DV).catch(()=>jf(base+"knowledge.json"+DV)),jf(base+"forms-catalog.json?v=20261105-5")]);
@@ -883,7 +883,7 @@ function searchKn(q,limit){
 }
 
 /* ================= 意圖判斷 ================= */
-const SUFFIX="社區發展協會|合作社|合作農場|商業同業公會|同業公會|商業會|工業會|佛教會|道教會|功德會|婦女會|體育會|青年會|協會|學會|促進會|聯誼會|公會|研究會|總會|分會|商會|聯合會|獅子會|扶輪社|青商會|同濟會|發展會|關懷會|老人會|長青會|宗親會|同鄉會|校友會|俱樂部";
+const SUFFIX="社區發展協會|慈善會|協進會|互助社|服務社|教師會|教育會|研究社|轎班會|晨泳會|早泳會|早覺會|之友會|聯青社|采風社|薪傳會|親善會|聯盟會|聯盟|畫會|崇文社|弘道會|學佛會|聖道會|文化會|共修會|同修會|傳習會|傳道會|帝爺會|懇親會|尊王會|登山會|門球會|山友會|彈球會|十字會|童軍會|婦友會|公益會|普愛會|扶助會|客家會|合作社|合作農場|商業同業公會|同業公會|商業會|工業會|佛教會|道教會|功德會|婦女會|體育會|青年會|協會|學會|促進會|聯誼會|公會|研究會|總會|分會|商會|聯合會|獅子會|扶輪社|青商會|同濟會|發展會|關懷會|老人會|長青會|宗親會|同鄉會|校友會|俱樂部";
 const NAME_RE=new RegExp("([\\u4e00-\\u9fa5A-Za-z0-9]{2,24}?(?:"+SUFFIX+"))");
 const LEAD_RE=/^(請問一下|請問|請幫我查詢|請幫我查|幫我查詢|幫我查|幫我找|我想查詢|我想查|我要查詢|我要查|想查|查詢|查一下|查|找|搜尋|有沒有|是否有|我想知道|想知道)/;
 const GENERIC_PREFIX=/^(成立|申請|籌組|設立|組織|一個|這個|我們的|我們|新的|該|本|辦理|如何|怎麼|要|想|社區發展|人民團體|社會團體|職業團體)$/;
@@ -997,7 +997,7 @@ function groupCard(r,hit){
   const st=dead?null:staffForGroup(r);
   const f=dead?[["立案證號",r.r],["成立日期",r.dt],["解散字號",r.sd]]:[["會址",r.a],["理事長",r.p],["電話",r.tel],["屆別任期",r.term],["立案證號",r.r],["成立日期",r.dt],["統一編號",r.tax],["目的事業主管",r.m]];
   const rows=f.filter(x=>x[1]).map(x=>`<dt>${x[0]}</dt><dd>${x[0]==="電話"&&telHref(x[1])?`<a href="${telHref(x[1])}">${esc(x[1])}</a>`:esc(x[1])}</dd>`).join("");
-  const staffRow=st?`<dt>會務承辦</dt><dd>${esc(st.name)}（${esc(st.unit)}）<br><a href="${telHref(st.tel,st.ext)}">${esc(st.tel)} 轉 ${esc(st.ext)}</a></dd>`:"";
+  const staffRow=st?`<dt>會務承辦</dt><dd>${esc(st.name)}（${esc(st.unit)}）<br><a href="${telHref(st.tel,st.ext)}">${esc(st.tel)}${st.ext?" 轉 "+esc(st.ext):""}</a></dd>`:"";
   return `<div class="gcard${hit?" hit":""}"><div class="gname">${esc(r.n)}</div><div class="gtags"><span>${esc(r.c||r.t||"")}</span>${r.d?`<span>${esc(r.d)}</span>`:""}${dead?`<span class="dead">已解散</span>`:""}</div><dl>${rows}${staffRow}</dl></div>`;
 }
 function staffCard(s){
@@ -1327,7 +1327,7 @@ function dirRender(q,query,res,intent){
     if(g.s==="已解散")return{category:"團體查詢",title:g.n,summary:`「${g.n}」已解散${g.sd?"（"+g.sd+"）":""}，目前不是存續團體。`,groups:[g],hitFirst:true,dirMeta:meta,notes:[],actions:more};
     const st=staffForGroup(g);
     const fields=[g.d?"位於"+g.d:"",g.p?"理事長："+g.p:"",g.tel?"電話："+g.tel:"",g.term?"屆別任期："+g.term:""].filter(Boolean).join("，");
-    return{category:"團體查詢",title:g.n,summary:`「${g.n}」是本縣存續的${g.c||g.t}${fields?"，"+fields:""}。${st?`會務由${st.unit}${st.name}承辦（${st.tel} 轉 ${st.ext}）。`:""}`,groups:[g],hitFirst:true,dirMeta:meta,notes:termNote(g),actions:[{label:"會員大會辦理",view:"meet",sub:"m-assembly"},{label:"改選辦理",view:"meet",sub:"m-elect"},...more]};
+    return{category:"團體查詢",title:g.n,summary:`「${g.n}」是本縣存續的${g.c||g.t}${fields?"，"+fields:""}。${st?`會務由${st.unit}${st.name}承辦（${st.tel}${st.ext?" 轉 "+st.ext:""}）。`:""}`,groups:[g],hitFirst:true,dirMeta:meta,notes:termNote(g),actions:[{label:"會員大會辦理",view:"meet",sub:"m-assembly"},{label:"改選辦理",view:"meet",sub:"m-elect"},...more]};
   }
   const live=res.all.filter(r=>r.s!=="已解散").length;
   const summary=query.kw?(res.fuzzy?`查無完全相同的名稱，以下是與「${query.kw}」相近的 ${res.total} 筆團體。`:`找到 ${res.total} 筆名稱含「${query.kw}」的團體${query.d?"（"+query.d+"）":""}${live<res.total?`，其中 ${res.total-live} 筆已解散`:""}。`):`${query.d||"本縣"}目前共有 ${res.total} 個存續的${query.c||query.t||"人民團體"}${res.total>10?"，先列出前 10 個給您參考":res.total?"，名單如下":""}。`;
@@ -1341,14 +1341,14 @@ function staffAnswer(q,intent){
   if(!g&&!c&&(t==="社區發展協會"||t==="合作社"))return{category:"聯絡承辦",title:`${t}業務窗口`,summary:`${t}業務請撥縣府總機 08-7320415 轉社會處詢問承辦人。社會團體、職業團體及老人會的承辦人如下。`,staff:STORE.staff.rows.slice(0,4),notes:[],actions:[{label:"看全部承辦人",view:"contact",sub:""}]};
   if(g&&g.s!=="已解散"){
     const p=staffForGroup(g);
-    if(p)return{category:"聯絡承辦",title:"承辦人聯絡方式",summary:`「${g.n}」（${g.c||g.t}）的會務由${p.unit}${p.name}承辦，電話 ${p.tel} 轉 ${p.ext}。`,staff:[p],groups:[g],notes:[],actions:[{label:"看全部承辦人",view:"contact",sub:""}]};
+    if(p)return{category:"聯絡承辦",title:"承辦人聯絡方式",summary:`「${g.n}」（${g.c||g.t}）的會務由${p.unit}${p.name}承辦，電話 ${p.tel}${p.ext?" 轉 "+p.ext:""}。`,staff:[p],groups:[g],notes:[],actions:[{label:"看全部承辦人",view:"contact",sub:""}]};
   }
   if(c){
     const dist=staffDist(c);
-    if(dist.length===1){const p=dist[0].s;return{category:"聯絡承辦",title:"承辦人聯絡方式",summary:`本縣${c}的會務由${p.unit}${p.name}承辦，電話 ${p.tel} 轉 ${p.ext}。`,staff:[p],notes:[],actions:[{label:"看全部承辦人",view:"contact",sub:""}]}}
-    if(dist.length>1)return{category:"聯絡承辦",title:"承辦人聯絡方式",summary:`本縣${c}由${dist.map(x=>`${x.s.name}（轉 ${x.s.ext}，${x.n} 個團體）`).join("、")}分別承辦。請告訴我團體名稱，我幫您查出確切的承辦人。`,staff:dist.map(x=>x.s),notes:[],actions:[{label:"看全部承辦人",view:"contact",sub:""}]};
+    if(dist.length===1){const p=dist[0].s;return{category:"聯絡承辦",title:"承辦人聯絡方式",summary:`本縣${c}的會務由${p.unit}${p.name}承辦，電話 ${p.tel}${p.ext?" 轉 "+p.ext:""}。`,staff:[p],notes:[],actions:[{label:"看全部承辦人",view:"contact",sub:""}]}}
+    if(dist.length>1)return{category:"聯絡承辦",title:"承辦人聯絡方式",summary:`本縣${c}由${dist.map(x=>`${x.s.name}（${x.s.ext?"轉 "+x.s.ext+"，":"總機 08-7320415，"}${x.n} 個團體）`).join("、")}分別承辦。請告訴我團體名稱，我幫您查出確切的承辦人。`,staff:dist.map(x=>x.s),notes:[],actions:[{label:"看全部承辦人",view:"contact",sub:""}]};
     const p=staffForCat(c,t);
-    if(p)return{category:"聯絡承辦",title:"承辦人聯絡方式",summary:`${c}的業務由${p.unit}${p.name}承辦，電話 ${p.tel} 轉 ${p.ext}。`,staff:[p],notes:[],actions:[{label:"看全部承辦人",view:"contact",sub:""}]};
+    if(p)return{category:"聯絡承辦",title:"承辦人聯絡方式",summary:`${c}的業務由${p.unit}${p.name}承辦，電話 ${p.tel}${p.ext?" 轉 "+p.ext:""}。`,staff:[p],notes:[],actions:[{label:"看全部承辦人",view:"contact",sub:""}]};
   }
   const list=searchStaff(q);
   return{category:"聯絡承辦",title:"人民團體業務承辦人",summary:`已立案團體的會務，由名冊指定的承辦人辦理，告訴我團體名稱就能查到；新申請籌組依申請表分工：${STORE.staff.rows.map(s=>`${s.name}（轉 ${s.ext}）${s.duty.replace(/^辦理/,"")}`).join("；")}。`,staff:(list.length?list:STORE.staff.rows).slice(0,4),notes:["總機 08-7320415，撥通後請轉分機。"],actions:[{label:"看全部承辦人",view:"contact",sub:""}]};
@@ -1359,7 +1359,7 @@ function rowBrief(r){const st=staffForGroup(r);return{名稱:r.n,類別:r.c,性�
 function knowledgeText(){
   const items=Object.values(ALLITEMS).map(i=>`[${i.id}] ${i.title}｜步驟：${i.steps.map(s=>s[0]+"："+s[1]).join("；")}｜應備：${i.docs.join("、")}｜法規代碼：${(i.laws||[]).join(",")}`).join("\n");
   const arts=Object.entries(ART).map(([k,a])=>`${k}｜${a.law} ${a.art}｜${a.text}`).join("\n");
-  const staff=STORE.staff.rows.map(s=>{const l=STORE.dir.rows.length?staffLoad(s):{n:0,top:[]};return `${s.name}｜${s.unit}｜新申請籌組分工：${s.duty}｜目前承辦既有團體 ${l.n} 個（${l.top.join("、")}等）｜08-7320415 轉 ${s.ext}`}).join("\n")+"\n既有團體的承辦人以名冊指定為準（search_groups 結果的「會務承辦」欄），同一類別可能由不同承辦人辦理。"||"（未建立，請撥總機 08-7320415）";
+  const staff=STORE.staff.rows.map(s=>{const l=STORE.dir.rows.length?staffLoad(s):{n:0,top:[]};return `${s.name}｜${s.unit}｜新申請籌組分工：${s.duty}｜目前承辦既有團體 ${l.n} 個（${l.top.join("、")}等）｜08-7320415${s.ext?" 轉 "+s.ext:""}`}).join("\n")+"\n既有團體的承辦人以名冊指定為準（search_groups 結果的「會務承辦」欄），同一類別可能由不同承辦人辦理。"||"（未建立，請撥總機 08-7320415）";
   const forms=STORE.forms.catalog?STORE.forms.catalog.folders.map(f=>`${f.id}：${f.desc}`).join("\n"):"";
   return `【辦理項目】\n${items}\n【法規條文代碼】\n${arts}\n【承辦人（社會團體、職業團體、老人會）】\n${staff}\n社區發展協會、合作社業務：請撥總機轉社會處詢問。\n【書表分類（forms sub 用 id）】\n${forms}\n【資料概況】名冊 ${STORE.dir.rows.length} 筆（社會處列管之社會團體與職業團體，含已解散），另含2026年10月1日合作社名冊；尚未含社區發展協會；法規函釋資料 ${STORE.kn.rows.length} 則。\n【機關】屏東縣政府社會處，屏東市自由路527號，總機 08-7320415，服務時間週一至週五 8:00-12:00、13:30-17:30。`;
 }
@@ -1814,11 +1814,11 @@ touch();
   route();
 })();
 </script>
-<script src="feedback-collector.js?v=20261111-3"></script>
-<script src="round-fixes.js?v=20261111-3"></script>
-<script src="answer-arbiter.js?v=20261111-3"></script>
-<script src="question-understanding.js?v=20261111-3"></script>
-<script src="counter-upgrade.js?v=20261111-3"></script>
+<script src="feedback-collector.js?v=20261111-4"></script>
+<script src="round-fixes.js?v=20261111-4"></script>
+<script src="answer-arbiter.js?v=20261111-4"></script>
+<script src="question-understanding.js?v=20261111-4"></script>
+<script src="counter-upgrade.js?v=20261111-4"></script>
 </body>
 </html>
 
