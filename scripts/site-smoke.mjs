@@ -56,6 +56,15 @@ const CHECKS = [
   ['一個村可以有兩個社區發展協會嗎', '沒有明文禁止'],          // 社區發展工作要點第4、17點；人民團體法第7條
   ['社區發展協會理事長可以是村長嗎', '沒有禁止'],              // 人民團體法第17、20條
   ['國際性團體任期起算', '照章程'],                            // 選舉罷免辦法第28條但書
+  ['協會可以設副會長嗎', '8910424'],                          // 內政部89.1.18函
+  ['提案要幾個人附議', '議事規則'],
+  ['協會可以跟銀行借錢嗎', '第13條'],                          // 財務處理辦法第13條
+  ['理事長可以領年終獎金嗎', '無給職'],                        // 人民團體法第21條
+  ['協會可以編交際費嗎', '預算'],
+  ['協會可以取英文名稱嗎', '1010223561'],                      // 內政部101.6.13函
+  ['未成年可以當理事嗎', '1080009490'],                        // 內政部108.4.1函
+  ['協會的錢可以買股票嗎', '不宜'],                            // 內政部103.6.12函
+  ['候補理事可以當總幹事嗎', '8211459'],                       // 內政部82.6.2函
   ['理事可以請假幾次', '視同辭職'],                          // 人民團體法第31條
   ['協會要換名字怎麼辦', '三分之二'],                          // 人民團體法第12、27條
   ['開會通知可以用LINE嗎', '通知的方式'],                      // 人民團體法第26條、會務輔導辦法第10條
@@ -103,6 +112,18 @@ try {
     log(`${ok ? 'PASS' : 'FAIL'}｜${q}｜${title}`);
     if (!ok) fails.push(`問答：「${q}」未包含「${want}」，實際標題「${title}」`);
   }
+  // 1b. 函釋目錄與佈景（沒有音樂開關）
+  await page.goto(BASE + '#law'); await page.waitForTimeout(2500);
+  const hasKind = await page.click('[data-law-kind=official]').then(() => true).catch(() => false);
+  await page.waitForTimeout(800);
+  const rc = hasKind ? await page.$$eval('#law-results > details', a => a.length).catch(() => 0) : 0;
+  const rt = hasKind ? await page.innerText('#law-count').catch(() => '') : '';
+  log(`函釋目錄：${rt}`); if (!hasKind || rc < 20 || !/7\d|[89]\d|\d{3}/.test(rt)) fails.push('函釋目錄沒有顯示 70 則以上：' + rt);
+  await page.click('#themefab').catch(() => fails.push('找不到佈景按鈕'));
+  const pt = await page.innerText('#themepanel').catch(() => '');
+  log(`佈景面板：${pt.replace(/\s+/g, ' ').slice(0, 60)}`);
+  if (/音樂|音效/.test(pt)) fails.push('佈景面板仍有音樂開關'); if (!/佈置/.test(pt)) fails.push('佈景面板沒有佈置開關');
+  if (!(await page.$('#ptgarland svg'))) fails.push('頁面上方沒有吊飾佈置');
   // 2. 書表下載頁
   await page.goto(BASE + '#forms'); await page.waitForTimeout(3000);
   await page.click('#formtabs [data-f="改選"]').catch(() => fails.push('書表下載頁找不到「改選」分類'));

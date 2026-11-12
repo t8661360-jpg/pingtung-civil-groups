@@ -1,7 +1,7 @@
 // 第9輪：投資、入會被拒、合作社增資。來源：社會團體財務處理辦法第15、16、20條；人民團體法第12、37條；本縣章程範例第7條；合作社法第9-1、16、17、21條。
 const assert=require('assert');const r=require('./round-fixes.js');const A=q=>r.verifiedRoundAnswer(r.normalizeQuestion(q),{});
 const has=(a,s)=>a&&a.statutes&&a.statutes.some(x=>x.title.includes(s));
-{const a=A('協會可不可以買股票');assert(a.title.includes('無法確認'));assert(has(a,'財務處理辦法第16條'));}
+{const a=A('協會可不可以買股票');assert(a.title.includes('不宜開放'));assert(has(a,'財務處理辦法第16條'));}
 {const a=A('會員入會被拒絕怎麼辦');assert(a.title.includes('理事會通過'));assert(has(a,'人民團體法第37條'));}
 assert(A('公會拒絕我入會怎麼辦').title.includes('不得拒絕'));
 {const a=A('合作社要怎麼增資');assert(a.summary.includes('百分之二十'));assert(has(a,'合作社法第16條'));}
