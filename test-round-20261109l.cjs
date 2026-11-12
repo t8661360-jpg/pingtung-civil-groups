@@ -5,7 +5,7 @@ const A=q=>r.verifiedRoundAnswer(r.normalizeQuestion(q),{});
 const has=(a,s)=>a&&a.statutes&&a.statutes.some(x=>x.title.includes(s));
 
 // 1 理事長無故缺席
-{const a=A('理事長無故缺席理事會會怎樣');assert(a&&a.title.includes('應解除職務'),a?a.title:'null');assert(has(a,'第30條'));}
+{const a=A('理事長無故缺席理事會會怎樣');assert(a&&a.title.includes('主管機關解除'),a?a.title:'null');assert(has(a,'第30條'));}
 
 // 2 廣告費記帳
 {const a=A('廣告費收了要怎麼記帳');assert(a&&a.title.includes('決算'),a?a.title:'null');assert(has(a,'第33條')||has(a,'財務'));}

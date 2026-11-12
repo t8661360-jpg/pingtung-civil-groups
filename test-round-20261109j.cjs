@@ -10,7 +10,7 @@ assert(A('理監事會議記錄要報縣府嗎').title.includes('自行留存'))
 assert(A('合作社理事會幾個人才能開').title.includes('過半數'));
 assert(A('合作社結算後盈餘要繳稅嗎').title.includes('無法確認'));
 assert(A('社區發展協會可以改名嗎').title.includes('修改章程'));
-assert(A('社區協會要跟公所報什麼').title.includes('未能確認'));
+assert(A('社區協會要跟公所報什麼').title.includes('報備查'));
 assert(A('協會改地址要不要換證書').title.includes('請洽承辦'));
 assert(A('理事長換人銀行要改嗎').title.startsWith('要'));
 assert(A('社區發展協會可以辦活動收報名費嗎').title.includes('可以收'));
