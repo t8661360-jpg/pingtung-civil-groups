@@ -4,7 +4,7 @@ const A=q=>r.verifiedRoundAnswer(r.normalizeQuestion(q),{});
 const has=(a,s)=>a&&a.statutes&&a.statutes.some(x=>x.title.includes(s));
 // 會費
 {const a=A('社區協會可以收會費嗎');assert(a&&a.summary.startsWith('可以'));assert(has(a,'人民團體法第33條'));}
-assert.equal(A('會員退會可以退會費嗎'),null);
+{const a=A('會員退會可以退會費嗎');assert(a&&a.title.includes('退費原則')&&has(a,'財務處理辦法第14條'));}
 // 合作社社員大會出席
 {const a=A('合作社社員大會要多少人出席');assert(a.title.includes('過半數'));assert(has(a,'合作社法第48條'));}
 // 委託人數
