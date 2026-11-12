@@ -51,3 +51,14 @@ curl -s -X POST https://pingtung-unanswered.t8661360.workers.dev/draft \
   -d '{"q":"理事長可以自己決定換總幹事嗎","statutes":[{"title":"人民團體法§24","text":"人民團體依其章程聘僱工作人員，辦理會務、業務。"}]}'
 ```
 回傳 `{"ok":true,"answer":...}` 即為成功。沒有正確金鑰會回 403。
+
+## 公開 AI 即時回覆（POST /ask）
+櫃檯規則和知識庫都答不出來時，網頁會自動呼叫 `/ask`：Worker 從網站的法規資料（`data/statutes.json.gz`，公開）檢索相關條文，只用這些條文請模型整理成口語回答；程式會核對回答引用的條號都在檢索結果內、句意與條文有重疊，沒有電話或網址，核對不過就不回覆（網頁維持「難倒小屏」）。稅務相關問題不交給 AI。
+
+- 網頁顯示時固定標示「AI 整理（僅供參考）」，並列出引用的法條原文。
+- 同時把 AI 回覆當草稿留言到對應的「[無法回答]」Issue，**不會直接進知識庫**，由承辦人員審核後才補進。
+- 啟用順序：① 先貼上新版 Worker 並 Deploy；② 再把 `index.html` 的 `<meta name="ai-endpoint" content="">` 填入 Worker 網址（例如 `https://pingtung-unanswered.t8661360.workers.dev`）。順序不能反，舊版 Worker 沒有 `/ask`，會把呼叫當成一般無法回答回報。
+- 部署：把 `worker/unanswered-relay.js` 全部貼上 Worker 覆蓋並 Deploy。不需要新增任何密鑰；沿用既有的 `AI` 綁定、`GITHUB_TOKEN`、`REPO`、`RATE`（建議一定要綁 KV `RATE`，`/ask` 每 IP 每分鐘限 3 次）。
+- 想換模型：改 `CF_MODEL`（或 `PROVIDER=groq`）。換模型前，請先用題庫實測中文法規的準確度。
+- 提醒：民眾的問題會送到 Cloudflare Workers AI 處理，請依縣府規定確認；並留意 Workers AI 的用量額度。
+- 緊急關閉：把 `index.html` 的 `ai-endpoint` 留空，網頁就不會呼叫 `/ask`。
