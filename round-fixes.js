@@ -1449,7 +1449,7 @@ function annualMeetings(t){
 }
 function chairTermGeneral(t){
  if(!/理事長|會長/.test(t)||!/任期/.test(t))return null;
- if(/合作社|社員|社區|公會|工會|農會|漁會|連任|起算|開始算|從什麼|屆滿|到期|幾次|兩任|二任|幾屆|兩屆|二屆|\d+\s*年|[一二兩三四五六七八九十]年/.test(t))return null;
+ if(/任期中|中途|換人|換掉|撤換|罷免|解職|辭|出缺|補選|代理|可以(當|做|擔任)|能(當|做)|合作社|社員|社區|公會|工會|農會|漁會|連任|起算|開始算|從什麼|屆滿|到期|幾次|兩任|二任|幾屆|兩屆|二屆|\d+\s*年|[一二兩三四五六七八九十]年/.test(t))return null;
  const intl=/獅子會|扶輪|同濟會|國際性/.test(t);
  if(!intl&&/幾年|多久|多長|多少年/.test(t))return null;
  return{direct:true,category:'人民團體會務說明',title:(intl?'國際性社團':'協會')+'理事長的任期：跟著理事走，一屆最長四年，連任以一次為限',
