@@ -831,7 +831,7 @@ async function saveChunked(coll,rows,metaExtra){
 async function loadAll(force){
   if(loadPromise&&!force)return loadPromise;
   loadPromise=(async()=>{
-    const base=document.baseURI.replace(/[^/]*$/,"")+"data/";const DV="?v=20261113-3";
+    const base=document.baseURI.replace(/[^/]*$/,"")+"data/";const DV="?v=20261113-4";
     const jf=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);return r.json()};
     const jgz=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);const b=new Uint8Array(await r.arrayBuffer());if(b[0]!==31||b[1]!==139)return JSON.parse(new TextDecoder().decode(b));if(typeof DecompressionStream==="undefined")throw new Error("gzip unsupported");const text=await new Response(new Blob([b]).stream().pipeThrough(new DecompressionStream("gzip"))).text();return JSON.parse(text)};
     const [d,s,k,f]=await Promise.allSettled([jf(base+"directory.json"+DV),jf(base+"staff.json"+DV),jgz(base+"knowledge.json.gz"+DV).catch(()=>jf(base+"knowledge.json"+DV)),jf(base+"forms-catalog.json?v=20261105-5")]);
@@ -907,7 +907,7 @@ function revCov(title,q){const tb=bigrams(title);if(!tb.length)return 0;const qn
 const KN_OTHER_LAW=/商業團體法|工業團體法|同業公會|商業會|工業會|適用對象：商業/;
 const KN_ASK_OTHER_TYPE=/商業|工業|同業|公會|職業|商會|工會|工廠/;
 /* 專案型條目（魅力社區、好讚、公益勸募、社造、社區生產建設基金）只在問句提到該專案時才出現 */
-const KN_SCOPES=[[/魅力社區|好讚/,/魅力|好讚/],[/勸募/,/勸募|募款|募捐|募集|募資|捐款|捐贈/],[/社造點|文化處/,/社造|文化處/],[/生產建設基金/,/生產建設|基金/],[/社區活動中心/,/活動中心/],[/國際總會|國際性|國際年會/,/國際/],[/「總會」|叫總會/,/總會/],[/臉書|ETF|保證金|酬勞金|車馬費|法律顧問/,/臉書|facebook|fb|ETF|etf|保證金|酬勞|獎金|車馬費|顧問/i],[/國外|海外|境外|出國/,/國外|海外|境外|出國|國際|大陸|港澳/],[/Zoom|zoom/,/zoom|視訊|線上|遠距|海外/i],[/承辦人?(沒有|未)到場/,/到場|列席|派員|承辦/],[/家長會|校友會|同鄉會|宗親會|獅子會|扶輪|同濟/,/家長會|校友會|同鄉會|宗親會|獅子會|扶輪|同濟/]];
+const KN_SCOPES=[[/國際年會在國外/,/國外|海外|境外|出國|年會/],[/魅力社區|好讚/,/魅力|好讚/],[/勸募/,/勸募|募款|募捐|募集|募資|捐款|捐贈/],[/社造點|文化處/,/社造|文化處/],[/生產建設基金/,/生產建設|基金/],[/社區活動中心/,/活動中心/],[/國際總會|國際性|國際年會/,/國際/],[/「總會」|叫總會/,/總會/],[/臉書|ETF|保證金|酬勞金|車馬費|法律顧問/,/臉書|facebook|fb|ETF|etf|保證金|酬勞|獎金|車馬費|顧問/i],[/國外|海外|境外|出國/,/國外|海外|境外|出國|國際|大陸|港澳/],[/Zoom|zoom/,/zoom|視訊|線上|遠距|海外/i],[/承辦人?(沒有|未)到場/,/到場|列席|派員|承辦/],[/家長會|校友會|同鄉會|宗親會|獅子會|扶輪|同濟/,/家長會|校友會|同鄉會|宗親會|獅子會|扶輪|同濟/]];
 const KN_TOWN_RE=new RegExp((Array.isArray(TOWNS)?TOWNS:String(TOWNS).split(/\s+/)).filter(Boolean).map(x=>x.replace(/[鄉鎮市]$/,'')).filter(x=>x.length>=2&&x!=='屏東').join('|'));
 function knScopeOK(q,r){const t=r.title+"｜"+(r.alias||"");const m=r.title.match(KN_TOWN_RE);if(m&&!q.includes(m[0]))return false;return KN_SCOPES.every(([row,ask])=>!row.test(t)||ask.test(q))}
 function searchKn(q,limit,legacy){
@@ -1860,13 +1860,13 @@ touch();
   route();
 })();
 </script>
-<script src="feedback-collector.js?v=20261113-3"></script>
-<script src="round-fixes.js?v=20261113-3"></script>
-<script src="answer-arbiter.js?v=20261113-3"></script>
-<script src="question-understanding.js?v=20261113-3"></script>
-<script src="counter-upgrade.js?v=20261113-3"></script>
-<script src="ai-assist.js?v=20261113-3"></script>
-<script src="festive.js?v=20261113-3" defer></script>
+<script src="feedback-collector.js?v=20261113-4"></script>
+<script src="round-fixes.js?v=20261113-4"></script>
+<script src="answer-arbiter.js?v=20261113-4"></script>
+<script src="question-understanding.js?v=20261113-4"></script>
+<script src="counter-upgrade.js?v=20261113-4"></script>
+<script src="ai-assist.js?v=20261113-4"></script>
+<script src="festive.js?v=20261113-4" defer></script>
 </body>
 </html>
 
