@@ -3,7 +3,8 @@
 // 用法：OPENAI_API_KEY=... node scripts/gpt-verify.cjs verify/queue.json [report.json]
 // 測試：GPT_MOCK=verify/mock-replies.json node scripts/gpt-verify.cjs verify/queue.json
 const fs=require('fs'),zlib=require('zlib');
-const [,,inFile,outFile='verify/report.json']=process.argv;
+const args=process.argv.slice(2).filter(a=>!a.startsWith('--'));const BRIEF=process.argv.includes('--brief');
+const [inFile,outFile='verify/report.json']=args;
 if(!inFile){console.error('用法：node scripts/gpt-verify.cjs <queue.json> [report.json]');process.exit(2);}
 const laws=JSON.parse(zlib.gunzipSync(fs.readFileSync('data/statutes.json.gz'))).laws;
 const byName={};for(const [k,v] of Object.entries(laws))byName[v.name]={pcode:k,articles:v.articles};
@@ -43,6 +44,11 @@ function check(item,reply){
 }
 (async()=>{
  const items=JSON.parse(fs.readFileSync(inFile));const report=[];
+ if(BRIEF){ // 沒有 API 時：產生可直接貼給 ChatGPT 的題單；把回覆存成 {題目id:回覆JSON} 後用 GPT_MOCK=回覆檔 重跑核對
+  let md='# 請 ChatGPT 初審（貼整份）\n\n規則：只能依下方「法條原文」回答；原文沒寫就說「法規無明文」，不得臆測。每題回覆一個 JSON 物件：{"conclusion":"一至三句結論","cites":[{"law":"法規全名","article":"條號","quote":"自原文逐字摘錄"}],"confidence":"high|medium|low","gaps":"原文不足或需承辦確認之處"}。最後把所有題目合成一個 JSON：{"題目id": 該題物件, ...}，用程式碼區塊輸出。\n\n';
+  for(const it of items){const ctx=(it.statutes||[]).map(x=>{const t=artText(x.law,x.article);return t==null?`【${x.law}第${x.article}條：資料庫查無】`:`【${x.law}第${x.article}條】\n${t}`;}).join('\n\n')||'（未提供，請說明法規無明文）';
+   md+=`---\n## 題目id：${it.id}\n問題：${it.question}\n`+(it.claim?`待驗證的現行說法：${it.claim}\n`:'')+`\n可用法條原文：\n${ctx}\n\n`;}
+  fs.writeFileSync('verify/brief.md',md);console.log('已產生 verify/brief.md');return;}
  for(const it of items){
   const ctx=(it.statutes||[]).map(s=>{const t=artText(s.law,s.article);return t==null?`【${s.law}第${s.article}條：資料庫查無】`:`【${s.law}第${s.article}條】\n${t}`;}).join('\n\n')||'（未提供，請說明法規無明文）';
   let reply=null,err=null;try{reply=await ask(it,ctx);}catch(e){err=e.message;}
