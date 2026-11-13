@@ -1,0 +1,4 @@
+[
+ {"id":"coop-dissolve-assets","question":"合作社解散後剩餘財產歸誰？","claim":"餘額依出資比例或章程辦理","statutes":[{"law":"合作社法","article":"61"},{"law":"合作社法","article":"62"},{"law":"合作社法","article":"55"}],"mustInclude":[]},
+ {"id":"coop-rep-assembly","question":"一般合作社什麼時候可以用社員代表大會？","statutes":[{"law":"合作社法","article":"46"},{"law":"合作社法","article":"69"}]}
+]

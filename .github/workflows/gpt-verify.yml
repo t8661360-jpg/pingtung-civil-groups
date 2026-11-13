@@ -1,0 +1,34 @@
+name: gpt-verify
+# 手動觸發：把 verify/queue.json 的題目交給 GPT 初審，並自動核對法條。結果只存在工作記錄與 artifact，不會改網站。
+on:
+  workflow_dispatch:
+    inputs:
+      queue:
+        description: '題目檔路徑'
+        default: 'verify/queue.json'
+      model:
+        description: 'OpenAI 模型（留空用預設）'
+        default: ''
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: 檢查金鑰是否已設定
+        run: test -n "$OPENAI_API_KEY" || { echo "尚未在 repo Secrets 設定 OPENAI_API_KEY"; exit 1; }
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      - name: GPT 初審＋自動核對
+        run: node scripts/gpt-verify.cjs "${{ inputs.queue }}" verify/report.json
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: ${{ inputs.model }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: gpt-verify-report
+          path: verify/report.json
