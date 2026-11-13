@@ -2917,6 +2917,106 @@ function patrol20(t){
   statutes:[pt(8)]});
  return null;
 }
+function patrol21(t){
+ if(!/(志工|志願服務|義工|服務紀錄冊|志願服務證|基礎訓練)/.test(t))return null;
+ const t0=t;t=t.replace(/志工會/g,'志工');
+ if(/合作社|公會|工會|政黨|基金會|寺廟|宗教|議員|管委會|競選|政治|稅|員工|工作人員|總幹事|理事|監事|會員|魅力|社區發展|勸募|縣府補助|申請補助|核銷|解散協會|清算/.test(t))return null;
+ const base={direct:true,category:'志願服務',notes:[],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
+ const vs=n=>({title:'志願服務法第'+n+'條',source:LAW+'D0050131'});
+ const vc=n=>({title:'志願服務證及服務紀錄冊管理辦法第'+n+'條',source:LAW+'D0050132'});
+ const tail='\n其他細節請洽縣府社會處承辦人員，縣府總機 08-7320415。';
+ /* 志工證遺失、紀錄冊損壞遺失 */
+ if(/(志工證|服務證|志願服務證|紀錄冊|服務紀錄冊|紀錄卡).{0,6}(遺失|弄丟|不見|丟了|掉了|損壞|壞掉|破了|補發|換發|補辦|重辦)|(遺失|弄丟|不見|丟了|損壞|壞掉).{0,6}(志工證|服務證|志願服務證|紀錄冊|服務紀錄冊)/.test(t))
+  return Object.assign({},base,{title:'志工證或服務紀錄冊遺失、損壞怎麼辦：紀錄冊向運用單位申請補發，服務證由運用單位製發管理',
+  summary:'服務紀錄冊損壞或遺失，志工可以向所屬的志願服務運用單位（例如協會）申請換發或補發；運用單位依一般申請程序，到全國志願服務資訊整合系統登錄志工資料與完訓證明，由地方目的事業主管機關製作紀錄冊，再發給志工（管理辦法第8條、第5條）。\n志願服務證是由運用單位製發及管理（管理辦法第3條），補發方式管理辦法沒有另外規定，請向發證的運用單位詢問。'+tail,
+  statutes:[vc(8),vc(5),vc(3)]});
+ /* 服務證借人、冒用、移作他用 */
+ if(/(服務證|志工證|志願服務證|紀錄冊)/.test(t)&&/(借|冒用|轉讓|給別人|給人|他用|別的用途|當別的|當作|拿來)/.test(t))
+  return Object.assign({},base,{title:'志工證和紀錄冊可以借給別人用嗎：不行，要自己使用保管',
+  summary:'不可以。服務證和紀錄冊由志工自己使用、保管，不得轉借、冒用或不當使用（管理辦法第6條第1項）；服務證是志工服務的識別證件，不能移作其他用途（管理辦法第3條第3項）。\n違反的話，運用單位要糾正並註記在紀錄冊，那段服務紀錄不予採計；必要時還可以收回服務證、註銷證號（管理辦法第6條第2項）。',
+  statutes:[vc(6),vc(3)]});
+ /* 服務證有效期限 */
+ if(/(服務證|志工證|志願服務證|紀錄冊).{0,8}(過期|期限|有效|到期|換新|效期|幾年|多久)/.test(t))
+  return Object.assign({},base,{title:'志工證會不會過期：管理辦法要求記載「日期或期限」，但沒有訂統一的有效期間',
+  summary:'志願服務證由運用單位製發及管理，管理辦法要求至少記載：志工姓名、發證單位及日期「或期限」、服務證號碼（管理辦法第3條）。法規沒有訂統一的有效期間，有沒有期限、要不要換新，要看發證的運用單位怎麼訂。\n志工轉換運用單位時，紀錄冊可以繼續使用（管理辦法第7條）。'+tail,
+  statutes:[vc(3),vc(7)]});
+ /* 換單位 */
+ if(/(換|轉|調|跳|去|到).{0,4}(別的|其他|另一個|新的|別個|另外).{0,3}(單位|協會|團體|志工隊)|轉換.{0,4}單位|換單位/.test(t))
+  return Object.assign({},base,{title:'志工換到別的單位服務，紀錄冊還能用嗎：可以，繼續使用',
+  summary:'可以。志工轉換志願服務運用單位時，服務紀錄冊要繼續使用（管理辦法第7條）。新單位仍要依規定把訓練、保險、服務日期時數與內容等登載在紀錄冊（管理辦法第4條）。\n至於要不要在新單位重新上課，志願服務法只規定運用單位要辦理基礎訓練和特殊訓練（第9條），新單位怎麼認定，請洽該單位。',
+  statutes:[vc(7),vc(4),vs(9)]});
+ /* 志工想退出 */
+ if(/(退出|不想做|不做了|不想當|辭掉|辭職|辭去|離開|不幹|退隊|想走|想退|不當志工|不想再|不去服務)/.test(t)&&!/(開除|不要他|趕|違規)/.test(t))
+  return Object.assign({},base,{title:'志工想退出可以嗎：可以，志願服務出於自由意志，但法規沒有訂退出手續',
+  summary:'可以。志願服務的定義就是民眾出於自由意志、不以獲取報酬為目的的服務（志願服務法第3條第1款），所以志工本來就可以不再服務。\n志願服務法和管理辦法沒有訂志工退出的程序或預告期限。志工有義務遵守運用單位訂定的規章（志願服務法第15條第2款），運用單位的志願服務計畫也包含志工的管理（第7條第2項），建議依該單位的規定，先通知單位並辦理交還服務證等手續。\n服務紀錄冊由志工自己保管，之後要到別的單位服務還是可以繼續使用（管理辦法第6條、第7條）。',
+  statutes:[vs(3),vs(15),vc(7)]});
+ /* 開除、不守規定 */
+ if(/(開除|不要他|不要她|趕走|趕出|辭退|不聽話|不守規定|不照規定|違規|不遵守|不合作|表現不好|惹事|亂來|搗亂|被取消|取消資格|終止)/.test(t)&&/(志工|義工)/.test(t))
+  return Object.assign({},base,{title:'志工不守規定或表現不好可以開除嗎：法規沒有寫「開除」，但運用單位可以糾正、註記、收回服務證',
+  summary:'志願服務法和管理辦法沒有「開除志工」的條文。法規有明文的處理方式是：志工違反管理辦法（例如轉借冒用服務證）或運用單位的規定時，運用單位要糾正並註記在紀錄冊，該段服務紀錄不予採計；必要時還可以收回服務證、註銷證號（管理辦法第6條第2項）。\n志工有義務遵守運用單位訂定的規章（志願服務法第15條第2款），運用單位也要定期考核志工個人及團隊的服務績效（第19條第1項）。要不要終止合作、怎麼處理，請先看協會的志願服務計畫與規章怎麼寫；有爭議時請洽承辦人員。',
+  statutes:[vc(6),vs(15),vs(19)]});
+ /* 考核 */
+ if(/(考核|績效|評鑑|打成績|評分|評比|考績)/.test(t)&&!/(獎|升學|就業|證明)/.test(t))
+  return Object.assign({},base,{title:'志工要考核嗎：要，運用單位應定期考核志工個人及團隊的服務績效',
+  summary:'要。志願服務運用單位應定期考核志工個人及團隊的服務績效（志願服務法第19條第1項）；志願服務計畫本來就要包括志工的召募、訓練、管理、運用、輔導、考核及服務項目（第7條第2項）。所以考核是由運用單位（例如協會）自己來做。\n另外，主管機關及目的事業主管機關會定期對推展志願服務的機關和運用單位辦理評鑑（第19條第3項）。\n多久考核一次、怎麼打分，法規沒有訂，請依協會的志願服務計畫辦理。',
+  statutes:[vs(19),vs(7)]});
+ /* 服務協議、契約、同意書 */
+ if(/(協議|契約|合約|同意書|切結|簽約|簽什麼|簽名|簽約)/.test(t))
+  return Object.assign({},base,{title:'志工要不要簽契約或同意書：個別志工法規沒有要求，團體集體服務才要簽服務協議',
+  summary:'志願服務法沒有要求個別志工一定要和運用單位簽契約或同意書。法規有明文要簽「服務協議」的，是集體從事志願服務的公、民營事業團體，要和志願服務運用單位簽訂服務協議（志願服務法第6條第2項）。\n運用單位可以在志願服務計畫中訂定志工的管理方式（第7條第2項），志工則有義務遵守單位訂定的規章（第15條第2款）。是否另外請志工簽同意書，由協會自行決定。\n因為志工不是受雇人員，這裡的「簽協議」不等於勞動契約。要確認個案請洽承辦。',
+  statutes:[vs(6),vs(7),vs(15)]});
+ /* 保密 */
+ if(/(保密|洩漏|洩露|外洩|講出去|說出去|隱私|個資|秘密|機密)/.test(t))
+  return Object.assign({},base,{title:'志工要保密嗎：要，對因服務取得或獲知的訊息有保守秘密的義務',
+  summary:'要。志工有義務對因服務而取得或獲知的訊息保守秘密（志願服務法第15條第1項第6款），服務時也要尊重受服務者的權利（第5款）。反過來，志工自己的自由、尊嚴、隱私和信仰，運用單位也要一視同仁尊重（第14條第2款）。\n哪些訊息算秘密、洩漏了怎麼處理，法規沒有逐項列舉；志工還要遵守中央主管機關訂定的倫理守則（第15條第1項第1款、第2項），倫理守則內容本站未收錄，請洽承辦人員，或依協會的規章辦理。',
+  statutes:[vs(15),vs(14)]});
+ /* 志工隊人數下限 */
+ if(/(志工隊|服務隊|志願服務隊|志工團|志工團隊|志工組織).{0,10}(幾個人|幾人|多少人|人數|最少|至少|要有|才夠|才能|夠)|(最少|至少|要有|需要).{0,6}(幾個人|幾人|多少人).{0,8}(志工隊|服務隊|志工團|組)/.test(t))
+  return Object.assign({},base,{title:'成立志工隊最少要幾個人：志願服務法沒有訂人數下限',
+  summary:'志願服務法沒有訂志工隊或志工人數的最低限制。協會要運用志工，只要把志願服務計畫和立案證書影本送主管機關及目的事業主管機關備案（志願服務法第7條第3項）、辦理教育訓練（第9條）就可以。\n人數只在「績優志工團隊獎」才有條件：成立滿三年、志工人數達二十人以上（志願服務獎勵辦法第7條），這是得獎門檻，不是成立志工隊的條件。',
+  statutes:[vs(7),{title:'志願服務獎勵辦法第7條',source:LAW+'D0050134'}]});
+ /* 志工隊結束、不辦了 */
+ if(/(志工隊|服務隊|志願服務隊|志願服務計畫|志工計畫|志工團).{0,8}(解散|結束|不辦|停辦|停止|不做|終止|取消|收掉)|(不辦|停辦|不再運用|不運用|結束運用).{0,6}志工/.test(t))
+  return Object.assign({},base,{title:'志工隊不辦了或計畫結束要通知縣府嗎：要，運用結束後二個月內函報辦理情形',
+  summary:'要。志願服務運用單位在運用結束後二個月內，要把志願服務計畫的辦理情形函報主管機關（縣政府）及該計畫的目的事業主管機關備查；如果運用期間在二年以上，則是每個年度結束後二個月內都要函報（志願服務法第7條第3項）。\n章程所載存立目的與志願服務計畫相符的運用單位，可以免於運用前申請備案，但仍要在年度結束後二個月內函報辦理情形（第7條第4項）。\n沒有依規定備案或備查，目的事業主管機關應不予經費補助，並作為服務績效考核的參據（第7條第5項）。',
+  statutes:[vs(7)]});
+ /* 基礎訓練時數 */
+ if(/(基礎訓練|特殊訓練|訓練課程|教育訓練|上課).{0,8}(幾小時|幾個小時|多少小時|時數|幾堂|幾節|幾天|多久|多長|要上多少|規定)/.test(t))
+  return Object.assign({},base,{title:'志工基礎訓練要上幾小時：課程由中央主管機關訂定，本站法規庫沒有收錄時數',
+  summary:'志願服務法規定，志願服務運用單位要辦理基礎訓練和特殊訓練兩種教育訓練。基礎訓練的課程由中央主管機關（衛生福利部）訂定；特殊訓練的課程由目的事業主管機關或運用單位依需要自行訂定（志願服務法第9條）。\n課程的時數與科目不在志願服務法條文裡，本站法規庫沒有收錄，不敢直接回答幾小時，請洽縣府社會處承辦人員確認最新規定，縣府總機 08-7320415。\n志工完成教育訓練後，運用單位才發給服務證和紀錄冊（管理辦法第2條）。',
+  statutes:[vs(9),vc(2)]});
+ /* 餐費交通費 */
+ if(/(便當|餐費|誤餐|交通費|油錢|油資|午餐|吃飯|飲料|茶水|車資|搭車)/.test(t)&&!/車馬費/.test(t))
+  return Object.assign({},base,{title:'志工的餐費、交通費誰出：運用單位「得」補助，不是一定要補',
+  summary:'志願服務運用單位必要時「得」補助志工的交通、誤餐和特殊保險等經費（志願服務法第16條），用的是「得」，表示可以補助，不是法律規定一定要補。要不要補、補多少，由協會自己決定。\n志願服務的定義是不以獲取報酬為目的（第3條第1款），志工也不可以向受服務者收取報酬（第15條第7款）。如果協會要編列這類支出，請依協會預算與財務規定辦理，並留存單據。',
+  statutes:[vs(16),vs(3),vs(15)]});
+ /* 服務時數登記、簽到、路程 */
+ if(/(時數|簽到|在途|路上|往返|路程|通勤|登錄|登記|登載)/.test(t)&&/(志工|服務)/.test(t)&&!/(榮譽卡|獎|證明書|用處|有什麼用|升學|就業)/.test(t)&&!/(一年|每年|最低|至少)/.test(t))
+  return Object.assign({},base,{title:'志工服務時數怎麼登記：運用單位登載在紀錄冊並登錄系統，時數不含路上往返時間',
+  summary:'志工的服務日期、時數與內容，由運用單位登載在志工的服務紀錄冊，並登錄到全國志願服務資訊整合系統（若縣府已建置地方資訊系統，則先登錄地方系統）（管理辦法第4條）。\n登錄時要指定專人負責、依實際狀況登錄服務項目與內容，服務時數「不包括在途往返時間」（管理辦法第9條）。\n簽到表的格式、怎麼簽到，法規沒有規定，由協會自己訂；只要能據實登錄日期、時數與內容就可以。',
+  statutes:[vc(4),vc(9)]});
+ /* 每年最低時數 */
+ if(/(一年|每年|年度|最低|至少|規定).{0,8}(時數|小時|時間)|(時數|小時).{0,6}(最低|至少|限制|規定|幾小時)/.test(t))
+  return Object.assign({},base,{title:'志工一年要服務多少小時：法規沒有訂每年最低時數',
+  summary:'志願服務法和管理辦法沒有訂志工每年最低要服務幾小時。時數只和這些事有關：服務年資滿三年、時數達三百小時以上，可以向縣府申請志願服務榮譽卡（志願服務法第20條）；志工個人獎勵依累計時數分銅牌三千小時、銀牌五千小時、金牌八千小時（志願服務獎勵辦法第4條）。\n協會的志願服務計畫可以另訂出勤要求，請看協會自己的規定。',
+  statutes:[vs(20),{title:'志願服務獎勵辦法第4條',source:LAW+'D0050134'}]});
+ /* 出國 */
+ if(/(出國|國外|海外|境外|外國)/.test(t))
+  return Object.assign({},base,{title:'運用單位派志工出國服務要先申請嗎：服務計畫經主管機關備查，才適用志願服務法',
+  summary:'志願服務法第24條規定：志願服務運用單位派遣志工前往國外從事志願服務，其服務計畫經主管機關及目的事業主管機關備查的，才適用志願服務法。條文沒有寫「申請許可」，是「備查」。\n也就是說，要讓出國的志工同樣受志願服務法的規範（例如保險、教育訓練等），建議先把服務計畫送縣府及目的事業主管機關備查。出國期間的簽證、保險等細節，請洽承辦人員確認，縣府總機 08-7320415。',
+  statutes:[vs(24),vs(7)]});
+ /* 專門證照 */
+ if(/(證照|執照|資格|專業|醫師|護理|社工|教師|老師)/.test(t)&&/(志工|義工)/.test(t)&&/(需要|要有|要不要|可以|必須|一定)/.test(t)&&!/(志工證|服務證)/.test(t))
+  return Object.assign({},base,{title:'志工需要證照嗎：一般服務不用，必須有專門執業證照的工作要由有證照的志工做',
+  summary:'一般志工不需要證照。但是必須具備專門執業證照的工作，應由具有證照的志工來做（志願服務法第13條）。\n另外志工做志願服務前要接受基礎訓練和特殊訓練（第9條），完成後運用單位才發給服務證和紀錄冊（管理辦法第2條）。',
+  statutes:[vs(13),vs(9),vc(2)]});
+ /* 收禮物 */
+ if(/(禮物|紅包|謝禮|謝謝金|小費|酬勞|報酬)/.test(t)&&/(收|拿|接受|給)/.test(t)&&!/車馬費/.test(t))
+  return Object.assign({},base,{title:'志工可以收受服務對象的禮物或紅包嗎：法規寫的是「拒絕收取報酬」',
+  summary:'志工有義務拒絕向受服務者收取報酬（志願服務法第15條第7款），志願服務本身也是不以獲取報酬為目的（第3條第1款）。紅包、謝謝金這類給付，屬於向受服務者收取報酬，志工應該拒絕。\n像一份小點心、一張感謝卡這類小禮物算不算報酬，法規沒有明文，請依協會的規章辦理，有疑問請洽承辦人員，縣府總機 08-7320415。',
+  statutes:[vs(15),vs(3)]});
+ return null;
+}
 function patrol19(t){
  if(/合作社|社員|公會|工會|職業團體|商業|工業|政黨|基金會|寺廟|宗教|議員|管委會|競選|政治|家長會|里長|村長|稅|所得|營業|扣繳|補助|核銷|勸募|解散|清算|魅力|志工|志願|候補/.test(t))return null;
  if(!/(總幹事|秘書長|工作人員|會務人員|幹事|員工|職員|助理|會計|出納|上班|聘僱|聘用|資遣|解聘|解僱|考績|年終|加薪|調薪|兼職|約聘|(?:員工|工作人員|總幹事|幹事).{0,12}開除|請的人|聘的人|勞基法|勞動基準法|試用期|叫他走|叫.{0,3}走人|趕走|領薪)/.test(t))return null;
@@ -3420,7 +3520,7 @@ function verifiedRoundAnswer(q,ctx){
   const guildCharter=charterAmendment(t);
   if(guildCharter)return guildCharter;
  }
- return patrol20(t)||patrol19(t)||patrol18(t)||patrol17(t)||patrol15(t)||patrol16(t)||patrol14(t)||intlGroupElection(t)||patrol13(t)||patrol11(t)||patrol10(t)||patrol9(t)||patrol8(t)||patrol7(t)||memberStaffPatrol6(t)||communityPatrol(t)||dissolveCharterPatrol(t)||financePatrol(t)||membershipPatrol(t)||formTemplates(t,ctx&&ctx.catalog)||(/^(協會|社區發展協會|我們協會|本會)?的?(理事|監事|理監事)(和監事|跟監事)?(要)?(怎麼選|怎麼產生|如何產生|誰選)/.test(t)?electionHowTo(t):null)||attendanceFeeCan(t)||joinManyGroups(t)||chairReplaceMidTerm(t)||charterItemChange(t)||resolutionOverturn(t)||staffInsurance(t)||intlGroupWho(t)||moneyMisuse(t)||supervisorNoMeeting(t)||rosterView(t)||whoManagesMoney(t)||donationDeduct(t)||annualAccountsHowTo(t)||boardMeetingHowTo(t)||memberQuitHowTo(t)||viceChair(t)||motionSecond(t)||assocLoan(t)||yearEndBonus(t)||entertainmentExpense(t)||englishName(t)||minorOfficer(t)||assocInvest(t)||candidateDeposit(t)||chairAndRecorder(t)||facebookGroup(t)||rulingRules(t)||byElection(t)||receiptsBasic(t)||memberRepThreshold(t)||officerResignHow(t)||finalAccountsWho(t)||publicServantOfficer(t)||relativesAsOfficers(t)||mergeGroups(t)||govCommission(t)||conveneAndPetition(t)||assemblyPrepAndSignIn(t)||whatNeedsAssembly(t)||feeAndMemberStatus(t)||directorMustBeMember(t)||auditAndYear(t)||reorganization(t)||staffResignReport(t)||videoElection(t)||subsidyDetails(t)||subsidyBasics(t)||taxWithholding(t)||commercialGuild(t)||memberSuspension(t)||meetingProcedure(t)||solicitationAfter(t)||coopMore(t)||communityMore(t)||outOfScope(t)||whichAuthority(t)||volunteerMore(t)||submitWhere(t)||timeDeposit(t)||nonCompliance(t)||memberEligibilityOutside(t)||annualMeetings(t)||chairTermLimit(t)||assemblyQuorum(t)||urgentMeetingNotice(t)||directorVacancy(t)||recallOfficer(t)||boardResolution(t)||annualFinanceFiling(t)||receiptAndWithdraw(t)||charterContents(t)||dissolveVote(t)||sealMake(t)||memberOnlyFundraising(t)||communityBasics(t)||countyPhone(t)||advisorAppoint(t)||sealKeeper(t)||assocTravel(t)||activityReport(t)||assocFund(t)||officerAsFinanceStaff(t)||electionShowOfHands(t)||directorProxyVote(t)||memberAdmissionWho(t)||memberRosterReport(t)||attendanceFeeAmount(t)||auditByCPA(t)||financeAnnounce(t)||coopBasics(t)||foundingCost(t)||prepMeetingCount(t)||assemblyShortOfQuorum(t)||twoCommunityAssociations(t)||villageChiefAsChair(t)||intlTermStart(t)||charmCommunityContact(t)||groupTypeDifference(t)||directorAbsence(t)||chairElectionMethod(t)||officerNumbers(t)||meetingNoticeChannel(t)||budgetHowTo(t)||renameGroup(t)||certificateLost(t)||dormantGroup(t)||lookupRegistered(t)||coopWithdraw(t)||termLengthLimit(t)||assemblyAgenda(t)||teacherAssocSetup(t)||commercialGroupSetup(t)||alumniSetup(t)||boardAgenda(t)||assetScrap(t)||taxMissed(t)||officeAtHome(t)||communityAreaSplit(t)||officeMove(t)||crossCountyEvent(t)||dissolvedAssets(t)||groupNameDuplicate(t)||standingDirectorCount(t)||memberViewAccounts(t)||howToReportGroup(t)||groupReported(t)||anonymousDonation(t)||chairRelativeStaff(t)||minorJoinAssoc(t)||volunteerTopics(t)||volunteerTeam(t)||memberCourseFee(t)||staffMustBeMember(t)||chairFundraising(t)||boardBelowHalf(t)||assocMayNotMeet(t)||assocNurseryCenter(t)||assocCareStation(t)||assocDonateGoods(t)||assocGovTender(t)||subsidySettlement(t)||corpRegistration(t)||assocBoardPay(t)||financeStaffConcurrent(t)||staffHiring(t)||coopVsAssocAccountingForms(t)||coopBalanceSheetReport(t)||delegateQuotaCalculation(t)||delegateConcurrentRole(t)||onlineVoting(t)||mailVoting(t)||assemblyVotingMethod(t)||boardVotingMethodDetail(t)||delegateElectionProcess(t)||delegateAssemblyRules(t)||coopMemberRemoval(t)||coopAdvertisingTaxability(t)||coopLoanToMemberTax(t)||coopBankLoanProcedure(t)||coopBankLoan(t)||branchAccountingPractice(t)||memberDelegateElection(t)||branchOrgSetup(t)||delegateProposalProcess(t)||annualMeetingVsAssembly(t)||vacancyQuorum(t)||supervisorConvenerNoMeeting(t)||supervisorMinimumMembers(t)||supervisorChairmanElection(t)||supervisorAuditPowers(t)||branchOrgAccounting(t)||runClassesPermit(t)||residentialCarePermit(t)||chairConvicted(t)||chairDismissStaff(t)||chairDissolve(t)||homeAsOfficeTax(t)||nonprofitTaxThreshold(t)||sameAddressGroups(t)||chairStaffConflict(t)||orgDisposeProperty(t)||orgAcquireEquipment(t)||sellGoodsAllowed(t)||staffActingChair(t)||p2MembershipFee(t)||p2BoardNotice(t)||p2RecordRetention(t)||p2CharterAmend(t)||p2SupervisorAudit(t)||p2CoopShares(t)||p2FoundingMeeting(t)||p2ElectionPrep(t)||p2MinutesContent(t)||p2DelegateSystem(t)||chairAbandonsOffice(t)||chairOtherGroupPosition(t)||chairSpendWithoutBoard(t)||supervisorSpend(t)||supervisorActingChair(t)||candidateSeatCount(t)||ballotRetention(t)||officerResignation(t)||invalidBallotReason(t)||delegateQualification(t)||substitutionOrder(t)||byElectionThreshold(t)||coopChairReelection(t)||chairmanReelectionLimit(t)||chairmanAbsence(t)||recordRetentionPeriod(t)||advertisingIncome(t)||staffBankAccountSetup(t)||meetingSigninDuration(t)||meetingVotingMethod(t)||preElectionBoardMeeting(t)||electionEffectiveDate(t)||politicalDonation(t)||communityReportingRequirements(t)||communityYearlyPlanDeadline(t)||communityVsAssociationDifferences(t)||supervisorAsDirector(t)||newChairTodo(t)||postElectionAccountingDeadline(t)||electionReportDeadline(t)||checkSignature(t)||feePeriods(t)||feeDeferral(t)||threeMonthsWording(t)||electionCandidates(t)||electionObjection(t)||minutesDeadline(t)||coopBoardQuorum(t)||coopTax(t)||communityRename(t)||communityReportTownship(t)||addressCertificate(t)||bankChairChange(t)||eventFee(t)||communityChairTerm(t)||invalidBallot(t)||feeAmount(t)||personalAccount(t)||delegateAssembly(t)||noSupervisor(t)||foundingDocs(t)||investStocks(t)||membershipRefused(t)||coopCapital(t)||receiveDonation(t)||hireEmployee(t)||lendToChair(t)||branchOrg(t)||supervisorMeeting(t)||noAnnualMeeting(t)||chairSpendingAuth(t)||communityVsGeneral(t)||coopDissolutionProperty(t)||charterAmendment(t)||coopSupervisorAudit(t)||publicSolicitation(t)||decisionRevoked(t)||chairResign(t)||memberExpulsion(t)||sealChange(t)||noHandover(t)||communityDissolutionProperty(t)||boardFinanceAgenda(t)||boardQuorumGeneral(t)||delegated(t)||chairNoMeeting(t)||feeAnswer(t)||coopAssemblyQuorum(t)||proxyCount(t)||concurrent(t)||financeQuestioned(t)||financeDeadline(t)||meetingFrequency(t)||videoMeeting(t)||coopMinimum(t)||financeForms(t)||formsDownload(t,ctx&&ctx.catalog)||dissolutionHowTo(t)||null||chairChangeTodo(t)||electionHowTo(t)||meetingHowTo(t);
+ return patrol21(t)||patrol20(t)||patrol19(t)||patrol18(t)||patrol17(t)||patrol15(t)||patrol16(t)||patrol14(t)||intlGroupElection(t)||patrol13(t)||patrol11(t)||patrol10(t)||patrol9(t)||patrol8(t)||patrol7(t)||memberStaffPatrol6(t)||communityPatrol(t)||dissolveCharterPatrol(t)||financePatrol(t)||membershipPatrol(t)||formTemplates(t,ctx&&ctx.catalog)||(/^(協會|社區發展協會|我們協會|本會)?的?(理事|監事|理監事)(和監事|跟監事)?(要)?(怎麼選|怎麼產生|如何產生|誰選)/.test(t)?electionHowTo(t):null)||attendanceFeeCan(t)||joinManyGroups(t)||chairReplaceMidTerm(t)||charterItemChange(t)||resolutionOverturn(t)||staffInsurance(t)||intlGroupWho(t)||moneyMisuse(t)||supervisorNoMeeting(t)||rosterView(t)||whoManagesMoney(t)||donationDeduct(t)||annualAccountsHowTo(t)||boardMeetingHowTo(t)||memberQuitHowTo(t)||viceChair(t)||motionSecond(t)||assocLoan(t)||yearEndBonus(t)||entertainmentExpense(t)||englishName(t)||minorOfficer(t)||assocInvest(t)||candidateDeposit(t)||chairAndRecorder(t)||facebookGroup(t)||rulingRules(t)||byElection(t)||receiptsBasic(t)||memberRepThreshold(t)||officerResignHow(t)||finalAccountsWho(t)||publicServantOfficer(t)||relativesAsOfficers(t)||mergeGroups(t)||govCommission(t)||conveneAndPetition(t)||assemblyPrepAndSignIn(t)||whatNeedsAssembly(t)||feeAndMemberStatus(t)||directorMustBeMember(t)||auditAndYear(t)||reorganization(t)||staffResignReport(t)||videoElection(t)||subsidyDetails(t)||subsidyBasics(t)||taxWithholding(t)||commercialGuild(t)||memberSuspension(t)||meetingProcedure(t)||solicitationAfter(t)||coopMore(t)||communityMore(t)||outOfScope(t)||whichAuthority(t)||volunteerMore(t)||submitWhere(t)||timeDeposit(t)||nonCompliance(t)||memberEligibilityOutside(t)||annualMeetings(t)||chairTermLimit(t)||assemblyQuorum(t)||urgentMeetingNotice(t)||directorVacancy(t)||recallOfficer(t)||boardResolution(t)||annualFinanceFiling(t)||receiptAndWithdraw(t)||charterContents(t)||dissolveVote(t)||sealMake(t)||memberOnlyFundraising(t)||communityBasics(t)||countyPhone(t)||advisorAppoint(t)||sealKeeper(t)||assocTravel(t)||activityReport(t)||assocFund(t)||officerAsFinanceStaff(t)||electionShowOfHands(t)||directorProxyVote(t)||memberAdmissionWho(t)||memberRosterReport(t)||attendanceFeeAmount(t)||auditByCPA(t)||financeAnnounce(t)||coopBasics(t)||foundingCost(t)||prepMeetingCount(t)||assemblyShortOfQuorum(t)||twoCommunityAssociations(t)||villageChiefAsChair(t)||intlTermStart(t)||charmCommunityContact(t)||groupTypeDifference(t)||directorAbsence(t)||chairElectionMethod(t)||officerNumbers(t)||meetingNoticeChannel(t)||budgetHowTo(t)||renameGroup(t)||certificateLost(t)||dormantGroup(t)||lookupRegistered(t)||coopWithdraw(t)||termLengthLimit(t)||assemblyAgenda(t)||teacherAssocSetup(t)||commercialGroupSetup(t)||alumniSetup(t)||boardAgenda(t)||assetScrap(t)||taxMissed(t)||officeAtHome(t)||communityAreaSplit(t)||officeMove(t)||crossCountyEvent(t)||dissolvedAssets(t)||groupNameDuplicate(t)||standingDirectorCount(t)||memberViewAccounts(t)||howToReportGroup(t)||groupReported(t)||anonymousDonation(t)||chairRelativeStaff(t)||minorJoinAssoc(t)||volunteerTopics(t)||volunteerTeam(t)||memberCourseFee(t)||staffMustBeMember(t)||chairFundraising(t)||boardBelowHalf(t)||assocMayNotMeet(t)||assocNurseryCenter(t)||assocCareStation(t)||assocDonateGoods(t)||assocGovTender(t)||subsidySettlement(t)||corpRegistration(t)||assocBoardPay(t)||financeStaffConcurrent(t)||staffHiring(t)||coopVsAssocAccountingForms(t)||coopBalanceSheetReport(t)||delegateQuotaCalculation(t)||delegateConcurrentRole(t)||onlineVoting(t)||mailVoting(t)||assemblyVotingMethod(t)||boardVotingMethodDetail(t)||delegateElectionProcess(t)||delegateAssemblyRules(t)||coopMemberRemoval(t)||coopAdvertisingTaxability(t)||coopLoanToMemberTax(t)||coopBankLoanProcedure(t)||coopBankLoan(t)||branchAccountingPractice(t)||memberDelegateElection(t)||branchOrgSetup(t)||delegateProposalProcess(t)||annualMeetingVsAssembly(t)||vacancyQuorum(t)||supervisorConvenerNoMeeting(t)||supervisorMinimumMembers(t)||supervisorChairmanElection(t)||supervisorAuditPowers(t)||branchOrgAccounting(t)||runClassesPermit(t)||residentialCarePermit(t)||chairConvicted(t)||chairDismissStaff(t)||chairDissolve(t)||homeAsOfficeTax(t)||nonprofitTaxThreshold(t)||sameAddressGroups(t)||chairStaffConflict(t)||orgDisposeProperty(t)||orgAcquireEquipment(t)||sellGoodsAllowed(t)||staffActingChair(t)||p2MembershipFee(t)||p2BoardNotice(t)||p2RecordRetention(t)||p2CharterAmend(t)||p2SupervisorAudit(t)||p2CoopShares(t)||p2FoundingMeeting(t)||p2ElectionPrep(t)||p2MinutesContent(t)||p2DelegateSystem(t)||chairAbandonsOffice(t)||chairOtherGroupPosition(t)||chairSpendWithoutBoard(t)||supervisorSpend(t)||supervisorActingChair(t)||candidateSeatCount(t)||ballotRetention(t)||officerResignation(t)||invalidBallotReason(t)||delegateQualification(t)||substitutionOrder(t)||byElectionThreshold(t)||coopChairReelection(t)||chairmanReelectionLimit(t)||chairmanAbsence(t)||recordRetentionPeriod(t)||advertisingIncome(t)||staffBankAccountSetup(t)||meetingSigninDuration(t)||meetingVotingMethod(t)||preElectionBoardMeeting(t)||electionEffectiveDate(t)||politicalDonation(t)||communityReportingRequirements(t)||communityYearlyPlanDeadline(t)||communityVsAssociationDifferences(t)||supervisorAsDirector(t)||newChairTodo(t)||postElectionAccountingDeadline(t)||electionReportDeadline(t)||checkSignature(t)||feePeriods(t)||feeDeferral(t)||threeMonthsWording(t)||electionCandidates(t)||electionObjection(t)||minutesDeadline(t)||coopBoardQuorum(t)||coopTax(t)||communityRename(t)||communityReportTownship(t)||addressCertificate(t)||bankChairChange(t)||eventFee(t)||communityChairTerm(t)||invalidBallot(t)||feeAmount(t)||personalAccount(t)||delegateAssembly(t)||noSupervisor(t)||foundingDocs(t)||investStocks(t)||membershipRefused(t)||coopCapital(t)||receiveDonation(t)||hireEmployee(t)||lendToChair(t)||branchOrg(t)||supervisorMeeting(t)||noAnnualMeeting(t)||chairSpendingAuth(t)||communityVsGeneral(t)||coopDissolutionProperty(t)||charterAmendment(t)||coopSupervisorAudit(t)||publicSolicitation(t)||decisionRevoked(t)||chairResign(t)||memberExpulsion(t)||sealChange(t)||noHandover(t)||communityDissolutionProperty(t)||boardFinanceAgenda(t)||boardQuorumGeneral(t)||delegated(t)||chairNoMeeting(t)||feeAnswer(t)||coopAssemblyQuorum(t)||proxyCount(t)||concurrent(t)||financeQuestioned(t)||financeDeadline(t)||meetingFrequency(t)||videoMeeting(t)||coopMinimum(t)||financeForms(t)||formsDownload(t,ctx&&ctx.catalog)||dissolutionHowTo(t)||null||chairChangeTodo(t)||electionHowTo(t)||meetingHowTo(t);
 }
 const api={normalizeQuestion,withContext,verifiedRoundAnswer};
 if(typeof module!=='undefined'&&module.exports)module.exports=api;
