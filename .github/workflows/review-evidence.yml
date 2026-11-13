@@ -10,7 +10,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: review-evidence-${{ github.ref }}
+  group: review-evidence-${{ github.ref }}-${{ github.sha }}-${{ github.event_name }}
   cancel-in-progress: false
 jobs:
   evidence:
@@ -59,6 +59,7 @@ jobs:
           path: review-evidence/
           retention-days: 7
   full-smoke:
+    if: github.event_name != 'push'
     needs: evidence
     runs-on: ubuntu-24.04
     timeout-minutes: 20
