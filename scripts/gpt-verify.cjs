@@ -11,8 +11,8 @@ const byName={};for(const [k,v] of Object.entries(laws))byName[v.name]={pcode:k,
 const norm=s=>String(s||'').normalize('NFKC').replace(/\s+/g,'');
 const cn={零:0,〇:0,一:1,二:2,三:3,四:4,五:5,六:6,七:7,八:8,九:9};
 const CNN=/(?:百分之)?[一二三四五六七八九十]+(?:分之[一二三四五六七八九十]+)?|\d+/g;
-const artKey=a=>String(a==null?'':a).normalize('NFKC').replace(/\s+/g,'').replace(/^第/,'').replace(/條$/,'').replace(/之/,'-');
-function artText(law,art){const L=byName[law];if(!L)return null;const a=L.articles[artKey(art)];return a==null?null:String(a);}
+const artNo=a=>String(a).normalize('NFKC').replace(/^第/,'').replace(/條$/,'').replace(/之/,'-').trim();
+function artText(law,art){const L=byName[law];if(!L)return null;const a=L.articles[artNo(art)];return a==null?null:String(a);}
 async function ask(item,ctx){
  if(process.env.GPT_MOCK){const m=JSON.parse(fs.readFileSync(process.env.GPT_MOCK));return m[item.id]||null;}
  const key=process.env.OPENAI_API_KEY;if(!key)throw new Error('未設定 OPENAI_API_KEY');
@@ -27,13 +27,13 @@ function check(item,reply){
  const prob=[];if(!reply)return{status:'待人工',problems:['沒有取得回覆']};
  const cites=Array.isArray(reply.cites)?reply.cites:[];
  if(!cites.length)prob.push('沒有引用任何法條');
- const given=new Set((item.statutes||[]).map(s=>s.law+'|'+artKey(s.article)));
+ const given=new Set((item.statutes||[]).map(s=>s.law+'|'+artNo(s.article)));
  let citedText='';
  for(const c of cites){
   const t=artText(c.law,c.article);
   if(t==null){prob.push(`查無此條：${c.law}第${c.article}條`);continue;}
   citedText+=t;
-  if(!given.has(c.law+'|'+artKey(c.article)))prob.push(`引用了未提供的條文：${c.law}第${c.article}條（已核對存在，仍需人工看是否相關）`);
+  if(!given.has(c.law+'|'+artNo(c.article)))prob.push(`引用了未提供的條文：${c.law}第${c.article}條（已核對存在，仍需人工看是否相關）`);
   if(c.quote&&!norm(t).includes(norm(c.quote)))prob.push(`引文不是原文逐字：${c.law}第${c.article}條「${String(c.quote).slice(0,24)}…」`);
  }
  const ct=norm(citedText);
