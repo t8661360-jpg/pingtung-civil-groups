@@ -113,20 +113,14 @@ async function handleAsk(req, env, ctx, cors, gh) {
     const rows = await loadStatutes(env);
     const used = retrieve(rows, q, 8);
     if (!used.length) return none("no-retrieval");
-    const law = used.map(r => `【${r.law}第${r.no}條】\n${r.text.slice(0, 900)}`).join("\n\n");
-    const EVAL_MODELS = ["@cf/qwen/qwen3.8-27b", "@cf/openai/gpt-oss-120b", "@cf/zai-org/glm-5.3-flash", "@cf/meta/llama-3.3-70b-instruct-fp8-fast"];
-    const mdl = EVAL_MODELS.includes(b.m) ? b.m : undefined;
-    const answer = String(await callModel(env, [{ role: "system", content: ASK_SYSTEM }, { role: "user", content: `民眾問題：${q}\n\n法條原文：\n${law}\n\n請用繁體中文、口語、簡短條列回答，並標註條號，每個依據都要附逐字引用的原文。` }], mdl)).trim();
-    if (mdl && (!answer || /NO_BASIS/.test(answer))) return new Response(JSON.stringify({ ok: true, answer: null, why: "no-basis", raw: answer, used: used.map(r => r.law + r.no) }), { headers: J });
-    if (!answer || /NO_BASIS/.test(answer)) return none("no-basis");
-    const chk = checkAnswer(answer, used);
-    if (!chk.ok) return mdl ? new Response(JSON.stringify({ ok: true, answer: null, why: "check-failed", bad: chk.bad, raw: answer, used: used.map(r => r.law + r.no) }), { headers: J }) : none("check-failed");
-    const cites = used.filter(r => chk.cited.includes(r.no)).map(r => ({ law: r.law, no: r.no, text: r.text.slice(0, 600) }));
-    // 把 AI 回覆當草稿留言到對應 Issue，供人工審核後才進知識庫
+    // 只列最相關法條原文，不讓模型下結論（避免「引文是真的、結論是錯的」）
+    const top = used.slice(0, 3);
+    const answer = "這個問題小屏沒有現成的答案，先幫您找到下面幾條可能相關的法條原文。是否適用於您的情況，建議電洽承辦人員確認。";
+    const cites = top.map(r => ({ law: r.law, no: r.no, text: r.text.slice(0, 600) }));
     if (ctx && env.GITHUB_TOKEN && env.REPO) ctx.waitUntil((async () => {
       const s = await gh(`/search/issues?q=${encodeURIComponent(`repo:${env.REPO} is:issue is:open label:無法回答 in:title "${q.slice(0, 40)}"`)}`).then(r => r.json()).catch(() => ({}));
       const it = (s.items || []).find(i => i.title.includes(q.slice(0, 30)));
-      if (it) await gh(`/repos/${env.REPO}/issues/${it.number}/comments`, { method: "POST", body: JSON.stringify({ body: `【AI 即時回覆｜已顯示給民眾（標示「AI 整理，僅供參考」），尚未進知識庫，請人工審核】\n條號已通過程式核對（存在於檢索到的條文，且句意與條文有重疊），內容是否正確仍須人工確認。\n\n${answer}\n\n---\n檢索到的條文：\n${used.map(r => `- ${r.law}第${r.no}條`).join("\n")}` }) });
+      if (it) await gh(`/repos/${env.REPO}/issues/${it.number}/comments`, { method: "POST", body: JSON.stringify({ body: `【檢索到的相關條文（已顯示給民眾，僅列原文、未下結論）】\n${top.map(r => `- ${r.law}第${r.no}條`).join("\n")}\n\n請人工確認後再整理成正式答案。` }) });
     })());
     return new Response(JSON.stringify({ ok: true, answer, cites }), { headers: J });
   } catch (e) {

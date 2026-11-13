@@ -19,7 +19,7 @@
     box.className='ai-box';
     box.setAttribute('role','status');
     box.style.cssText='margin:14px 0;padding:12px 14px;border:1px dashed var(--accent,#e0914f);border-radius:12px;line-height:1.8';
-    box.textContent='小屏正在請 AI 幫忙查法條，大約幾秒鐘…';
+    box.textContent='小屏正在幫您找相關法條…';
     host.appendChild(box);
     const ctl=new AbortController();const to=setTimeout(()=>ctl.abort(),25000);
     fetch(base+'/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({q:clean}),signal:ctl.signal})
@@ -30,9 +30,9 @@
         if(!j||!j.answer){box.remove();return}
         const cites=(j.cites||[]).map(c=>'<li><strong>'+esc(c.law)+'第'+esc(c.no)+'條</strong>：'+esc(c.text)+'</li>').join('');
         box.style.borderStyle='solid';
-        box.innerHTML='<strong>AI 整理（僅供參考）</strong><div style="white-space:pre-wrap;margin-top:6px">'+esc(j.answer)+'</div>'
-          +(cites?'<details style="margin-top:8px"><summary>AI 引用的法條原文</summary><ul>'+cites+'</ul></details>':'')
-          +'<p style="margin:8px 0 0;font-size:.9em;opacity:.8">這是 AI 依法條整理的回答，尚未經承辦人員確認；正式辦理請以縣府承辦人員的說明為準。</p>';
+        box.innerHTML='<strong>相關法條（僅供參考）</strong><div style="white-space:pre-wrap;margin-top:6px">'+esc(j.answer)+'</div>'
+          +(cites?'<details open style="margin-top:8px"><summary>法條原文</summary><ul>'+cites+'</ul></details>':'')
+          +'<p style="margin:8px 0 0;font-size:.9em;opacity:.8">以上是自動檢索的條文原文，不代表結論，正式辦理請以縣府承辦人員的說明為準。</p>';
       })
       .catch(()=>{clearTimeout(to);if(box.isConnected)box.remove()});
   };
