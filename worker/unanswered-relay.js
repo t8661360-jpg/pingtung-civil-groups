@@ -7,7 +7,14 @@
 // 密鑰（Settings → Secrets）：GITHUB_TOKEN、GROQ_API_KEY（選用）、DRAFT_KEY（內部路由用，自行設定一組隨機字串）
 const DRAFT_SYSTEM = "你是屏東縣人民團體數位櫃檯的草稿助理。只能根據使用者提供的法條原文作答，每一點都要標註條號。民眾用語與法條用語可能不同，請對應理解：理事長＝理事長；總幹事、秘書長、幹事＝工作人員（人民團體法第24條）；協會、社團、團體＝人民團體（社會團體）。若法條原文中有相關規定，即使只能部分回答，也請直接作答並說明條號與不確定之處；只有在法條原文完全沒有相關規定時，才只回覆 NO_BASIS。不得推測或引用未提供的條文。";
 
-async function callModel(env, messages) {
+function pickText(out) {
+  if (!out) return "";
+  if (typeof out === "string") return out;
+  let t = out.response || out.result?.response || out.choices?.[0]?.message?.content || out.choices?.[0]?.text || "";
+  if (!t && Array.isArray(out.output)) t = out.output.map(o => (o.content || []).map(c => c.text || "").join("")).join("");
+  return String(t || "").replace(/<think>[\s\S]*?<\/think>/g, "").trim();
+}
+async function callModel(env, messages, model) {
   if ((env.PROVIDER || "cloudflare") === "groq") {
     const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
@@ -18,13 +25,12 @@ async function callModel(env, messages) {
     const j = await r.json();
     return j.choices?.[0]?.message?.content || "";
   }
-  const out = await env.AI.run(env.CF_MODEL || "@cf/meta/llama-3.3-70b-instruct-fp8-fast", { messages, temperature: 0.1 });
-  return out.response || "";
+  const out = await env.AI.run(model || env.CF_MODEL || "@cf/meta/llama-3.3-70b-instruct-fp8-fast", { messages, temperature: 0.1, max_tokens: 900 });
+  return pickText(out);
 }
 
-
 // ===== 公開 AI 即時回覆（POST /ask）：只在櫃檯規則與知識庫答不出來時由網頁呼叫 =====
-const ASK_SYSTEM = "你是屏東縣人民團體數位櫃檯的小屏助理，要用親切、口語的繁體中文，直接回答民眾的問題。只能根據使用者提供的法條原文作答：先用一兩句話講結論，再說依據，每個依據都要標註條號（例如「人民團體法第27條」）。民眾用語與法條用語可能不同，請自行對應（社團、協會＝人民團體；總幹事、秘書長＝工作人員）。不得推測或引用未提供的條文；不得編造電話、姓名、金額、期限；法條沒寫清楚的地方，要明講「法規沒有明確規定，建議電洽承辦人員」。稅務、個案認定、訴訟請民眾洽詢國稅局或專業人士。若提供的法條原文完全沒有相關規定，只回覆 NO_BASIS。";
+const ASK_SYSTEM = "你是屏東縣人民團體數位櫃檯的小屏助理，要用親切、口語的繁體中文，直接回答民眾的問題。只能根據使用者提供的法條原文作答：先用一兩句話講結論，再說依據。每個依據都要標註條號（例如「人民團體法第27條」），並逐字引用該條原文中支持這個結論的一句話，用「」括起來（至少8個字、必須與原文完全一致）；沒有可以逐字引用的原文，就不要下這個結論。結論不得超出引用原文的意思，不要把「移交」「整理小組」等不同情形的條文套到一般情形。民眾用語與法條用語可能不同，請自行對應（社團、協會＝人民團體；總幹事、秘書長＝工作人員）。不得推測或引用未提供的條文；不得編造電話、姓名、金額、期限；法條沒寫清楚的地方，要明講「法規沒有明確規定，建議電洽承辦人員」。稅務、個案認定、訴訟請民眾洽詢國稅局或專業人士。若提供的法條原文完全沒有相關規定，只回覆 NO_BASIS。";
 const CORE_LAWS = /^(人民團體法|人民團體選舉罷免辦法|人民團體會務輔導辦法|社會團體財務處理辦法|社會團體工作人員管理辦法|公益勸募條例|公益勸募條例施行細則|志願服務法)$/;
 let STAT_CACHE = null, STAT_AT = 0;
 async function loadStatutes(env) {
@@ -77,6 +83,12 @@ function checkAnswer(answer, used) {
       if (cg.length && cg.filter(b => body.includes(b)).length / cg.length < 0.3) bad.push("mismatch:" + m[1]);
     }
   }
+  // 逐字引用核對：「」內 8 字以上的引文，必須出現在檢索到的條文原文中
+  const norm = x => String(x).replace(/[\s，。、；：:,.;（）()「」『』]/g, "");
+  const allText = norm(used.map(r => r.text).join(""));
+  const quotes = [...String(answer).matchAll(/「([^」]{8,})」/g)].map(m => norm(m[1]));
+  for (const qt of quotes) if (!allText.includes(qt)) bad.push("quote");
+  if (!quotes.length) bad.push("noquote");
   const cited = [...new Set([...String(answer).matchAll(/第\s*(\d+(?:-\d+)?)\s*條/g)].map(m => m[1]))];
   // 不得出現未提供的電話（縣府總機 08-7320415 除外）或網址
   const phones = (String(answer).match(/0\d{1,2}[- ]?\d{6,8}/g) || []).filter(x => x.replace(/\D/g, "") !== "087320415");
@@ -102,10 +114,13 @@ async function handleAsk(req, env, ctx, cors, gh) {
     const used = retrieve(rows, q, 8);
     if (!used.length) return none("no-retrieval");
     const law = used.map(r => `【${r.law}第${r.no}條】\n${r.text.slice(0, 900)}`).join("\n\n");
-    const answer = String(await callModel(env, [{ role: "system", content: ASK_SYSTEM }, { role: "user", content: `民眾問題：${q}\n\n法條原文：\n${law}\n\n請用繁體中文、口語、簡短條列回答，並標註條號。` }])).trim();
+    const EVAL_MODELS = ["@cf/qwen/qwen3.8-27b", "@cf/openai/gpt-oss-120b", "@cf/zai-org/glm-5.3-flash", "@cf/meta/llama-3.3-70b-instruct-fp8-fast"];
+    const mdl = EVAL_MODELS.includes(b.m) ? b.m : undefined;
+    const answer = String(await callModel(env, [{ role: "system", content: ASK_SYSTEM }, { role: "user", content: `民眾問題：${q}\n\n法條原文：\n${law}\n\n請用繁體中文、口語、簡短條列回答，並標註條號，每個依據都要附逐字引用的原文。` }], mdl)).trim();
+    if (mdl && (!answer || /NO_BASIS/.test(answer))) return new Response(JSON.stringify({ ok: true, answer: null, why: "no-basis", raw: answer, used: used.map(r => r.law + r.no) }), { headers: J });
     if (!answer || /NO_BASIS/.test(answer)) return none("no-basis");
     const chk = checkAnswer(answer, used);
-    if (!chk.ok) return none("check-failed");
+    if (!chk.ok) return mdl ? new Response(JSON.stringify({ ok: true, answer: null, why: "check-failed", bad: chk.bad, raw: answer, used: used.map(r => r.law + r.no) }), { headers: J }) : none("check-failed");
     const cites = used.filter(r => chk.cited.includes(r.no)).map(r => ({ law: r.law, no: r.no, text: r.text.slice(0, 600) }));
     // 把 AI 回覆當草稿留言到對應 Issue，供人工審核後才進知識庫
     if (ctx && env.GITHUB_TOKEN && env.REPO) ctx.waitUntil((async () => {
