@@ -13,7 +13,7 @@ const has=(a,s)=>a&&a.statutes&&a.statutes.some(x=>x.title.includes(s));
 // 社區vs一般
 {const a=A('社區發展協會跟一般協會有什麼不一樣');assert(a.title.includes('差別'));assert(a.summary.includes('社區發展工作綱要'));}
 // 合作社解散財產
-{const a=A('合作社解散後財產怎麼處理');assert(a.title.includes('出資比例'));assert(has(a,'合作社法第55條'));}
+{const a=A('合作社解散後財產怎麼處理');assert(a.title.includes('清算人先收債'));assert(has(a,'合作社法第61條'));assert(!a.summary.includes('章程沒寫的依社員大會決議'));}
 // 不該觸發
 assert.equal(A('協會要辦改選'),null);
 // 第9輪起由 coopCapital 回答
