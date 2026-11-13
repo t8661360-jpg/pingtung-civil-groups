@@ -1934,9 +1934,9 @@ function officeMove(t){
  if(/(協會|團體|社團).{0,3}(搬家|搬到|搬去|搬遷|遷到|遷移)/.test(t)&&!/(會址|辦公室|辦公處|事務所)/.test(t))t='會址'+t;
  if(!/(會址|辦公室|辦公處|事務所)/.test(t)||!/(搬|遷|租|換地方|換到|移到|設在別|別的鄉|別的縣|其他縣|外縣市|外縣)/.test(t))return null;
  if(/稅|合作社|社員|證書|住家|家裡|家中|我家|理事長家|補助|租金/.test(t))return null;
- return{direct:true,category:'人民團體會務說明',title:'協會搬家或租辦公室：會址要寫在章程，搬遷要走修改章程；搬到縣外要先報核准',
- summary:'協會可以租辦公室；會址是章程要載明的事項（人民團體法第12條），所以搬到新地址，就要依修改章程的程序辦理（人民團體法第27條）：理事會提案，會員大會決議，再報縣府核備。\n\n• 搬到屏東縣內其他鄉鎮：照上面辦理即可。\n• 想把會址設到縣外：人民團體會址原則上要設在主管機關所在地區，要設在其他地區，須報經主管機關核准（人民團體法第6條），搬之前請先電洽承辦人確認。\n\n租屋、押金、租金這些開支，要編進預算，並由理事會依章程決議。',
- statutes:[P(6),P(12),P(27)],notes:[],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
+ return{direct:true,category:'人民團體會務說明',title:'協會搬家或租辦公室：會址異動要經理事會決議再報縣府備查；章程寫了完整門牌才要連章程一起改',
+ summary:'協會可以租辦公室。會址的設置和異動，要先經理事會決議通過，再報縣府備查（人民團體會務輔導辦法第8條），不一定要開會員大會。\n\n• 搬到屏東縣內其他鄉鎮：理事會決議後報縣府備查。\n• 要留意章程怎麼寫：會址是章程要載明的事項（人民團體法第12條第4款），如果章程條文寫的是完整門牌地址，搬家就會動到章程，要依修改章程的程序辦理（會員大會出席人數三分之二以上同意，人民團體法第27條；並於30日內報請核備，第54條）；章程只寫到縣市或鄉鎮的話，就不會動到章程條文。\n• 想把會址設到縣外：人民團體會址原則上要設在主管機關所在地區，要設在其他地區，須報經主管機關核准（人民團體法第6條），搬之前請先電洽承辦人確認。\n\n本站「書表下載」的「理監事會」分類有會址同意書格式和會址變更的公文、會議紀錄範例。租屋、押金、租金這些開支，要編進預算，並由理事會依章程決議。',
+ statutes:[G(8),P(6),P(12),P(27),P(54)],notes:[],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
 }
 function crossCountyEvent(t){
  if(!/(跨縣市|外縣市|其他縣市|別的縣市|外縣|到台北|到高雄|去外地)/.test(t)||!/(活動|旅遊|參訪|辦理|舉辦)/.test(t)||/補助|合作社|稅/.test(t))return null;
@@ -1997,7 +1997,7 @@ function alumniSetup(t){
  statutes:[P(8),P(9),P(10)],notes:[],actions:[{label:'怎麼成立社會團體',view:'ask',sub:'怎麼成立社會團體'},{label:'聯絡承辦',view:'contact',sub:''}]};
 }
 function officeAtHome(t){
- if(!/(住宅|住家|家裡|家中|自宅|自家|我家|租的|租屋|住處|理事長家|理事家|總幹事家|會員家)/.test(t))return null;
+ if(!/(住宅|住家|家裡|家中|自宅|自家|自己家|自己的家|自己住|我家|租的|租屋|住處|理事長家|理事家|總幹事家|會員家)/.test(t))return null;
  if(!/(會址|設址|地址|辦公)/.test(t))return null;
  if(/稅|合作社|社員|證書|換發/.test(t))return null;
  return{direct:true,category:'人民團體會務說明',title:'協會會址可以設在住家：法規沒有禁止，但要在組織區域內，並取得屋主同意',
@@ -2466,9 +2466,9 @@ function dissolveCharterPatrol(t){
   summary:'可以。協會要解散，由會員大會決議：會員（會員代表）過半數出席，出席人數三分之二以上同意（人民團體法第27條）；經大會決議解散的，團體就應解散（第59條第1項第5款）。\n不是理事長或理事會自己決定就能結束，也不是不開會就自動解散。決議後要辦清算並報縣府。步驟請看「協會怎麼解散」，也可以先和承辦人聯絡。',
   statutes:[P(27),P(59)]});
  if(/(搬|遷|設到|設在|移到|遷到|遷移)/.test(t)&&/(外縣市|別縣|其他縣|台北|臺北|高雄|台南|臺南|縣外|外縣)/.test(t)&&/(會址|協會|社團|辦公室|還是|嗎|怎麼)/.test(t))
-  return Object.assign({},base,{title:'會址要設到屏東縣外：要先報縣府核准，章程也要修改',
-  summary:'人民團體會址原則上設在主管機關所在地區；要設在其他地區，須報經主管機關核准（人民團體法第6條）。會址是章程要載明的事項（第12條），搬遷要依修改章程的程序辦理，經出席三分之二以上同意（第27條），並於30日內報請主管機關核備（第54條）。\n搬到外縣市以後是否仍歸屏東縣管轄，本站沒有明文可查，搬之前請先電洽承辦人員。',
-  statutes:[P(6),P(12),P(27),P(54)]});
+  return Object.assign({},base,{title:'會址要設到屏東縣外：要先報縣府核准，會址異動另要經理事會決議再報備查',
+  summary:'人民團體會址原則上設在主管機關所在地區；要設在其他地區，須報經主管機關核准（人民團體法第6條）。會址的設置和異動，要先經理事會決議通過，再報主管機關備查（人民團體會務輔導辦法第8條）；如果章程條文寫的是完整門牌地址，搬家會動到章程，要再依修改章程的程序辦理，經出席三分之二以上同意（人民團體法第27條），並於30日內報請核備（第54條）。\n搬到外縣市以後是否仍歸屏東縣管轄，本站沒有明文可查，搬之前請先電洽承辦人員。',
+  statutes:[G(8),P(6),P(27),P(54)]});
  if(/章程/.test(t)&&/(多久|幾天|期限|時限|什麼時候|何時|幾日)/.test(t)&&/(送|報|核備|備查|函報|修改|變更|改)/.test(t)&&!/(任期)/.test(t))
   return Object.assign({},base,{title:'章程修改後30日內要報縣府核備',
   summary:'章程如有異動，要在30日內報請主管機關核備（人民團體法第54條）。修改章程要先經會員（會員代表）大會，出席人數三分之二以上同意（第27條）。',
@@ -2917,6 +2917,96 @@ function patrol20(t){
   statutes:[pt(8)]});
  return null;
 }
+function patrol22(t){
+ t=t.replace(/(?<![協工公商學社])會章(?!程)/g,'章程').replace(/會議記錄/g,'會議紀錄');
+ if(!/(會議紀錄|紀錄|記錄|決議|章程|會址|會所|辦公|通知|開會|圖記)/.test(t))return null;
+ if(/合作社|社員|公會|工會|政黨|基金會|寺廟|宗教|稅|社區發展|志工|解散|清算|補助|勸募|選舉|改選|候選|票|理事長交接|財務|帳冊|收據|預算|決算/.test(t))return null;
+ const base={direct:true,category:'人民團體會務說明',notes:[],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
+ const tail='\n其他細節請洽縣府社會處承辦人員，縣府總機 08-7320415。';
+ const MIN=/(會議紀錄|會議記錄|大會紀錄|理事會紀錄|監事會紀錄|理監事會議紀錄|決議事項|決議內容)/;
+ const CHT=/(章程|會章)/;
+ /* 紀錄寫錯、錯字 */
+ if((MIN.test(t)||/(紀錄|記錄)/.test(t))&&/(寫錯|打錯|錯字|有誤|記錯|漏寫|漏記|更正|重寫)/.test(t))
+  return Object.assign({},base,{title:'會議紀錄或決議事項寫錯了怎麼辦：法規沒有訂更正程序，已報縣府的大會紀錄請先洽承辦',
+  summary:'會務輔導辦法只規定會議紀錄要載明開會日期、出缺席狀況和會議決議，並於閉會後自行留存；會員（會員代表）大會紀錄要在閉會後三十日內報縣府備查（人民團體會務輔導辦法第12條）。法規沒有訂紀錄寫錯時的更正方式，也沒有說單純錯字一定要重開會。\n如果只是文字誤植，大會紀錄已經報縣府備查的，請先電洽承辦人員確認怎麼補正；如果是決議的內容本身要改變，那就要依該會議的表決程序重新決議（例如理事會要有理事過半數出席、出席過半數同意，人民團體法第29條）。'+tail,
+  statutes:[G(12),P(29)]});
+ /* 誰負責寫、誰簽名、補寫 */
+ if((MIN.test(t)||/(紀錄|記錄).{0,4}(沒|未|不|無).{0,2}人?(簽|蓋章)/.test(t))&&/(誰|哪位|什麼人|由誰|負責|紀錄人|記錄人|簽|蓋章|簽章|補寫|補記|補做|事後|沒寫|忘記|沒存|存檔|不見|弄丟)/.test(t)&&(!/(什麼|哪些|怎麼寫|怎麼做|保存|留存|留幾年|多久|看|查閱|外人|公告|貼|幾份|送|報縣府|備查)/.test(t)||/(沒|未|不|無).{0,2}(人)?(簽|蓋章)/.test(t)))
+  return Object.assign({},base,{title:'會議紀錄誰來寫、要不要簽名、忘了寫怎麼辦：法規只規定要載明哪些事項，沒有規定由誰寫或一定要簽名',
+  summary:'人民團體會務輔導辦法第12條只規定，會員（會員代表）大會、理事會、監事會和理監事聯席會議的紀錄，要載明開會日期、出缺席狀況、會議決議等事項，並於閉會後自行留存、提供會員查閱。法規沒有指定由誰擔任紀錄，也沒有要求一定要簽名或蓋章，也沒有訂事後補寫的期限；實務上多由主席和紀錄簽章，要怎麼做可以訂在章程或會議規則裡。\n要特別留意的是：會員（會員代表）大會紀錄要在閉會後三十日內報縣府備查，補寫要趕在這個期限內。如果紀錄遺失或沒寫，已經超過期限，請電洽承辦人員確認。'+tail,
+  statutes:[G(12)]});
+ /* 外人看、公告 */
+ if(MIN.test(t)&&/(外人|別人|非會員|外面的人|公告|貼出|公開|張貼|網站|臉書|FB|對外)/.test(t))
+  return Object.assign({},base,{title:'會議紀錄要公告或給外人看嗎：法規只規定要提供會員查閱，沒有要求公告',
+  summary:'人民團體會務輔導辦法第12條規定，各種會議紀錄要於閉會後自行留存，提供會員（會員代表）查閱。法規只有要求提供會員查閱，沒有要求要公告或張貼，也沒有規定能不能給會員以外的人看；要不要公開、給誰看，可以依章程或會議決議辦理。'+tail,
+  statutes:[G(12)]});
+ /* 份數 */
+ if(/(大會|會議).{0,3}(紀錄|記錄)?.{0,4}(要|需要|幾|多少).{0,3}(份|本)|(紀錄|記錄).{0,4}(幾份|幾本|要.{0,2}份)/.test(t)&&/(紀錄|記錄)/.test(t))
+  return Object.assign({},base,{title:'大會紀錄要送幾份：法規沒有規定份數，只規定閉會後30日內報縣府備查',
+  summary:'會員（會員代表）大會紀錄要於閉會後三十日內報請主管機關備查（人民團體會務輔導辦法第12條）。法規沒有規定要送幾份，請依縣府承辦人員的要求準備，不確定的話報送前先電洽確認。'+tail,
+  statutes:[G(12)]});
+ /* 理事會決議要不要報縣府 */
+ if(/(理事會|監事會|理監事會|理監事聯席會|聯席會).{0,4}決議.{0,6}(要|需要|須|都要|一定要).{0,4}(報|送|備查|核備|函)/.test(t)||/(理事會|監事會|理監事會議?).{0,3}決議.{0,3}(要不要|需不需要|有沒有).{0,3}(報|送|備查)/.test(t))
+  return Object.assign({},base,{title:'理事會決議要報縣府嗎：不是一律要報，紀錄自行留存，依法令須報核辦的事項才要檢附文件辦理',
+  summary:'只有會員（會員代表）大會紀錄，規定要在閉會後三十日內報縣府備查。理事會、監事會和理監事聯席會議的紀錄，是自行留存、供會員查閱；其中決議事項如果依法令須報主管機關核辦，才要檢附相關文件依法辦理（人民團體會務輔導辦法第12條）。\n例如章程有異動，要在三十日內報請核備（人民團體法第54條）；會址的設置和異動，經理事會決議後要報縣府備查（會務輔導辦法第8條）。'+tail,
+  statutes:[G(12),P(54),G(8)]});
+ /* 大會紀錄逾期沒報 */
+ if(/(大會|會員大會|常年會)/.test(t)&&/(紀錄|記錄)/.test(t)&&/(逾期|超過|過了|沒報|未報|忘記報|忘了報|漏報|晚報|沒送|忘記送|漏送)/.test(t))
+  return Object.assign({},base,{title:'大會紀錄超過30天才報縣府怎麼辦：法規只規定30日期限，沒有寫逾期後果',
+  summary:'會員（會員代表）大會紀錄應於閉會後三十日內報請主管機關備查（人民團體會務輔導辦法第12條）。法規這一條只訂了期限，沒有寫超過期限會有什麼後果，本站也查不到明文，不敢替縣府說會怎麼處理。\n建議盡快補報，並先電洽縣府總機 08-7320415，請總機轉接社會處承辦人員，說明開會日期與逾期原因。',
+  statutes:[G(12)]});
+ /* 開會通知沒收到是否有效 */
+ if(/(通知)/.test(t)&&/(沒收到|沒寄到|沒有收到|沒送到|沒接到|寄丟|沒通知|漏通知|忘記通知|漏發|沒發|收不到)/.test(t)&&/(開會|會議|理事會|監事會|大會|有效|算數)/.test(t))
+  return Object.assign({},base,{title:'開會通知有人沒收到，會議還有效嗎：法規沒有明文，只規定要在期限前通知到每位應出席的人',
+  summary:'人民團體法規定，會員（會員代表）大會要在十五日前通知各會員（會員代表）（第26條）；理事會、監事會要在七日前，將會議種類、時間、地點和議程通知各應出席人員（會務輔導辦法第11條）。緊急臨時會議，可以在開會前一天送達通知。\n法規沒有寫有人沒收到通知時，會議效力如何，本站也查不到明文，不敢直接說有效或無效。建議平時保留寄送紀錄或簽收證明；已經發生爭議的，請電洽承辦人員。'+tail,
+  statutes:[P(26),G(11)]});
+ /* 章程遺失、影本 */
+ if(CHT.test(t)&&/(丟|遺失|不見|找不到|弄丟|沒有了|備份|影本|副本|申請.{0,4}(本|份|影)|調閱|去哪.{0,3}(拿|領|要|取)|哪裡.{0,3}(拿|領|要|取))/.test(t)&&!/(範本|格式|空白|新成立|籌組)/.test(t))
+  return Object.assign({},base,{title:'章程弄丟了怎麼辦：法規沒有訂補發或申請影本的程序，請洽承辦確認',
+  summary:'協會立案時，章程是和會員名冊、職員簡歷冊一起報縣府核准的（人民團體法第10條），章程如果有修改，也要報縣府核備（第54條）。至於章程遺失後能不能向縣府調閱或申請影本，法規沒有規定，本站查不到明文，請電洽縣府承辦人員詢問。\n另外，立案證書如果遺失或毀損，可以由負責人檢具申請書並敘明理由，向主管機關申請補（換）發（會務輔導辦法第3條）。\n本站「書表下載」頁的「組織章程」只是範本，不是您協會自己的章程。'+tail,
+  statutes:[P(10),P(54),G(3)]});
+ /* 章程要開什麼會改、誰同意 */
+ if(CHT.test(t)&&/(開什麼會|什麼會議|哪個會|哪一個會|哪種會|誰決定|誰同意|誰才能改|理事會.{0,3}(可以|能)改|理事會.{0,3}改|(怎麼|如何|怎樣|要怎麼).{0,2}(改|修|修改|修正)|(改|修).{0,2}章程.{0,2}(怎麼辦|要怎麼|流程|步驟))/.test(t)&&!/(名稱|名字|會址)/.test(t))
+  return Object.assign({},base,{title:'修改章程要怎麼辦、開什麼會：要開會員（會員代表）大會，出席人數三分之二以上同意',
+  summary:'章程的訂定與變更，要在會員（會員代表）大會決議，必須有過半數的會員（會員代表）出席，並經出席人數三分之二以上同意（人民團體法第27條）。理事會、監事會沒有權力直接修改章程，只能提案送大會討論。會員大會要在十五日前通知（人民團體法第26條）。\n通過後，要在三十日內把異動報縣府核備（人民團體法第54條）。本站「書表下載」的「改選」和「常年會」分類有「章程修改條文對照表」可以參考。',
+  statutes:[P(27),P(26),P(54)]});
+ /* 章程刪條、新增條 */
+ if(CHT.test(t)&&/(刪掉|刪除|拿掉|取消.{0,2}一條|少一條|新增.{0,2}(一條|條文)|加.{0,2}一條|增加.{0,2}條)/.test(t))
+  return Object.assign({},base,{title:'章程可以刪掉或新增某一條嗎：可以，但要走修改章程的程序，而且法定必載事項不能刪',
+  summary:'章程條文要刪或新增，都屬於章程的變更，要在會員（會員代表）大會決議，出席人數三分之二以上同意（人民團體法第27條），通過後三十日內報縣府核備（第54條）。\n但人民團體法第12條列出章程一定要載明的事項，包括名稱、宗旨、組織區域、會址、任務、組織、會員入會出會與除名、會員權利義務、理監事名額職權任期與選任解任、會議、經費及會計、章程修改程序等，這些內容不能整條刪掉。',
+  statutes:[P(27),P(54),P(12)]});
+ /* 章程修改送件要附什麼 */
+ if(CHT.test(t)&&/(送件|附什麼|附哪些|要附|檢附|備哪些|準備什麼|準備哪些|要送什麼|送哪些|需要什麼文件|什麼文件)/.test(t)&&/(修|改|變更|異動)/.test(t))
+  return Object.assign({},base,{title:'章程修改要送縣府核備，要附什麼：法規只規定30日內報核備，沒有列文件清單',
+  summary:'章程有異動，要在三十日內報請主管機關核備（人民團體法第54條）；章程修改要先經會員（會員代表）大會出席人數三分之二以上同意（第27條）。法規沒有列出送件要附哪些文件。\n大會紀錄本來就要在閉會後三十日內報縣府備查（人民團體會務輔導辦法第12條）；本站「書表下載」的「改選」和「常年會」分類有「章程修改條文對照表」範本。實際要附哪些文件，請洽承辦人員確認。'+tail,
+  statutes:[P(54),P(27),G(12)]});
+ /* 章程修正後要不要發給會員 */
+ if(CHT.test(t)&&/(發給|發放|分發|通知|告知|寄給|給會員|公告|公布)/.test(t)&&/(修正|修改|修訂|改了|改完|通過)/.test(t))
+  return Object.assign({},base,{title:'章程修正後要重新發給會員嗎：法規沒有規定要發放，請依章程或會議決議辦理',
+  summary:'人民團體法只規定章程修改後，要在三十日內報縣府核備（第54條），沒有規定修改後要重新發給每位會員。章程是會員權利義務的依據（人民團體法第12條第8款），建議在大會通過後，讓會員知道修改的內容；要怎麼通知，可以訂在章程或由理事會決議。'+tail,
+  statutes:[P(54),P(12)]});
+ /* 章程修正後何時生效、核備前能不能用 */
+ if(CHT.test(t)&&/(生效|核備前|核備之前|還沒核備|沒核備|未核備|核備前|先用|先實施|先施行|何時開始|什麼時候開始|哪天開始|才算數|才有效)/.test(t))
+  return Object.assign({},base,{title:'章程修正後何時生效：法規只規定30日內報縣府核備，沒有寫生效日，請洽承辦確認',
+  summary:'修改章程要經會員（會員代表）大會出席人數三分之二以上同意（人民團體法第27條），通過後要在三十日內報請主管機關核備（第54條）。法規沒有明文寫章程從哪一天生效，也沒有寫核備前能不能先用新條文，本站查不到依據，不敢直接說。\n建議在修正條文裡訂明施行日期，並於報送核備時向承辦人員確認；如果核備前就要用新條文，請先電洽承辦人員。'+tail,
+  statutes:[P(27),P(54)]});
+ /* 會址一定要有辦公室嗎 */
+ if(/(會址|會所)/.test(t)&&/(一定要|必須|非要|需不需要|要不要|有沒有).{0,6}(辦公室|辦公處|店面|獨立|實體|場地|空間)|(辦公室|辦公處|店面).{0,4}(一定要|必須|才能|才可以|才行)/.test(t)&&!/(住家|住宅|家裡|自己家|我家|理事長家)/.test(t))
+  return Object.assign({},base,{title:'會址一定要有辦公室嗎：法規只要求章程載明會址，沒有規定一定要獨立辦公室',
+  summary:'人民團體法第12條要求章程要載明會址，第6條規定會址設在主管機關所在地區（屏東縣立案的團體，會址要在屏東縣內；要設在其他地區，須報經主管機關核准）。法規沒有明文規定會址一定要是獨立的辦公室或店面。\n縣府審查時對場地面積、使用證明有沒有要求，請電洽承辦人員；本站「書表下載」的「理監事會」分類有會址同意書格式可以參考。'+tail,
+  statutes:[P(12),P(6)]});
+ /* 搬到隔壁村、縣內搬遷要不要通知 */
+ if(/(會所|會址|辦公室|辦公處|協會|社團)/.test(t)&&/(搬|遷|換地方|換地址|改地址|換到)/.test(t)&&/(通知|報備|備查|告知|報給|跟縣府|要不要報|要報嗎|通報)/.test(t)&&!/(縣外|外縣市|別縣|其他縣|台北|高雄|台南)/.test(t))
+  return Object.assign({},base,{title:'會所搬到同縣的其他地方要通知縣府嗎：要，理事會決議後報縣府備查',
+  summary:'會址的設置和異動，要先經理事會決議通過，再報縣府備查（人民團體會務輔導辦法第8條），搬到隔壁村、同縣內其他鄉鎮都一樣。如果章程條文寫的是完整門牌地址，搬家會動到章程，還要依修改章程的程序辦理（人民團體法第27條、第54條）。\n本站「書表下載」的「理監事會」分類有會址同意書格式、會址變更公文和會議紀錄範例。'+tail,
+  statutes:[G(8),P(27),P(54)]});
+ /* 名稱改了要換圖記 */
+ if(/(名稱|名字|會名|改名|更名)/.test(t)&&/(圖記|印章|大印|關防)/.test(t)&&/(換|重刻|重新|刻|換新|要不要|改)/.test(t))
+  return Object.assign({},base,{title:'協會改名後圖記要重刻嗎：法規沒有明文，圖記是自己刻、印模報縣府備查',
+  summary:'人民團體的圖記由團體自行製用，並拓具印模送主管機關備查，規格長、寬、直徑或短徑要在三公分以上（人民團體法第10條）。法規沒有寫改名後舊圖記能不能繼續用，也沒有寫要不要重刻，本站查不到明文，不敢直接說。\n如果圖記上刻有團體名稱，改名後通常會牽涉到圖記內容，建議在報送改名核備時，一併向承辦人員確認圖記怎麼處理。協會改名要走修改章程的程序（人民團體法第12條、第27條）。'+tail,
+  statutes:[P(10),P(12),P(27)]});
+ return null;
+}
 function patrol21(t){
  if(!/(志工|志願服務|義工|服務紀錄冊|志願服務證|基礎訓練)/.test(t))return null;
  const t0=t;t=t.replace(/志工會/g,'志工');
@@ -3150,18 +3240,18 @@ function patrol16(t){
  /* 章程或會址異動沒報核備 */
  if((CH||ADDR||/(名稱|宗旨)/.test(t))&&/((忘記|忘了)(去|要)?(報|送|核備|備查)|沒有?報|未報|沒有?送|未送|沒有?核備|未核備|沒有?備查|漏報|漏送|逾期|超過30|超過三十|過了30|過了三十)/.test(t)&&!/(財務|報表|決算|預算|改選|理監事名單)/.test(t))
   return Object.assign({},base,{category:'人民團體會務說明',title:'章程或會址異動沒有在30日內報縣府：法規只規定期限，後果請洽承辦',
-  summary:'人民團體法規定，章程、選任職員簡歷冊或負責人名冊有異動，應於三十日內報請主管機關核備（人民團體法第54條）。會址是章程要載明的事項（人民團體法第12條），所以會址變更也要照這個期限辦理。\n\n超過30日才報，法規在這一條沒有寫會有什麼後果，本站也查不到明文，不敢替縣府說會怎麼處理。建議盡快補送，並先電洽縣府總機 08-7320415，請總機轉接社會處承辦人員，說明異動日期與逾期原因。',
-  statutes:[P(54),P(12)]});
+  summary:'人民團體法規定，章程、選任職員簡歷冊或負責人名冊有異動，應於三十日內報請主管機關核備（人民團體法第54條）。會址是章程要載明的事項（人民團體法第12條），會址的設置和異動，依會務輔導辦法第8條是經理事會決議後報縣府備查，該條沒有寫期限；如果章程條文寫的是完整門牌地址，會址變更同時就是章程變更，要在30日內報核備。\n\n超過30日才報，法規在這一條沒有寫會有什麼後果，本站也查不到明文，不敢替縣府說會怎麼處理。建議盡快補送，並先電洽縣府總機 08-7320415，請總機轉接社會處承辦人員，說明異動日期與逾期原因。',
+  statutes:[P(54),P(12),G(8)]});
  /* 改章程要換立案證書嗎 */
  if(CH&&/(證書|立案證)/.test(t)&&/(換|換發|重新|新的|更新|補發|要不要)/.test(t)&&/(改|修|變更|異動)/.test(t)&&!/(遺失|不見|弄丟|掉了|毀損)/.test(t))
   return Object.assign({},base,{category:'人民團體會務說明',title:'章程修改後要不要換立案證書：本站查不到明文，請洽承辦',
   summary:'章程修改後，要先經會員（會員代表）大會出席人數三分之二以上同意（人民團體法第27條），再於30日內報縣府核備（人民團體法第54條）。\n\n核備之後立案證書要不要換發，人民團體法沒有寫，本站也查不到明文，請在報送時向承辦人確認，或電洽縣府總機 08-7320415，請總機轉接社會處承辦人員。',
   statutes:[P(27),P(54)]});
  /* 租約到期 */
- if(/(租約|租期|房東|租金|租屋)/.test(t)&&/(會所|會址|辦公室|協會|團體)/.test(t)&&/(到期|期滿|不續|不租|收回|趕|搬走|漲價|沒地方)/.test(t))
-  return Object.assign({},base,{category:'人民團體會務說明',title:'會所租約到期：租約是私契，換新地址時才要走會址變更',
-  summary:'租約是協會和房東之間的事，人民團體法沒有規定。續約、原址繼續使用，不用向縣府報備。\n\n如果要搬到新的地址：會址是章程要載明的事項（人民團體法第12條），搬遷要依修改章程的程序，由會員大會出席人數三分之二以上同意（人民團體法第27條），並於30日內報縣府核備（人民團體法第54條）。會址要設在屏東縣內；要設在其他地區，須報經縣府核准（人民團體法第6條）。\n\n詳細要附哪些文件，請洽承辦人員。',
-  statutes:[P(12),P(27),P(54),P(6)]});
+ if(/(租約|租期|房東|租金|租屋)/.test(t)&&/(會所|會址|辦公室|辦公|協會|團體)/.test(t)&&/(到期|期滿|不續|不租|收回|趕|搬走|漲價|沒地方)/.test(t))
+  return Object.assign({},base,{category:'人民團體會務說明',title:'會所租約到期：租約是私契，換新地址時才要走會址異動程序',
+  summary:'租約是協會和房東之間的事，人民團體法沒有規定。續約、原址繼續使用，不用向縣府報備。\n\n如果要搬到新的地址：會址的設置和異動，要先經理事會決議通過，再報縣府備查（人民團體會務輔導辦法第8條）；如果章程條文寫的是完整門牌地址，還要依修改章程的程序，由會員大會出席人數三分之二以上同意（人民團體法第27條），並於30日內報縣府核備（人民團體法第54條）。會址要設在屏東縣內；要設在其他地區，須報經縣府核准（人民團體法第6條）。\n\n詳細要附哪些文件，請洽承辦人員。',
+  statutes:[G(8),P(12),P(27),P(54),P(6)]});
  /* 會址要提供房屋證明嗎 */
  if(ADDR&&/(房屋證明|房屋所有權|所有權狀|權狀|建物|租賃契約|租約證明|屋主同意|使用同意|同意書|門牌證明|房屋稅單)/.test(t))
   return Object.assign({},base,{category:'人民團體會務說明',title:'會址要附什麼證明：本站有「會址同意書格式」，其他文件請洽承辦',
@@ -3520,7 +3610,7 @@ function verifiedRoundAnswer(q,ctx){
   const guildCharter=charterAmendment(t);
   if(guildCharter)return guildCharter;
  }
- return patrol21(t)||patrol20(t)||patrol19(t)||patrol18(t)||patrol17(t)||patrol15(t)||patrol16(t)||patrol14(t)||intlGroupElection(t)||patrol13(t)||patrol11(t)||patrol10(t)||patrol9(t)||patrol8(t)||patrol7(t)||memberStaffPatrol6(t)||communityPatrol(t)||dissolveCharterPatrol(t)||financePatrol(t)||membershipPatrol(t)||formTemplates(t,ctx&&ctx.catalog)||(/^(協會|社區發展協會|我們協會|本會)?的?(理事|監事|理監事)(和監事|跟監事)?(要)?(怎麼選|怎麼產生|如何產生|誰選)/.test(t)?electionHowTo(t):null)||attendanceFeeCan(t)||joinManyGroups(t)||chairReplaceMidTerm(t)||charterItemChange(t)||resolutionOverturn(t)||staffInsurance(t)||intlGroupWho(t)||moneyMisuse(t)||supervisorNoMeeting(t)||rosterView(t)||whoManagesMoney(t)||donationDeduct(t)||annualAccountsHowTo(t)||boardMeetingHowTo(t)||memberQuitHowTo(t)||viceChair(t)||motionSecond(t)||assocLoan(t)||yearEndBonus(t)||entertainmentExpense(t)||englishName(t)||minorOfficer(t)||assocInvest(t)||candidateDeposit(t)||chairAndRecorder(t)||facebookGroup(t)||rulingRules(t)||byElection(t)||receiptsBasic(t)||memberRepThreshold(t)||officerResignHow(t)||finalAccountsWho(t)||publicServantOfficer(t)||relativesAsOfficers(t)||mergeGroups(t)||govCommission(t)||conveneAndPetition(t)||assemblyPrepAndSignIn(t)||whatNeedsAssembly(t)||feeAndMemberStatus(t)||directorMustBeMember(t)||auditAndYear(t)||reorganization(t)||staffResignReport(t)||videoElection(t)||subsidyDetails(t)||subsidyBasics(t)||taxWithholding(t)||commercialGuild(t)||memberSuspension(t)||meetingProcedure(t)||solicitationAfter(t)||coopMore(t)||communityMore(t)||outOfScope(t)||whichAuthority(t)||volunteerMore(t)||submitWhere(t)||timeDeposit(t)||nonCompliance(t)||memberEligibilityOutside(t)||annualMeetings(t)||chairTermLimit(t)||assemblyQuorum(t)||urgentMeetingNotice(t)||directorVacancy(t)||recallOfficer(t)||boardResolution(t)||annualFinanceFiling(t)||receiptAndWithdraw(t)||charterContents(t)||dissolveVote(t)||sealMake(t)||memberOnlyFundraising(t)||communityBasics(t)||countyPhone(t)||advisorAppoint(t)||sealKeeper(t)||assocTravel(t)||activityReport(t)||assocFund(t)||officerAsFinanceStaff(t)||electionShowOfHands(t)||directorProxyVote(t)||memberAdmissionWho(t)||memberRosterReport(t)||attendanceFeeAmount(t)||auditByCPA(t)||financeAnnounce(t)||coopBasics(t)||foundingCost(t)||prepMeetingCount(t)||assemblyShortOfQuorum(t)||twoCommunityAssociations(t)||villageChiefAsChair(t)||intlTermStart(t)||charmCommunityContact(t)||groupTypeDifference(t)||directorAbsence(t)||chairElectionMethod(t)||officerNumbers(t)||meetingNoticeChannel(t)||budgetHowTo(t)||renameGroup(t)||certificateLost(t)||dormantGroup(t)||lookupRegistered(t)||coopWithdraw(t)||termLengthLimit(t)||assemblyAgenda(t)||teacherAssocSetup(t)||commercialGroupSetup(t)||alumniSetup(t)||boardAgenda(t)||assetScrap(t)||taxMissed(t)||officeAtHome(t)||communityAreaSplit(t)||officeMove(t)||crossCountyEvent(t)||dissolvedAssets(t)||groupNameDuplicate(t)||standingDirectorCount(t)||memberViewAccounts(t)||howToReportGroup(t)||groupReported(t)||anonymousDonation(t)||chairRelativeStaff(t)||minorJoinAssoc(t)||volunteerTopics(t)||volunteerTeam(t)||memberCourseFee(t)||staffMustBeMember(t)||chairFundraising(t)||boardBelowHalf(t)||assocMayNotMeet(t)||assocNurseryCenter(t)||assocCareStation(t)||assocDonateGoods(t)||assocGovTender(t)||subsidySettlement(t)||corpRegistration(t)||assocBoardPay(t)||financeStaffConcurrent(t)||staffHiring(t)||coopVsAssocAccountingForms(t)||coopBalanceSheetReport(t)||delegateQuotaCalculation(t)||delegateConcurrentRole(t)||onlineVoting(t)||mailVoting(t)||assemblyVotingMethod(t)||boardVotingMethodDetail(t)||delegateElectionProcess(t)||delegateAssemblyRules(t)||coopMemberRemoval(t)||coopAdvertisingTaxability(t)||coopLoanToMemberTax(t)||coopBankLoanProcedure(t)||coopBankLoan(t)||branchAccountingPractice(t)||memberDelegateElection(t)||branchOrgSetup(t)||delegateProposalProcess(t)||annualMeetingVsAssembly(t)||vacancyQuorum(t)||supervisorConvenerNoMeeting(t)||supervisorMinimumMembers(t)||supervisorChairmanElection(t)||supervisorAuditPowers(t)||branchOrgAccounting(t)||runClassesPermit(t)||residentialCarePermit(t)||chairConvicted(t)||chairDismissStaff(t)||chairDissolve(t)||homeAsOfficeTax(t)||nonprofitTaxThreshold(t)||sameAddressGroups(t)||chairStaffConflict(t)||orgDisposeProperty(t)||orgAcquireEquipment(t)||sellGoodsAllowed(t)||staffActingChair(t)||p2MembershipFee(t)||p2BoardNotice(t)||p2RecordRetention(t)||p2CharterAmend(t)||p2SupervisorAudit(t)||p2CoopShares(t)||p2FoundingMeeting(t)||p2ElectionPrep(t)||p2MinutesContent(t)||p2DelegateSystem(t)||chairAbandonsOffice(t)||chairOtherGroupPosition(t)||chairSpendWithoutBoard(t)||supervisorSpend(t)||supervisorActingChair(t)||candidateSeatCount(t)||ballotRetention(t)||officerResignation(t)||invalidBallotReason(t)||delegateQualification(t)||substitutionOrder(t)||byElectionThreshold(t)||coopChairReelection(t)||chairmanReelectionLimit(t)||chairmanAbsence(t)||recordRetentionPeriod(t)||advertisingIncome(t)||staffBankAccountSetup(t)||meetingSigninDuration(t)||meetingVotingMethod(t)||preElectionBoardMeeting(t)||electionEffectiveDate(t)||politicalDonation(t)||communityReportingRequirements(t)||communityYearlyPlanDeadline(t)||communityVsAssociationDifferences(t)||supervisorAsDirector(t)||newChairTodo(t)||postElectionAccountingDeadline(t)||electionReportDeadline(t)||checkSignature(t)||feePeriods(t)||feeDeferral(t)||threeMonthsWording(t)||electionCandidates(t)||electionObjection(t)||minutesDeadline(t)||coopBoardQuorum(t)||coopTax(t)||communityRename(t)||communityReportTownship(t)||addressCertificate(t)||bankChairChange(t)||eventFee(t)||communityChairTerm(t)||invalidBallot(t)||feeAmount(t)||personalAccount(t)||delegateAssembly(t)||noSupervisor(t)||foundingDocs(t)||investStocks(t)||membershipRefused(t)||coopCapital(t)||receiveDonation(t)||hireEmployee(t)||lendToChair(t)||branchOrg(t)||supervisorMeeting(t)||noAnnualMeeting(t)||chairSpendingAuth(t)||communityVsGeneral(t)||coopDissolutionProperty(t)||charterAmendment(t)||coopSupervisorAudit(t)||publicSolicitation(t)||decisionRevoked(t)||chairResign(t)||memberExpulsion(t)||sealChange(t)||noHandover(t)||communityDissolutionProperty(t)||boardFinanceAgenda(t)||boardQuorumGeneral(t)||delegated(t)||chairNoMeeting(t)||feeAnswer(t)||coopAssemblyQuorum(t)||proxyCount(t)||concurrent(t)||financeQuestioned(t)||financeDeadline(t)||meetingFrequency(t)||videoMeeting(t)||coopMinimum(t)||financeForms(t)||formsDownload(t,ctx&&ctx.catalog)||dissolutionHowTo(t)||null||chairChangeTodo(t)||electionHowTo(t)||meetingHowTo(t);
+ return patrol22(t)||patrol21(t)||patrol20(t)||patrol19(t)||patrol18(t)||patrol17(t)||patrol15(t)||patrol16(t)||patrol14(t)||intlGroupElection(t)||patrol13(t)||patrol11(t)||patrol10(t)||patrol9(t)||patrol8(t)||patrol7(t)||memberStaffPatrol6(t)||communityPatrol(t)||dissolveCharterPatrol(t)||financePatrol(t)||membershipPatrol(t)||formTemplates(t,ctx&&ctx.catalog)||(/^(協會|社區發展協會|我們協會|本會)?的?(理事|監事|理監事)(和監事|跟監事)?(要)?(怎麼選|怎麼產生|如何產生|誰選)/.test(t)?electionHowTo(t):null)||attendanceFeeCan(t)||joinManyGroups(t)||chairReplaceMidTerm(t)||charterItemChange(t)||resolutionOverturn(t)||staffInsurance(t)||intlGroupWho(t)||moneyMisuse(t)||supervisorNoMeeting(t)||rosterView(t)||whoManagesMoney(t)||donationDeduct(t)||annualAccountsHowTo(t)||boardMeetingHowTo(t)||memberQuitHowTo(t)||viceChair(t)||motionSecond(t)||assocLoan(t)||yearEndBonus(t)||entertainmentExpense(t)||englishName(t)||minorOfficer(t)||assocInvest(t)||candidateDeposit(t)||chairAndRecorder(t)||facebookGroup(t)||rulingRules(t)||byElection(t)||receiptsBasic(t)||memberRepThreshold(t)||officerResignHow(t)||finalAccountsWho(t)||publicServantOfficer(t)||relativesAsOfficers(t)||mergeGroups(t)||govCommission(t)||conveneAndPetition(t)||assemblyPrepAndSignIn(t)||whatNeedsAssembly(t)||feeAndMemberStatus(t)||directorMustBeMember(t)||auditAndYear(t)||reorganization(t)||staffResignReport(t)||videoElection(t)||subsidyDetails(t)||subsidyBasics(t)||taxWithholding(t)||commercialGuild(t)||memberSuspension(t)||meetingProcedure(t)||solicitationAfter(t)||coopMore(t)||communityMore(t)||outOfScope(t)||whichAuthority(t)||volunteerMore(t)||submitWhere(t)||timeDeposit(t)||nonCompliance(t)||memberEligibilityOutside(t)||annualMeetings(t)||chairTermLimit(t)||assemblyQuorum(t)||urgentMeetingNotice(t)||directorVacancy(t)||recallOfficer(t)||boardResolution(t)||annualFinanceFiling(t)||receiptAndWithdraw(t)||charterContents(t)||dissolveVote(t)||sealMake(t)||memberOnlyFundraising(t)||communityBasics(t)||countyPhone(t)||advisorAppoint(t)||sealKeeper(t)||assocTravel(t)||activityReport(t)||assocFund(t)||officerAsFinanceStaff(t)||electionShowOfHands(t)||directorProxyVote(t)||memberAdmissionWho(t)||memberRosterReport(t)||attendanceFeeAmount(t)||auditByCPA(t)||financeAnnounce(t)||coopBasics(t)||foundingCost(t)||prepMeetingCount(t)||assemblyShortOfQuorum(t)||twoCommunityAssociations(t)||villageChiefAsChair(t)||intlTermStart(t)||charmCommunityContact(t)||groupTypeDifference(t)||directorAbsence(t)||chairElectionMethod(t)||officerNumbers(t)||meetingNoticeChannel(t)||budgetHowTo(t)||renameGroup(t)||certificateLost(t)||dormantGroup(t)||lookupRegistered(t)||coopWithdraw(t)||termLengthLimit(t)||assemblyAgenda(t)||teacherAssocSetup(t)||commercialGroupSetup(t)||alumniSetup(t)||boardAgenda(t)||assetScrap(t)||taxMissed(t)||officeAtHome(t)||communityAreaSplit(t)||officeMove(t)||crossCountyEvent(t)||dissolvedAssets(t)||groupNameDuplicate(t)||standingDirectorCount(t)||memberViewAccounts(t)||howToReportGroup(t)||groupReported(t)||anonymousDonation(t)||chairRelativeStaff(t)||minorJoinAssoc(t)||volunteerTopics(t)||volunteerTeam(t)||memberCourseFee(t)||staffMustBeMember(t)||chairFundraising(t)||boardBelowHalf(t)||assocMayNotMeet(t)||assocNurseryCenter(t)||assocCareStation(t)||assocDonateGoods(t)||assocGovTender(t)||subsidySettlement(t)||corpRegistration(t)||assocBoardPay(t)||financeStaffConcurrent(t)||staffHiring(t)||coopVsAssocAccountingForms(t)||coopBalanceSheetReport(t)||delegateQuotaCalculation(t)||delegateConcurrentRole(t)||onlineVoting(t)||mailVoting(t)||assemblyVotingMethod(t)||boardVotingMethodDetail(t)||delegateElectionProcess(t)||delegateAssemblyRules(t)||coopMemberRemoval(t)||coopAdvertisingTaxability(t)||coopLoanToMemberTax(t)||coopBankLoanProcedure(t)||coopBankLoan(t)||branchAccountingPractice(t)||memberDelegateElection(t)||branchOrgSetup(t)||delegateProposalProcess(t)||annualMeetingVsAssembly(t)||vacancyQuorum(t)||supervisorConvenerNoMeeting(t)||supervisorMinimumMembers(t)||supervisorChairmanElection(t)||supervisorAuditPowers(t)||branchOrgAccounting(t)||runClassesPermit(t)||residentialCarePermit(t)||chairConvicted(t)||chairDismissStaff(t)||chairDissolve(t)||homeAsOfficeTax(t)||nonprofitTaxThreshold(t)||sameAddressGroups(t)||chairStaffConflict(t)||orgDisposeProperty(t)||orgAcquireEquipment(t)||sellGoodsAllowed(t)||staffActingChair(t)||p2MembershipFee(t)||p2BoardNotice(t)||p2RecordRetention(t)||p2CharterAmend(t)||p2SupervisorAudit(t)||p2CoopShares(t)||p2FoundingMeeting(t)||p2ElectionPrep(t)||p2MinutesContent(t)||p2DelegateSystem(t)||chairAbandonsOffice(t)||chairOtherGroupPosition(t)||chairSpendWithoutBoard(t)||supervisorSpend(t)||supervisorActingChair(t)||candidateSeatCount(t)||ballotRetention(t)||officerResignation(t)||invalidBallotReason(t)||delegateQualification(t)||substitutionOrder(t)||byElectionThreshold(t)||coopChairReelection(t)||chairmanReelectionLimit(t)||chairmanAbsence(t)||recordRetentionPeriod(t)||advertisingIncome(t)||staffBankAccountSetup(t)||meetingSigninDuration(t)||meetingVotingMethod(t)||preElectionBoardMeeting(t)||electionEffectiveDate(t)||politicalDonation(t)||communityReportingRequirements(t)||communityYearlyPlanDeadline(t)||communityVsAssociationDifferences(t)||supervisorAsDirector(t)||newChairTodo(t)||postElectionAccountingDeadline(t)||electionReportDeadline(t)||checkSignature(t)||feePeriods(t)||feeDeferral(t)||threeMonthsWording(t)||electionCandidates(t)||electionObjection(t)||minutesDeadline(t)||coopBoardQuorum(t)||coopTax(t)||communityRename(t)||communityReportTownship(t)||addressCertificate(t)||bankChairChange(t)||eventFee(t)||communityChairTerm(t)||invalidBallot(t)||feeAmount(t)||personalAccount(t)||delegateAssembly(t)||noSupervisor(t)||foundingDocs(t)||investStocks(t)||membershipRefused(t)||coopCapital(t)||receiveDonation(t)||hireEmployee(t)||lendToChair(t)||branchOrg(t)||supervisorMeeting(t)||noAnnualMeeting(t)||chairSpendingAuth(t)||communityVsGeneral(t)||coopDissolutionProperty(t)||charterAmendment(t)||coopSupervisorAudit(t)||publicSolicitation(t)||decisionRevoked(t)||chairResign(t)||memberExpulsion(t)||sealChange(t)||noHandover(t)||communityDissolutionProperty(t)||boardFinanceAgenda(t)||boardQuorumGeneral(t)||delegated(t)||chairNoMeeting(t)||feeAnswer(t)||coopAssemblyQuorum(t)||proxyCount(t)||concurrent(t)||financeQuestioned(t)||financeDeadline(t)||meetingFrequency(t)||videoMeeting(t)||coopMinimum(t)||financeForms(t)||formsDownload(t,ctx&&ctx.catalog)||dissolutionHowTo(t)||null||chairChangeTodo(t)||electionHowTo(t)||meetingHowTo(t);
 }
 const api={normalizeQuestion,withContext,verifiedRoundAnswer};
 if(typeof module!=='undefined'&&module.exports)module.exports=api;
