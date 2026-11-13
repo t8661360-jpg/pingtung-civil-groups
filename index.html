@@ -831,7 +831,7 @@ async function saveChunked(coll,rows,metaExtra){
 async function loadAll(force){
   if(loadPromise&&!force)return loadPromise;
   loadPromise=(async()=>{
-    const base=document.baseURI.replace(/[^/]*$/,"")+"data/";const DV="?v=20261113-21";
+    const base=document.baseURI.replace(/[^/]*$/,"")+"data/";const DV="?v=20261113-22";
     const jf=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);return r.json()};
     const jgz=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);const b=new Uint8Array(await r.arrayBuffer());if(b[0]!==31||b[1]!==139)return JSON.parse(new TextDecoder().decode(b));if(typeof DecompressionStream==="undefined")throw new Error("gzip unsupported");const text=await new Response(new Blob([b]).stream().pipeThrough(new DecompressionStream("gzip"))).text();return JSON.parse(text)};
     const [d,s,k,f]=await Promise.allSettled([jf(base+"directory.json"+DV),jf(base+"staff.json"+DV),jgz(base+"knowledge.json.gz"+DV).catch(()=>jf(base+"knowledge.json"+DV)),jf(base+"forms-catalog.json?v=20261105-5")]);
@@ -907,7 +907,7 @@ function revCov(title,q){const tb=bigrams(title);if(!tb.length)return 0;const qn
 const KN_OTHER_LAW=/商業團體法|工業團體法|同業公會|商業會|工業會|適用對象：商業/;
 const KN_ASK_OTHER_TYPE=/商業|工業|同業|公會|職業|商會|工會|工廠/;
 /* 專案型條目（魅力社區、好讚、公益勸募、社造、社區生產建設基金）只在問句提到該專案時才出現 */
-const KN_SCOPES=[[/國際年會在國外/,/國外|海外|境外|出國|年會/],[/魅力社區|好讚/,/魅力|好讚/],[/勸募/,/勸募|募款|募捐|募集|募資|捐款|捐贈/],[/社造點|文化處/,/社造|文化處/],[/生產建設基金/,/生產建設|基金/],[/社區活動中心/,/活動中心/],[/國際總會|國際性|國際年會/,/國際/],[/「總會」|叫總會/,/總會/],[/臉書|ETF|保證金|酬勞金|車馬費|法律顧問/,/臉書|facebook|fb|ETF|etf|保證金|酬勞|獎金|車馬費|顧問/i],[/國外|海外|境外|出國/,/國外|海外|境外|出國|國際|大陸|港澳/],[/Zoom|zoom/,/zoom|視訊|線上|遠距|海外/i],[/承辦人?(沒有|未)到場/,/到場|列席|派員|承辦/],[/家長會|校友會|同鄉會|宗親會|獅子會|扶輪|同濟/,/家長會|校友會|同鄉會|宗親會|獅子會|扶輪|同濟/]];
+const KN_SCOPES=[[/怎麼成立社區發展協會/,/成立|籌組|籌備|設立|立案|發起|申請設立|怎麼開始|從哪|如何開始/],[/國際年會在國外/,/國外|海外|境外|出國|年會/],[/魅力社區|好讚/,/魅力|好讚/],[/勸募/,/勸募|募款|募捐|募集|募資|捐款|捐贈/],[/社造點|文化處/,/社造|文化處/],[/生產建設基金/,/生產建設|基金/],[/社區活動中心/,/活動中心/],[/國際總會|國際性|國際年會/,/國際/],[/「總會」|叫總會/,/總會/],[/臉書|ETF|保證金|酬勞金|車馬費|法律顧問/,/臉書|facebook|fb|ETF|etf|保證金|酬勞|獎金|車馬費|顧問/i],[/國外|海外|境外|出國/,/國外|海外|境外|出國|國際|大陸|港澳/],[/Zoom|zoom/,/zoom|視訊|線上|遠距|海外/i],[/承辦人?(沒有|未)到場/,/到場|列席|派員|承辦/],[/家長會|校友會|同鄉會|宗親會|獅子會|扶輪|同濟/,/家長會|校友會|同鄉會|宗親會|獅子會|扶輪|同濟/]];
 const KN_TOWN_RE=new RegExp((Array.isArray(TOWNS)?TOWNS:String(TOWNS).split(/\s+/)).filter(Boolean).map(x=>x.replace(/[鄉鎮市]$/,'')).filter(x=>x.length>=2&&x!=='屏東').join('|'));
 function knScopeOK(q,r){const t=r.title+"｜"+(r.alias||"");const m=r.title.match(KN_TOWN_RE);if(m&&!q.includes(m[0]))return false;return KN_SCOPES.every(([row,ask])=>!row.test(t)||ask.test(q))}
 function searchKn(q,limit,legacy){
@@ -1315,7 +1315,7 @@ function renderAnswer(q,a){
 }
 let KB_LAST_SCORE=0;
 const KB_GENERIC=/^(準備哪些|要準備|需要什麼文件|申請文件|怎麼申請|多久|資格|下載|聯絡|電話|分機|承辦|承辦人|找誰|窗口|開會|大會|通知|出席|決議|期限|名稱|名字|線上|網路|書表|範本|表格|法規|法令|條文|報表|登記|法人|好的|了解)$/;
-function matchKB(q){let best=null,score=0;const qn=norm(q);for(const e of KB){let s=0;for(const k of e.k){const w=KB_GENERIC.test(k)?1:k.length*2;if(q.includes(k))s+=w;else if(qn.includes(norm(k)))s+=Math.ceil(w/2)}if(s>score){score=s;best=e}}KB_LAST_SCORE=score;return score>=2?best:null}
+function matchKB(q){let best=null,score=0;const qn=norm(q);for(const e of KB){if(e.title==='怎麼成立社區發展協會'&&!/成立|籌組|籌備|設立|立案|發起|怎麼開始|如何開始/.test(q))continue;let s=0;for(const k of e.k){const w=KB_GENERIC.test(k)?1:k.length*2;if(q.includes(k))s+=w;else if(qn.includes(norm(k)))s+=Math.ceil(w/2)}if(s>score){score=s;best=e}}KB_LAST_SCORE=score;return score>=2?best:null}
 function kbAnswer(e){const it=e.ref?ALLITEMS[e.ref]:null;return{category:e.cat,title:e.title,summary:e.summary,steps:e.steps||(it?it.steps:[]),docs:e.docs||(it?it.docs:[]),laws:e.laws||(it?it.laws:[])||[],notes:e.notes||[],where:e.where||[],guide:e.guide||[],actions:(e.act||[]).filter(x=>x[1]!=="home").map(x=>({label:x[0],view:x[1],sub:x[2]}))}}
 function staffFor(type,c){const s=staffForCat(c||"",type);return s?[s]:[]}
 function contactLine(list){return list.length?`${list[0].unit||""}${list[0].name}（${list[0].tel||"08-7320415"}${list[0].ext?" 轉 "+list[0].ext:""}）`:"縣府總機 08-7320415 轉社會處承辦人"}
@@ -1860,13 +1860,13 @@ touch();
   route();
 })();
 </script>
-<script src="feedback-collector.js?v=20261113-21"></script>
-<script src="round-fixes.js?v=20261113-21"></script>
-<script src="answer-arbiter.js?v=20261113-21"></script>
-<script src="question-understanding.js?v=20261113-21"></script>
-<script src="counter-upgrade.js?v=20261113-21"></script>
-<script src="ai-assist.js?v=20261113-21"></script>
-<script src="festive.js?v=20261113-21" defer></script>
+<script src="feedback-collector.js?v=20261113-22"></script>
+<script src="round-fixes.js?v=20261113-22"></script>
+<script src="answer-arbiter.js?v=20261113-22"></script>
+<script src="question-understanding.js?v=20261113-22"></script>
+<script src="counter-upgrade.js?v=20261113-22"></script>
+<script src="ai-assist.js?v=20261113-22"></script>
+<script src="festive.js?v=20261113-22" defer></script>
 </body>
 </html>
 
