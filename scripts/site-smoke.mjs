@@ -344,7 +344,13 @@ try {
   }
   // 1. 桌機問答
   const page = await browser.newPage({ viewport: { width: 1400, height: 900 } });
-  const errs = []; page.on('pageerror', e => errs.push(String(e)));
+  const errs = [  ['辦活動想向民眾募款要不要許可', '21日前'],                  // 公益勸募條例第7條、許可辦法第2條（第三十四輪 勸募與補助）
+  ['勸募許可忘記申請會怎樣', '4萬元以上20萬元以下'],          // 公益勸募條例第22、24條
+  ['勸募錢花不完怎麼辦', '三個月內'],                          // 公益勸募條例第19條
+  ['補助款可以拿來發獎金嗎', '獎金'],                          // 補助作業要點第5、10點
+  ['補助核銷來不及怎麼辦', '註銷'],                            // 補助作業要點第8、10點
+  ['補助款要放在協會帳戶嗎', '不得存放於其他公私企業或個人'],  // 財務處理辦法第16條
+]; page.on('pageerror', e => errs.push(String(e)));
   await page.goto(BASE + bust, { waitUntil: 'load', timeout: 60000 });
   await page.waitForTimeout(4000);
   if (!(await page.isVisible('#v-home'))) fails.push('首頁櫃檯區沒有顯示');
