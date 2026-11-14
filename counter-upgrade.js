@@ -305,7 +305,7 @@ smartFallback=function(q,kb){
   return scopedFallback(q,kb);
 };
 loadAll=async function(force){await baseLoadAll(force);await loadStatutes();if(!STORE.coopLoaded){
-  try{const responses=await Promise.all([fetch('data/coop/directory.json?v=20261114-43'),fetch('data/coop/catalog.json')]);if(responses.some(r=>!r.ok))throw Error('合作社資料載入失敗');const [dir,cat]=await Promise.all(responses.map(r=>r.json()));STORE.dir.rows=STORE.dir.rows.filter(r=>r.t!=='合作社').concat(dir.rows.map(r=>({...r,d:townOf(r.a)})));coopCatalog=cat.files;STORE.coopLoaded=true;fillCatSelect()}catch(e){console.warn(e)}
+  try{const responses=await Promise.all([fetch('data/coop/directory.json?v=20261114-44'),fetch('data/coop/catalog.json')]);if(responses.some(r=>!r.ok))throw Error('合作社資料載入失敗');const [dir,cat]=await Promise.all(responses.map(r=>r.json()));STORE.dir.rows=STORE.dir.rows.filter(r=>r.t!=='合作社').concat(dir.rows.map(r=>({...r,d:townOf(r.a)})));coopCatalog=cat.files;STORE.coopLoaded=true;fillCatSelect()}catch(e){console.warn(e)}
 }if(!STORE.kn.rows.some(r=>r.title===COOP_RULING.title)){STORE.kn.rows.push(COOP_RULING);KN_IDX=null}};
 const oldDirMetaLine=dirMetaLine;
 dirMetaLine=function(){const rows=STORE.dir.rows;const original=rows.filter(r=>r.t!=='合作社');return `人民團體 ${original.length} 筆；合作社 ${rows.filter(r=>r.t==='合作社').length} 筆（合作社名冊日期：2026/10/01）。名冊列載不代表即時營運狀態。`};
