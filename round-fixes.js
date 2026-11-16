@@ -921,7 +921,7 @@ function nonprofitTaxThreshold(t){
  if(!/(稅|繳稅|免稅|課稅|報稅|所得稅)/.test(t))return null;
  if(/合作社|社員|營業稅|發票|統一發票|扣繳|薪資|二代健保|房屋稅|地價稅|娛樂稅|印花稅/.test(t))return null;
  if(!/(團體|協會|學會|促進會|基金會|非營利|公益|收入|結餘|多少|門檻|要不要|需不需要|要繳|免)/.test(t))return null;
- return{category:'人民團體財務',title:'協會收入要不要繳所得稅：沒有金額門檻，看「符不符合免稅 9 條件」與「是不是銷售所得」',summary:'協會（社會團體）的所得稅不是看收入多少，而是兩個問題：\n\n一、符合免稅標準 9 條件，本身所得免納所得稅（免納所得稅適用標準第2條）\n1. 已向主管機關立案。\n2. 除創設目的活動的必要費用外，不對捐贈人或其關係人變相分配盈餘。\n3. 章程明定解散後賸餘財產歸地方自治團體或主管機關指定的機關團體。\n4. 不經營與創設目的無關的業務。\n5. 基金及各項收入除零用金外都存金融機構或法定投資項目。\n6. 主要捐贈人及其配偶、三親等親屬擔任理監事不超過三分之一。\n7. 與捐贈人、理監事間無不正常業務財務關係。\n8. 用於創設目的活動的支出，不低於當年孳息及各項收入的 60%；但當年度結餘款在 50 萬元以下，或超過 50 萬元但已編列四年內使用計畫並經主管機關同意者，不在此限。\n9. 收支有合法憑證、完備會計紀錄，經國稅局查核屬實。\n\n二、銷售貨物或勞務的所得，仍要課稅（第3條）\n會費、捐款、補助款、利息不是銷售所得；義賣、賣商品、收費課程、場地出租等屬銷售貨物或勞務，其所得原則上要課所得稅，但其他收入不足支應創設目的活動支出的部分可以扣除。\n\n三、財產總額或年收入達 1 億元以上者，另須委託會計師查核簽證申報（第2條第2項）。\n\n申報義務、結算申報門檻、是否需辦理稅籍登記，請洽財政部南區國稅局 0800-000-321（屏東分局 08-7311166）。',statutes:[TX(2),TX(3)],notes:['本站法規庫僅收錄免稅適用標準，所得稅法本文與國稅局個案認定不在本站範圍。'],questionState:{focus:'nonprofit-tax',domain:'social'}};
+ return{category:'人民團體財務',title:'協會收入要不要繳所得稅：沒有金額門檻，看「符不符合免稅 9 條件」與「是不是銷售所得」',summary:'協會（社會團體）的所得稅不是看收入多少，而是兩個問題：\n\n一、符合免稅標準 9 條件，本身所得免納所得稅（免納所得稅適用標準第2條）\n1. 已向主管機關立案。\n2. 除創設目的活動的必要費用外，不對捐贈人或其關係人變相分配盈餘。\n3. 章程明定解散後賸餘財產歸地方自治團體或主管機關指定的機關團體。\n4. 不經營與創設目的無關的業務。\n5. 基金及各項收入除零用金外都存金融機構或法定投資項目。\n6. 主要捐贈人及其配偶、三親等親屬擔任理監事不超過三分之一。\n7. 與捐贈人、理監事間無不正常業務財務關係。\n8. 用於創設目的活動的支出，不低於當年孳息及各項收入的 60%；但當年度結餘款在 50 萬元以下，或超過 50 萬元但已編列四年內使用計畫並經主管機關同意者，不在此限。\n9. 收支有合法憑證、完備會計紀錄，經國稅局查核屬實。\n\n二、銷售貨物或勞務的所得，仍要課稅（第3條）\n會費、捐款、補助款、利息不是銷售所得；義賣、賣商品、收費課程、場地出租等屬銷售貨物或勞務，其所得原則上要課所得稅，但其他收入不足支應創設目的活動支出的部分可以扣除。\n\n三、財產總額或年收入達 1 億元以上者，另須委託會計師查核簽證申報（第2條第2項）。\n\n免稅不等於免申報：符合免稅條件的團體，每年5月1日到5月31日仍要辦理結算申報（所得稅法第71條之1第3項、第71條）；是否需辦理稅籍登記、怎麼申報，請洽財政部南區國稅局 0800-000-321（屏東分局 08-7311166）。',statutes:[TX(2),TX(3)],notes:['是否符合免稅條件，由國稅局個案查核認定，不在本站範圍。'],questionState:{focus:'nonprofit-tax',domain:'social'}};
 }
 function orgDisposeProperty(t){
  if(/報廢|廢棄|淘汰|汰換/.test(t))return null;
@@ -949,10 +949,10 @@ function homeAsOfficeTax(t){
  if(!/(會址|辦公|團體|協會)/.test(t))return null;
  if(!/(稅|所得稅|房屋稅|地價稅|免稅|影響)/.test(t))return null;
  if(/合作社|社員/.test(t))return null;
- return{category:'人民團體財務',title:'自用住宅設為協會會址，會不會影響稅金：所得稅看免稅條件；房屋稅、地價稅請洽稅捐機關',
- summary:'分兩部分看：\n\n1. 所得稅：協會的所得是否免稅，主要看是否符合免稅標準的條件，例如是否經立案、不以任何方式分配盈餘、章程有解散後財產歸屬規定、不經營與創設目的無關的業務（教育文化公益慈善機關或團體免納所得稅適用標準第2條）。把住宅設為會址本身，並不是免稅條件的一項。\n\n2. 房屋稅、地價稅：這兩項屬於地方稅，本站的法條資料中未涵蓋，無法確認自用住宅改作會址後的稅率或是否喪失自用稅率。請洽當地稅捐稽徵機關（或地方稅務局）確認。\n\n另外，若會址房屋是借用或登記在他人名下，請留意產權與借用的文件，並依人民團體法第6條，會址須在主管機關所在地區。',
- statutes:[{title:'教育文化公益慈善機關或團體免納所得稅適用標準第2條',source:'財政部 免稅標準'},P(6)],
- notes:['房屋稅、地價稅不在本站法條範圍內，本答案不作判斷。']};
+ return{category:'人民團體財務',title:'自用住宅設為協會會址，會不會影響稅金：所得稅看免稅條件；房屋稅依實際使用面積分別課徵，非住家用面積最少算六分之一',
+ summary:'分兩部分看：\n\n1. 所得稅：協會的所得是否免稅，主要看是否符合免稅標準的條件，例如是否經立案、不以任何方式分配盈餘、章程有解散後財產歸屬規定、不經營與創設目的無關的業務（教育文化公益慈善機關或團體免納所得稅適用標準第2條）。把住宅設為會址本身，並不是免稅條件的一項。\n\n2. 房屋稅：房屋同時作住家和非住家使用的，依實際使用面積，分別按住家用和非住家用稅率課徵，非住家用的課稅面積，最低不得少於全部面積的六分之一；供人民團體等非營業使用的，稅率最低1.5%、最高2.5%（房屋稅條例第5條）。免徵房屋稅的規定（第15條第1項第5款）限於經政府核准的公益社團「自有」、供辦公使用的房屋，理事長或會員私人的住家不是協會自有，不適用。實際怎麼課，由稅捐稽徵機關認定。\n\n3. 地價稅：公益事業用地可以申請減免（土地稅法第6條、土地稅減免規則第8條），但私人住宅的土地不是協會的事業用地；請洽稅捐稽徵機關。\n\n另外，若會址房屋是借用或登記在他人名下，請留意產權與借用的文件，並依人民團體法第6條，會址須在主管機關所在地區。',
+ statutes:[{title:'教育文化公益慈善機關或團體免納所得稅適用標準第2條',source:'財政部 免稅標準'},P(6),HOUSE81(5),HOUSE81(15)],
+ notes:['契稅、使用牌照稅等其他地方稅，本站沒有收錄條文，請洽稅捐稽徵機關。']};
 }
 function chairStaffConflict(t){
  if(!/(理事長|會長)/.test(t))return null;
@@ -1015,7 +1015,7 @@ function memberCourseFee(t){
  return{category:'人民團體財務',title:'協會可以為會員開課並收學費、支付講師費：依章程任務辦理，收支入帳、開收據，學費收入要注意課稅',
  summary:'可以。為會員辦理研習或課程，只要屬於章程所定的宗旨與任務，協會可以收取學費，也可以支付講師費。要注意：\n\n1. 計畫與決議：課程與收費應列入年度工作計畫及收支預算（社會團體財務處理辦法第11條）；預算外新開的課程，依章程經理事會決議後辦理。\n2. 收入：學費收入要掣給正式收據並留存根（第17條），存入金融機構，不得收支坐抵（第16條）。\n3. 支出：講師費要取得講師簽收的領據等原始憑證並登帳（第7條、第8條），不得匿報或虛報（第20條）。\n4. 稅務：學費通常屬銷售勞務收入，依免稅標準第3條應課徵所得稅（其他收入不足支應宗旨活動支出的部分可扣除）。支付講師費的扣繳與申報，請洽國稅局確認。\n\n如果課程對外向不特定民眾招生收費，可能涉及補習班立案，請改問「協會可以開班收費嗎」。',
  statutes:[F(11),F(17),F(16),F(7),F(20),TX(3)],
- notes:['本站法規庫不含所得稅法，講師費扣繳率與申報方式以國稅局說明為準。']};
+ notes:['講師費扣繳率以國稅局說明為準；扣繳憑單的申報期限，見本站稅務的相關答案。']};
 }
 
 const CDP=n=>({title:'社區發展工作要點第'+n+'點',source:'https://dep.mohw.gov.tw/DOSAASW/lp-553-103.html'});
@@ -1983,9 +1983,7 @@ function assetScrap(t){
 }
 function taxMissed(t){
  if(!/(忘記|忘了|沒有|沒|漏|逾期|來不及|延遲)/.test(t)||!/(申報|報稅)/.test(t)||!/(所得|營利事業|稅)/.test(t)||/合作社/.test(t))return null;
- return{direct:true,category:'稅務',title:'協會忘記申報所得稅：請盡快洽國稅局',
- summary:'所得稅的申報與逾期處理，是國稅局的業務，縣府社會處無法代為處理。\n\n建議您盡快向協會所在地的國稅局（稽徵所）說明情形，詢問可以怎麼補報；協會也可以準備章程、立案證書和相關收支資料，一併帶去。',
- statutes:[],notes:[],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
+ return taxFilingAnswer81('late');
 }
 function teacherAssocSetup(t){
  if(!/(教師會|教師組織)/.test(t)||!/(申請|成立|籌組|設立|注意|辦理|怎麼|準備)/.test(t))return null;
@@ -2323,7 +2321,7 @@ function whoManagesMoney(t){
 function donationDeduct(t){
  if(!/(捐款|捐錢|捐贈|捐給)/.test(t)||!/(抵稅|扣除|節稅|報稅|扣抵|列舉)/.test(t)||/合作社|社員|匿名/.test(t))return null;
  return{direct:true,category:'人民團體財務',title:'捐款給協會能不能抵稅：要看協會是不是稅法上的公益團體，請向國稅局確認',
- summary:'不一定。捐款人報稅時能不能把捐款列舉扣除，是依所得稅法認定，不是由縣府社會處決定。一般來說，受贈的協會要是依法立案的教育、文化、公益、慈善團體，捐款人也要拿到協會開的正式收據。\n\n協會這邊要做的事：\n• 每一筆捐款都開正式收據、留存根（社會團體財務處理辦法第17條），寫明捐款人、金額、日期。\n• 捐款入協會的帳戶，列入年度決算。\n\n本站沒有收錄所得稅法的條文，扣除的條件和上限，請捐款人或協會直接向國稅局確認。',
+ summary:'不一定。捐款人報稅時能不能把捐款列舉扣除，是依所得稅法認定，不是由縣府社會處決定。一般來說，受贈的協會要是依法立案的教育、文化、公益、慈善團體，捐款人也要拿到協會開的正式收據。\n\n協會這邊要做的事：\n• 每一筆捐款都開正式收據、留存根（社會團體財務處理辦法第17條），寫明捐款人、金額、日期。\n• 捐款入協會的帳戶，列入年度決算。\n\n扣除的條件和上限，請捐款人或協會直接向國稅局確認。',
  statutes:[F(17)],notes:[],actions:[]};
 }
 
@@ -2674,25 +2672,15 @@ function patrol8(t){
  if(!org)return null;
  const TAXOFF='請向協會所在地的國稅局確認（財政部南區國稅局 0800-000-321）。';
  if(/(忘記|忘了|漏|逾期|來不及)/.test(t)&&/(報稅|申報)/.test(t)&&/(稅|所得)/.test(t)){const m=taxMissed(t);if(m)return m}
- if(/(統一發票|營業稅)/.test(t)&&!/合作社/.test(t)&&!/(勸募|募款|募捐|募集|募發票|捐發票|收集發票|愛心發票)/.test(t))
-  return Object.assign({},base,{category:'稅務',title:'協會要不要用統一發票、繳營業稅：這是國稅局的認定，縣府無法代答',
-  summary:'協會收會費、辦活動收報名費或賣東西，是否要辦稅籍登記、使用統一發票或繳營業稅，要看收入的性質（有沒有銷售貨物或勞務），這是稅捐稽徵機關的業務，縣府社會處沒有辦法代為認定。\n\n'+TAXOFF+'\n\n不管稅務怎麼認定，社會團體的經費收入都要開立正式收據並留存根備查（社會團體財務處理辦法第17條）。',
-  statutes:[F(17)]});
- if(/扣繳憑單|扣繳申報|各類所得/.test(t)&&/(什麼時候|何時|幾月|期限|截止|多久|要報|要交|怎麼報)/.test(t))
-  return Object.assign({},base,{category:'稅務與扣繳',title:'扣繳憑單的申報期限：請向國稅局確認',
-  summary:'協會如果有給付薪資、租金、講師費等所得，要辦理扣繳和申報；申報的期限和方式，依稅捐稽徵機關的規定，本站沒有收錄所得稅法的條文，不直接回答日期，以免您誤了期限。\n\n'+TAXOFF,statutes:[]});
  if(/(稅籍)/.test(t)&&/(理事長|負責人|會長|換人|改選|異動|變更|地址|搬)/.test(t))
   return Object.assign({},base,{category:'稅務與扣繳',title:'理事長換人或會址搬遷，稅籍或扣繳單位資料要不要改：請向國稅局辦理變更',
   summary:'協會還是同一個協會，原來的統一編號繼續使用；負責人或地址有變動時，稅籍或扣繳單位的資料要向國稅局辦理變更登記。\n\n建議先完成改選報備或會址變更報備、取得縣府的核備函，再帶著核備函、立案證書和新負責人的資料去國稅局辦理。\n\n'+TAXOFF,statutes:[]});
- if(/(房屋稅|地價稅|地方稅|契稅|使用牌照稅)/.test(t))
-  return Object.assign({},base,{category:'稅務',title:'協會的房屋稅、地價稅可不可以減免：屬地方稅，請洽稅捐稽徵機關',
-  summary:'房屋稅、地價稅等是地方稅，能不能減免、要準備什麼文件，由房屋或土地所在地的稅捐稽徵機關認定，縣府社會處無法代為回答，本站也沒有收錄相關稅法條文，不直接說可以或不可以。\n\n建議您帶著協會的立案證書、章程和房屋使用情形，直接向稅捐稽徵機關詢問。',statutes:[]});
+ if(/(地方稅|契稅|使用牌照稅)/.test(t))
+  return Object.assign({},base,{category:'稅務',title:'協會的契稅、使用牌照稅等地方稅可不可以減免：屬地方稅，請洽稅捐稽徵機關',
+  summary:'契稅、使用牌照稅等是地方稅，能不能減免、要準備什麼文件，由稅捐稽徵機關認定，縣府社會處無法代為回答，本站沒有收錄契稅條例和使用牌照稅法，不直接說可以或不可以（房屋稅、地價稅另有一則答案，已對條文核對）。\n\n建議您帶著協會的立案證書、章程和房屋使用情形，直接向稅捐稽徵機關詢問。',statutes:[]});
  if(/(捐款|捐贈|捐助)/.test(t)&&/(收據)/.test(t)&&/(國稅局|稅|申報)/.test(t)&&!/抵|扣除|減稅|節稅/.test(t))
   return Object.assign({},base,{category:'稅務',title:'捐款收據要不要送國稅局申報：請向國稅局確認',
-  summary:'協會收到捐款，依規定要開立正式收據並留存根備查（社會團體財務處理辦法第17條）。至於捐款資料要不要向國稅局申報、什麼時候申報，屬於稅務問題，本站沒有收錄所得稅法條文，不直接回答。\n\n'+TAXOFF,statutes:[F(17)]});
- if(/(年度結算|結算申報|零收入|沒有收入|沒收入)/.test(t)&&/(稅|申報)/.test(t))
-  return Object.assign({},base,{category:'稅務',title:'協會每年要不要向國稅局辦結算申報、沒收入還要不要報：請向國稅局確認',
-  summary:'協會要不要辦理所得稅結算申報、申報期限和方式，屬於稅捐稽徵機關的業務。免稅標準只規範哪些所得可以免納所得稅（教育文化公益慈善機關或團體免納所得稅適用標準第2條），不能直接推論「沒有收入就不用申報」，所以本站不直接回答。\n\n'+TAXOFF,statutes:[TX(2)]});
+  summary:'協會收到捐款，依規定要開立正式收據並留存根備查（社會團體財務處理辦法第17條）。至於捐款資料要不要向國稅局申報、什麼時候申報，本站收錄的所得稅法條文裡沒有找到要求受贈團體申報的規定，實際作法屬於稅務問題，不直接回答。\n\n'+TAXOFF,statutes:[F(17)]});
  if(/免稅/.test(t)&&/(免稅資格|誰核發|誰發|誰核准|誰審|誰決定|哪裡申請|去哪申請|向誰申請|找誰申請|怎麼申請|如何申請|怎麼辦理|要不要申請|要申請嗎)/.test(t))
   return Object.assign({},base,{category:'稅務',title:'免稅資格：符合免稅適用標準的團體，所得才免稅，是否符合由國稅局查核',
   summary:'協會不是自動免稅。依「教育文化公益慈善機關或團體免納所得稅適用標準」第2條，要符合立案、章程訂明解散後賸餘財產歸屬、不經營與目的無關的業務、收支有合法憑證和完備會計紀錄「經稽徵機關查核屬實」等條件，所得（銷售貨物或勞務的所得除外）才免納所得稅。\n\n是否符合、怎麼辦理，由國稅局認定，請向協會所在地的國稅局詢問（財政部南區國稅局 0800-000-321）。',
@@ -4598,6 +4586,7 @@ function patrol39(t){
  if(/(發票|統一發票)/.test(t)&&!/(統編|統一編號)/.test(t)&&/(義賣|營業收入|有收入|收入沒|沒開|不開|沒有開|買東西|買.{0,4}發票|進貨|採購|取得|索取|要不要)/.test(t)&&!/(合作社)/.test(t)){
   if(/(買東西|採購|進貨|取得|索取|花錢)/.test(t)&&!/(義賣|營業收入|有收入|收入沒|沒開|不開)/.test(t))
    return R('協會買東西要不要取得發票或收據：支出要有合法憑證，並保存','協會的財務收支要給與、取得及保存合法的憑證，並有完備的會計紀錄，這是免納所得稅適用標準第2條第9款的條件之一（財務收支還要經主管稽徵機關查核屬實）。所以買東西、付費用，請取得合法的發票或收據，貼在憑證黏存單上保存，不要只留一張自己寫的字條。哪一種憑證才算合法，請向國稅局確認。',[TX(2)]);
+  {const x=taxFiling81(t);if(x)return x;}
   return R('協會有營業收入或義賣要不要開發票：要看收入的性質，沒開發票的後果請洽國稅局','會費、沒有對價的捐贈，和銷售貨物或勞務（義賣商品、收費課程、門票、廣告）是不同性質的收入。有對價的銷售，不能改個名字叫「捐款」就當成沒有收入。要不要開統一發票或收據、沒開會有什麼責任，是國稅局的認定，本站沒有收錄相關罰則，不直接下結論。免納所得稅適用標準第3條另外規定：符合免稅條件的團體，銷售貨物或勞務的所得原則上要課稅。',[TX(3)]);
  }
  if(/(會費|常年費|入會費)/.test(t)&&/(抵稅|扣除|扣抵|列舉|節稅|報稅|列費用)/.test(t)&&!/(收據改|改開)/.test(t))
@@ -5931,6 +5920,87 @@ function patrol83(t){
   return again('解散要開什麼會');
  return null;
 }
+/* ===== 第81輪（稅務）：條文皆已對 data/statutes.json.gz 核對——所得稅法§71、§71-1、§89、§92、§110、§111、§114；營業稅法§3、§6、§8、§8-1、§28、§32、§35；稅捐稽徵法§47；房屋稅條例§4、§5、§15；土地稅法§6；土地稅減免規則§8、§24、§31；娛樂稅法§2、§3、§4；全民健康保險法§31、§33、§35；免納所得稅適用標準§2 ===== */
+const ITX81=n=>({title:'所得稅法第'+n+'條',source:LAW+'G0340003'});
+const VAT81=n=>({title:'加值型及非加值型營業稅法第'+n+'條',source:LAW+'G0340080'});
+const HOUSE81=n=>({title:'房屋稅條例第'+n+'條',source:LAW+'G0340102'});
+const LAND81=n=>({title:'土地稅法第'+n+'條',source:LAW+'G0340096'});
+const LANDR81=n=>({title:'土地稅減免規則第'+n+'條',source:LAW+'G0340098'});
+const AMUSE81=n=>({title:'娛樂稅法第'+n+'條',source:LAW+'G0340106'});
+const NHI81=n=>({title:'全民健康保險法第'+n+'條',source:LAW+'L0060001'});
+const TAXACT81=n=>({title:'稅捐稽徵法第'+n+'條',source:LAW+'G0340001'});
+const TAXOFF81='請向協會所在地的國稅局確認（財政部南區國稅局 0800-000-321）。';
+const T81=(title,summary,statutes,notes)=>({direct:true,category:'稅務',title,summary,statutes:statutes||[],notes:notes||[],actions:[{label:'聯絡承辦',view:'contact',sub:''}]});
+function taxFilingAnswer81(kind){
+ const base='要。所得稅法第71條之1第3項寫明：符合免稅條件的教育、文化、公益、慈善機關或團體（及其作業組織），也要依第71條辦理結算申報；不符合免稅條件的，仍要依法課稅。所以「免稅」是所得不用繳稅，不是不用申報。\n\n申報期間：每年5月1日到5月31日，申報上一年度的所得（所得稅法第71條）。\n\n沒有收入、沒有賺錢呢？條文裡「全年所得沒超過免稅額，可以免辦結算申報」這個例外，只寫給境內居住的「個人」（第71條第3項），沒有給協會這類團體的例外，所以不能自己認定沒收入就不用報。零收入怎麼申報、要附哪些表，請洽國稅局。\n\n是否符合免稅條件，是由稽徵機關查核：財務收支要有合法憑證、完備的會計紀錄，並經主管稽徵機關查核屬實（免納所得稅適用標準第2條第1項第9款）。';
+ const st=[ITX81(71),ITX81('71-1'),TX(2)];
+ if(kind==='late')return T81('協會忘記辦所得稅結算申報：期間是每年5月，逾期請盡快洽國稅局補報；有應課稅所得會被補稅並罰款',base+'\n\n忘記了、逾期了：納稅義務人沒有依規定辦理結算申報，經稽徵機關調查發現有依法應課稅的所得額，除了補稅，還要照補徵稅額處三倍以下罰鍰（所得稅法第110條第2項）。條文處罰的是「發現有應課稅所得」的情形；協會有沒有應課稅所得、怎麼補報，條文沒有寫，請盡快向國稅局說明。\n\n'+TAXOFF81,st.concat([ITX81(110)]));
+ if(kind==='yearly')return T81('免稅不用另外每年申請？條文只寫每年5月要辦結算申報，免稅條件由國稅局在申報時查核',base+'\n\n至於有沒有另外的「免稅申請」或備查表單：我查到的條文（所得稅法、免稅標準）只規定結算申報和稽徵機關查核，沒有另外訂每年申請免稅的手續；實際作業要不要附什麼文件，請洽國稅局。\n\n'+TAXOFF81,st);
+ if(kind==='overview')return T81('協會常見要向國稅局辦的申報：每年5月結算申報、每年1月給付所得的扣繳憑單，有銷售則要辦營業稅',base+'\n\n除了結算申報，協會還可能有兩類申報：\n1. 協會給付薪資、租金、講師費等所得，是扣繳義務人，每年1月底前要彙報扣繳憑單或免扣繳憑單，2月10日前發給對方（所得稅法第89條、第92條）。\n2. 協會有銷售貨物或勞務（例如義賣、收費課程），可能是營業稅法的「營業人」，要辦稅籍登記、開統一發票，並依期申報營業稅（營業稅法第6條、第28條、第32條、第35條）。\n以上要不要辦、怎麼辦，請洽國稅局。',st.concat([ITX81(89),ITX81(92),VAT81(6)]));
+ return T81('協會每年要辦所得稅結算申報：符合免稅條件也要申報，期間是每年5月1日到5月31日',base+'\n\n'+TAXOFF81,st);
+}
+function taxFiling81(t){
+ if(/合作社|社員|公司|商號|政黨|勸募|募款|募發票|捐發票|愛心發票|集發票|綜合所得|遺產|贈與|個人所得|我的所得|自己的所得/.test(t))return null;
+ if(!/(稅|發票|扣繳|憑單|補充保費|補充保險費|二代健保|稅籍|申報)/.test(t))return null;
+ const house=/房屋稅|地價稅|土地稅|田賦|地價/.test(t);
+ const home=/(住宅|住家|自用住宅|家裡|家中|自家|我家|理事長家|理事長的家|私人住宅)/.test(t);
+ /* 1 二代健保補充保費 */
+ if(/補充保費|補充保險費|二代健保/.test(t)&&!/員工|工作人員|投保|加保|退保/.test(t))
+  return T81('協會付講師費、兼職薪資、租金等，可能要扣二代健保補充保費：協會是扣費義務人，費率與起扣金額請洽健保署',
+   '依全民健康保險法第31條，保險對象有下列所得時，要依補充保險費率計收補充保險費，由「扣費義務人」在給付時扣取，並在給付日的次月底前向保險人繳納：\n1. 所屬投保單位給付、全年累計超過當月投保金額4倍的部分的獎金。\n2. 非所屬投保單位給付的薪資所得（例如兼職薪資）。\n3. 執行業務收入（例如講師的演講費）。\n4. 股利所得。\n5. 利息所得。\n6. 租金收入。\n單次給付超過1,000萬元的部分，以及沒有達到一定金額的，免予扣取。\n\n協會如果給付上面這些所得（例如請外面的講師、兼職人員，或付租金），就可能是扣費義務人。來不及在期限內繳納時，要先墊繳；逾期繳納要加徵滯納金（第31條、第35條）。\n\n補充保險費率由主管機關逐年公告（第33條），一定金額和扣繳方式由辦法訂定（第31條），本站沒有收錄這些辦法，所以不提供費率和起扣金額的數字，請洽中央健康保險署或國稅局確認。',
+   [NHI81(31),NHI81(33),NHI81(35)]);
+ /* 2 娛樂稅 */
+ if(/娛樂稅/.test(t))
+  return T81('協會辦活動要不要繳娛樂稅：只有舞廳、高爾夫球場和財政部公告的項目才課；公益團體辦的、收入全部作本事業用的免徵',
+   '娛樂稅只對三類課徵（娛樂稅法第2條）：舞廳或舞場、高爾夫球場，以及財政部公告屬提供娛樂場所、設施或活動的項目；課的是所收的票價或收費，納稅義務人是出錢娛樂的人，辦活動的一方是代徵人（第3條）。\n\n協會辦一般的研習、聯誼、旅遊或表演活動，是否屬財政部公告的項目，請洽稅捐稽徵機關確認。\n\n就算屬於課稅項目，下面兩種免徵（第4條）：\n1. 教育、文化、公益、慈善團體，合於公益社團組織或依法向主管機關登記、立案的，所舉辦的各種娛樂，全部收入作為本事業之用。\n2. 機關、團體、公私事業或學校等對內舉辦的臨時性文康活動，不以任何方式收取費用。\n\n是否符合，由稽徵機關認定。',
+   [AMUSE81(2),AMUSE81(3),AMUSE81(4)]);
+ /* 3 房屋稅、地價稅 */
+ if(house&&/寺廟|宗教|教會|宮廟|基金會|財團|私立學校|公司|店面|營業/.test(t))return null;
+ if(house&&!/協會|社團|團體|學會|促進會|本會|我們|會址|會所|理事長|會員|辦公|人民團體/.test(t))return null;
+ if(house&&home){const h=homeAsOfficeTax(t);if(h){h.direct=true;return h}}
+ if(house){
+  const wantHouse=/房屋稅/.test(t),wantLand=/地價稅|土地稅|田賦|地價/.test(t);
+  const hs='【房屋稅】\n房屋稅條例第15條第1項第5款：不以營利為目的、並經政府核准的公益社團，「自有」供辦公使用的房屋，免徵房屋稅。但以同業、同鄉、同學或宗親社團為受益對象的，除了依工會法組成的工會（要由稽徵機關報縣府核准）以外，不予免徵。\n重點有三個：\n• 要是協會「自有」的房屋。房屋稅向房屋所有人徵收（第4條），協會租來、借來的會址，納稅義務人是房東；房東住址不明或不住在當地、房屋是出租的，由承租人代繳、抵扣房租（第4條第3項）。\n• 要供辦公使用，不是辦公用途的部分不在免徵範圍；同一棟房屋同時作住家和非住家使用的，依實際使用面積分別課徵，非住家用的課稅面積最低不得少於全部面積的六分之一（第5條第1項第3款）。\n• 沒有符合免徵條件的，供人民團體等非營業使用的房屋，稅率最低1.5%、最高2.5%（第5條第1項第2款），由縣市政府在範圍內訂定。';
+  const ls='【地價稅】\n土地稅法第6條：慈善或公益事業等所使用的土地，得予適當的減免，標準由行政院訂定。土地稅減免規則第8條第5款：經事業主管機關核准設立的社會救濟慈善，及其他為促進公眾利益、不以營利為目的，且不以同業、同鄉、同學、宗親成員或其他特定之人為主要受益對象的事業，其本身事業用地全免；但屬於「促進公眾利益」的事業，除了經稽徵機關報縣府核准免徵者以外，要辦妥財團法人登記，或是財團法人所興辦，且土地為該財團法人所有。\n重點：\n• 減免不是自動的，要申請：每年（期）地價稅開徵40日前提出；逾期申請的，從申請的次年（期）起減免（土地稅減免規則第24條）。\n• 核准後每年會查，沒有照原申請用途使用、兼營私人謀利、土地收益沒有全部用在該事業等，會撤銷或廢止減免（第31條）。\n• 沒有辦財團法人登記的協會，能不能適用，要看稽徵機關是否報縣府核准，條文沒有直接給答案。';
+  const body=(wantHouse&&wantLand?hs+'\n\n'+ls:wantHouse?hs:ls)+'\n\n協會是否符合、要附什麼文件、怎麼申請，由稅捐稽徵機關認定，請帶著立案證書、章程和房地使用情形，向房屋或土地所在地的稅捐稽徵機關詢問。';
+  const st=[];
+  if(wantHouse)st.push(HOUSE81(15),HOUSE81(4),HOUSE81(5));
+  if(wantLand)st.push(LAND81(6),LANDR81(8),LANDR81(24),LANDR81(31));
+  const title=wantHouse&&wantLand?'協會的房屋稅、地價稅：自有辦公的公益社團房屋可免徵房屋稅，地價稅可申請減免，都不是自動的'
+   :wantHouse?'協會的房屋稅：自有、辦公用的公益社團房屋免徵，租來借來的不適用，同業、同鄉等社團除工會外不免'
+   :'協會的地價稅：公益事業用地可以申請減免，但要先申請，每年開徵40日前提出';
+  return T81(title,body,st,['契稅、使用牌照稅等其他地方稅，本站沒有收錄條文，請洽稅捐稽徵機關。']);
+ }
+ /* 4 扣繳憑單期限 */
+ if(/(扣繳|憑單)/.test(t)&&/(什麼時候|何時|幾月|幾號|幾日|期限|截止|多久|要報|要交|怎麼報|逾期|晚報|沒報)/.test(t)&&!/(率|多少|幾%|百分)/.test(t))
+  return T81('扣繳稅款和扣繳憑單的期限：每月10日前繳上個月的稅款，每年1月底前申報，2月10日前發給對方',
+   '協會給付薪資、租金、利息、執行業務報酬（例如講師的演講費）等所得，是扣繳義務人（所得稅法第88條、第89條）。依第92條：\n1. 扣下來的稅款，要在每月10日前，把上一個月內扣的稅款繳到國庫。\n2. 每年1月底前，把上一年扣繳各人的稅款，開具扣繳憑單，彙報稽徵機關；2月10日前，把扣繳憑單發給對方。\n3. 因為沒有達到起扣點等原因，沒有扣稅的所得，也要在每年1月底前，把受領人姓名、住址、身分證字號和全年給付金額列單申報，2月10日前填發免扣繳憑單（第89條第3項）。\n4. 1月遇到連續3天以上的國定假日時，申報延到2月5日，填發延到2月15日。\n5. 協會有解散、廢止、合併、變更等情形時，要隨時填發，並在10日內向稽徵機關申報（第92條第1項、第89條第3項）。\n\n沒有依限辦理的後果：已扣稅款卻沒有依期限按實填報或填發扣繳憑單的，限期責令補報或填發，並處1,500元以上2萬元以下罰鍰；逾期繳納所扣稅款，要加徵滯納金（第114條）。免扣繳憑單沒有依限申報或填發的，處1,500元以上2萬元以下罰鍰並限期補報，屆期未補報的，處3,000元以上9萬元以下罰鍰（第111條第2項）。\n\n扣繳率、起扣點等，所得稅法授權財政部訂定（第88條），本站不提供數字，請洽國稅局。',
+   [ITX81(88),ITX81(89),ITX81(92),ITX81(114),ITX81(111)]);
+ /* 5 發票、營業稅、稅籍 */
+ if(/(發票|營業稅|稅籍)/.test(t)&&!/(捐款|捐贈|捐助|抵稅|扣除|收據改|改開|買東西|買日常|採購|進貨|索取|核銷|核帳|報帳|補助|抬頭|保存|保管|沒發票|只有收據|憑證|換人|改選|搬|遷|變更|統編|統一編號)/.test(t)){
+  const fee=/(會費|常年費|入會費)/.test(t);
+  const feeP='【收會費】\n營業稅法把「非以營利為目的的團體，有銷售貨物或勞務」也列為營業人（第6條第2款）；銷售勞務是指提供勞務給他人、以取得代價（第3條第2項）。會費算不算這種「代價」，條文沒有直接寫，要由國稅局依實際情形認定，本站不替您下結論。工會、商業會、工業會依法經營、銷售給會員的貨物或勞務，條文有免稅規定（第8條第1項第11款），一般的協會沒有這一款。';
+  const sellP='【賣東西、義賣、收費課程、收報名費】\n• 有銷售貨物或勞務，就是營業稅法的營業人（第6條第2款），開始營業前，要向主管稽徵機關申請稅籍登記（第28條）。\n• 銷售貨物或勞務，要開統一發票交給買受人；營業性質特殊的營業人和小規模營業人，可以改開普通收據、免用統一發票（第32條）。\n• 營業人不論有沒有銷售額，每兩個月為一期，要在次期開始15日內向稽徵機關申報（第35條）。\n• 免徵營業稅的情形，例如：依法組織的慈善救濟事業義賣的貨物、舉辦的義演，收入除了必要費用外，全部用在該事業本身（第8條第1項第12款）；依法經主管機關許可設立的社會福利團體，提供的社會福利勞務（第4款）。協會的義賣或課程屬不屬於這些免稅項目，要由國稅局認定。';
+  const tail='\n\n另外，所得稅是另一回事：符合免稅條件的協會，銷售貨物或勞務的所得，原則上還是要課所得稅（免納所得稅適用標準第3條）。不管稅務怎麼認定，協會的經費收入都要開正式收據並留存根備查（社會團體財務處理辦法第17條）。\n\n'+TAXOFF81;
+  const title=fee?'協會收會費要不要開發票、繳營業稅：條文沒有直接寫，關鍵是有沒有「取得代價」的銷售，請洽國稅局確認'
+   :'協會有銷售貨物或勞務，就是營業稅的營業人：要辦稅籍登記、開統一發票，部分情形免稅';
+  return T81(title,(fee?feeP+'\n\n'+sellP:sellP+'\n\n'+feeP)+tail,[VAT81(6),VAT81(3),VAT81(28),VAT81(32),VAT81(35),VAT81(8),TX(3),F(17)]);
+ }
+ /* 6 稅由誰負責 */
+ if(/(稅|報稅|扣繳|申報|稅務)/.test(t)&&/(誰負責|誰要負責|誰來報|誰去報|誰要報|誰報|誰的責任|責任是誰|責任在誰|責任歸誰|誰辦|誰處理|誰要擔|誰擔責任)/.test(t)&&!/(問|找|洽|哪裡|哪個單位)/.test(t))
+  return T81('協會的稅由協會本身申報；違反稅法要負刑責時，是對外代表協會的理事長，或實際負責業務的人',
+   '協會申報所得稅、辦理扣繳，納稅義務人和扣繳義務人都是協會這個團體本身（所得稅法第71條、第89條），不是理事長個人的稅。\n\n但是違反稅法要處刑罰時，稅捐稽徵法第47條把「民法或其他法律規定對外代表法人的董事或理事」，以及「其他非法人團體的代表人或管理人」列為適用對象；這個人和實際負責業務的人不同時，以實際負責業務的人為準。所以依條文，是對外代表協會的理事長，或實際經辦、負責業務的人要負責。\n\n平常報稅、扣繳憑單由誰辦，要看章程或內部分工；稅務細節請洽國稅局。',
+   [ITX81(71),ITX81(89),TAXACT81(47)]);
+ /* 7 每年申請免稅 */
+ if(/免稅/.test(t)&&/(每年|年年|每一年|逐年)/.test(t)&&/(申請|辦|審|核|報)/.test(t))return taxFilingAnswer81('yearly');
+ /* 8 結算申報、報稅 */
+ if(/(報稅|報所得稅|所得稅申報|申報所得稅|結算申報|年度結算|零收入|申報期限|報稅期限|申報什麼|報什麼|報哪些|申報哪些|要申報嗎|要不要申報|還要申報|需要申報|需不需要申報|有申報|(不用|免|不必|不需要|無需)(再)?(申報|報稅|報))/.test(t)&&!/(扣繳|憑單|薪|租金|利息|講師|車馬|志工|出席費|津貼|獎金|捐|補助|營業)/.test(t)){
+  if(/(忘記|忘了|漏|逾期|來不及|沒報|沒有報|被罰|罰款|罰鍰|處罰|會罰|補報)/.test(t))return taxFilingAnswer81('late');
+  if(/(什麼|哪些|哪幾|有哪|報什麼|申報什麼)/.test(t))return taxFilingAnswer81('overview');
+  return taxFilingAnswer81('base');
+ }
+ return null;
+}
 function verifiedRoundAnswer(q,ctx){
  const t=norm(q);
  const representativeAssembly=coopRepresentativeAssembly(t);
@@ -5939,7 +6009,7 @@ function verifiedRoundAnswer(q,ctx){
   const guildCharter=charterAmendment(t);
   if(guildCharter)return guildCharter;
  }
- return patrol83(t)||patrol82(t)||patrol81(t)||patrol80(t)||patrol79(t)||patrol78(t)||patrol77(t)||patrol76(t)||patrol75(t)||patrol74(t)||patrol73(t)||patrol72(t)||patrol71(t)||patrol70(t)||patrol69(t)||patrol68(t)||patrol67(t)||patrol66(t)||patrol65(t)||patrol64(t)||patrol63(t)||patrol62(t)||patrol61(t)||patrol60(t)||patrol59(t)||patrol58(t)||patrol57(t)||patrol56(t)||patrol55(t)||patrol54(t)||patrol53(t)||patrol52(t)||patrol51(t)||patrol50(t)||patrol49(t)||patrol48(t)||chairTermGeneral(t)||patrol47(t)||patrol46(t)||patrol45(t)||patrol44(t)||patrol43(t)||patrol42(t)||patrol41(t)||patrol40(t)||patrol39(t)||patrol38(t)||patrol37(t)||patrol36(t)||patrol35(t)||patrol34(t)||patrol33(t)||patrol32(t)||patrol31(t)||patrol30(t)||patrol29(t)||patrol28(t)||patrol27(t)||patrol26(t)||patrol25(t)||patrol24(t)||patrol23(t)||patrol22(t)||patrol21(t)||patrol20(t)||patrol19(t)||patrol18(t)||patrol17(t)||patrol15(t)||patrol16(t)||patrol14(t)||intlGroupElection(t)||patrol13(t)||patrol11(t)||patrol10(t)||patrol9(t)||patrol8(t)||patrol7(t)||memberStaffPatrol6(t)||communityPatrol(t)||dissolveCharterPatrol(t)||financePatrol(t)||membershipPatrol(t)||formTemplates(t,ctx&&ctx.catalog)||(/^(協會|社區發展協會|我們協會|本會)?的?(理事|監事|理監事)(和監事|跟監事)?(要)?(怎麼選|怎麼產生|如何產生|誰選)/.test(t)?electionHowTo(t):null)||attendanceFeeCan(t)||joinManyGroups(t)||chairReplaceMidTerm(t)||charterItemChange(t)||resolutionOverturn(t)||staffInsurance(t)||intlGroupWho(t)||moneyMisuse(t)||supervisorNoMeeting(t)||rosterView(t)||whoManagesMoney(t)||donationDeduct(t)||annualAccountsHowTo(t)||boardMeetingHowTo(t)||memberQuitHowTo(t)||viceChair(t)||motionSecond(t)||assocLoan(t)||yearEndBonus(t)||entertainmentExpense(t)||englishName(t)||minorOfficer(t)||assocInvest(t)||candidateDeposit(t)||chairAndRecorder(t)||facebookGroup(t)||rulingRules(t)||byElection(t)||receiptsBasic(t)||memberRepThreshold(t)||officerResignHow(t)||finalAccountsWho(t)||publicServantOfficer(t)||relativesAsOfficers(t)||mergeGroups(t)||govCommission(t)||conveneAndPetition(t)||assemblyPrepAndSignIn(t)||whatNeedsAssembly(t)||feeAndMemberStatus(t)||directorMustBeMember(t)||auditAndYear(t)||reorganization(t)||staffResignReport(t)||videoElection(t)||subsidyDetails(t)||subsidyBasics(t)||taxWithholding(t)||commercialGuild(t)||memberSuspension(t)||meetingProcedure(t)||solicitationAfter(t)||coopMore(t)||communityMore(t)||outOfScope(t)||whichAuthority(t)||volunteerMore(t)||submitWhere(t)||timeDeposit(t)||nonCompliance(t)||memberEligibilityOutside(t)||annualMeetings(t)||chairTermLimit(t)||assemblyQuorum(t)||urgentMeetingNotice(t)||directorVacancy(t)||recallOfficer(t)||boardResolution(t)||annualFinanceFiling(t)||receiptAndWithdraw(t)||charterContents(t)||dissolveVote(t)||sealMake(t)||memberOnlyFundraising(t)||communityBasics(t)||countyPhone(t)||advisorAppoint(t)||sealKeeper(t)||assocTravel(t)||activityReport(t)||assocFund(t)||officerAsFinanceStaff(t)||electionShowOfHands(t)||directorProxyVote(t)||memberAdmissionWho(t)||memberRosterReport(t)||attendanceFeeAmount(t)||auditByCPA(t)||financeAnnounce(t)||coopBasics(t)||foundingCost(t)||prepMeetingCount(t)||assemblyShortOfQuorum(t)||twoCommunityAssociations(t)||villageChiefAsChair(t)||intlTermStart(t)||charmCommunityContact(t)||groupTypeDifference(t)||directorAbsence(t)||chairElectionMethod(t)||officerNumbers(t)||meetingNoticeChannel(t)||budgetHowTo(t)||renameGroup(t)||certificateLost(t)||dormantGroup(t)||lookupRegistered(t)||coopWithdraw(t)||termLengthLimit(t)||assemblyAgenda(t)||teacherAssocSetup(t)||commercialGroupSetup(t)||alumniSetup(t)||boardAgenda(t)||assetScrap(t)||taxMissed(t)||officeAtHome(t)||communityAreaSplit(t)||officeMove(t)||crossCountyEvent(t)||dissolvedAssets(t)||groupNameDuplicate(t)||standingDirectorCount(t)||memberViewAccounts(t)||howToReportGroup(t)||groupReported(t)||anonymousDonation(t)||chairRelativeStaff(t)||minorJoinAssoc(t)||volunteerTopics(t)||volunteerTeam(t)||memberCourseFee(t)||staffMustBeMember(t)||chairFundraising(t)||boardBelowHalf(t)||assocMayNotMeet(t)||assocNurseryCenter(t)||assocCareStation(t)||assocDonateGoods(t)||assocGovTender(t)||subsidySettlement(t)||corpRegistration(t)||assocBoardPay(t)||financeStaffConcurrent(t)||staffHiring(t)||coopVsAssocAccountingForms(t)||coopBalanceSheetReport(t)||delegateQuotaCalculation(t)||delegateConcurrentRole(t)||onlineVoting(t)||mailVoting(t)||assemblyVotingMethod(t)||boardVotingMethodDetail(t)||delegateElectionProcess(t)||delegateAssemblyRules(t)||coopMemberRemoval(t)||coopAdvertisingTaxability(t)||coopLoanToMemberTax(t)||coopBankLoanProcedure(t)||coopBankLoan(t)||branchAccountingPractice(t)||memberDelegateElection(t)||branchOrgSetup(t)||delegateProposalProcess(t)||annualMeetingVsAssembly(t)||vacancyQuorum(t)||supervisorConvenerNoMeeting(t)||supervisorMinimumMembers(t)||supervisorChairmanElection(t)||supervisorAuditPowers(t)||branchOrgAccounting(t)||runClassesPermit(t)||residentialCarePermit(t)||chairConvicted(t)||chairDismissStaff(t)||chairDissolve(t)||homeAsOfficeTax(t)||nonprofitTaxThreshold(t)||sameAddressGroups(t)||chairStaffConflict(t)||orgDisposeProperty(t)||orgAcquireEquipment(t)||sellGoodsAllowed(t)||staffActingChair(t)||p2MembershipFee(t)||p2BoardNotice(t)||p2RecordRetention(t)||p2CharterAmend(t)||p2SupervisorAudit(t)||p2CoopShares(t)||p2FoundingMeeting(t)||p2ElectionPrep(t)||p2MinutesContent(t)||p2DelegateSystem(t)||chairAbandonsOffice(t)||chairOtherGroupPosition(t)||chairSpendWithoutBoard(t)||supervisorSpend(t)||supervisorActingChair(t)||candidateSeatCount(t)||ballotRetention(t)||officerResignation(t)||invalidBallotReason(t)||delegateQualification(t)||substitutionOrder(t)||byElectionThreshold(t)||coopChairReelection(t)||chairmanReelectionLimit(t)||chairmanAbsence(t)||recordRetentionPeriod(t)||advertisingIncome(t)||staffBankAccountSetup(t)||meetingSigninDuration(t)||meetingVotingMethod(t)||preElectionBoardMeeting(t)||electionEffectiveDate(t)||politicalDonation(t)||communityReportingRequirements(t)||communityYearlyPlanDeadline(t)||communityVsAssociationDifferences(t)||supervisorAsDirector(t)||newChairTodo(t)||postElectionAccountingDeadline(t)||electionReportDeadline(t)||checkSignature(t)||feePeriods(t)||feeDeferral(t)||threeMonthsWording(t)||electionCandidates(t)||electionObjection(t)||minutesDeadline(t)||coopBoardQuorum(t)||coopTax(t)||communityRename(t)||communityReportTownship(t)||addressCertificate(t)||bankChairChange(t)||eventFee(t)||communityChairTerm(t)||invalidBallot(t)||feeAmount(t)||personalAccount(t)||delegateAssembly(t)||noSupervisor(t)||foundingDocs(t)||investStocks(t)||membershipRefused(t)||coopCapital(t)||receiveDonation(t)||hireEmployee(t)||lendToChair(t)||branchOrg(t)||supervisorMeeting(t)||noAnnualMeeting(t)||chairSpendingAuth(t)||communityVsGeneral(t)||coopDissolutionProperty(t)||charterAmendment(t)||coopSupervisorAudit(t)||publicSolicitation(t)||decisionRevoked(t)||chairResign(t)||memberExpulsion(t)||sealChange(t)||noHandover(t)||communityDissolutionProperty(t)||boardFinanceAgenda(t)||boardQuorumGeneral(t)||delegated(t)||chairNoMeeting(t)||feeAnswer(t)||coopAssemblyQuorum(t)||proxyCount(t)||concurrent(t)||financeQuestioned(t)||financeDeadline(t)||meetingFrequency(t)||videoMeeting(t)||coopMinimum(t)||financeForms(t)||formsDownload(t,ctx&&ctx.catalog)||dissolutionHowTo(t)||null||chairChangeTodo(t)||electionHowTo(t)||meetingHowTo(t);
+ return taxFiling81(t)||patrol83(t)||patrol82(t)||patrol81(t)||patrol80(t)||patrol79(t)||patrol78(t)||patrol77(t)||patrol76(t)||patrol75(t)||patrol74(t)||patrol73(t)||patrol72(t)||patrol71(t)||patrol70(t)||patrol69(t)||patrol68(t)||patrol67(t)||patrol66(t)||patrol65(t)||patrol64(t)||patrol63(t)||patrol62(t)||patrol61(t)||patrol60(t)||patrol59(t)||patrol58(t)||patrol57(t)||patrol56(t)||patrol55(t)||patrol54(t)||patrol53(t)||patrol52(t)||patrol51(t)||patrol50(t)||patrol49(t)||patrol48(t)||chairTermGeneral(t)||patrol47(t)||patrol46(t)||patrol45(t)||patrol44(t)||patrol43(t)||patrol42(t)||patrol41(t)||patrol40(t)||patrol39(t)||patrol38(t)||patrol37(t)||patrol36(t)||patrol35(t)||patrol34(t)||patrol33(t)||patrol32(t)||patrol31(t)||patrol30(t)||patrol29(t)||patrol28(t)||patrol27(t)||patrol26(t)||patrol25(t)||patrol24(t)||patrol23(t)||patrol22(t)||patrol21(t)||patrol20(t)||patrol19(t)||patrol18(t)||patrol17(t)||patrol15(t)||patrol16(t)||patrol14(t)||intlGroupElection(t)||patrol13(t)||patrol11(t)||patrol10(t)||patrol9(t)||patrol8(t)||patrol7(t)||memberStaffPatrol6(t)||communityPatrol(t)||dissolveCharterPatrol(t)||financePatrol(t)||membershipPatrol(t)||formTemplates(t,ctx&&ctx.catalog)||(/^(協會|社區發展協會|我們協會|本會)?的?(理事|監事|理監事)(和監事|跟監事)?(要)?(怎麼選|怎麼產生|如何產生|誰選)/.test(t)?electionHowTo(t):null)||attendanceFeeCan(t)||joinManyGroups(t)||chairReplaceMidTerm(t)||charterItemChange(t)||resolutionOverturn(t)||staffInsurance(t)||intlGroupWho(t)||moneyMisuse(t)||supervisorNoMeeting(t)||rosterView(t)||whoManagesMoney(t)||donationDeduct(t)||annualAccountsHowTo(t)||boardMeetingHowTo(t)||memberQuitHowTo(t)||viceChair(t)||motionSecond(t)||assocLoan(t)||yearEndBonus(t)||entertainmentExpense(t)||englishName(t)||minorOfficer(t)||assocInvest(t)||candidateDeposit(t)||chairAndRecorder(t)||facebookGroup(t)||rulingRules(t)||byElection(t)||receiptsBasic(t)||memberRepThreshold(t)||officerResignHow(t)||finalAccountsWho(t)||publicServantOfficer(t)||relativesAsOfficers(t)||mergeGroups(t)||govCommission(t)||conveneAndPetition(t)||assemblyPrepAndSignIn(t)||whatNeedsAssembly(t)||feeAndMemberStatus(t)||directorMustBeMember(t)||auditAndYear(t)||reorganization(t)||staffResignReport(t)||videoElection(t)||subsidyDetails(t)||subsidyBasics(t)||taxWithholding(t)||commercialGuild(t)||memberSuspension(t)||meetingProcedure(t)||solicitationAfter(t)||coopMore(t)||communityMore(t)||outOfScope(t)||whichAuthority(t)||volunteerMore(t)||submitWhere(t)||timeDeposit(t)||nonCompliance(t)||memberEligibilityOutside(t)||annualMeetings(t)||chairTermLimit(t)||assemblyQuorum(t)||urgentMeetingNotice(t)||directorVacancy(t)||recallOfficer(t)||boardResolution(t)||annualFinanceFiling(t)||receiptAndWithdraw(t)||charterContents(t)||dissolveVote(t)||sealMake(t)||memberOnlyFundraising(t)||communityBasics(t)||countyPhone(t)||advisorAppoint(t)||sealKeeper(t)||assocTravel(t)||activityReport(t)||assocFund(t)||officerAsFinanceStaff(t)||electionShowOfHands(t)||directorProxyVote(t)||memberAdmissionWho(t)||memberRosterReport(t)||attendanceFeeAmount(t)||auditByCPA(t)||financeAnnounce(t)||coopBasics(t)||foundingCost(t)||prepMeetingCount(t)||assemblyShortOfQuorum(t)||twoCommunityAssociations(t)||villageChiefAsChair(t)||intlTermStart(t)||charmCommunityContact(t)||groupTypeDifference(t)||directorAbsence(t)||chairElectionMethod(t)||officerNumbers(t)||meetingNoticeChannel(t)||budgetHowTo(t)||renameGroup(t)||certificateLost(t)||dormantGroup(t)||lookupRegistered(t)||coopWithdraw(t)||termLengthLimit(t)||assemblyAgenda(t)||teacherAssocSetup(t)||commercialGroupSetup(t)||alumniSetup(t)||boardAgenda(t)||assetScrap(t)||taxMissed(t)||officeAtHome(t)||communityAreaSplit(t)||officeMove(t)||crossCountyEvent(t)||dissolvedAssets(t)||groupNameDuplicate(t)||standingDirectorCount(t)||memberViewAccounts(t)||howToReportGroup(t)||groupReported(t)||anonymousDonation(t)||chairRelativeStaff(t)||minorJoinAssoc(t)||volunteerTopics(t)||volunteerTeam(t)||memberCourseFee(t)||staffMustBeMember(t)||chairFundraising(t)||boardBelowHalf(t)||assocMayNotMeet(t)||assocNurseryCenter(t)||assocCareStation(t)||assocDonateGoods(t)||assocGovTender(t)||subsidySettlement(t)||corpRegistration(t)||assocBoardPay(t)||financeStaffConcurrent(t)||staffHiring(t)||coopVsAssocAccountingForms(t)||coopBalanceSheetReport(t)||delegateQuotaCalculation(t)||delegateConcurrentRole(t)||onlineVoting(t)||mailVoting(t)||assemblyVotingMethod(t)||boardVotingMethodDetail(t)||delegateElectionProcess(t)||delegateAssemblyRules(t)||coopMemberRemoval(t)||coopAdvertisingTaxability(t)||coopLoanToMemberTax(t)||coopBankLoanProcedure(t)||coopBankLoan(t)||branchAccountingPractice(t)||memberDelegateElection(t)||branchOrgSetup(t)||delegateProposalProcess(t)||annualMeetingVsAssembly(t)||vacancyQuorum(t)||supervisorConvenerNoMeeting(t)||supervisorMinimumMembers(t)||supervisorChairmanElection(t)||supervisorAuditPowers(t)||branchOrgAccounting(t)||runClassesPermit(t)||residentialCarePermit(t)||chairConvicted(t)||chairDismissStaff(t)||chairDissolve(t)||homeAsOfficeTax(t)||nonprofitTaxThreshold(t)||sameAddressGroups(t)||chairStaffConflict(t)||orgDisposeProperty(t)||orgAcquireEquipment(t)||sellGoodsAllowed(t)||staffActingChair(t)||p2MembershipFee(t)||p2BoardNotice(t)||p2RecordRetention(t)||p2CharterAmend(t)||p2SupervisorAudit(t)||p2CoopShares(t)||p2FoundingMeeting(t)||p2ElectionPrep(t)||p2MinutesContent(t)||p2DelegateSystem(t)||chairAbandonsOffice(t)||chairOtherGroupPosition(t)||chairSpendWithoutBoard(t)||supervisorSpend(t)||supervisorActingChair(t)||candidateSeatCount(t)||ballotRetention(t)||officerResignation(t)||invalidBallotReason(t)||delegateQualification(t)||substitutionOrder(t)||byElectionThreshold(t)||coopChairReelection(t)||chairmanReelectionLimit(t)||chairmanAbsence(t)||recordRetentionPeriod(t)||advertisingIncome(t)||staffBankAccountSetup(t)||meetingSigninDuration(t)||meetingVotingMethod(t)||preElectionBoardMeeting(t)||electionEffectiveDate(t)||politicalDonation(t)||communityReportingRequirements(t)||communityYearlyPlanDeadline(t)||communityVsAssociationDifferences(t)||supervisorAsDirector(t)||newChairTodo(t)||postElectionAccountingDeadline(t)||electionReportDeadline(t)||checkSignature(t)||feePeriods(t)||feeDeferral(t)||threeMonthsWording(t)||electionCandidates(t)||electionObjection(t)||minutesDeadline(t)||coopBoardQuorum(t)||coopTax(t)||communityRename(t)||communityReportTownship(t)||addressCertificate(t)||bankChairChange(t)||eventFee(t)||communityChairTerm(t)||invalidBallot(t)||feeAmount(t)||personalAccount(t)||delegateAssembly(t)||noSupervisor(t)||foundingDocs(t)||investStocks(t)||membershipRefused(t)||coopCapital(t)||receiveDonation(t)||hireEmployee(t)||lendToChair(t)||branchOrg(t)||supervisorMeeting(t)||noAnnualMeeting(t)||chairSpendingAuth(t)||communityVsGeneral(t)||coopDissolutionProperty(t)||charterAmendment(t)||coopSupervisorAudit(t)||publicSolicitation(t)||decisionRevoked(t)||chairResign(t)||memberExpulsion(t)||sealChange(t)||noHandover(t)||communityDissolutionProperty(t)||boardFinanceAgenda(t)||boardQuorumGeneral(t)||delegated(t)||chairNoMeeting(t)||feeAnswer(t)||coopAssemblyQuorum(t)||proxyCount(t)||concurrent(t)||financeQuestioned(t)||financeDeadline(t)||meetingFrequency(t)||videoMeeting(t)||coopMinimum(t)||financeForms(t)||formsDownload(t,ctx&&ctx.catalog)||dissolutionHowTo(t)||null||chairChangeTodo(t)||electionHowTo(t)||meetingHowTo(t);
 }
 const api={normalizeQuestion,withContext,verifiedRoundAnswer};
 if(typeof module!=='undefined'&&module.exports)module.exports=api;
