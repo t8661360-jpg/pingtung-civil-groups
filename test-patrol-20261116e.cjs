@@ -15,4 +15,7 @@ if(/不能由理事會指定支持者/.test(kb)){console.error('KB 指定支持�
  for(const [c,n,a] of [['B0000001','民法','148'],['I0050021','個人資料保護法','1'],['G0340091','印花稅法','1']]){const l=d.laws[c];if(!l||l.name!==n||!l.articles[a]){console.error('missing law',n);bad++;}}}
 {const x=r.verifiedRoundAnswer(r.normalizeQuestion('理事會可以舉手表決嗎'),{});if(!x||!/非法規規定|常見/.test(x.summary)){console.error('舉手 label');bad++;}}
 if(!/300人也可以適用/.test(kb)){console.error('300');bad++;}
+
+for(const q of ['公職人員可以兼任社區發展協會理事長嗎','有公職身分能當社區發展協會理事長嗎']){const x=r.verifiedRoundAnswer(r.normalizeQuestion(q),{});if(!x||!x.direct||!/第15條第4項/.test(x.summary)||/要點第10點/.test(JSON.stringify(x))){console.error('FAIL 公職',q);bad++;}}
+{const x=r.verifiedRoundAnswer(r.normalizeQuestion('里長可以當社區發展協會理事長嗎'),{});if(/要點第10點|工作要點第10/.test(JSON.stringify(x))){console.error('要點第10點 still');bad++;}}
 if(bad)throw new Error('patrol67 failed '+bad);console.log('ok');

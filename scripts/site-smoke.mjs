@@ -2,6 +2,7 @@
 import { chromium } from 'playwright';
 const BASE = (process.env.BASE_URL || 'https://t8661360-jpg.github.io/pingtung-civil-groups/').replace(/\/?$/, '/');
 const CHECKS = [
+  ['公職人員可以兼任社區發展協會理事長嗎', '不能一概說可以或不可以'],   // 公務員服務法第15條、利益衝突迴避法第3、14條
   ['理事會可以舉手表決嗎', '非法規規定'],   // 覆核：實務建議加標籤
   ['大會可以臨時動議修改章程嗎', '要看通知、議程和章程'],   // 覆核：臨時動議衝突答案改保守分流
   ['臨時動議可以罷免理事嗎', '要看通知、議程和章程'],
