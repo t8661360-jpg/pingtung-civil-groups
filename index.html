@@ -639,9 +639,9 @@ const KB=[
   laws:["pg20","zc20","zc15"],notes:["選後多久要報？社會處範本沒有寫明天數，建議開完會儘快函報；如有特定期限，以承辦人通知為準。","理事、監事除法律另有規定或章程另有限制外，連選得連任；理事長連任以一次為限。","有辦法人登記的，改選後也要向法院辦理理事變更登記。"],
   act:[["下載改選書表","forms","改選"],["看改選流程","meet","m-elect"]]},
  {k:["會址","搬家","遷移","地址變更","換地址","變更會址","會址變更"],cat:"會務辦理",title:"會址怎麼變更",
-  summary:"會址變更不用開會員大會，開理監事聯席會議決議就可以。新會址面積不能少於 30 平方公尺，而且要有一年以上的使用權證明（租約或借用同意書）。",
-  steps:["召開理監事聯席會議，提案「變更本會會址設立地點」並決議通過。","準備新會址使用同意書：寫明地址、地號、坪數、借用期間，由房屋出借人、見證人、理事長簽章。","用「專案呈報會址變更」公文，檢附會議紀錄、會址使用同意書各一式二份報縣府備查。","有法人登記的，另向法院辦理變更登記；也記得通知國稅局、銀行更新地址。"],
-  guide:["公文主旨：「本會會址變更至『屏東縣○○鄉○○村○○路○○號』，檢附相關資料各一式二份，敬請主管機關准予備查見復，請鑒核。」","說明一：「旨揭案由業經本會第○屆第○次理監事聯席會議議決通過在案。」說明二：「隨函檢附上開會議紀錄及旨揭會址之使用同意書呈請備查。」"],
+  summary:"會址的設置和異動，要先經理事會決議通過，再報縣府備查（人民團體會務輔導辦法第8條），不用開會員大會。至於新會址面積、使用權證明有沒有其他要求，法規原文查不到，請洽承辦人員確認。",
+  steps:["召開理事會，提案「變更本會會址設立地點」並決議通過。","準備新會址使用同意書：寫明地址、地號、坪數、借用期間，由房屋出借人、見證人、理事長簽章。","用「專案呈報會址變更」公文，檢附會議紀錄、會址使用同意書各一式二份報縣府備查。","有法人登記的，另向法院辦理變更登記；也記得通知國稅局、銀行更新地址。"],
+  guide:["公文主旨：「本會會址變更至『屏東縣○○鄉○○村○○路○○號』，檢附相關資料各一式二份，敬請主管機關准予備查見復，請鑒核。」","說明一：「旨揭案由業經本會第○屆第○次理事會議議決通過在案。」說明二：「隨函檢附上開會議紀錄及旨揭會址之使用同意書呈請備查。」"],
   notes:["如果章程裡寫有具體的會址地址，就要修改章程，這時必須開會員大會。"],
   act:[["下載會址變更範本","forms","理監事會"]]},
  {k:["罷免","撤換","下台","罷免理事長","罷免監事","換掉"],cat:"會務辦理",title:"怎麼罷免理事長或常務監事",
@@ -831,7 +831,7 @@ async function saveChunked(coll,rows,metaExtra){
 async function loadAll(force){
   if(loadPromise&&!force)return loadPromise;
   loadPromise=(async()=>{
-    const base=document.baseURI.replace(/[^/]*$/,"")+"data/";const DV="?v=20261116-83";
+    const base=document.baseURI.replace(/[^/]*$/,"")+"data/";const DV="?v=20261116-84";
     const jf=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);return r.json()};
     const jgz=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);const b=new Uint8Array(await r.arrayBuffer());if(b[0]!==31||b[1]!==139)return JSON.parse(new TextDecoder().decode(b));if(typeof DecompressionStream==="undefined")throw new Error("gzip unsupported");const text=await new Response(new Blob([b]).stream().pipeThrough(new DecompressionStream("gzip"))).text();return JSON.parse(text)};
     const [d,s,k,f]=await Promise.allSettled([jf(base+"directory.json"+DV),jf(base+"staff.json"+DV),jgz(base+"knowledge.json.gz"+DV).catch(()=>jf(base+"knowledge.json"+DV)),jf(base+"forms-catalog.json?v=20261105-5")]);
@@ -1860,13 +1860,13 @@ touch();
   route();
 })();
 </script>
-<script src="feedback-collector.js?v=20261116-83"></script>
-<script src="round-fixes.js?v=20261116-83"></script>
-<script src="answer-arbiter.js?v=20261116-83"></script>
-<script src="question-understanding.js?v=20261116-83"></script>
-<script src="counter-upgrade.js?v=20261116-83"></script>
-<script src="ai-assist.js?v=20261116-83"></script>
-<script src="festive.js?v=20261116-83" defer></script>
+<script src="feedback-collector.js?v=20261116-84"></script>
+<script src="round-fixes.js?v=20261116-84"></script>
+<script src="answer-arbiter.js?v=20261116-84"></script>
+<script src="question-understanding.js?v=20261116-84"></script>
+<script src="counter-upgrade.js?v=20261116-84"></script>
+<script src="ai-assist.js?v=20261116-84"></script>
+<script src="festive.js?v=20261116-84" defer></script>
 </body>
 </html>
 
