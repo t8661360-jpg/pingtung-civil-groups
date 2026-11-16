@@ -2,6 +2,8 @@
 import { chromium } from 'playwright';
 const BASE = (process.env.BASE_URL || 'https://t8661360-jpg.github.io/pingtung-civil-groups/').replace(/\/?$/, '/');
 const CHECKS = [
+  ['大會可以臨時動議修改章程嗎', '要看通知、議程和章程'],   // 覆核：臨時動議衝突答案改保守分流
+  ['臨時動議可以罷免理事嗎', '要看通知、議程和章程'],
   ['社區發展協會一年要開幾次會', '會員大會一年一次'],   // 第六十五輪 社區發展協會
   ['社區發展協會沒有會所怎麼辦', '沒有獨立會所沒關係'],
   ['社區發展協會會員人數不夠怎麼辦', '人數不夠'],
