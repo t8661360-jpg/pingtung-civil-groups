@@ -686,7 +686,7 @@ const KB=[
   summary:"商業公會、自由職業公會這類職業團體，各有專屬法律（例如商業團體法），發起人數、會員資格可能都不同。建議先向承辦人確認您的行業適用哪部法律再準備。社會處的商業公會和自由職業公會業務由羅宇軒承辦（08-7320415 轉 5317）。",
   ref:"p-new",notes:[],act:[["看完整說明","biz","pro"],["聯絡承辦","contact",""]]},
  {k:["理事長可以連任","可以連任","連任幾次","理事長連任","任期多久","連任","任期"],cat:"法規查詢",title:"理事長可以連任幾次",
-  summary:"理事長連任以一次為限，也就是最多做兩屆。理監事任期依章程訂，最長不超過 4 年（縣府建議至少 2 年）。理事、監事除法律另有規定或章程另有限制外，連選得連任；不再一律套用連任不得超過二分之一的舊限制。任期是從召開本屆第一次理事會那天開始算，不是從大會選舉那天。社區發展協會的理事長也一樣適用。",
+  summary:"理事長連任以一次為限，也就是最多做兩屆。理事、監事的任期依章程訂，不得超過 4 年（人民團體法第20條）；除法律另有規定或章程另有限制外，連選得連任。任期是從召開本屆第一次理事會那天開始算，不是從大會選舉那天。社區發展協會的理事長也一樣適用。",
   laws:["pg20","zc20"],notes:[],act:[["看改選流程","meet","m-elect"],["下載改選書表","forms","改選"]]},
  {k:["名額","幾位理事","理事人數","監事人數","上限"],cat:"法規查詢",title:"理事和監事各要幾個人",
   summary:"依本縣章程範例，理事最多 15 人，監事不能超過理事的三分之一，候補不能超過正選的三分之一。縣府建議理事至少 9 人、監事至少 3 人，而且是奇數。舉例：理事 9 人時，監事最多 3 人、候補理事最多 3 人、候補監事最多 1 人。",
@@ -831,7 +831,7 @@ async function saveChunked(coll,rows,metaExtra){
 async function loadAll(force){
   if(loadPromise&&!force)return loadPromise;
   loadPromise=(async()=>{
-    const base=document.baseURI.replace(/[^/]*$/,"")+"data/";const DV="?v=20261116-81";
+    const base=document.baseURI.replace(/[^/]*$/,"")+"data/";const DV="?v=20261116-82";
     const jf=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);return r.json()};
     const jgz=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);const b=new Uint8Array(await r.arrayBuffer());if(b[0]!==31||b[1]!==139)return JSON.parse(new TextDecoder().decode(b));if(typeof DecompressionStream==="undefined")throw new Error("gzip unsupported");const text=await new Response(new Blob([b]).stream().pipeThrough(new DecompressionStream("gzip"))).text();return JSON.parse(text)};
     const [d,s,k,f]=await Promise.allSettled([jf(base+"directory.json"+DV),jf(base+"staff.json"+DV),jgz(base+"knowledge.json.gz"+DV).catch(()=>jf(base+"knowledge.json"+DV)),jf(base+"forms-catalog.json?v=20261105-5")]);
@@ -1860,13 +1860,13 @@ touch();
   route();
 })();
 </script>
-<script src="feedback-collector.js?v=20261116-81"></script>
-<script src="round-fixes.js?v=20261116-81"></script>
-<script src="answer-arbiter.js?v=20261116-81"></script>
-<script src="question-understanding.js?v=20261116-81"></script>
-<script src="counter-upgrade.js?v=20261116-81"></script>
-<script src="ai-assist.js?v=20261116-81"></script>
-<script src="festive.js?v=20261116-81" defer></script>
+<script src="feedback-collector.js?v=20261116-82"></script>
+<script src="round-fixes.js?v=20261116-82"></script>
+<script src="answer-arbiter.js?v=20261116-82"></script>
+<script src="question-understanding.js?v=20261116-82"></script>
+<script src="counter-upgrade.js?v=20261116-82"></script>
+<script src="ai-assist.js?v=20261116-82"></script>
+<script src="festive.js?v=20261116-82" defer></script>
 </body>
 </html>
 
