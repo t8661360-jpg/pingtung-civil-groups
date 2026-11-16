@@ -379,7 +379,7 @@ footer div{max-width:1200px;margin:0 auto;padding:18px 24px}
 </section>
 
 <section class="view" id="v-search">
-  <div class="pagehead"><h1>團體查詢</h1><p>依名稱、類別或鄉鎮市查詢人民團體及合作社。合作社名冊日期為2026年10月1日；查詢資料以原名冊列載內容為準。</p></div>
+  <div class="pagehead"><h1>團體查詢</h1><p>依名稱、類別或鄉鎮市查詢人民團體及合作社。合作社名冊日期為2026年10月1日；社區發展協會名冊日期為2026年11月16日，只列名稱、鄉鎮市、理事長姓名與屆期；查詢資料以原名冊列載內容為準。</p></div>
   <div class="panel">
     <div class="filters">
       <div class="field"><label for="sq">團體名稱或關鍵字</label><input id="sq" placeholder="例如：商業會、登山、慈善"></div>
@@ -831,7 +831,7 @@ async function saveChunked(coll,rows,metaExtra){
 async function loadAll(force){
   if(loadPromise&&!force)return loadPromise;
   loadPromise=(async()=>{
-    const base=document.baseURI.replace(/[^/]*$/,"")+"data/";const DV="?v=20261116-65";
+    const base=document.baseURI.replace(/[^/]*$/,"")+"data/";const DV="?v=20261116-66";
     const jf=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);return r.json()};
     const jgz=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);const b=new Uint8Array(await r.arrayBuffer());if(b[0]!==31||b[1]!==139)return JSON.parse(new TextDecoder().decode(b));if(typeof DecompressionStream==="undefined")throw new Error("gzip unsupported");const text=await new Response(new Blob([b]).stream().pipeThrough(new DecompressionStream("gzip"))).text();return JSON.parse(text)};
     const [d,s,k,f]=await Promise.allSettled([jf(base+"directory.json"+DV),jf(base+"staff.json"+DV),jgz(base+"knowledge.json.gz"+DV).catch(()=>jf(base+"knowledge.json"+DV)),jf(base+"forms-catalog.json?v=20261105-5")]);
@@ -1407,7 +1407,7 @@ function knowledgeText(){
   const arts=Object.entries(ART).map(([k,a])=>`${k}｜${a.law} ${a.art}｜${a.text}`).join("\n");
   const staff=STORE.staff.rows.map(s=>{const l=STORE.dir.rows.length?staffLoad(s):{n:0,top:[]};return `${s.name}｜${s.unit}｜新申請籌組分工：${s.duty}｜目前承辦既有團體 ${l.n} 個（${l.top.join("、")}等）｜08-7320415${s.ext?" 轉 "+s.ext:""}`}).join("\n")+"\n既有團體的承辦人以名冊指定為準（search_groups 結果的「會務承辦」欄），同一類別可能由不同承辦人辦理。"||"（未建立，請撥總機 08-7320415）";
   const forms=STORE.forms.catalog?STORE.forms.catalog.folders.map(f=>`${f.id}：${f.desc}`).join("\n"):"";
-  return `【辦理項目】\n${items}\n【法規條文代碼】\n${arts}\n【承辦人（社會團體、職業團體、老人會）】\n${staff}\n社區發展協會、合作社業務：請撥總機轉社會處詢問。\n【書表分類（forms sub 用 id）】\n${forms}\n【資料概況】名冊 ${STORE.dir.rows.length} 筆（社會處列管之社會團體與職業團體，含已解散），另含2026年10月1日合作社名冊；尚未含社區發展協會；法規函釋資料 ${STORE.kn.rows.length} 則。\n【機關】屏東縣政府社會處，屏東市自由路527號，總機 08-7320415，服務時間週一至週五 8:00-12:00、13:30-17:30。`;
+  return `【辦理項目】\n${items}\n【法規條文代碼】\n${arts}\n【承辦人（社會團體、職業團體、老人會）】\n${staff}\n社區發展協會、合作社的業務辦理：請撥總機轉社會處詢問。\n【書表分類（forms sub 用 id）】\n${forms}\n【資料概況】名冊 ${STORE.dir.rows.length} 筆（社會處列管之社會團體、職業團體與社區發展協會，含已解散；社區發展協會只列名稱、鄉鎮、理事長姓名與屆期），另含2026年10月1日合作社名冊；法規函釋資料 ${STORE.kn.rows.length} 則。\n【機關】屏東縣政府社會處，屏東市自由路527號，總機 08-7320415，服務時間週一至週五 8:00-12:00、13:30-17:30。`;
 }
 const VIEW_SUBS="biz(sub: social|pro|community|coop)、meet(sub: m-assembly|m-elect|m-board|m-finance|m-roster)、law(sub: 人民團體|屏東縣作業規定|社區發展|合作社|函釋與問答)、forms(sub: 申請表|籌備會|成立大會|常年會|理監事會|改選|解散)、apply(sub: 辦理項目id)、search、contact";
 async function aiAnswer(q,kb){
@@ -1860,13 +1860,13 @@ touch();
   route();
 })();
 </script>
-<script src="feedback-collector.js?v=20261116-65"></script>
-<script src="round-fixes.js?v=20261116-65"></script>
-<script src="answer-arbiter.js?v=20261116-65"></script>
-<script src="question-understanding.js?v=20261116-65"></script>
-<script src="counter-upgrade.js?v=20261116-65"></script>
-<script src="ai-assist.js?v=20261116-65"></script>
-<script src="festive.js?v=20261116-65" defer></script>
+<script src="feedback-collector.js?v=20261116-66"></script>
+<script src="round-fixes.js?v=20261116-66"></script>
+<script src="answer-arbiter.js?v=20261116-66"></script>
+<script src="question-understanding.js?v=20261116-66"></script>
+<script src="counter-upgrade.js?v=20261116-66"></script>
+<script src="ai-assist.js?v=20261116-66"></script>
+<script src="festive.js?v=20261116-66" defer></script>
 </body>
 </html>
 
