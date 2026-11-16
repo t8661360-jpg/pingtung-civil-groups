@@ -10,4 +10,9 @@ if(!g||!/第17條/.test(JSON.stringify(g))&&bad++)console.error('audit');
 const fs=require('fs');const kb=fs.readFileSync(__dirname+'/data/knowledge.json','utf8');
 for(const t of ['可以用臨時動議來修改章程、罷免理監事或賣房子嗎？','可以在會員大會用臨時動議提出修改章程嗎？']){if(kb.includes('"title":"'+t+'"')){console.error('KB still has',t);bad++;}}
 if(/不能由理事會指定支持者/.test(kb)){console.error('KB 指定支持者');bad++;}
+
+{const z=require('zlib');const d=JSON.parse(z.gunzipSync(fs.readFileSync(__dirname+'/data/statutes.json.gz')));
+ for(const [c,n,a] of [['B0000001','民法','148'],['I0050021','個人資料保護法','1'],['G0340091','印花稅法','1']]){const l=d.laws[c];if(!l||l.name!==n||!l.articles[a]){console.error('missing law',n);bad++;}}}
+{const x=r.verifiedRoundAnswer(r.normalizeQuestion('理事會可以舉手表決嗎'),{});if(!x||!/非法規規定|常見/.test(x.summary)){console.error('舉手 label');bad++;}}
+if(!/300人也可以適用/.test(kb)){console.error('300');bad++;}
 if(bad)throw new Error('patrol67 failed '+bad);console.log('ok');
