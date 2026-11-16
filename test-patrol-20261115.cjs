@@ -15,5 +15,5 @@ for(const [q,k] of yes){const x=A(q);if(!x||!x.direct||!(x.summary+x.title).incl
 const pat=/15 日前通知會員，並報縣府派員列席|理事會決議解散不算數|解散前不一定要先改選|會員人數很少也可以解散|解散要不要去法院|繳回：依縣府解散書表|會員名冊、帳冊要保存/;
 for(const q of no){const x=A(q);if(x&&typeof x==='object'&&pat.test(x.title)){console.error('OVERTRIGGER',q,x.title);bad++;}}
 for(const q of ['協會要關掉了','怎麼註銷協會']){if(A(q)!=='KB:解散'){console.error('FAIL KB',q,A(q));bad++;}}
-const f=A('協會解散後會館的房子歸誰');if(!f||!/不能分給會員/.test(f.title)){console.error('FAIL assets');bad++;}
+const f=A('協會解散後會館的房子歸誰');if(!f||!/不建議分給會員/.test(f.title)){console.error('FAIL assets');bad++;}
 if(bad)throw new Error('patrol58 failed '+bad);console.log('ok');
