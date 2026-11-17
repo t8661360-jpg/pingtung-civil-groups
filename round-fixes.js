@@ -302,10 +302,12 @@ function supervisorMeeting(t){
  return{category:'人民團體會務說明',title:'監事會可以自行召開，不需要理事長同意',summary:'可以。監事會是獨立於理事會的機關，由監事會召集人（常務監事）召集，不需要經過理事長同意。監事會至少每六個月舉行一次（社會團體適用人民團體法第43條），必要時得召開臨時監事會議。\n如果監事會召集人不召開監事會，監事過半數得以書面連署請求召開（人民團體會務輔導辦法第13條）。監事並得列席理事會議（人民團體法第29條）。',statutes:[P(43),G(13),P(29)],questionState:{focus:'supervisor-meeting',domain:'social'},notes:['合作社監事會亦為獨立機關（合作社法第40條）。'],actions:[{label:'看理監事會辦理',view:'meet',sub:'m-board'}]};
 }
 function noAnnualMeeting(t){
- if(!/(沒有開|沒開|未開|不開|未召開)/.test(t))return null;
+ if(/(合作社|社員|公會|同業|職業團體|工會)/.test(t))return null;
+ if(!/(沒有開|沒開|未開|不開|未召開|可以不開|可不可以不開|能不能不開|不用開|不必開|可以不辦|可以免開|免開|忘了開|忘記開|漏開|沒辦|逾期|過了期限|超過期限|超過一年|今年不開)/.test(t))return null;
  if(!/(會員大會|大會|常年會|定期會)/.test(t))return null;
- if(!/(會怎樣|怎麼辦|後果|處罰|違法|罰|可以嗎|被停|被處分)/.test(t)&&!/(年度|整年|一年|今年)/.test(t))return null;
- return{category:'人民團體會務說明',title:'年度沒有開會員大會：有行政處分風險',summary:'會員大會每年應至少召開一次（人民團體法第25條）。如果整個年度都沒有召開，主管機關得視為「廢弛會務」，依人民團體法第58條予以處分：警告 → 限期改善 → 撤免職員 → 限期整理 → 廢止許可 → 解散。\n而且，年度工作計畫和收支預算要經大會通過才能報縣府備查（社會團體財務處理辦法第11條）；沒開大會就無法完成法定報備，連帶會務報表全部延宕。\n補救方式：儘快召開臨時會員大會或常年會，追認應由大會通過的議案，並函報主管機關說明原因。',statutes:[P(25),P(58),F(11)],questionState:{focus:'no-annual-meeting',domain:'social'},notes:['如果是理事長故意不召開，會員五分之一以上可以連署請求召開（人民團體法第25條）。'],actions:[{label:'看會員大會辦理',view:'meet',sub:'m-assembly'},{label:'聯絡承辦',view:'contact',sub:''}]};
+ if(/(理事長|會長|連署|改選|視訊|理事會|監事會|通知|臨時|紀錄|記錄|預算|決算|報告|報表|議案|決議|算不算|有效|報縣府|備查|報備|名冊|手冊|財務|會費|經費|提案|選舉|任期)/.test(t)&&!/(會怎樣|後果|處罰|違法|被處分)/.test(t))return null;
+ if(!/(會怎樣|怎麼辦|後果|處罰|違法|罰|可以嗎|被停|被處分|可以不|可不可以|能不能|不用開|不必開|免開)/.test(t)&&!/(年度|整年|一年|今年)/.test(t))return null;
+ return{direct:true,category:'人民團體會務說明',title:'年度沒有開會員大會：有行政處分風險，會員大會每年一定要開一次',summary:'不可以不開。協會（社會團體）的會員（會員代表）大會，定期會議每年要召開一次（人民團體法第25條第2項）。\n\n沒開或忘了開、過了期限的話：\n• 還是要儘快召開。召集一樣要在15日前通知會員，並報請縣府派員列席（人民團體法第26條；會務輔導辦法第10條）。\n• 一直沒有依法召開的，縣府可以指定理事一人召集（人民團體法第32條）。\n• 違反法令、章程的，縣府得警告、撤銷決議、停止業務，並限期令其改善；屆期未改善或情節重大的，可以撤免職員、限期整理、廢止許可，甚至解散（人民團體法第58條）。\n\n另外，年度工作計畫、收支預算和上年度工作報告、會計報告，要提經大會通過後報縣府備查；因故沒能如期開大會的，可以先經理事會及監事會（或理監事聯席會議）通過，事後再提報大會追認，然後報縣府備查（社會團體財務處理辦法第11條）。\n\n過了期限後多久之內要補開，法規沒有明文，建議先電洽承辦人員。',statutes:[P(25),P(26),P(32),P(58),F(11),G(10)],questionState:{focus:'no-annual-meeting',domain:'social'},notes:['如果是理事長故意不召開，會員五分之一以上可以連署請求召開（人民團體法第25條）。'],actions:[{label:'看會員大會辦理',view:'meet',sub:'m-assembly'},{label:'聯絡承辦',view:'contact',sub:''}]};
 }
 function chairSpendingAuth(t){
  if(!/(理事長|負責人)/.test(t))return null;
@@ -1249,6 +1251,7 @@ function dormantGroup(t){
  const idle=/(休會|暫停運作|停一年|恢復運作|重新運作|重新開始運作|沒運作|沒有運作|沒在運作|停擺|沒在動|沒活動|都沒開會|沒開會|停止運作|空殼|放著不管|荒廢|沒人管|好幾年沒|停止活動|停止會務|暫停活動|暫停會務|不想辦了|不運作)/.test(t);
  if(!gov&&!idle)return null;
  if(/合作社|社員|決議|理事長.{0,4}(不開|不召開)/.test(t))return null;
+ if(!gov&&/(會員大會|大會|常年會|定期會).{0,4}(沒開|沒有開|未開|未召開|不開|沒辦)|(沒開|沒有開|未開|未召開|忘了開|漏開)(會員)?(大會|常年會)/.test(t))return null;
  return{direct:true,category:'人民團體會務說明',title:gov?'主管機關可以解散協會：通常先警告、限期改善，限期整理沒完成才解散':'協會很久沒運作：可以恢復開會改選，或經會員大會決議解散',
  summary:(gov?'會，但有先後順序，不會一下子就解散。\n\n團體有違反法令、章程或妨害公益的情形（例如長期不開會、任期屆滿不改選），主管機關可以先警告、撤銷決議、停止業務並限期改善；逾期不改善或情節重大的，才會撤免職員、限期整理、廢止許可或解散（人民團體法第58條）。被廢止許可，或限期整理沒有如期完成的，就應予解散（人民團體法第59條）。\n\n':'')+'協會停擺了，有兩條路可以走：\n\n1. 恢復運作：請理事長召開理事會和會員大會，辦理改選。理事長不開或聯絡不上的，理事過半數或會員五分之一以上可以書面連署請求召開臨時會員大會（人民團體會務輔導辦法第15條）；會議還是開不成的，可以請縣府指定理事一人召集（人民團體法第32條）。\n\n2. 結束協會：召開會員大會決議解散，要會員過半數出席、出席人數三分之二以上同意（人民團體法第27條），再報縣府。\n\n放著不處理的話，主管機關可以依規定限期整理，甚至廢止許可、解散（人民團體法第58條、第59條）。建議先和承辦人聯絡，說明目前的狀況。',
  statutes:gov?[P(58),P(59),G(15),P(32),P(27)]:[G(15),P(32),P(27),P(58),P(59)],notes:[],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
@@ -1830,11 +1833,11 @@ function videoElection(t){
 /* ── 2026-11-12 第四組換句話說測試後補上的直接回答 ── */
 function conveneAndPetition(t){
  if(/合作社|社員/.test(t))return null;
- if(/(臨時大會|臨時會員大會|開大會|召開大會|開會員大會)/.test(t)&&/(連署|要求|請求|多少會員|幾個會員|幾分之|會員可以|會員能不能|理事長不開)/.test(t))
+ if(/(臨時大會|臨時會員大會|開大會|召開大會|開會員大會)/.test(t)&&/(連署|要求|請求|多少會員|幾個會員|幾分之|會員可以|會員能不能|理事長不開|理事長.{0,6}(不願|不肯|不想|拒絕|不理|不召|一直不))/.test(t))
   return{direct:true,category:'人民團體會務說明',title:'會員可以要求開臨時大會：五分之一以上會員書面連署，理事長要在30日內召開',
   summary:'可以。下面三種情形，理事長要召開臨時會員大會（人民團體會務輔導辦法第15條；人民團體法第25條）：\n1. 理事過半數書面連署。\n2. 會員（會員代表）五分之一以上書面連署。\n3. 監事會發函請求召集。\n\n做法：\n• 連署書或函要用雙掛號寄給理事長，拿到掛號回執之後，報縣府備查。\n• 理事長收到後，要在30日內把臨時大會召開完畢。\n• 理事長逾期不開，縣府可以指定理事一人召集（人民團體法第32條）。\n\n出席臨時大會的人，以最近一次經理事會審定的會員名冊為準。例如會員100人，至少要20人連署。',
   statutes:[G(15),P(25),P(32)],notes:[],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
- if(/(理事會|監事會)/.test(t)&&/(誰.{0,4}召集|誰可以開|誰來開|由誰|要求開|請求開|連署|理事可以.{0,4}開)/.test(t)&&!/大會|不用經過|自己開|委託|代理|代替|找人代|請別人/.test(t))
+ if(/(理事會|監事會)/.test(t)&&/(誰.{0,4}召集|誰可以開|誰來開|由誰|要求開|請求開|連署|理事可以.{0,4}開|(理事長|會長).{0,6}(不願|不肯|不想|拒絕|不理|不召|不開|不辦|一直不))/.test(t)&&!/大會|不用經過|自己開|委託|代理|代替|找人代|請別人/.test(t))
   return{direct:true,category:'人民團體會務說明',title:'理事會由理事長召集；理事過半數書面連署，理事長要在15日內召開臨時理事會',
   summary:'理事會由理事長召集，監事會由監事會召集人（常務監事）召集（人民團體會務輔導辦法第11條）。理監事聯席會議，要分別經理事長和監事會召集人同意後召集。\n\n理事長不開的時候，理事可以這樣做（同辦法第13條）：\n1. 理事過半數書面連署，要求召開臨時理事會（監事會則是監事過半數）。\n2. 連署書用雙掛號寄給理事長，取得回執後報縣府備查。\n3. 理事長要在收到後15日內把臨時會議開完；自己不能召集的，依章程的代理程序由代理人召集。\n\n還是不開，或連續三次以上召集都開不成的，縣府可以指定理事一人召集（同辦法第14條；人民團體法第32條）。理事長沒有正當理由超過兩個會次不開理事會的，主管機關應解除他的理事長職務（人民團體法第30條）。',
   statutes:[G(11),G(13),G(14),P(32),P(30)],notes:[],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
@@ -2236,7 +2239,7 @@ function meetingHowTo(t){
 }
 function officerResignHow(t){
  if(!/(理事|監事)/.test(t)||/理事長|常務|合作社|社員|公會/.test(t))return null;
- if(!/(辭職|辭任|請辭|不做了|不幹了|辭掉)/.test(t)||!/(怎麼辦|怎麼辭|程序|流程|手續|要不要|需要|可以)/.test(t))return null;
+ if(!/(辭職|辭任|請辭|不做了|不幹了|辭掉)/.test(t)||!/(怎麼辦|怎麼辭|程序|流程|手續|要不要|需要|可以|誰同意|誰批准|誰核准|誰准|經過誰|經誰|要報|報縣府|報備|備查|通報|通知縣府|要同意|同意嗎)/.test(t))return null;
  if(/全體|總辭|都辭|口頭|反悔|收回|撤回|再當選|再選/.test(t))return null;
  return{direct:true,category:'人民團體會務說明',title:'理事、監事辭職：書面提出，經理事會（監事會）決議通過後解任，由候補遞補',
  summary:'理事或監事要辭職，請這樣辦：\n\n1. 用書面提出辭職。\n2. 理事的辭職經理事會決議，監事的辭職經監事會決議，通過後解任（人民團體選舉罷免辦法第27條、人民團體會務輔導辦法第9條）。\n3. 缺額由候補理事、候補監事依序遞補；遞補後人數不到章程名額的三分之二，才要補選（選舉罷免辦法第17條）。\n4. 在下一次會員大會提出報告，並在30日內把異動後的名冊報縣府核備（人民團體法第54條）。\n\n提醒您：辭職之後，不能在原來的任期內再當選同一個職務，也不能退為候補（選舉罷免辦法第27條）。',
@@ -2313,7 +2316,7 @@ function supervisorNoMeeting(t){
  statutes:[P(43),P(30),P(32),MOI('102年9月5日','台內團字第1020287241號',256698)],notes:[],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
 }
 function rosterView(t){
- if(!/(會員名冊|會員名單|會員資料|名冊)/.test(t)||!/(給會員看|可以看|能看|要看|想看|看得到|查閱|閱覽|公開|公布|索取|拿到|影印|提供)/.test(t))return null;
+ if(!/(會員名冊|會員名單|會員資料|名冊|會員名單)/.test(t)||!/(給會員看|可以看|能看|要看|想看|看得到|查閱|閱覽|公開|公布|索取|拿到|影印|提供|查看|查詢|看一下|看看|調閱)/.test(t))return null;
  if(/合作社|社員|民意代表|議員|別的團體|機關/.test(t))return null;
  return{direct:true,category:'人民團體會務說明',title:'會員名冊要提供會員閱覽：開會員大會15日前造好名冊，會員可以看',
  summary:'要。理事會要在召開會員大會15日前，審定應出席的會員資格，造具名冊，寫明姓名、聯絡電話、地址和權利義務受限制的情形，提供會員閱覽（人民團體會務輔導辦法第10條）。辦理選舉或罷免的時候也一樣（人民團體選舉罷免辦法第5條）。\n\n請注意：\n• 法規寫的是「提供閱覽」，也就是讓會員到會所查看。要不要讓會員影印、拍照或整份帶走，法規沒有規定，由協會決定。\n• 名冊上有電話和地址，屬於個人資料；會員看了以後只能用在會務上（例如確認自己的資格、連署），不能拿去做別的用途。',
@@ -2354,8 +2357,8 @@ function intlGroupWho(t){
 function attendanceFeeCan(t){
  if(!/(出席費|交通費|車馬費)/.test(t)||/(多少|多高|上限|金額|幾元|幾千|標準|一次)/.test(t)||/合作社|社員|補助|公會/.test(t))return null;
  if(!/(可以|能不能|可不可以|有沒有|要不要|能領|可領|領)/.test(t))return null;
- return{direct:true,category:'人民團體財務',title:'理事、監事開會可以領出席費或交通費：只有開會時才能領，不能按月固定領',
- summary:'可以，但有條件。理事、監事是無給職（人民團體法第21條），只有出席理事會、監事會執行職務的時候，協會可以視財務狀況，參照政府機關訂的標準酌發出席費，或按交通工具憑票證酌發交通費（社會團體財務處理辦法第19條）。\n\n所以：\n• 按月固定領的車馬費、津貼，不可以。\n• 協會自己開的會員大會，出席的人不能領任何費用，理監事開理事會、監事會才可以。\n• 發多少、怎麼發，請先經理事會決議，編進預算。',
+ return{direct:true,category:'人民團體財務',title:'理事、監事是無給職，因執行職務需要可酌發出席費或交通費',
+ summary:'可以，但有條件。理事、監事是無給職（人民團體法第21條），沒有薪水；只有因執行職務的需要，協會才可以參照政府機關所定標準酌發出席費，或按交通工具憑票證酌發交通費（社會團體財務處理辦法第19條）。\n\n法規只列出席費和交通費這兩種，沒有列每月固定發放的津貼或車馬費；什麼情形算「執行職務之需要」、要不要先經理事會決議，法規沒有明文，請看章程，或洽承辦人員（縣府總機 08-7320415）。',
  statutes:[P(21),F(19)],notes:['金額標準請看下一題「出席費一次可以領多少」。'],actions:[]};
 }
 function joinManyGroups(t){
@@ -3459,7 +3462,7 @@ function patrol17(t){
   summary:'可以。社會團體的會員不能親自出席會員大會時，可以用書面委託其他會員代理，每一位會員以代理一人為限（人民團體法第42條）。\n解散案要由會員大會決議：會員過半數出席，出席人數三分之二以上同意（人民團體法第27條）。被委託出席的人，通常計入出席人數；章程若有更嚴的規定，依章程辦理。',
   statutes:[P(42),P(27)]});
  /* 沒人當理事／直接不做 */
- if(/(協會|社團|團體|本會)/.test(t)&&/(直接|乾脆|就這樣|就)?(不做|不辦|擺著|放著|丟著|不管|擺爛|不營運)/.test(t)&&!/(理事長|會長)(可以|能不能|可不可以)/.test(t)&&!/(補助|經費|活動)/.test(t)&&/(嗎|可以|能不能|行不行|會怎樣|怎麼辦|可不可以)/.test(t))
+ if(/(協會|社團|團體|本會)/.test(t)&&/(直接|乾脆|就這樣|就)?(不做|不辦|擺著|放著|丟著|不管|擺爛|不營運)/.test(t)&&!/(理事長|會長)(可以|能不能|可不可以)/.test(t)&&!/(補助|經費|活動|大會|常年會)/.test(t)&&/(嗎|可以|能不能|行不行|會怎樣|怎麼辦|可不可以)/.test(t))
   return Object.assign({},base,{title:'協會不能直接不做了：要結束就要開會員大會決議解散',
   summary:'不能一直放著不管。協會要結束，需由會員大會決議解散：會員（會員代表）過半數出席，出席人數三分之二以上同意（人民團體法第27條）；經大會決議解散的，團體就應解散（第59條第1項第5款）。\n如果只是不做、也不開會，主管機關對違反法令或章程的團體，可以警告、限期改善；屆期未改善或情節重大，還可能撤免職員、限期整理、廢止許可甚至解散（第58條）。\n理事沒人願意當的話，可以先依章程補選或改選；真的辦不下去，就走解散程序。步驟請看「協會怎麼解散」。',
   statutes:[P(27),P(59),P(58)]});
@@ -6177,6 +6180,33 @@ function patrol86(t){
  return null;
 }
 /* 2026-11-16 第八十六輪：公會理監事產生方式。依商業團體法§20、工業團體法§20原文 */
+
+/* 第87輪：會員大會／理事會口語補洞（條文已核對：人民團體法§25、26、27、32、58；會務輔導辦法§10、13、14；選罷辦法§24；商業團體法§27、28；工業團體法§27、28） */
+function patrol87(t){
+ if(/(合作社|社員|政黨|政治|工會|魅力|好讚|社造)/.test(t))return null;
+ const guild=/(公會|同業|職業團體)/.test(t);
+ const BT27={title:'商業團體法第27條',source:LAW+'D0050100'},BT28={title:'商業團體法第28條',source:LAW+'D0050100'},IT27={title:'工業團體法第27條',source:LAW+'D0050103'},IT28={title:'工業團體法第28條',source:LAW+'D0050103'};
+ /* 1. 會員大會沒開／可不可以不開／過了期限 */
+ if(/(會員大會|大會|常年會)/.test(t)&&/(可以不開|可不可以不開|能不能不開|不用開|不必開|可以不辦|可以免開|免開|不開會會怎|沒開|沒有開|忘了開|忘記開|漏開|沒辦|逾期|過了期限|超過期限|超過一年|過期|今年不開|今年沒開|不開大會)/.test(t)&&!/(理事長|會長|連署|改選|視訊|理事會|監事會|通知|臨時|紀錄|記錄|預算|決算|報告|報表|議案|決議|算不算|有效|報縣府|備查|報備|名冊|手冊|財務|會費|經費|提案|選舉|任期)/.test(t)){
+  if(!guild)return null;
+  return{direct:true,category:'人民團體會務說明',title:'公會會員大會定期會議每年至少要開一次，不能不開',
+   summary:'不可以不開。公會的會員大會，定期會議每年至少要召開一次（商業團體法第27條；工業團體法第27條），召開日期由理事會決議。\n\n不能依法召集時，主管機關可以指定理事一人召集。召集時一樣要在15日前通知（商業團體法第28條；工業團體法第28條），並報請縣府派員列席。\n\n已經過了期限、要怎麼補開，法規沒有明文，建議先電洽承辦人員。',
+   statutes:[BT27,BT28,IT27,IT28],notes:[],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
+ }
+ /* 2. 會員代表大會 vs 會員大會 */
+ if(/會員代表大會/.test(t)&&/會員大會/.test(t)&&/(差在哪|差別|不同|區別|有什麼不一樣|一樣嗎|是一樣|是不是一樣|有何不同|哪裡不一樣)/.test(t)){
+  return{direct:true,category:'人民團體會務說明',title:'會員大會和會員代表大會：開會規定一樣，差在出席的是會員本人還是會員代表',
+   summary:'人民團體法把兩者寫在一起，叫「會員（會員代表）大會」，開會規定是一樣的：每年開定期會議一次、15日前通知、要過半數出席才能決議，章程、解散、罷免等重大事項要出席人數三分之二以上同意（人民團體法第25、26、27條）。\n\n差別在誰出席：\n• 會員大會：由會員本人出席。\n• 會員代表大會：會員人數超過300人的團體，可以劃分地區或會員屬性類別，依人數比例選出會員代表，由代表出席（人民團體選舉罷免辦法第24條第1項）。選舉代表的辦法要經理事會通過，並報縣府備查（同條第2項）。\n\n貴會實際是哪一種，請以章程規定為準；章程怎麼訂不確定的話，可以電洽承辦人員。',
+   statutes:[P(25),P(26),P(27),E(24)],notes:[],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
+ }
+ /* 3. 公會會員大會通知天數 */
+ if(guild&&/(會員大會|會員代表大會|大會)/.test(t)&&/(通知|幾天前|提前|提早|寄通知|發通知|多久前)/.test(t)&&!/(理事會|監事會|理監事|選舉|改選|視訊)/.test(t)){
+  return{direct:true,category:'人民團體會務說明',title:'公會召開會員大會，要在15日前通知',
+   summary:'公會的會員大會，要在開會15日前通知（商業團體法第28條；工業團體法第28條）。\n\n只有因為緊急事故召集臨時會議，通知已經送達而且能及時到會的，才不受15日的限制。會議可以報請縣府派員列席或指導。\n\n要注意：緊急事故要真的是緊急，不能因為忘了寄通知就用這個例外。',
+   statutes:[BT28,IT28],notes:[],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
+ }
+ return null;
+}
 function guild86(t){
  if(!/(公會|同業)/.test(t)||/(合作社|工會|律師|醫師|會計師|護理|藥師|建築師|聯合會|政黨)/.test(t))return null;
  if(!/(理監事|理事|監事)/.test(t)||!/(怎麼選|怎麼產生|誰選|誰來選|誰來推|如何選|怎麼推|怎樣選|選出|互選|怎麼當選)/.test(t))return null;
@@ -6184,6 +6214,50 @@ function guild86(t){
  return{direct:true,category:'選舉與改選',title:'公會理事、監事怎麼產生：在會員大會時由會員代表互選',
   summary:'商業同業公會的理事、監事，都是在會員大會時，由會員代表互選產生，並分別成立理事會、監事會（商業團體法第20條）；工業同業公會也是由會員代表互選（工業團體法第20條）。\n\n商業同業公會的名額限制（商業團體法第20條）：\n• 縣（市）商業同業公會的理事，不得超過21人，而且不得超過全體會員代表人數的二分之一。\n• 監事不得超過理事名額的三分之一。\n• 候補理事、候補監事，各不得超過理事、監事名額的三分之一。\n• 理事、監事名額在三人以上的，可以分別互選常務理事、常務監事（不得超過總額的三分之一），再由理事就常務理事中選一人當理事長；不設常務理事的，就理事中互選。常務監事三人以上的，要互推一人當監事會召集人。\n\n其他細節（例如工業同業公會的名額上限）請洽縣府社會處承辦人員，縣府總機 08-7320415。',
   statutes:[{title:'商業團體法第20條',source:LAW+'D0050100'},{title:'工業團體法第20條',source:LAW+'D0050103'}],notes:[],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
+}
+/* 第88輪：理監事任期、辭職、罷免後接任、會員權利口語補洞（條文已核對：人民團體法§12、16、17、20、21、22、23、27、31、58；選罷辦法§5、16、17、27、28；社會團體工作人員管理辦法§4） */
+function patrol88(t){
+ if(/(合作社|社員|政黨|政治|工會|魅力|好讚|社造|公會|同業)/.test(t))return null;
+ const btn=[{label:'聯絡承辦',view:'contact',sub:''}];
+ /* 1. 理事、監事任期上限 */
+ if(/(理事|監事|理監事)/.test(t)&&!/(理事長|會長|常務|連任|連選|幾次|幾屆|兩屆|二屆|屆滿|起算|開始算|改選|辭|罷免)/.test(t)&&/任期/.test(t)&&/(不能超過|不得超過|不可以超過|最長|最多|上限|最久|是不是.{0,3}四年|四年)/.test(t)){
+  return{direct:true,category:'人民團體會務說明',title:'理事、監事的任期不得超過四年，一屆實際幾年由章程訂',
+   summary:'是的，理事、監事的任期不得超過四年（人民團體法第20條），章程訂幾年都不能超過這個上限。\n\n任期從召開本屆第一次理事會那天起算，不是從大會選舉那天起算（人民團體選舉罷免辦法第28條）。\n\n理事、監事除法律另有規定或章程另有限制外，連選得連任；理事長的連任以一次為限（同法第20條）。',
+   statutes:[P(20),ER(28)],notes:[],actions:btn};
+ }
+ /* 2. 理事長（理事、監事）被罷免後誰接任 */
+ if(/(被罷免|罷免後|罷免掉|被解任|被撤換|下台|被拉下來|被免職)/.test(t)&&/(理事長|會長|理事|監事|常務)/.test(t)&&/(誰接|接任|接手|接替|代理|補選|怎麼補|怎麼辦|怎麼處理|誰當|誰來|後續)/.test(t)){
+  const chair=/(理事長|會長)/.test(t);
+  return{direct:true,category:'人民團體會務說明',title:chair?'理事長被罷免後：一個月內補選，剩餘任期不到六個月可由常務理事或理事互推一人代理':'理事、監事被罷免後：由候補依次遞補，不足名額三分之二才補選',
+   summary:chair?'理事長被罷免就是出缺，要自出缺之日起一個月內補選；但理事長所遺任期不足六個月的，可以在一個月內，依章程規定或由常務理事互推一人代理，沒有設常務理事的，由理事互推一人代理（人民團體選舉罷免辦法第17條）。\n\n理事長是由理事（常務理事）選出來的（人民團體法第17條第2項），所以補選也是在理事會進行。\n\n被罷免的人不得再擔任該次罷免會議的主席（同辦法第38條）。至於他的理事身分是否同時喪失，要看罷免案寫的職務，請依章程與罷免決議確認。'
+   :'理事、監事被罷免者，應即解任（人民團體法第23條第3款），缺額由候補理事、候補監事依次遞補；遞補後人數不到章程所定名額的三分之二，就要補選足額（人民團體選舉罷免辦法第17條）。',
+   statutes:chair?[ER(17),P(17),ER(38)]:[P(23),ER(17)],notes:[],actions:btn};
+ }
+ /* 3. 理事會（理事長）能不能直接開除、撤換理事監事 */
+ if(/(理事會|理事長|會長|常務理事)/.test(t)&&/(開除|革職|撤換|免職|換掉|踢掉|趕走|解除.{0,2}(理事|監事)職務|直接解任)/.test(t)&&/(理事|監事|理監事)/.test(t)&&!/(會員|總幹事|工作人員|幹事|志工)/.test(t)){
+  return{direct:true,category:'人民團體會務說明',title:'理事會不能直接開除理事、監事：要靠罷免、辭職或法定解任事由',
+   summary:'不可以。理事、監事是會員大會選出來的，理事會或理事長沒有權力直接開除。\n\n依法理事、監事離職只有這幾種情形：\n1. 執行職務違反法令、章程或大會決議，由會員大會通過罷免（人民團體法第22條；罷免要出席人數三分之二以上同意，第27條）。\n2. 本人辭職，經理事會（監事會）決議通過後解任（第23條第2款）。\n3. 連續二次無故缺席理事會或監事會，視同辭職（第31條）。\n4. 喪失會員資格，或被停權期間超過任期二分之一，應即解任（第23條第1、4款）。\n5. 團體違法經主管機關處分，屆期未改善或情節重大時，主管機關得撤免職員（第58條）。\n\n想換人，請走罷免程序（選舉人總數三分之一以上簽署，就任未滿六個月不能提）；細節請看「罷免理事」的說明。',
+   statutes:[P(22),P(23),P(27),P(31),P(58),ER(29),ER(30)],notes:[],actions:btn};
+ }
+ /* 4. 會員可不可以被選為理事、監事 */
+ if(/會員/.test(t)&&/(被選|選上|當選|參選|競選|可以當|能當|可不可以當|擔任|想當|要當)/.test(t)&&/(理事|監事|理監事)/.test(t)&&!/(理事長|會長|多久|入會後|新會員|剛入會|非會員|不是會員|外面|外縣|外地|設籍|戶籍|兼任|總幹事|工作人員|未成年|公務員|沒繳|欠|停權|名冊|榮譽|名譽|贊助|退會|出會|除名|會員代表|團體會員|單位會員|永久會員|特別會員|學生會員|準會員|候補)/.test(t)){
+  return{direct:true,category:'人民團體會務說明',title:'會員可以被選為理事、監事：會員有被選舉權，理事、監事就是從會員中選出',
+   summary:'可以。會員（會員代表）有表決權、選舉權、被選舉權與罷免權（人民團體法第16條），理事、監事就是就會員中選舉產生的（第17條）。\n\n要注意幾點：\n1. 被停權、沒有被選舉權的會員，不能參選；名冊上會在他的姓名下註明（人民團體選舉罷免辦法第5條）。\n2. 一個人同時當選理事和監事，要當場擇一擔任（同辦法第16條）。\n3. 理事、監事不能同時當工作人員（社會團體工作人員管理辦法第4條）。\n4. 其他資格限制，要看章程裡「會員之權利與義務」的規定（人民團體法第12條）。',
+   statutes:[P(16),P(17),ER(5),ER(16),SW(4),P(12)],notes:[],actions:btn};
+ }
+ /* 5. 年齡、退休與當理事 */
+ if(/(理事|監事|理監事)/.test(t)&&!/(理事長|會長)/.test(t)&&/(退休|年紀|年齡|高齡|歲|老人|長輩)/.test(t)&&/(可以|能|可不可以|限制|上限|還能|繼續|當|擔任)/.test(t)&&!/(未成年|國中|高中|小孩|兒童|少年|勞保|退休金|領)/.test(t)){
+  return{direct:true,category:'人民團體會務說明',title:'理事、監事沒有年齡或退休的限制，只要是會員、章程沒另外限制就可以當',
+   summary:'可以。人民團體法規定理事、監事是從會員中選出來的（第17條），會員有被選舉權（第16條）；人民團體法、選舉罷免辦法和會務輔導辦法，都沒有對理事、監事設年齡上限，也沒有因為退休就不能擔任的規定。\n\n只要仍是會員、沒有被停權，章程也沒有另外訂資格限制，就可以被選。章程若有訂年齡等資格，依章程辦理（第12條）。\n\n另外，理事、監事是無給職（第21條）。',
+   statutes:[P(16),P(17),P(21),P(12)],notes:[],actions:btn};
+ }
+ /* 6. 理事、監事欠會費還能不能當 */
+ if(/(理事|監事|理監事)/.test(t)&&!/(理事長|會長)/.test(t)&&/(沒繳|沒有繳|欠|未繳|不繳|積欠|拖欠)/.test(t)&&/會費/.test(t)&&/(當|擔任|參選|被選|選舉|資格|投票|解任|還能|繼續)/.test(t)){
+  return{direct:true,category:'人民團體會務說明',title:'理事、監事欠會費還能不能當：法規沒有明文，看章程怎麼訂',
+   summary:'法規沒有明文規定欠會費就不能當理事或監事，要看章程。\n\n會員的權利義務和出會、除名的規定，都要寫在章程裡（人民團體法第12條第7、8款）。章程如果規定欠會費要停止會員權利，理事、監事被停權的期間超過任期二分之一時，應即解任，由候補遞補（同法第23條第4款）；沒有超過，就還不用解任。\n\n會員被除名要經會員大會出席人數三分之二以上同意（第14條、第27條）。理事長不能自己宣布停權，要有章程的依據。',
+   statutes:[P(12),P(23),P(14),P(27)],notes:[],actions:btn};
+ }
+ return null;
 }
 function patrolSched1117(t){
  /* 排程巡檢 2026-11-17（patrolSched1117）：PR #36 與 main 衝突後以今日 main 重做，補回 Issue #18／#20／#24 與 eval 退回題；全部條文已對 data/statutes.json.gz 原文核對。 */
@@ -6213,10 +6287,8 @@ function patrolSched1117(t){
    return A(ok?`${body}${N}人出席${M}人：可以開會，${N}人的過半數是${q}人`:`${body}${N}人出席${M}人：不能開會，至少要${q}人出席`,`${body}會要有${body}過半數出席才能成會，決議再以出席人數過半數或較多數同意（人民團體法第29條第2項）；出席人數以簽到或報到人數計算，不足額時主席應宣布散會（人民團體會務輔導辦法第16條）。\n\n${N} 人的過半數是 ${q} 人，出席 ${M} 人${ok?'已經達到，可以開會。':'還不夠，不能開會，要再找 '+(q-M)+' 人到場。'}\n\n${body}應親自出席，不得委託他人代理；連續二次無故缺席者視同辭職，由候補${body}依次遞補（第31條）。如果 ${N} 人裡有人已經出缺，應出席人數是現任人數，請告訴我現任幾人，我再幫您算。`,[P(29),G(16),P(31)]);
   }
  }
- // 5. 會員代表大會跟會員大會差在哪（eval 退回題）
- if(/(會員代表大會|代表大會)/.test(t)&&/會員大會/.test(t)&&/(差|不同|區別|差別|分別|一樣|哪裡不|有什麼不)/.test(t)&&!/(簽到|委託|通知|幾天|出席|過半|人數|多少人)/.test(t))
-  return A('會員大會是全體會員開會；會員代表大會是會員超過三百人時分區選出代表來開，職權相同','會員大會：由全體會員出席，是協會最高的會議。\n\n會員代表大會：會員人數超過三百人以上的團體，可以劃分地區，依會員人數比例選出代表，再合開代表大會，行使會員大會的職權；地區的劃分和各區代表名額的分配，要報請縣府核備（人民團體法第28條）。會員代表行使權利和會員相同（第13條）。\n\n要不要採代表制、代表的名額、職權、任期和選任方式，都要寫在章程裡（第12條第9款）。會員沒有超過三百人的協會，就直接開會員大會。',[P(28),P(13),P(12)]);
- // 6. 地政士（Issue #20；地政士法不在本站法規庫）
+ // （原第 5 題「會員代表大會跟會員大會差在哪」第 87 輪已在 main 新增規則，本函數不再重複）
+ // 5. 地政士（Issue #20；地政士法不在本站法規庫）
  if(/^地政士(法|執業|登記|證照|考試|懲戒|開業|事務所)?(怎麼|如何|要|可以|的)?.{0,8}$/.test(t)&&!/(公會|入會|拒絕|會員|會費|改選|理事|監事|章程|大會|電話|承辦|稅)/.test(t))
   return A('地政士：公會會務適用人民團體法、找社會處；地政士本身的執業、登記、懲戒規定本站無法確認','您問的是「地政士公會」的會務，還是「地政士」這個職業本身？\n\n一、地政士公會：公會是職業團體（人民團體法第4條），由同一職業的從業人員組成（第35條），縣級公會的主管機關是縣政府（第3條），公會不得拒絕具有會員資格者入會（第37條）。公會的立案、改選、章程、會務等，請洽縣府社會處辦理公會業務的承辦人。\n\n二、地政士的考試、開業登記、執業規範和懲戒，是依地政士法辦理，該法不在本站法規庫，本站無法確認內容；請洽縣府地政處或地政士公會。要委託辦理土地、建物登記，請洽各地政事務所。',[P(4),P(35),P(3),P(37)]);
  return null;
@@ -6230,7 +6302,7 @@ function verifiedRoundAnswer(q,ctx){
   const guildCharter=charterAmendment(t);
   if(guildCharter)return guildCharter;
  }
- return patrolSched1117(t)||patrol86(t)||guild86(t)||patrol85(t)||charterRound84(t)||taxFiling81(t)||memberRound83(t)||patrol84(t)||patrol83(t)||patrol82(t)||patrol81(t)||patrol80(t)||patrol79(t)||patrol78(t)||patrol77(t)||patrol76(t)||patrol75(t)||patrol74(t)||patrol73(t)||patrol72(t)||patrol71(t)||patrol70(t)||patrol69(t)||patrol68(t)||patrol67(t)||patrol66(t)||patrol65(t)||patrol64(t)||patrol63(t)||patrol62(t)||patrol61(t)||patrol60(t)||patrol59(t)||patrol58(t)||patrol57(t)||patrol56(t)||patrol55(t)||patrol54(t)||patrol53(t)||patrol52(t)||patrol51(t)||patrol50(t)||patrol49(t)||patrol48(t)||chairTermGeneral(t)||patrol47(t)||patrol46(t)||patrol45(t)||patrol44(t)||patrol43(t)||patrol42(t)||patrol41(t)||patrol40(t)||patrol39(t)||patrol38(t)||patrol37(t)||patrol36(t)||patrol35(t)||patrol34(t)||patrol33(t)||patrol32(t)||patrol31(t)||patrol30(t)||patrol29(t)||patrol28(t)||patrol27(t)||patrol26(t)||patrol25(t)||patrol24(t)||patrol23(t)||patrol22(t)||patrol21(t)||patrol20(t)||patrol19(t)||patrol18(t)||patrol17(t)||patrol15(t)||patrol16(t)||patrol14(t)||intlGroupElection(t)||patrol13(t)||patrol11(t)||patrol10(t)||patrol9(t)||patrol8(t)||patrol7(t)||memberStaffPatrol6(t)||communityPatrol(t)||dissolveCharterPatrol(t)||financePatrol(t)||membershipPatrol(t)||formTemplates(t,ctx&&ctx.catalog)||(/^(協會|社區發展協會|我們協會|本會)?的?(理事|監事|理監事)(和監事|跟監事)?(要)?(怎麼選|怎麼產生|如何產生|誰選)/.test(t)?electionHowTo(t):null)||attendanceFeeCan(t)||joinManyGroups(t)||chairReplaceMidTerm(t)||charterItemChange(t)||resolutionOverturn(t)||staffInsurance(t)||intlGroupWho(t)||moneyMisuse(t)||supervisorNoMeeting(t)||rosterView(t)||whoManagesMoney(t)||donationDeduct(t)||annualAccountsHowTo(t)||boardMeetingHowTo(t)||memberQuitHowTo(t)||viceChair(t)||motionSecond(t)||assocLoan(t)||yearEndBonus(t)||entertainmentExpense(t)||englishName(t)||minorOfficer(t)||assocInvest(t)||candidateDeposit(t)||chairAndRecorder(t)||facebookGroup(t)||rulingRules(t)||byElection(t)||receiptsBasic(t)||memberRepThreshold(t)||officerResignHow(t)||finalAccountsWho(t)||publicServantOfficer(t)||relativesAsOfficers(t)||mergeGroups(t)||govCommission(t)||conveneAndPetition(t)||assemblyPrepAndSignIn(t)||whatNeedsAssembly(t)||feeAndMemberStatus(t)||directorMustBeMember(t)||auditAndYear(t)||reorganization(t)||staffResignReport(t)||videoElection(t)||subsidyDetails(t)||subsidyBasics(t)||taxWithholding(t)||commercialGuild(t)||memberSuspension(t)||meetingProcedure(t)||solicitationAfter(t)||coopMore(t)||communityMore(t)||outOfScope(t)||whichAuthority(t)||volunteerMore(t)||submitWhere(t)||timeDeposit(t)||nonCompliance(t)||memberEligibilityOutside(t)||annualMeetings(t)||chairTermLimit(t)||assemblyQuorum(t)||urgentMeetingNotice(t)||directorVacancy(t)||recallOfficer(t)||boardResolution(t)||annualFinanceFiling(t)||receiptAndWithdraw(t)||charterContents(t)||dissolveVote(t)||sealMake(t)||memberOnlyFundraising(t)||communityBasics(t)||countyPhone(t)||advisorAppoint(t)||sealKeeper(t)||assocTravel(t)||activityReport(t)||assocFund(t)||officerAsFinanceStaff(t)||electionShowOfHands(t)||directorProxyVote(t)||memberAdmissionWho(t)||memberRosterReport(t)||attendanceFeeAmount(t)||auditByCPA(t)||financeAnnounce(t)||coopBasics(t)||foundingCost(t)||prepMeetingCount(t)||assemblyShortOfQuorum(t)||twoCommunityAssociations(t)||villageChiefAsChair(t)||intlTermStart(t)||charmCommunityContact(t)||groupTypeDifference(t)||directorAbsence(t)||chairElectionMethod(t)||officerNumbers(t)||meetingNoticeChannel(t)||budgetHowTo(t)||renameGroup(t)||certificateLost(t)||dormantGroup(t)||lookupRegistered(t)||coopWithdraw(t)||termLengthLimit(t)||assemblyAgenda(t)||teacherAssocSetup(t)||commercialGroupSetup(t)||alumniSetup(t)||boardAgenda(t)||assetScrap(t)||taxMissed(t)||officeAtHome(t)||communityAreaSplit(t)||officeMove(t)||crossCountyEvent(t)||dissolvedAssets(t)||groupNameDuplicate(t)||standingDirectorCount(t)||memberViewAccounts(t)||howToReportGroup(t)||groupReported(t)||anonymousDonation(t)||chairRelativeStaff(t)||minorJoinAssoc(t)||volunteerTopics(t)||volunteerTeam(t)||memberCourseFee(t)||staffMustBeMember(t)||chairFundraising(t)||boardBelowHalf(t)||assocMayNotMeet(t)||assocNurseryCenter(t)||assocCareStation(t)||assocDonateGoods(t)||assocGovTender(t)||subsidySettlement(t)||corpRegistration(t)||assocBoardPay(t)||financeStaffConcurrent(t)||staffHiring(t)||coopVsAssocAccountingForms(t)||coopBalanceSheetReport(t)||delegateQuotaCalculation(t)||delegateConcurrentRole(t)||onlineVoting(t)||mailVoting(t)||assemblyVotingMethod(t)||boardVotingMethodDetail(t)||delegateElectionProcess(t)||delegateAssemblyRules(t)||coopMemberRemoval(t)||coopAdvertisingTaxability(t)||coopLoanToMemberTax(t)||coopBankLoanProcedure(t)||coopBankLoan(t)||branchAccountingPractice(t)||memberDelegateElection(t)||branchOrgSetup(t)||delegateProposalProcess(t)||annualMeetingVsAssembly(t)||vacancyQuorum(t)||supervisorConvenerNoMeeting(t)||supervisorMinimumMembers(t)||supervisorChairmanElection(t)||supervisorAuditPowers(t)||branchOrgAccounting(t)||runClassesPermit(t)||residentialCarePermit(t)||chairConvicted(t)||chairDismissStaff(t)||chairDissolve(t)||homeAsOfficeTax(t)||nonprofitTaxThreshold(t)||sameAddressGroups(t)||chairStaffConflict(t)||orgDisposeProperty(t)||orgAcquireEquipment(t)||sellGoodsAllowed(t)||staffActingChair(t)||p2MembershipFee(t)||p2BoardNotice(t)||p2RecordRetention(t)||p2CharterAmend(t)||p2SupervisorAudit(t)||p2CoopShares(t)||p2FoundingMeeting(t)||p2ElectionPrep(t)||p2MinutesContent(t)||p2DelegateSystem(t)||chairAbandonsOffice(t)||chairOtherGroupPosition(t)||chairSpendWithoutBoard(t)||supervisorSpend(t)||supervisorActingChair(t)||candidateSeatCount(t)||ballotRetention(t)||officerResignation(t)||invalidBallotReason(t)||delegateQualification(t)||substitutionOrder(t)||byElectionThreshold(t)||coopChairReelection(t)||chairmanReelectionLimit(t)||chairmanAbsence(t)||recordRetentionPeriod(t)||advertisingIncome(t)||staffBankAccountSetup(t)||meetingSigninDuration(t)||meetingVotingMethod(t)||preElectionBoardMeeting(t)||electionEffectiveDate(t)||politicalDonation(t)||communityReportingRequirements(t)||communityYearlyPlanDeadline(t)||communityVsAssociationDifferences(t)||supervisorAsDirector(t)||newChairTodo(t)||postElectionAccountingDeadline(t)||electionReportDeadline(t)||checkSignature(t)||feePeriods(t)||feeDeferral(t)||threeMonthsWording(t)||electionCandidates(t)||electionObjection(t)||minutesDeadline(t)||coopBoardQuorum(t)||coopTax(t)||communityRename(t)||communityReportTownship(t)||addressCertificate(t)||bankChairChange(t)||eventFee(t)||communityChairTerm(t)||invalidBallot(t)||feeAmount(t)||personalAccount(t)||delegateAssembly(t)||noSupervisor(t)||foundingDocs(t)||investStocks(t)||membershipRefused(t)||coopCapital(t)||receiveDonation(t)||hireEmployee(t)||lendToChair(t)||branchOrg(t)||supervisorMeeting(t)||noAnnualMeeting(t)||chairSpendingAuth(t)||communityVsGeneral(t)||coopDissolutionProperty(t)||charterAmendment(t)||coopSupervisorAudit(t)||publicSolicitation(t)||decisionRevoked(t)||chairResign(t)||memberExpulsion(t)||sealChange(t)||noHandover(t)||communityDissolutionProperty(t)||boardFinanceAgenda(t)||boardQuorumGeneral(t)||delegated(t)||chairNoMeeting(t)||feeAnswer(t)||coopAssemblyQuorum(t)||proxyCount(t)||concurrent(t)||financeQuestioned(t)||financeDeadline(t)||meetingFrequency(t)||videoMeeting(t)||coopMinimum(t)||financeForms(t)||formsDownload(t,ctx&&ctx.catalog)||dissolutionHowTo(t)||null||chairChangeTodo(t)||electionHowTo(t)||meetingHowTo(t);
+ return patrol88(t)||patrol87(t)||patrolSched1117(t)||patrol86(t)||guild86(t)||patrol85(t)||charterRound84(t)||taxFiling81(t)||memberRound83(t)||patrol84(t)||patrol83(t)||patrol82(t)||patrol81(t)||patrol80(t)||patrol79(t)||patrol78(t)||patrol77(t)||patrol76(t)||patrol75(t)||patrol74(t)||patrol73(t)||patrol72(t)||patrol71(t)||patrol70(t)||patrol69(t)||patrol68(t)||patrol67(t)||patrol66(t)||patrol65(t)||patrol64(t)||patrol63(t)||patrol62(t)||patrol61(t)||patrol60(t)||patrol59(t)||patrol58(t)||patrol57(t)||patrol56(t)||patrol55(t)||patrol54(t)||patrol53(t)||patrol52(t)||patrol51(t)||patrol50(t)||patrol49(t)||patrol48(t)||chairTermGeneral(t)||patrol47(t)||patrol46(t)||patrol45(t)||patrol44(t)||patrol43(t)||patrol42(t)||patrol41(t)||patrol40(t)||patrol39(t)||patrol38(t)||patrol37(t)||patrol36(t)||patrol35(t)||patrol34(t)||patrol33(t)||patrol32(t)||patrol31(t)||patrol30(t)||patrol29(t)||patrol28(t)||patrol27(t)||patrol26(t)||patrol25(t)||patrol24(t)||patrol23(t)||patrol22(t)||patrol21(t)||patrol20(t)||patrol19(t)||patrol18(t)||patrol17(t)||patrol15(t)||patrol16(t)||patrol14(t)||intlGroupElection(t)||patrol13(t)||patrol11(t)||patrol10(t)||patrol9(t)||patrol8(t)||patrol7(t)||memberStaffPatrol6(t)||communityPatrol(t)||dissolveCharterPatrol(t)||financePatrol(t)||membershipPatrol(t)||formTemplates(t,ctx&&ctx.catalog)||(/^(協會|社區發展協會|我們協會|本會)?的?(理事|監事|理監事)(和監事|跟監事)?(要)?(怎麼選|怎麼產生|如何產生|誰選)/.test(t)?electionHowTo(t):null)||attendanceFeeCan(t)||joinManyGroups(t)||chairReplaceMidTerm(t)||charterItemChange(t)||resolutionOverturn(t)||staffInsurance(t)||intlGroupWho(t)||moneyMisuse(t)||supervisorNoMeeting(t)||rosterView(t)||whoManagesMoney(t)||donationDeduct(t)||annualAccountsHowTo(t)||boardMeetingHowTo(t)||memberQuitHowTo(t)||viceChair(t)||motionSecond(t)||assocLoan(t)||yearEndBonus(t)||entertainmentExpense(t)||englishName(t)||minorOfficer(t)||assocInvest(t)||candidateDeposit(t)||chairAndRecorder(t)||facebookGroup(t)||rulingRules(t)||byElection(t)||receiptsBasic(t)||memberRepThreshold(t)||officerResignHow(t)||finalAccountsWho(t)||publicServantOfficer(t)||relativesAsOfficers(t)||mergeGroups(t)||govCommission(t)||conveneAndPetition(t)||assemblyPrepAndSignIn(t)||whatNeedsAssembly(t)||feeAndMemberStatus(t)||directorMustBeMember(t)||auditAndYear(t)||reorganization(t)||staffResignReport(t)||videoElection(t)||subsidyDetails(t)||subsidyBasics(t)||taxWithholding(t)||commercialGuild(t)||memberSuspension(t)||meetingProcedure(t)||solicitationAfter(t)||coopMore(t)||communityMore(t)||outOfScope(t)||whichAuthority(t)||volunteerMore(t)||submitWhere(t)||timeDeposit(t)||nonCompliance(t)||memberEligibilityOutside(t)||annualMeetings(t)||chairTermLimit(t)||assemblyQuorum(t)||urgentMeetingNotice(t)||directorVacancy(t)||recallOfficer(t)||boardResolution(t)||annualFinanceFiling(t)||receiptAndWithdraw(t)||charterContents(t)||dissolveVote(t)||sealMake(t)||memberOnlyFundraising(t)||communityBasics(t)||countyPhone(t)||advisorAppoint(t)||sealKeeper(t)||assocTravel(t)||activityReport(t)||assocFund(t)||officerAsFinanceStaff(t)||electionShowOfHands(t)||directorProxyVote(t)||memberAdmissionWho(t)||memberRosterReport(t)||attendanceFeeAmount(t)||auditByCPA(t)||financeAnnounce(t)||coopBasics(t)||foundingCost(t)||prepMeetingCount(t)||assemblyShortOfQuorum(t)||twoCommunityAssociations(t)||villageChiefAsChair(t)||intlTermStart(t)||charmCommunityContact(t)||groupTypeDifference(t)||directorAbsence(t)||chairElectionMethod(t)||officerNumbers(t)||meetingNoticeChannel(t)||budgetHowTo(t)||renameGroup(t)||certificateLost(t)||dormantGroup(t)||lookupRegistered(t)||coopWithdraw(t)||termLengthLimit(t)||assemblyAgenda(t)||teacherAssocSetup(t)||commercialGroupSetup(t)||alumniSetup(t)||boardAgenda(t)||assetScrap(t)||taxMissed(t)||officeAtHome(t)||communityAreaSplit(t)||officeMove(t)||crossCountyEvent(t)||dissolvedAssets(t)||groupNameDuplicate(t)||standingDirectorCount(t)||memberViewAccounts(t)||howToReportGroup(t)||groupReported(t)||anonymousDonation(t)||chairRelativeStaff(t)||minorJoinAssoc(t)||volunteerTopics(t)||volunteerTeam(t)||memberCourseFee(t)||staffMustBeMember(t)||chairFundraising(t)||boardBelowHalf(t)||assocMayNotMeet(t)||assocNurseryCenter(t)||assocCareStation(t)||assocDonateGoods(t)||assocGovTender(t)||subsidySettlement(t)||corpRegistration(t)||assocBoardPay(t)||financeStaffConcurrent(t)||staffHiring(t)||coopVsAssocAccountingForms(t)||coopBalanceSheetReport(t)||delegateQuotaCalculation(t)||delegateConcurrentRole(t)||onlineVoting(t)||mailVoting(t)||assemblyVotingMethod(t)||boardVotingMethodDetail(t)||delegateElectionProcess(t)||delegateAssemblyRules(t)||coopMemberRemoval(t)||coopAdvertisingTaxability(t)||coopLoanToMemberTax(t)||coopBankLoanProcedure(t)||coopBankLoan(t)||branchAccountingPractice(t)||memberDelegateElection(t)||branchOrgSetup(t)||delegateProposalProcess(t)||annualMeetingVsAssembly(t)||vacancyQuorum(t)||supervisorConvenerNoMeeting(t)||supervisorMinimumMembers(t)||supervisorChairmanElection(t)||supervisorAuditPowers(t)||branchOrgAccounting(t)||runClassesPermit(t)||residentialCarePermit(t)||chairConvicted(t)||chairDismissStaff(t)||chairDissolve(t)||homeAsOfficeTax(t)||nonprofitTaxThreshold(t)||sameAddressGroups(t)||chairStaffConflict(t)||orgDisposeProperty(t)||orgAcquireEquipment(t)||sellGoodsAllowed(t)||staffActingChair(t)||p2MembershipFee(t)||p2BoardNotice(t)||p2RecordRetention(t)||p2CharterAmend(t)||p2SupervisorAudit(t)||p2CoopShares(t)||p2FoundingMeeting(t)||p2ElectionPrep(t)||p2MinutesContent(t)||p2DelegateSystem(t)||chairAbandonsOffice(t)||chairOtherGroupPosition(t)||chairSpendWithoutBoard(t)||supervisorSpend(t)||supervisorActingChair(t)||candidateSeatCount(t)||ballotRetention(t)||officerResignation(t)||invalidBallotReason(t)||delegateQualification(t)||substitutionOrder(t)||byElectionThreshold(t)||coopChairReelection(t)||chairmanReelectionLimit(t)||chairmanAbsence(t)||recordRetentionPeriod(t)||advertisingIncome(t)||staffBankAccountSetup(t)||meetingSigninDuration(t)||meetingVotingMethod(t)||preElectionBoardMeeting(t)||electionEffectiveDate(t)||politicalDonation(t)||communityReportingRequirements(t)||communityYearlyPlanDeadline(t)||communityVsAssociationDifferences(t)||supervisorAsDirector(t)||newChairTodo(t)||postElectionAccountingDeadline(t)||electionReportDeadline(t)||checkSignature(t)||feePeriods(t)||feeDeferral(t)||threeMonthsWording(t)||electionCandidates(t)||electionObjection(t)||minutesDeadline(t)||coopBoardQuorum(t)||coopTax(t)||communityRename(t)||communityReportTownship(t)||addressCertificate(t)||bankChairChange(t)||eventFee(t)||communityChairTerm(t)||invalidBallot(t)||feeAmount(t)||personalAccount(t)||delegateAssembly(t)||noSupervisor(t)||foundingDocs(t)||investStocks(t)||membershipRefused(t)||coopCapital(t)||receiveDonation(t)||hireEmployee(t)||lendToChair(t)||branchOrg(t)||supervisorMeeting(t)||noAnnualMeeting(t)||chairSpendingAuth(t)||communityVsGeneral(t)||coopDissolutionProperty(t)||charterAmendment(t)||coopSupervisorAudit(t)||publicSolicitation(t)||decisionRevoked(t)||chairResign(t)||memberExpulsion(t)||sealChange(t)||noHandover(t)||communityDissolutionProperty(t)||boardFinanceAgenda(t)||boardQuorumGeneral(t)||delegated(t)||chairNoMeeting(t)||feeAnswer(t)||coopAssemblyQuorum(t)||proxyCount(t)||concurrent(t)||financeQuestioned(t)||financeDeadline(t)||meetingFrequency(t)||videoMeeting(t)||coopMinimum(t)||financeForms(t)||formsDownload(t,ctx&&ctx.catalog)||dissolutionHowTo(t)||null||chairChangeTodo(t)||electionHowTo(t)||meetingHowTo(t);
 }
 const api={normalizeQuestion,withContext,verifiedRoundAnswer};
 if(typeof module!=='undefined'&&module.exports)module.exports=api;
