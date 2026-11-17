@@ -831,7 +831,7 @@ async function saveChunked(coll,rows,metaExtra){
 async function loadAll(force){
   if(loadPromise&&!force)return loadPromise;
   loadPromise=(async()=>{
-    const base=document.baseURI.replace(/[^/]*$/,"")+"data/";const DV="?v=20261117-90";
+    const base=document.baseURI.replace(/[^/]*$/,"")+"data/";const DV="?v=20261117-91";
     const jf=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);return r.json()};
     const jgz=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);const b=new Uint8Array(await r.arrayBuffer());if(b[0]!==31||b[1]!==139)return JSON.parse(new TextDecoder().decode(b));if(typeof DecompressionStream==="undefined")throw new Error("gzip unsupported");const text=await new Response(new Blob([b]).stream().pipeThrough(new DecompressionStream("gzip"))).text();return JSON.parse(text)};
     const [d,s,k,f]=await Promise.allSettled([jf(base+"directory.json"+DV),jf(base+"staff.json"+DV),jgz(base+"knowledge.json.gz"+DV).catch(()=>jf(base+"knowledge.json"+DV)),jf(base+"forms-catalog.json?v=20261105-5")]);
@@ -923,7 +923,7 @@ function searchKn(q,limit,legacy){
 const SUFFIX="社區發展協會|慈善會|協進會|互助社|服務社|教師會|教育會|研究社|轎班會|晨泳會|早泳會|早覺會|之友會|聯青社|采風社|薪傳會|親善會|聯盟會|聯盟|畫會|崇文社|弘道會|學佛會|聖道會|文化會|共修會|同修會|傳習會|傳道會|帝爺會|懇親會|尊王會|登山會|門球會|山友會|彈球會|十字會|童軍會|婦友會|公益會|普愛會|扶助會|客家會|合作社|合作農場|商業同業公會|同業公會|商業會|工業會|佛教會|道教會|功德會|婦女會|體育會|青年會|協會|學會|促進會|聯誼會|公會|研究會|總會|分會|商會|聯合會|獅子會|扶輪社|青商會|同濟會|發展會|關懷會|老人會|長青會|宗親會|同鄉會|校友會|俱樂部";
 const NAME_RE=new RegExp("([\\u4e00-\\u9fa5A-Za-z0-9]{2,24}?(?:"+SUFFIX+"))");
 const LEAD_RE=/^(請問一下|請問|請幫我查詢|請幫我查|幫我查詢|幫我查|幫我找|我想查詢|我想查|我要查詢|我要查|想查|查詢|查一下|查|找|搜尋|有沒有|是否有|我想知道|想知道)/;
-const GENERIC_PREFIX=/^(成立|申請|籌組|設立|組織|一個|這個|我們的|我們|新的|該|本|辦理|如何|怎麼|要|想|社區發展|人民團體|社會團體|職業團體)$/;
+const GENERIC_PREFIX=/^(成立|申請|籌組|設立|組織|一個|這個|我們的|我們|新的|該|本|辦理|如何|怎麼|要|想|社區|社區發展|人民團體|社會團體|職業團體)$/;
 const CUT_RE=/^.*(有哪些|哪些|有沒有|是否有|查詢|查一下|列出|幾個|多少個|多少家|共有|我想取的|想取的|取名為|取名|名稱為|名稱|叫做|請問)/;
 const NAME_RE_G=new RegExp(NAME_RE.source,"g");
 function specificName(q){
@@ -1487,7 +1487,8 @@ function smartFallback(q,kb){
   }
   const twn=townOf(q);
   if(twn&&/統編|統一編號|國稅|扣繳|所得稅|免稅|報稅/.test(q)){const tr=STORE.kn.rows.find(r=>r.cat==="國稅轄區"&&r.text.includes(twn));if(tr)parts.where=[`${twn}的國稅窗口：`+tr.text,...(parts.where||[])]}
-  if(!kb&&!parts.summary&&!PROCESS_RE.test(q)&&ENTITY_RE.test(q)&&STORE.dir.rows.length){
+  /* 規則型問句（要不要、可不可以、需要…）沒有查詢名冊的字眼時，不要退回列名冊，改走「難倒小屏」交承辦補答案 */
+  if(!kb&&!parts.summary&&!PROCESS_RE.test(q)&&ENTITY_RE.test(q)&&STORE.dir.rows.length&&!(/要不要|需不需要|需要|可不可以|可以|能不能|能否|是否|一定要|必須|必要|會不會|為什麼|為何|怎樣|怎麼|如何/.test(q)&&!QUERY_RE.test(q))){
     const t=detectType(q),c=detectCat(q),d=townOf(q);
     if(c||t||d){const r=searchDir({kw:"",d,c,t},10);
       if(r.total&&!parts.groups){parts.groups=r.rows.slice(0,6);parts.dirMeta=dirMetaLine();
@@ -1864,13 +1865,13 @@ touch();
   route();
 })();
 </script>
-<script src="feedback-collector.js?v=20261117-90"></script>
-<script src="round-fixes.js?v=20261117-90"></script>
-<script src="answer-arbiter.js?v=20261117-90"></script>
-<script src="question-understanding.js?v=20261117-90"></script>
-<script src="counter-upgrade.js?v=20261117-90"></script>
-<script src="ai-assist.js?v=20261117-90"></script>
-<script src="festive.js?v=20261117-90" defer></script>
+<script src="feedback-collector.js?v=20261117-91"></script>
+<script src="round-fixes.js?v=20261117-91"></script>
+<script src="answer-arbiter.js?v=20261117-91"></script>
+<script src="question-understanding.js?v=20261117-91"></script>
+<script src="counter-upgrade.js?v=20261117-91"></script>
+<script src="ai-assist.js?v=20261117-91"></script>
+<script src="festive.js?v=20261117-91" defer></script>
 </body>
 </html>
 
