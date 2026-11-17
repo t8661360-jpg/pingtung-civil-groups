@@ -11,7 +11,7 @@ const has=(a,s)=>a&&a.statutes&&a.statutes.some(x=>x.title.includes(s));
 {const a=A('廣告費收了要怎麼記帳');assert(a&&a.title.includes('決算'),a?a.title:'null');assert(has(a,'第33條')||has(a,'財務'));}
 
 // 3 帳務保存期限
-{const a=A('帳務報表要保存多久');assert(a&&a.title.includes('10年'),a?a.title:'null');assert(has(a,'第19條')||has(a,'會計'));}
+{const a=A('帳務報表要保存多久');assert(a&&a.title.includes('10年'),a?a.title:'null');assert(has(a,'第21條')&&!has(a,'人民團體法第19條'));}
 
 // 4 總幹事銀行資料
 {const a=A('總幹事要帶什麼資料去銀行');assert(a&&a.title.includes('身分證'),a?a.title:'null');assert(has(a,'第17條')||has(a,'財務'));}
