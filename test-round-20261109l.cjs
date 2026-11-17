@@ -20,7 +20,7 @@ const has=(a,s)=>a&&a.statutes&&a.statutes.some(x=>x.title.includes(s));
 {const a=r.verifiedRoundAnswer(r.normalizeQuestion(r.withContext('那要簽多久','會員大會要簽到嗎')),{});assert(a&&a.title.includes('章程'),a?a.title:'null');assert(has(a,'第25條')||has(a,'第12條'));}
 
 // 6 改選前理監事會
-{const a=A('改選前一個月是一定要開選前理監事會嗎');assert(a&&a.title.includes('不是'),a?a.title:'null');assert(has(a,'第25條')||has(a,'第43條'));}
+{const a=A('改選前一個月是一定要開選前理監事會嗎');assert(a&&a.title.includes('理事會要先開'),a?a.title:'null');assert(has(a,'選舉罷免辦法第5條'));/* r107：舊答案「不是必定要開」並引§25、§43（與內文無關），改依選罷辦法§5、§6 */}
 
 // 7 監事會主席選舉
 {const a=A('監事會主席怎麼選');assert(a&&a.title.includes('召集人'),a?a.title:'null');assert(has(a,'第17條'));}
