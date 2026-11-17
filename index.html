@@ -728,8 +728,8 @@ const KB=[
   summary:"沒有，理事、監事都是無給職。不過章程可以訂定出席會議的交通費或車馬費。支薪的是總幹事、會計等工作人員，員工的薪給支給基準等事項，不得違反勞動法令，由理事會訂定，提會員（代表）大會通過後實施（社會團體工作人員管理辦法第7條）。",
   laws:["zc20"],notes:[],act:[["看章程範例","law","屏東縣作業規定"]]},
  {k:["監事","監察","審核","監事職權"],cat:"法規查詢",title:"監事的職權是什麼",
-  summary:"監事會主要負責監察理事會運作、審核年度決算表冊，也可以列席理事會議。改選時，選舉票要由監事會推派監事簽章，確保選務公正。監事名額不能超過理事的三分之一，建議至少 3 人。",
-  laws:["pg17","zc15"],notes:[],act:[["看理監事名額","law","屏東縣作業規定"]]},
+  summary:"監事會的工作主要是：監察理事會（經費收支和工作執行情形由理事會送請監事會監察，發現不當提出糾正意見，理事會不處理可提報大會，會務輔導辦法第17條）、查核協會財務（社會團體財務處理辦法第22條）、審核年度決算（人民團體法第34條），也可以發函請理事長召開臨時大會（第25條）。監事可不可以列席理事會，法規沒有明文，要看章程。監事名額不得超過理事名額的三分之一，且至少要三人（會務輔導辦法第9條）。",
+  laws:["pg17"],notes:[],act:[["看理監事名額","law","屏東縣作業規定"]]},
  {k:["候補","遞補","出缺"],cat:"會務辦理",title:"理監事出缺怎麼辦",
   summary:"理事出缺，由候補理事依得票順序遞補；監事出缺，由候補監事遞補。候補名額不能超過正選的三分之一。理事長、常務理事或常務監事出缺，要在一個月內補選。",
   laws:["zc15","zc17"],notes:[],act:[["看理事長補選","meet","m-board"]]},
@@ -831,7 +831,7 @@ async function saveChunked(coll,rows,metaExtra){
 async function loadAll(force){
   if(loadPromise&&!force)return loadPromise;
   loadPromise=(async()=>{
-    const base=document.baseURI.replace(/[^/]*$/,"")+"data/";const DV="?v=20261117-109";
+    const base=document.baseURI.replace(/[^/]*$/,"")+"data/";const DV="?v=20261117-110";
     const jf=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);return r.json()};
     const jgz=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);const b=new Uint8Array(await r.arrayBuffer());if(b[0]!==31||b[1]!==139)return JSON.parse(new TextDecoder().decode(b));if(typeof DecompressionStream==="undefined")throw new Error("gzip unsupported");const text=await new Response(new Blob([b]).stream().pipeThrough(new DecompressionStream("gzip"))).text();return JSON.parse(text)};
     const [d,s,k,f]=await Promise.allSettled([jf(base+"directory.json"+DV),jf(base+"staff.json"+DV),jgz(base+"knowledge.json.gz"+DV).catch(()=>jf(base+"knowledge.json"+DV)),jf(base+"forms-catalog.json?v=20261105-5")]);
@@ -1866,13 +1866,13 @@ touch();
   route();
 })();
 </script>
-<script src="feedback-collector.js?v=20261117-109"></script>
-<script src="round-fixes.js?v=20261117-109"></script>
-<script src="answer-arbiter.js?v=20261117-109"></script>
-<script src="question-understanding.js?v=20261117-109"></script>
-<script src="counter-upgrade.js?v=20261117-109"></script>
-<script src="ai-assist.js?v=20261117-109"></script>
-<script src="festive.js?v=20261117-109" defer></script>
+<script src="feedback-collector.js?v=20261117-110"></script>
+<script src="round-fixes.js?v=20261117-110"></script>
+<script src="answer-arbiter.js?v=20261117-110"></script>
+<script src="question-understanding.js?v=20261117-110"></script>
+<script src="counter-upgrade.js?v=20261117-110"></script>
+<script src="ai-assist.js?v=20261117-110"></script>
+<script src="festive.js?v=20261117-110" defer></script>
 </body>
 </html>
 

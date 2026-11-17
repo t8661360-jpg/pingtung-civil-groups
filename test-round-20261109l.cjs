@@ -23,7 +23,7 @@ const has=(a,s)=>a&&a.statutes&&a.statutes.some(x=>x.title.includes(s));
 {const a=A('改選前一個月是一定要開選前理監事會嗎');assert(a&&a.title.includes('不是'),a?a.title:'null');assert(has(a,'第25條')||has(a,'第43條'));}
 
 // 7 監事會主席選舉
-{const a=A('監事會主席怎麼選');assert(a&&a.title.includes('選舉'),a?a.title:'null');assert(has(a,'第43條')||has(a,'第29條'));}
+{const a=A('監事會主席怎麼選');assert(a&&a.title.includes('召集人'),a?a.title:'null');assert(has(a,'第17條'));}
 
 // 8 改選日期計算
 {const a=A('改選那一天才能算新的一屆嗎');assert(a&&a.title.includes('第一次理事會'),a?a.title:'null');assert(has(a,'第28條'));}
