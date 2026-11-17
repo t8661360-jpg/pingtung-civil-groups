@@ -4,7 +4,7 @@ const has=(a,s)=>a&&a.statutes&&a.statutes.some(x=>x.title.includes(s));
 {const a=A('協會章程要怎麼修改');assert(a.title.includes('三分之二'));assert(has(a,'人民團體法第27條'));}
 assert(A('公會章程怎麼變更').title.includes('三分之二'));
 // 合作社監事查帳
-{const a=A('合作社監事可以看帳嗎');assert(a.title.includes('法定職權'));assert(has(a,'合作社法第57條'));}
+{const a=A('合作社監事可以看帳嗎');assert(a.title.includes('法定職權'));assert(has(a,'合作社法第36條'));assert(!has(a,'合作社法第57條'));}
 // 公益勸募
 {const a=A('社區發展協會可以申請公益勸募嗎');assert(a.title.includes('公益勸募'));assert(a.summary.includes('法人登記'));}
 assert(A('合作社可以勸募嗎').title.includes('無法確認'));
