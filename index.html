@@ -831,7 +831,7 @@ async function saveChunked(coll,rows,metaExtra){
 async function loadAll(force){
   if(loadPromise&&!force)return loadPromise;
   loadPromise=(async()=>{
-    const base=document.baseURI.replace(/[^/]*$/,"")+"data/";const DV="?v=20261117-88";
+    const base=document.baseURI.replace(/[^/]*$/,"")+"data/";const DV="?v=20261117-93";
     const jf=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);return r.json()};
     const jgz=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);const b=new Uint8Array(await r.arrayBuffer());if(b[0]!==31||b[1]!==139)return JSON.parse(new TextDecoder().decode(b));if(typeof DecompressionStream==="undefined")throw new Error("gzip unsupported");const text=await new Response(new Blob([b]).stream().pipeThrough(new DecompressionStream("gzip"))).text();return JSON.parse(text)};
     const [d,s,k,f]=await Promise.allSettled([jf(base+"directory.json"+DV),jf(base+"staff.json"+DV),jgz(base+"knowledge.json.gz"+DV).catch(()=>jf(base+"knowledge.json"+DV)),jf(base+"forms-catalog.json?v=20261105-5")]);
@@ -923,7 +923,7 @@ function searchKn(q,limit,legacy){
 const SUFFIX="社區發展協會|慈善會|協進會|互助社|服務社|教師會|教育會|研究社|轎班會|晨泳會|早泳會|早覺會|之友會|聯青社|采風社|薪傳會|親善會|聯盟會|聯盟|畫會|崇文社|弘道會|學佛會|聖道會|文化會|共修會|同修會|傳習會|傳道會|帝爺會|懇親會|尊王會|登山會|門球會|山友會|彈球會|十字會|童軍會|婦友會|公益會|普愛會|扶助會|客家會|合作社|合作農場|商業同業公會|同業公會|商業會|工業會|佛教會|道教會|功德會|婦女會|體育會|青年會|協會|學會|促進會|聯誼會|公會|研究會|總會|分會|商會|聯合會|獅子會|扶輪社|青商會|同濟會|發展會|關懷會|老人會|長青會|宗親會|同鄉會|校友會|俱樂部";
 const NAME_RE=new RegExp("([\\u4e00-\\u9fa5A-Za-z0-9]{2,24}?(?:"+SUFFIX+"))");
 const LEAD_RE=/^(請問一下|請問|請幫我查詢|請幫我查|幫我查詢|幫我查|幫我找|我想查詢|我想查|我要查詢|我要查|想查|查詢|查一下|查|找|搜尋|有沒有|是否有|我想知道|想知道)/;
-const GENERIC_PREFIX=/^(成立|申請|籌組|設立|組織|一個|這個|我們的|我們|新的|該|本|辦理|如何|怎麼|要|想|社區發展|人民團體|社會團體|職業團體)$/;
+const GENERIC_PREFIX=/^(成立|申請|籌組|設立|組織|一個|這個|我們的|我們|新的|該|本|辦理|如何|怎麼|要|想|社區|社區發展|人民團體|社會團體|職業團體)$/;
 const CUT_RE=/^.*(有哪些|哪些|有沒有|是否有|查詢|查一下|列出|幾個|多少個|多少家|共有|我想取的|想取的|取名為|取名|名稱為|名稱|叫做|請問)/;
 const NAME_RE_G=new RegExp(NAME_RE.source,"g");
 function specificName(q){
@@ -936,6 +936,7 @@ function specificName(q){
     if(!pre&&/^屏東縣/.test(full)&&suf&&!/^(協會|學會|公會|合作社|社區發展協會)$/.test(suf[1]))return full;
     if(!pre||pre.length<2||GENERIC_PREFIX.test(pre))continue;
     if(/(可以|能不能|可不可以|能否|是否|要不要|怎麼|如何|加入|參加|申請|檢舉|投訴|陳情|舉報|魅力社區|要問|找誰|電話是|多少錢|有什麼|差在哪|不一樣|差別|有沒有立案|可以有|幾個|成立|籌組|跟|要查|一個村|一個里|是協會|算不算|算人民團體|一個|哪個|某個|朋友|我們|每年|第一步|兩個|合併|負責|欠錢|債務|聯絡方式|一個人|換地址|別的鄉鎮|幾個協會|未滿|未成年|\d+歲|十八歲)/.test(pre))continue;
+    if(/^(志工|義工)[幫可能要算是需有會被做]/.test(pre))continue;
     if(/^(社區發展|社會|職業|人民)/.test(cand)&&pre.length<=4)continue;
     const preN=norm(pre);const town=TOWNS.find(t=>preN.startsWith(norm(t))||(norm(t).slice(0,-1)!=="屏東"&&preN.startsWith(norm(t).slice(0,-1))));
     if(town){let rest=preN.startsWith(norm(town))?preN.slice(norm(town).length):preN.slice(norm(town).length-1);rest=rest.replace(/^[有的在之]+|[有的在之]+$/g,"");
@@ -952,6 +953,8 @@ function detectType(q){if(/社區發展協會|社區協會|社區/.test(q))retur
 function detectCat(q){for(const [c,re] of CAT_ALIAS){if(re.test(q))return c}return""}
 function intentOf(q){
   /* 已有核對過法條的直接回答時，不走名冊查詢（避免「協會每年有哪些會要開」被當成查名冊） */
+  /* 問特定團體的屆期／第幾屆：查名冊（名冊有屆別與起訖日），不交給一般改選規定 */
+  {const sn0=specificName(q);if(sn0&&/(屆期|任期|屆別|第幾屆)/.test(q)&&/(到|什麼時候|何時|幾月|哪時|幾號|哪一天|第幾屆|屆滿|還有多久)/.test(q)&&!/(怎麼|如何|規定|可以|能不能|延長|延期|起算|開始算|最長|幾年|一般)/.test(q))return{kind:"dir",name:sn0,term:true}}
   if(typeof verifiedRoundAnswer==='function'){try{const d=verifiedRoundAnswer(q,{});if(d&&d.direct)return{kind:"ai"}}catch(e){}}
   const sn=specificName(q);
   if(!/多少|幾個|幾家|幾間|有哪些|哪些|列出|理事長是誰|的理事長|的電話|的地址|立案了嗎|重複|撞名/.test(q)){const k=searchKn(q,1);if(k.length&&k[0]._tc>=0.7&&revCov(k[0].標題,q)>=0.6)return{kind:"ai"}}
@@ -1368,9 +1371,10 @@ function dirRender(q,query,res,intent){
     try{reportUnanswered(q)}catch(e){}
     return{category:"團體查詢",title:"查無符合資料",summary:`本縣名冊中查無「${query.kw||label}」相關團體。可能是名稱用字不同（例如臺、台），或屬社區發展協會、合作社等未納入本名冊之團體。`,groups:[],staff:s,dirMeta:meta,notes:["可改用名稱中的兩三個關鍵字再查一次。","如需確認立案狀況，請洽承辦人。"],actions:[{label:"到團體查詢頁搜尋",view:"search",sub:JSON.stringify({kw:query.kw,t:query.t,c:query.c,d:query.d})},{label:"聯絡承辦",view:"contact",sub:""}]};
   }
-  if(query.kw&&res.exact.length===1&&!res.fuzzy){
-    const g=res.exact[0];
+  if(query.kw&&!res.fuzzy&&(res.exact.length===1||res.total===1)){
+    const g=res.exact.length===1?res.exact[0]:res.rows[0];
     if(g.s==="已解散")return{category:"團體查詢",title:g.n,summary:`「${g.n}」已解散${g.sd?"（"+g.sd+"）":""}，目前不是存續團體。`,groups:[g],hitFirst:true,dirMeta:meta,notes:[],actions:more};
+    if(intent.term&&g.term)return{category:"團體查詢",title:g.n+"：目前是"+g.term,summary:`「${g.n}」目前是${g.term}（依名冊列載）。屆期如有異動，以縣府核備的資料為準；改選的時程規定，可以接著問「什麼時候要改選」。`,groups:[g],hitFirst:true,dirMeta:meta,notes:[],actions:more};
     const st=staffForGroup(g);
     const fields=[g.d?"位於"+g.d:"",g.p?"理事長："+g.p:"",g.tel?"電話："+g.tel:"",g.term?"屆別任期："+g.term:""].filter(Boolean).join("，");
     return{category:"團體查詢",title:g.n,summary:`「${g.n}」是本縣存續的${g.c||g.t}${fields?"，"+fields:""}。${st?`會務由${st.unit}${st.name}承辦（${st.tel}${st.ext?" 轉 "+st.ext:""}）。`:""}`,groups:[g],hitFirst:true,dirMeta:meta,notes:termNote(g),actions:[{label:"會員大會辦理",view:"meet",sub:"m-assembly"},{label:"改選辦理",view:"meet",sub:"m-elect"},...more]};
@@ -1484,7 +1488,8 @@ function smartFallback(q,kb){
   }
   const twn=townOf(q);
   if(twn&&/統編|統一編號|國稅|扣繳|所得稅|免稅|報稅/.test(q)){const tr=STORE.kn.rows.find(r=>r.cat==="國稅轄區"&&r.text.includes(twn));if(tr)parts.where=[`${twn}的國稅窗口：`+tr.text,...(parts.where||[])]}
-  if(!kb&&!parts.summary&&!PROCESS_RE.test(q)&&ENTITY_RE.test(q)&&STORE.dir.rows.length){
+  /* 規則型問句（要不要、可不可以、需要…）沒有查詢名冊的字眼時，不要退回列名冊，改走「難倒小屏」交承辦補答案 */
+  if(!kb&&!parts.summary&&!PROCESS_RE.test(q)&&ENTITY_RE.test(q)&&STORE.dir.rows.length&&!(/要不要|需不需要|需要|可不可以|可以|能不能|能否|是否|一定要|必須|必要|會不會|為什麼|為何|怎樣|怎麼|如何/.test(q)&&!QUERY_RE.test(q))){
     const t=detectType(q),c=detectCat(q),d=townOf(q);
     if(c||t||d){const r=searchDir({kw:"",d,c,t},10);
       if(r.total&&!parts.groups){parts.groups=r.rows.slice(0,6);parts.dirMeta=dirMetaLine();
@@ -1557,7 +1562,8 @@ async function ask(q){
     const dissolveKB=roundFix==='KB:解散'?KB.find(x=>x.k.includes('辦理解散')):null;
     /* 先理解再回答：把所有規則候選交給仲裁層，不對題就不給 */
     let _rejected=false;
-    if(window.AnswerArbiter&&!dissolveKB){
+    if(intent.term){ans=dirAnswer(q,intent);if(ans)ans.direct=true;}
+    else if(window.AnswerArbiter&&!dissolveKB){
       const _ctx=typeof lastQuestionContext!=='undefined'?lastQuestionContext:null;
       const _pick=window.AnswerArbiter.pickOption(q,_ctx);
       if(_pick)ans=_pick;
@@ -1860,13 +1866,13 @@ touch();
   route();
 })();
 </script>
-<script src="feedback-collector.js?v=20261117-88"></script>
-<script src="round-fixes.js?v=20261117-88"></script>
-<script src="answer-arbiter.js?v=20261117-88"></script>
-<script src="question-understanding.js?v=20261117-88"></script>
-<script src="counter-upgrade.js?v=20261117-88"></script>
-<script src="ai-assist.js?v=20261117-88"></script>
-<script src="festive.js?v=20261117-88" defer></script>
+<script src="feedback-collector.js?v=20261117-93"></script>
+<script src="round-fixes.js?v=20261117-93"></script>
+<script src="answer-arbiter.js?v=20261117-93"></script>
+<script src="question-understanding.js?v=20261117-93"></script>
+<script src="counter-upgrade.js?v=20261117-93"></script>
+<script src="ai-assist.js?v=20261117-93"></script>
+<script src="festive.js?v=20261117-93" defer></script>
 </body>
 </html>
 
