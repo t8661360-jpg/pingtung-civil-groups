@@ -831,7 +831,7 @@ async function saveChunked(coll,rows,metaExtra){
 async function loadAll(force){
   if(loadPromise&&!force)return loadPromise;
   loadPromise=(async()=>{
-    const base=document.baseURI.replace(/[^/]*$/,"")+"data/";const DV="?v=20261117-88";
+    const base=document.baseURI.replace(/[^/]*$/,"")+"data/";const DV="?v=20261117-89";
     const jf=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);return r.json()};
     const jgz=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);const b=new Uint8Array(await r.arrayBuffer());if(b[0]!==31||b[1]!==139)return JSON.parse(new TextDecoder().decode(b));if(typeof DecompressionStream==="undefined")throw new Error("gzip unsupported");const text=await new Response(new Blob([b]).stream().pipeThrough(new DecompressionStream("gzip"))).text();return JSON.parse(text)};
     const [d,s,k,f]=await Promise.allSettled([jf(base+"directory.json"+DV),jf(base+"staff.json"+DV),jgz(base+"knowledge.json.gz"+DV).catch(()=>jf(base+"knowledge.json"+DV)),jf(base+"forms-catalog.json?v=20261105-5")]);
@@ -952,6 +952,8 @@ function detectType(q){if(/社區發展協會|社區協會|社區/.test(q))retur
 function detectCat(q){for(const [c,re] of CAT_ALIAS){if(re.test(q))return c}return""}
 function intentOf(q){
   /* 已有核對過法條的直接回答時，不走名冊查詢（避免「協會每年有哪些會要開」被當成查名冊） */
+  /* 問特定團體的屆期／第幾屆：查名冊（名冊有屆別與起訖日），不交給一般改選規定 */
+  {const sn0=specificName(q);if(sn0&&/(屆期|任期|屆別|第幾屆)/.test(q)&&/(到|什麼時候|何時|幾月|哪時|幾號|哪一天|第幾屆|屆滿|還有多久)/.test(q)&&!/(怎麼|如何|規定|可以|能不能|延長|延期|起算|開始算|最長|幾年|一般)/.test(q))return{kind:"dir",name:sn0,term:true}}
   if(typeof verifiedRoundAnswer==='function'){try{const d=verifiedRoundAnswer(q,{});if(d&&d.direct)return{kind:"ai"}}catch(e){}}
   const sn=specificName(q);
   if(!/多少|幾個|幾家|幾間|有哪些|哪些|列出|理事長是誰|的理事長|的電話|的地址|立案了嗎|重複|撞名/.test(q)){const k=searchKn(q,1);if(k.length&&k[0]._tc>=0.7&&revCov(k[0].標題,q)>=0.6)return{kind:"ai"}}
@@ -1368,9 +1370,10 @@ function dirRender(q,query,res,intent){
     try{reportUnanswered(q)}catch(e){}
     return{category:"團體查詢",title:"查無符合資料",summary:`本縣名冊中查無「${query.kw||label}」相關團體。可能是名稱用字不同（例如臺、台），或屬社區發展協會、合作社等未納入本名冊之團體。`,groups:[],staff:s,dirMeta:meta,notes:["可改用名稱中的兩三個關鍵字再查一次。","如需確認立案狀況，請洽承辦人。"],actions:[{label:"到團體查詢頁搜尋",view:"search",sub:JSON.stringify({kw:query.kw,t:query.t,c:query.c,d:query.d})},{label:"聯絡承辦",view:"contact",sub:""}]};
   }
-  if(query.kw&&res.exact.length===1&&!res.fuzzy){
-    const g=res.exact[0];
+  if(query.kw&&!res.fuzzy&&(res.exact.length===1||res.total===1)){
+    const g=res.exact.length===1?res.exact[0]:res.rows[0];
     if(g.s==="已解散")return{category:"團體查詢",title:g.n,summary:`「${g.n}」已解散${g.sd?"（"+g.sd+"）":""}，目前不是存續團體。`,groups:[g],hitFirst:true,dirMeta:meta,notes:[],actions:more};
+    if(intent.term&&g.term)return{category:"團體查詢",title:g.n+"：目前是"+g.term,summary:`「${g.n}」目前是${g.term}（依名冊列載）。屆期如有異動，以縣府核備的資料為準；改選的時程規定，可以接著問「什麼時候要改選」。`,groups:[g],hitFirst:true,dirMeta:meta,notes:[],actions:more};
     const st=staffForGroup(g);
     const fields=[g.d?"位於"+g.d:"",g.p?"理事長："+g.p:"",g.tel?"電話："+g.tel:"",g.term?"屆別任期："+g.term:""].filter(Boolean).join("，");
     return{category:"團體查詢",title:g.n,summary:`「${g.n}」是本縣存續的${g.c||g.t}${fields?"，"+fields:""}。${st?`會務由${st.unit}${st.name}承辦（${st.tel}${st.ext?" 轉 "+st.ext:""}）。`:""}`,groups:[g],hitFirst:true,dirMeta:meta,notes:termNote(g),actions:[{label:"會員大會辦理",view:"meet",sub:"m-assembly"},{label:"改選辦理",view:"meet",sub:"m-elect"},...more]};
@@ -1557,7 +1560,8 @@ async function ask(q){
     const dissolveKB=roundFix==='KB:解散'?KB.find(x=>x.k.includes('辦理解散')):null;
     /* 先理解再回答：把所有規則候選交給仲裁層，不對題就不給 */
     let _rejected=false;
-    if(window.AnswerArbiter&&!dissolveKB){
+    if(intent.term){ans=dirAnswer(q,intent);if(ans)ans.direct=true;}
+    else if(window.AnswerArbiter&&!dissolveKB){
       const _ctx=typeof lastQuestionContext!=='undefined'?lastQuestionContext:null;
       const _pick=window.AnswerArbiter.pickOption(q,_ctx);
       if(_pick)ans=_pick;
@@ -1860,13 +1864,13 @@ touch();
   route();
 })();
 </script>
-<script src="feedback-collector.js?v=20261117-88"></script>
-<script src="round-fixes.js?v=20261117-88"></script>
-<script src="answer-arbiter.js?v=20261117-88"></script>
-<script src="question-understanding.js?v=20261117-88"></script>
-<script src="counter-upgrade.js?v=20261117-88"></script>
-<script src="ai-assist.js?v=20261117-88"></script>
-<script src="festive.js?v=20261117-88" defer></script>
+<script src="feedback-collector.js?v=20261117-89"></script>
+<script src="round-fixes.js?v=20261117-89"></script>
+<script src="answer-arbiter.js?v=20261117-89"></script>
+<script src="question-understanding.js?v=20261117-89"></script>
+<script src="counter-upgrade.js?v=20261117-89"></script>
+<script src="ai-assist.js?v=20261117-89"></script>
+<script src="festive.js?v=20261117-89" defer></script>
 </body>
 </html>
 
