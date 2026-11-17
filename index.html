@@ -707,10 +707,10 @@ const KB=[
   summary:"會計年度跟日曆年一樣，1 月 1 日到 12 月 31 日。依現行社會團體財務處理辦法第11條：年度開始前，理事會要編好工作計畫和收支預算表；年度結束後三個月內，理事會編好上年度工作報告和會計報告，連同當年度計畫、預算提會員大會通過後報縣府備查。來不及開大會的，可以先經理事會及監事會或理監事聯席會議通過，事後再提大會追認。（本縣章程範例寫的是二個月內、三月底前，以現行辦法及貴會章程為準，報送日期請向承辦人確認。）",
   ref:"m-finance",laws:["zc32"],notes:[],act:[["看完整流程","meet","m-finance"],["下載財務報表","forms","常年會"]]},
  {k:["更名","章程修改","修改章程","改名","變更名稱"],cat:"業務辦理",title:"團體名稱或章程怎麼變更",
-  summary:"改名字或修改章程要開會員大會，出席人數三分之二以上同意才行（已辦法人登記的是四分之三）。會後把會議紀錄、章程修改條文對照表和修正後的章程報縣府核備。改名字的話，縣府會換發新的立案證書和圖記。",
+  summary:"改名字或修改章程要開會員大會，出席人數三分之二以上同意才行（已辦法人登記的是四分之三）。會後把會議紀錄、章程修改條文對照表和修正後的章程報縣府核備。改名之後立案證書要不要換發，法規沒有明文，請在報送時向承辦人確認。",
   ref:"s-change",laws:["pg27","zc27"],notes:[],act:[["看完整流程","biz","social"]]},
- {k:["移交","交接","圖記","印信","遺失","補發"],cat:"會務辦理",title:"理事長交接和圖記",
-  summary:"新舊任理事長交接要依 5 項清冊辦理：圖記、電子檔案、業務、財產、人事，由監事會代表監交。圖記如果遺失或損壞，可以檢具理事會紀錄向縣府申請補發或換發。",
+ {k:["移交","交接"],cat:"會務辦理",title:"理事長交接和圖記",
+  summary:"改選前，要把立案證書、圖記、未完成案件、檔案、財務和人事等資料造具清冊，在新任理事長就任後，連同立案證書和圖記移交給新任理事長和監交人，並在十五日內由新任理事長會同監交人接收完畢（人民團體會務輔導辦法第18條）。監交人由新任監事會召集人（常務監事）或新任監事互推一人擔任。屆期沒有完成移交的，主管機關得註銷原立案證書重新發給，原備查的圖記失其效力。圖記遺失或損壞，法規沒有補發的規定，是自己重刻、再把新印模送縣府備查（人民團體法第10條）。",
   ref:"m-roster",notes:[],act:[["下載移交清冊","forms","改選"],["聯絡承辦","contact",""]]},
  {k:["名稱","取名","命名","名字","可以叫"],cat:"業務辦理",title:"團體名稱怎麼取",
   summary:"名稱不能與已許可人民團體完全相同，也不能讓人誤認與政府機關（構）、政府捐助的財團法人或營利團體有關。是否可用要看完整名稱、團體宗旨及現有登記資料，不能只看其中一個字。建議先提供預定完整名稱辦理預查；本站可先查名冊中是否已有相同或相近名稱，但最後仍以主管機關審查為準。",
@@ -831,7 +831,7 @@ async function saveChunked(coll,rows,metaExtra){
 async function loadAll(force){
   if(loadPromise&&!force)return loadPromise;
   loadPromise=(async()=>{
-    const base=document.baseURI.replace(/[^/]*$/,"")+"data/";const DV="?v=20261117-107";
+    const base=document.baseURI.replace(/[^/]*$/,"")+"data/";const DV="?v=20261117-108";
     const jf=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);return r.json()};
     const jgz=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);const b=new Uint8Array(await r.arrayBuffer());if(b[0]!==31||b[1]!==139)return JSON.parse(new TextDecoder().decode(b));if(typeof DecompressionStream==="undefined")throw new Error("gzip unsupported");const text=await new Response(new Blob([b]).stream().pipeThrough(new DecompressionStream("gzip"))).text();return JSON.parse(text)};
     const [d,s,k,f]=await Promise.allSettled([jf(base+"directory.json"+DV),jf(base+"staff.json"+DV),jgz(base+"knowledge.json.gz"+DV).catch(()=>jf(base+"knowledge.json"+DV)),jf(base+"forms-catalog.json?v=20261105-5")]);
@@ -1866,13 +1866,13 @@ touch();
   route();
 })();
 </script>
-<script src="feedback-collector.js?v=20261117-107"></script>
-<script src="round-fixes.js?v=20261117-107"></script>
-<script src="answer-arbiter.js?v=20261117-107"></script>
-<script src="question-understanding.js?v=20261117-107"></script>
-<script src="counter-upgrade.js?v=20261117-107"></script>
-<script src="ai-assist.js?v=20261117-107"></script>
-<script src="festive.js?v=20261117-107" defer></script>
+<script src="feedback-collector.js?v=20261117-108"></script>
+<script src="round-fixes.js?v=20261117-108"></script>
+<script src="answer-arbiter.js?v=20261117-108"></script>
+<script src="question-understanding.js?v=20261117-108"></script>
+<script src="counter-upgrade.js?v=20261117-108"></script>
+<script src="ai-assist.js?v=20261117-108"></script>
+<script src="festive.js?v=20261117-108" defer></script>
 </body>
 </html>
 
