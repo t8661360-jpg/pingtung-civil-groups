@@ -657,7 +657,7 @@ const KB=[
   act:[["下載申請表","forms","申請表"],["看籌組流程","biz","social"]]},
  {k:["解散","清算","收掉","辦理解散","解散會議","結束協會","不想辦了"],cat:"業務辦理",title:"協會怎麼解散",
   summary:"解散可以分成三塊：開會、做報表、報縣府。我一步一步教您。",
-  steps:["寄開會通知：大會 15 天前通知會員，召開解散會員大會。","大會討論四個案子：①解散及解散日期；②剩餘財產歸屬；③選任清算人（通常是理事長）；④是否登報公告（可自行決定）。","解散決議：依人民團體法第27條，會員（會員代表）過半數出席，出席人數三分之二以上同意；已登記為社團法人者，另應核對民法第57條全體社員三分之二以上可決等規定，並向主管機關或法院確認適用方式。","編 5 項財務報表：收支決算表、現金出納表、資產負債表、財產目錄、基金收支表，計算到解散日為止，缺一不可。","填「人民團體解散報告表」：團體名稱、會址、立案證書字號、有無法人登記、解散原因及經過、解散時間、清算人、清算期間、剩餘財產金額。","函報縣府：會議紀錄、5 項財務報表、解散報告表各一式二份，並繳回立案證書、圖記、理事長當選證明書。","剩餘財產捐給地方政府或指定的公益團體，附上捐款收據或財產轉移清冊；有法人登記的，另向法院辦理解散及清算登記。"],
+  steps:["寄開會通知：大會 15 天前通知會員，召開解散會員大會。","大會討論四個案子：①解散及解散日期；②剩餘財產歸屬；③選任清算人（通常是理事長）；④是否登報公告（可自行決定）。","解散決議：依人民團體法第27條，會員（會員代表）過半數出席，出席人數三分之二以上同意；已登記為社團法人者，另應核對民法第57條全體社員三分之二以上可決等規定，並向主管機關或法院確認適用方式。","編 5 項財務報表：收支決算表、現金出納表、資產負債表、財產目錄、基金收支表，計算到解散日為止，缺一不可。","填「人民團體解散報告表」：團體名稱、會址、立案證書字號、有無法人登記、解散原因及經過、解散時間、清算人、清算期間、剩餘財產金額。","函報縣府：會議紀錄、5 項財務報表、解散報告表各一式二份，並繳回立案證書、圖記、理事長當選證明書。","剩餘財產依章程規定或大會決議歸屬（縣府章程草案範例寫歸所在地的地方自治團體，或主管機關指定的機關團體），並附上捐款收據或財產轉移清冊；有法人登記的，董事應於十五日內向法院報告解散（民法第42條第3項），並辦理解散及清算登記。"],
   guide:["解散會議紀錄重點：報告事項要寫清楚解散原因，例如會員減少、會務無法推動；每個決議都寫出同意人數。","報表填法：用書表下載頁「解散」分類裡的 5 項財務報表 Excel，期間填到解散日止。"],
   laws:["pg27","zc33"],notes:["剩餘財產不能分給會員或理監事。","有銀行帳戶、統一編號的，清算完記得結清帳戶，並向國稅局辦理註銷。"],
   act:[["下載解散書表","forms","解散"]]},
@@ -734,7 +734,7 @@ const KB=[
   summary:"理事出缺，由候補理事依得票順序遞補；監事出缺，由候補監事遞補。候補名額不能超過正選的三分之一。理事長、常務理事或常務監事出缺，要在一個月內補選。",
   laws:["zc15","zc17"],notes:[],act:[["看理事長補選","meet","m-board"]]},
  {k:["剩餘財產","財產歸屬","解散後財產"],cat:"法規查詢",title:"解散後財產歸誰",
-  summary:"協會解散後的剩餘財產，不能由理監事或會員分掉。依規定要歸所在地的地方自治團體，或由主管機關指定的機關團體接收。這一點章程裡也要寫明。",
+  summary:"協會解散後的剩餘財產，不建議分給理監事或會員。要歸誰，看章程規定或會員大會的決議；縣府章程草案範例第33條寫的是歸所在地的地方自治團體，或主管機關指定的機關團體。已辦法人登記的社團，章程、決議都沒有規定時，依民法第44條歸住所所在地的地方自治團體。章程沒寫怎麼辦，可以問「章程沒寫剩餘財產歸屬怎麼辦」。",
   laws:["zc33"],notes:[],act:[["看解散流程","biz","social"]]},
  {k:["法人","法人登記後"],cat:"法規查詢",title:"法人登記有什麼差別",
   summary:"法人登記不是必須的，但辦了以後協會就有法人資格，可以用協會名義擁有財產、簽約。辦理後，修改章程的門檻會提高為出席四分之三以上同意，或全體會員三分之二以上書面同意。",
@@ -831,7 +831,7 @@ async function saveChunked(coll,rows,metaExtra){
 async function loadAll(force){
   if(loadPromise&&!force)return loadPromise;
   loadPromise=(async()=>{
-    const base=document.baseURI.replace(/[^/]*$/,"")+"data/";const DV="?v=20261118-118";
+    const base=document.baseURI.replace(/[^/]*$/,"")+"data/";const DV="?v=20261118-119";
     const jf=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);return r.json()};
     const jgz=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);const b=new Uint8Array(await r.arrayBuffer());if(b[0]!==31||b[1]!==139)return JSON.parse(new TextDecoder().decode(b));if(typeof DecompressionStream==="undefined")throw new Error("gzip unsupported");const text=await new Response(new Blob([b]).stream().pipeThrough(new DecompressionStream("gzip"))).text();return JSON.parse(text)};
     const [d,s,k,f]=await Promise.allSettled([jf(base+"directory.json"+DV),jf(base+"staff.json"+DV),jgz(base+"knowledge.json.gz"+DV).catch(()=>jf(base+"knowledge.json"+DV)),jf(base+"forms-catalog.json?v=20261105-5")]);
@@ -1866,13 +1866,13 @@ touch();
   route();
 })();
 </script>
-<script src="feedback-collector.js?v=20261118-118"></script>
-<script src="round-fixes.js?v=20261118-118"></script>
-<script src="answer-arbiter.js?v=20261118-118"></script>
-<script src="question-understanding.js?v=20261118-118"></script>
-<script src="counter-upgrade.js?v=20261118-118"></script>
-<script src="ai-assist.js?v=20261118-118"></script>
-<script src="festive.js?v=20261118-118" defer></script>
+<script src="feedback-collector.js?v=20261118-119"></script>
+<script src="round-fixes.js?v=20261118-119"></script>
+<script src="answer-arbiter.js?v=20261118-119"></script>
+<script src="question-understanding.js?v=20261118-119"></script>
+<script src="counter-upgrade.js?v=20261118-119"></script>
+<script src="ai-assist.js?v=20261118-119"></script>
+<script src="festive.js?v=20261118-119" defer></script>
 </body>
 </html>
 
