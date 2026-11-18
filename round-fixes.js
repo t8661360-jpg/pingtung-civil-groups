@@ -10,7 +10,7 @@ const SIMP='册冊劝勸协協会會员員长長补補办辦县縣么麼请請�
 const SIMPRE=new RegExp('['+SIMP.split('').filter((c,i)=>i%2===0).join('')+']');
 function simp2trad(s){if(!SIMPRE.test(s))return s;let o='';for(const c of s){const i=SIMP.indexOf(c);o+=(i>=0&&i%2===0)?SIMP[i+1]:c}return o}
 function normalizeQuestion(q){
- return normalizeQuestion114(normalizeQuestion113(normalizeQuestion112(normalizeQuestion111(normalizeQuestion110(normalizeQuestion0(q))))));
+ return normalizeQuestion116(normalizeQuestion114(normalizeQuestion113(normalizeQuestion112(normalizeQuestion111(normalizeQuestion110(normalizeQuestion0(q)))))));
 }
 /* 第110輪：口語同義詞（根源）——「協會員工」不能被當成「會員」；fire掉、炒掉＝開除 */
 function normalizeQuestion110(s){
@@ -23,6 +23,15 @@ function normalizeQuestion111(s){
 /* 第112輪：口語同義詞（根源）——捐款「扣稅、減稅、退稅、省稅」＝抵稅（不是扣繳）；「善款」＝捐款 */
 function normalizeQuestion112(s){
  return String(s||'').replace(/(捐款|捐錢|捐贈|捐助|捐給(?:協會|本會|社團)?)(.{0,4}?)(扣稅|減稅|退稅|省稅|少繳稅|折抵)/g,'$1$2抵稅').replace(/(抵稅|扣除額)(要不要|有沒有|可不可以)/g,'$1');
+}
+/* 第116輪：口語同義詞（根源）——「不要再參加協會、不想繼續待在社團」＝想退會；「退社」（非合作社）＝退會 */
+function normalizeQuestion116(s){
+ s=String(s||'');
+ if(/(合作社|社員|股金)/.test(s))return s;
+ s=s.replace(/(?<!要)(不要|不想|不願意?)(再繼續|再|繼續)(參加|加入|待在|留在|當|做)(這個|這間|這家|本|我們)?(協會|社團|學會|本會|會員)(會員)?(了)?/g,'想退會');
+ s=s.replace(/(?<!要)(不要|不想|不願意?)(參加|加入|待在|留在|當|做)(這個|這間|這家|本|我們)?(協會|社團|學會|本會|會員)(會員)?了/g,'想退會');
+ s=s.replace(/退社/g,'退會');
+ return s;
 }
 /* 第114輪：口語同義詞（根源）——協會／社團「關門、收攤、收起來、收掉、倒掉」＝解散 */
 function normalizeQuestion114(s){
@@ -2191,7 +2200,7 @@ function minorOfficer(t){
  if(/合作社|社員|志工|志願服務|補助|活動|保險|課程|夏令營/.test(t))return null;
  const founder=/發起人/.test(t);
  return{direct:true,category:'人民團體會務說明',title:founder?'未成年人不能當發起人：發起人必須是成年人；入會和當理監事則看章程':'未成年人可不可以入會、當理事或監事：法規沒有年齡限制，看章程的會員資格；發起人則必須成年',
- summary:(founder?'不可以。發起人必須是成年人（人民團體法第8條）。\n\n至於入會和擔任理事、監事：':'法規沒有年齡限制，要看協會的章程。')+'\n\n• 入會：人民團體法沒有限制會員的年齡，會員資格由各協會在章程訂定，並由理事會審定。\n• 當理事、監事：理事、監事是從會員裡選出來的（第17條），每位會員都有選舉權和被選舉權（第16條）。內政部的函釋說明：只要符合章程的會員資格、加入成為會員，就享有這些權利。所以章程沒有年齡限制的話，未成年的會員依法可以被選為理事或監事。\n• 當發起人：不可以，發起人必須成年（第8條）。\n\n提醒您：理事要參與決議、理事長要對外代表協會簽約，未成年人做這些事通常需要法定代理人同意。協會如果希望理事、監事由成年人擔任，請不要自己口頭限制，先和承辦人討論章程的會員資格怎麼訂；辦法人登記時法院要哪些文件，也請先問法院登記處。',
+ summary:(founder?'不可以。發起人必須是成年人（人民團體法第8條）。\n\n至於入會和擔任理事、監事：':'法規沒有年齡限制，要看協會的章程。')+'\n\n• 入會：人民團體法沒有限制會員的年齡，會員資格和審查程序由各協會在章程訂定（第12條第7款）。\n• 當理事、監事：理事、監事是從會員裡選出來的（第17條），每位會員都有選舉權和被選舉權（第16條）。內政部的函釋說明：只要符合章程的會員資格、加入成為會員，就享有這些權利。所以章程沒有年齡限制的話，未成年的會員依法可以被選為理事或監事。\n• 當發起人：不可以，發起人必須成年（第8條）。\n\n提醒您：理事要參與決議、理事長要對外代表協會簽約，未成年人做這些事通常需要法定代理人同意。協會如果希望理事、監事由成年人擔任，請不要自己口頭限制，先和承辦人討論章程的會員資格怎麼訂；辦法人登記時法院要哪些文件，也請先問法院登記處。',
  statutes:[P(8),P(16),P(17),MOI('108年4月1日','台內團字第1080009490號',256743)],notes:['內政部另有函釋指出，章程不應額外限制會員參選理事、監事的資格條件（102年11月5日台內團字第1020342168號函）。'],actions:[{label:'看函釋目錄',view:'law',sub:'函釋與問答'}]};
 }
 function assocInvest(t){
@@ -2949,12 +2958,12 @@ function patrol20(t){
   summary:'人民團體法沒有規定退會要經理事長或協會同意，也沒有規定退會的手續，「會員入會、出會與除名」是章程要載明的事項（第12條第7款）。\n建議先看章程怎麼寫，用書面（存證信函、掛號信或有簽收的文件）向協會表示退會，並留下證據（實務建議，不是法規強制）。如果協會仍然不處理，可電洽縣府總機 08-7320415，請總機轉接社會處承辦人員，詢問後續怎麼辦。',
   statutes:[pt(12)]});
  /* 誰決定會員資格／入會誰說了算 */
- if(/(會員資格|入會|會籍|加入).{0,8}(誰|說了算|決定|批准|核准)|(誰|由誰).{0,6}(決定|審|同意|批准).{0,6}(會員|入會|加入)/.test(t)&&!/(除名|開除|退會)/.test(t))
+ if(/(會員資格|入會|會籍|加入).{0,8}(誰|說了算|決定|批准|核准)|(誰|由誰).{0,6}(決定|審|同意|批准).{0,6}(會員|入會|加入)/.test(t)&&!/(除名|開除|退會|會費|入會費|年費)/.test(t))
   return Object.assign({},base,{title:'會員資格或入會誰決定：看協會章程，不是法律規定理事長一個人說了算',
   summary:'人民團體法沒有規定入會由誰審查；「會員入會、出會與除名」是章程要載明的事項（第12條第7款），所以要看協會章程寫由誰審查、怎麼審查。常見的做法是填入會申請書，由理事會審查通過後成為會員。\n另外，要出席會員大會，必須是理事會在開會十五日前審定、列在會員名冊上的會員（人民團體會務輔導辦法第10條）。章程怎麼寫請先查協會的有效章程，有疑義再洽承辦人員。',
   statutes:[pt(12),co(10)]});
  /* 入會要不要經大會 */
- if(/(入會|加入).{0,10}(大會|全體|所有會員|投票)/.test(t)&&/(要不要|需要|要經|要開|嗎)/.test(t)&&!/(除名|退會)/.test(t))
+ if(/(入會|加入).{0,10}(大會|全體|所有會員|投票)/.test(t)&&/(要不要|需要|要經|要開|嗎)/.test(t)&&!/(除名|退會|會費|入會費|年費)/.test(t))
   return Object.assign({},base,{title:'入會要不要經過會員大會：法律沒有這樣規定，看章程',
   summary:'人民團體法沒有規定新會員入會一定要經過會員大會通過。入會的程序由章程訂定（第12條第7款），常見是理事會審查通過，不需要等到開會員大會。\n要經過會員大會決議的是「除名」（第14條）。實際怎麼辦，請看協會章程。',
   statutes:[pt(12),pt(14)]});
@@ -4885,7 +4894,7 @@ function patrol33(t){
  if(/(公司|行號|商號|企業|廠商|店家).{0,6}(可以|能|能不能|可不可以|可否|能否|是否可以|是否能|可以不可以).{0,4}(入會|加入|當(團體|贊助)?會員|參加)/.test(t))
   return A('公司行號可以入會嗎：法律沒有禁止，看章程有沒有團體會員或贊助會員這類資格','人民團體法沒有規定公司、行號不能入會；會員的資格是章程要載明的事項（第12條第7、8款）。\n如果章程有團體會員（或贊助會員）這類會員，公司行號符合資格就可以依章程申請；團體會員要推派代表行使會員的權利（第13條）。章程只收個人會員的，公司行號就不能以公司名義入會。',[P2(12),P2(13)]);
  if(/會員.{0,6}(子女|孩子|兒子|女兒|家人|家屬|小孩).{0,6}(繼承|承接|接手|過戶)/.test(t)||/會籍.{0,6}(繼承|過戶|傳給)/.test(t))
-  return A('會員過世，子女可以繼承會籍嗎：法律沒有明文規定繼承，要依章程自己申請入會','會員死亡就是出會（人民團體法第15條）。法條沒有規定會籍可以繼承；子女想加入，要依章程的入會資格和程序自己申請，經理事會審查（第12條第7款）。',[P2(15),P2(12)]);
+  return A('會員過世，子女可以繼承會籍嗎：法律沒有明文規定繼承，要依章程自己申請入會','會員死亡就是出會（人民團體法第15條）。法條沒有規定會籍可以繼承；子女想加入，要依章程的入會資格和程序自己申請，由誰審查也看章程（第12條第7款）。',[P2(15),P2(12)]);
  if(/(想|要|可以|能不能|可不可以|怎麼|如何|怎樣).{0,3}(退出|離開|脫離).{0,3}(協會|社團|團體)/.test(t)&&!/名冊|查詢|立案/.test(t))
   return memberQuitHowTo('會員要怎麼退會');
  return null;
@@ -4996,7 +5005,7 @@ function patrol57(t){
  const again=s=>verifiedRoundAnswer(s,{});
  // 會員資格繼承
  if(/(會員|會籍|會員資格)/.test(t)&&/(繼承|承接|過戶|傳給(兒子|女兒|子女|小孩|家人))/.test(t)&&!/(子女|兒子|女兒|小孩|孩子|家人|家屬)[^，。？]{0,6}(繼承|承接|接手|過戶)/.test(t))
-  return A('會員過世，子女可以繼承會籍嗎：法律沒有明文規定繼承，要依章程自己申請入會','會員死亡就是出會（人民團體法第15條）。法條沒有規定會籍可以繼承；家人想加入，要依章程的入會資格和程序自己申請，經理事會審查（第12條第7款）。',[P(15),P(12)]);
+  return A('會員過世，子女可以繼承會籍嗎：法律沒有明文規定繼承，要依章程自己申請入會','會員死亡就是出會（人民團體法第15條）。法條沒有規定會籍可以繼承；家人想加入，要依章程的入會資格和程序自己申請，由誰審查也看章程（第12條第7款）。',[P(15),P(12)]);
  // 不開會可不可以開除
  if(/會員/.test(t)&&/(不開會|不去開會|不來開會|不出席|不到|缺席|沒開會|都沒到|不參加.{0,2}(開會|大會))/.test(t)&&/(開除|除名|踢|趕走)/.test(t)&&!/理事|監事|理監事/.test(t))
   return again('會員多年沒來開會會被除名嗎');
@@ -6689,7 +6698,7 @@ function patrol96(t){
  }
  /* 理事長與常務理事的關係 */
  if(/(理事長|會長)/.test(t)&&/常務理事/.test(t)&&/(兼|算不算|是不是|同一個人|同一人|要不要先當|要先當|也是|等於|一定要是|必須是|要當|可以當|能不能當)/.test(t)&&!/(選舉|選票|得票|名額|幾|出缺|辭|罷免|職權|工作|薪|代理|監事)/.test(t))
-  return{direct:true,category:'理事長與理監事',title:'理事長是從常務理事裡選出來的：有設常務理事的協會，理事長本身就是常務理事之一',summary:'有設常務理事的協會，理事長就是常務理事。人民團體法第17條第2項寫的是：由理事「就常務理事中選舉一人為理事長」，所以理事長是常務理事裡的其中一位，不是另外再兼任一個職務；沒有設常務理事的協會，理事長就由理事互選產生。\n\n常務理事不是一定要設：理事、監事名額在三人以上的，「得」分別互選常務理事和常務監事，名額不得超過理事或監事總額的三分之一（第17條）。理事長算不算在常務理事的名額內，法規沒有明文，請看章程或洽承辦人員。\n\n提醒：理事和監事不能一人兼任（人民團體選舉罷免辦法第16條），所以理事長、常務理事都不能同時是監事或常務監事。'+tel,statutes:[P(17),ER(16)],notes:[],questionState:{focus:'chair-standing-director-96',domain:'social'},actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
+  return{direct:true,category:'理事長與理監事',title:'理事長是從常務理事裡選出來的：有設常務理事的協會，理事長本身就是常務理事之一',summary:'有設常務理事的協會，理事長就是常務理事。人民團體法第17條第2項寫的是：由理事「就常務理事中選舉一人為理事長」，所以理事長是常務理事裡的其中一位，不是另外再兼任一個職務；沒有設常務理事的協會，理事長就由理事互選產生。\n\n常務理事不是一定要設：理事、監事名額在三人以上的，「得」分別互選常務理事和常務監事，名額不得超過理事或監事總額的三分之一（第17條）。理事長是從常務理事中選出來的，所以占常務理事名額的一席；法條沒有另外寫理事長要不要另外計算，實際名額怎麼訂，請看章程或洽承辦人員。\n\n提醒：理事和監事不能一人兼任（人民團體選舉罷免辦法第16條），所以理事長、常務理事都不能同時是監事或常務監事。'+tel,statutes:[P(17),ER(16)],notes:[],questionState:{focus:'chair-standing-director-96',domain:'social'},actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
  return null;
 }
 let _p97=false;
@@ -7143,6 +7152,8 @@ function patrol108(t){
  if(/教育會/.test(t)){
   if(/(是不是|算不算|算是|屬不屬於|屬於|是否|歸誰|誰管|主管|哪個單位|找誰)/.test(t)&&!/(幾|多少|怎麼|如何|成立|申請|名冊|名單|查|解散|清算|財產|結束)/.test(t))
    return mk('教育會依教育會法成立：是法人，縣（市）由縣（市）政府主管，教育處指導業務','教育會有自己專屬的教育會法，不是適用一般協會（社會團體）的規定。教育會是法人，主管機關在縣（市）是縣（市）政府；教育會的目的事業（教育業務），要受教育部或縣（市）主管教育行政機關的指導、監督（教育會法第2條、第3條）。\n\n在屏東縣，教育會的會務由縣府社會處辦理，教育業務由教育處指導。',[{title:'教育會法第2條',source:LAW+'D0050108'},{title:'教育會法第3條',source:LAW+'D0050108'}]);
+  if(/(代理|委託|代為出席|代為開會|找人.{0,4}(開會|出席)|不能(親自|去|來)?(出席|開會|參加)|沒辦法(去|來|親自)?(出席|開會|參加)|無法(親自|去|來)?(出席|開會|參加)|代理人數|委託人數)/.test(t)&&!/(理事會|監事會|理監事會|理事長)/.test(t))
+   return mk('教育會會員（代表）不能出席：可書面委託其他會員（代表）代理，一人只能代理一人，不得超過親自出席的一半','可以，但要由其他會員（代表）代理，而且一位代理人只能代理一人。\n\n教育會的會員（代表）不能親自出席會員（代表）大會時，可以用書面委託其他會員（代表）代理；每一位會員（代表）以代理一人為限，並且不得超過親自出席人數的二分之一（教育會法第19條）。',[{title:'教育會法第19條',source:LAW+'D0050108'}],['人民團體法第38條對職業團體寫的是「不得超過親自出席人數的三分之一」；教育會有教育會法的專門規定，這裡依教育會法第19條。']);
   if(/(解散|清算|剩餘財產|賸餘|財產.{0,4}(歸|去哪|怎麼辦)|結束|關掉|不辦了)/.test(t))
    return mk('教育會解散：要清算，清算人由會員（代表）大會選派，剩餘財產歸重行組織的教育會','教育會解散時，應予清算；清算人由會員（代表）大會決議選派，選派不出來時，主管機關、檢察官或利害關係人可以向法院聲請選任清算人（教育會法第38條第1項）。清算的決議和清算人的選派，要有會員（代表）三分之二以上出席、出席三分之二以上同意（教育會法第31條）。\n\n清算後剩餘的財產，歸屬於重行組織的教育會；如果是因為會員不足法定數額而解散，則歸屬於它所加入的縣（市）教育會，或會址所在地的地方自治團體（教育會法第38條第2項）。\n\n另外，教育會違反法令、章程或廢弛會務時，主管機關可以警告、撤銷決議、撤免理事監事、整理，甚至解散（教育會法第42條）。',[{title:'教育會法第38條',source:LAW+'D0050108'},{title:'教育會法第31條',source:LAW+'D0050108'},{title:'教育會法第42條',source:LAW+'D0050108'}]);
   return null;
@@ -7163,8 +7174,9 @@ function patrol108(t){
  if(/(理事長|常務理事|理事|監事|會長)/.test(t)&&(/(一定要|必須|才能|才可以|才可|要是|需要是|得是|是不是|要不要|有沒有).{0,8}會員代表|會員代表.{0,8}(才能|才可以|才可|才有資格|才當得|才選得)/.test(t)||/(要|需要|得|必須|一定要)先?(當|是|成為|做|擔任)(過)?會員代表|先(當|成為|做)(過)?會員代表/.test(t))&&!/(超過|三百|300|分區)/.test(t))
   return mk('公會理事、監事、理事長要先是會員代表：由會員代表在大會時互選','要。商業同業公會和工業同業公會的理事、監事，都是在會員大會時由會員代表互選產生；理事長則由理事就常務理事中選舉一人擔任，不設常務理事的，就理事中選舉（商業團體法第20條、工業團體法第20條）。所以不是會員代表的人，沒有被選舉的資格。\n\n公會的會員是公司、行號（或工廠），不是個人；想當理事長，要先由所屬的公司、行號派為會員代表（商業團體法第12條第2項）。另外，商業同業公會的理事長要有中華民國國籍並在國內有住所（商業團體法第22條）。',[BT(20),ITt(20),BT(12),BT(22)]);
  /* 四、公會會員代表可不可以找人代理出席 */
- if(/(代理|委託|代為出席|代為開會|找人.{0,4}(開會|出席)|不能(親自|去|來)?(出席|開會|開大會|參加)|沒辦法(去|來|親自)?(出席|開會|開大會|參加)|無法(親自|去|來)?(出席|開會|開大會|參加))/.test(t)&&/(會員代表|會員大會|代表大會|大會|出席|開會)/.test(t)&&!/(理事會|監事會|理監事會|理事長)/.test(t)){
+ if(/(代理|委託|代為出席|代為開會|找人.{0,4}(開會|出席)|不能(親自|去|來)?(出席|開會|開大會|參加)|沒辦法(去|來|親自)?(出席|開會|開大會|參加)|無法(親自|去|來)?(出席|開會|開大會|參加))/.test(t)&&/(會員代表|會員大會|代表大會|大會|出席|開會|代理人數|委託人數|人數上限|代理上限|委託上限)/.test(t)&&!/(理事會|監事會|理監事會|理事長)/.test(t)){
   const head='可以，但要由其他會員代表代理，而且一位代理人只能代理一人。';
+  if(/輸出業/.test(t)&&!biz)return mk('輸出業同業公會會員代表不能出席：準用商業同業公會規定，一人只能代理一人，代理人數不得超過親自出席的一半',head+'\n\n輸出業同業公會除專章另有規定外，準用商業同業公會的規定（商業團體法第54條）；商業同業公會的會員代表不能親自出席會員大會時，可以用書面委託其他會員代表代理，每一位會員代表以代理一人為限，而且代理人數不得超過親自出席人數的二分之一（第19條）。',[BT(54),BT(19)],['人民團體法第38條對職業團體寫的是「不得超過親自出席人數的三分之一」；輸出業同業公會依商業團體法準用商業同業公會的規定，這裡依商業團體法第54條、第19條。']);
   if(biz)return mk('商業同業公會會員代表不能出席：可書面委託其他會員代表代理，一人只能代理一人，代理人數不得超過親自出席的一半',head+'\n\n商業同業公會的會員代表不能親自出席會員大會時，可以用書面委託其他會員代表代理；每一位會員代表以代理一人為限，而且代理人數不得超過親自出席人數的二分之一（商業團體法第19條）。',[BT(19)],['人民團體法第38條對職業團體寫的是「不得超過親自出席人數的三分之一」；商業同業公會有商業團體法的專門規定，這裡依商業團體法第19條。']);
   if(ind)return mk('工業同業公會會員代表不能出席：可委託其他會員代表代理，一人只能代理一人，不得超過親自出席的一半',head+'\n\n工業同業公會的會員代表不能親自出席會員大會時，可以委託其他會員代表代理；每一位會員代表以代理一人為限，並且不得超過親自出席人數的二分之一（工業團體法第19條）。',[ITt(19)],['人民團體法第38條對職業團體寫的是「不得超過親自出席人數的三分之一」；工業同業公會有工業團體法的專門規定，這裡依工業團體法第19條。']);
   return null;
@@ -7469,6 +7481,59 @@ function patrol114(t){
 }
 
 /* 第115輪：協會員工請假（勞工請假規則§2、§3、§4、§7、§8、§9、§10；2026-11-18 自 mojLawSplitJSON N0030006 補入，最新異動 20260930） */
+let _p116=false;
+function patrol116(t){
+ if(_p116)return null;
+ if(/(合作社|社員|股金|政黨|基金會|寺廟|宗教|工會|公會|職業團體|社區發展|魅力社區)/.test(t))return null;
+ if(/(理事長|會長)/.test(t)&&/常務理事/.test(t)&&/(算在|算進|算入|算不算|有沒有算|包含|包括|佔|占|含在)/.test(t)&&!/(選舉|選票|得票|出缺|辭|罷免|職權|薪|代理|監事|幾位|幾個|幾人|多少)/.test(t)){
+  _p116=true;try{return verifiedRoundAnswer('理事長是不是常務理事',{});}finally{_p116=false;}
+ }
+ if(!/(會員|會籍|入會|退會|出會|除名|離會|會費|年費|會員證|會員卡|續會)/.test(t))return null;
+ const again=x=>{_p116=true;try{return verifiedRoundAnswer(x,{});}finally{_p116=false;}};
+ const tail='\n\n其他細節請洽縣府社會處承辦人員，縣府總機 08-7320415。';
+ const G=n=>({title:'人民團體會務輔導辦法第'+n+'條',source:LAW+'D0020094'});
+ const PT=n=>({title:'人民團體法第'+n+'條',source:LAW+'D0050091'});
+ const base={direct:true,category:'人民團體會務說明',notes:[],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
+ const R=(title,summary,statutes)=>Object.assign({},base,{title,summary:summary+tail,statutes});
+ /* 會費（含入會費）誰訂、要不要經大會或理事會 */
+ if(/(入會費|常年會費|會費|年費)/.test(t)&&!/(退費|退還|退會|拿回|不繳|沒繳|欠)/.test(t)&&/(誰訂|誰決定|誰來決定|誰說了算|誰定|誰來訂|由誰.{0,3}(訂|決定|定)|要不要.{0,6}(大會|理事會)|要.{0,2}經過?(會員)?大會|要.{0,2}經過?理事會|大會.{0,3}(通過|同意|決定)|理事會.{0,3}(訂|決定|通過)|理事長.{0,3}(訂|決定))/.test(t))
+  return R('會費、入會費由誰決定：標準訂入章程，數額和繳納方式要經會員大會通過並報縣府核備','入會費、常年會費的標準與繳納方式要訂入章程（社會團體財務處理辦法第14條）。\n入會費、常年會費、事業費、會員捐款的繳納數額和方式，要提經會員（會員代表）大會通過，並報請主管機關（縣府）核備後才能實施（人民團體法第33條第2項）。\n所以不是理事長或理事會自己說了算；理事會可以擬案，但要提到會員大會通過。要調整數額時，也是同樣的程序。',[PT(33),{title:'社會團體財務處理辦法第14條',source:LAW+'D0050097'}]);
+ /* 單純表示想退會（同義詞改寫後） */
+ if(/^.{0,3}想退會(了)?$/.test(t))return again('會員想退會怎麼辦');
+ /* 欠費算不算自動退會 */
+ if(/(欠|沒繳|不繳|未繳|拖欠|積欠|逾期).{0,6}會費|會費.{0,6}(沒繳|不繳|未繳|欠)/.test(t)&&/(自動|算不算|算.{0,2}退|當作退|視為退|等於退|就是退|算是退)/.test(t)&&/(退會|退出|出會)/.test(t)&&!/(退費|退還|拿回)/.test(t))
+  return again('會員欠會費可以被除名嗎');
+ /* 退會生效日 */
+ if(/退會/.test(t)&&/(生效日|哪天生效|哪一天生效|幾號生效|何時生效|哪天算|哪一天算|算到哪天|從哪天)/.test(t))
+  return again('退會什麼時候生效');
+ /* 退會要填什麼表、附什麼文件 */
+ if(/退會/.test(t)&&/(填什麼|要填|填哪|什麼表|哪種表|哪張表|什麼文件|什麼資料|附什麼|要附|準備什麼|要交什麼|交什麼)/.test(t)&&!/(費|名冊)/.test(t))
+  return again('退會要不要寫申請書');
+ /* 退會要不要經會員大會通過 */
+ if(/退會/.test(t)&&/大會/.test(t)&&/(通過|決議|同意|要不要|要開|需要|需不需要)/.test(t)&&!/(出席|參加|還能|還可以|列席|人數|除名|開除|費)/.test(t))
+  return R('退會要不要經過會員大會：法規沒有規定，要經大會決議的是除名','人民團體法沒有規定退會一定要經過會員大會通過；出會的手續是章程要載明的事項（第12條第7款），請先看章程。\n法律明文要經會員（會員代表）大會決議的是「除名」（第14條），而且要出席人數三分之二以上同意（第27條）。會員自己提出退會，不是除名。\n會員出會有三種情形：死亡、喪失會員資格、經大會決議除名（第15條）。',[PT(12),PT(14),PT(15),PT(27)]);
+ /* 退會要不要付手續費、違約金 */
+ if(/退會/.test(t)&&/(手續費|工本費|違約金|罰款|罰金|扣錢|收錢|收費|賠償|要付錢)/.test(t)&&!/(會費|入會費|退費|退還|拿回)/.test(t))
+  return R('退會要不要付手續費或違約金：法規沒有規定，要看章程','人民團體法和社會團體財務處理辦法沒有規定會員退會要繳手續費、違約金或罰款；退會的手續是章程要載明的事項（第12條第7款），請先看章程怎麼寫。\n入會費、常年會費的標準和繳納方式要訂入章程（社會團體財務處理辦法第14條），數額和繳納方式還要經會員大會通過並報縣府核備（人民團體法第33條第2項）。章程沒有訂的收費，建議先請協會說明依據，有疑義再洽承辦人員。',[PT(12),PT(33),{title:'社會團體財務處理辦法第14條',source:LAW+'D0050097'}]);
+ /* 退會要不要通知其他會員 */
+ if(/(退會|出會)/.test(t)&&/(通知|告知|公告|公布)/.test(t)&&/(其他會員|全體會員|所有會員|別的會員|大家|會員們)/.test(t)&&!/(縣府|主管機關|社會處)/.test(t))
+  return R('會員退會要不要通知其他會員：法規沒有規定，協會要隨時更新會籍資料','人民團體法和人民團體會務輔導辦法沒有規定會員退會要通知其他會員。\n協會要做的是建立會籍資料並隨時辦理異動更新（人民團體會務輔導辦法第10條第1項）；開會員大會十五日前，理事會審定出席資格、造具名冊時，退會的人就不在名冊上（第10條第2項、第4項）。\n要不要另外告知其他會員，屬於協會內部做法，請看章程或理事會決定。',[G(10),PT(12)]);
+ /* 退會要不要理事長簽名 */
+ if(/退會/.test(t)&&/(理事長|總幹事|秘書長|會長)/.test(t)&&/(簽|蓋章|蓋印|批|核|同意)/.test(t)&&!/(不准|不讓|不給|不同意|拒絕|費|不批|不簽|不蓋|不核|不辦|不處理)/.test(t))
+  return again('退會要不要經理事會同意');
+ /* 退會後個人資料要不要刪 */
+ if(/(退會|出會|除名|離會|不是會員|已退出|退出)/.test(t)&&/(個資|個人資料|資料|名冊|入會申請書|申請書)/.test(t)&&/(刪|留著|保留|保存|銷毀|銷燬|清除|清掉|留多久|還能留|可以留|要留|不要留|丟掉)/.test(t)&&!/(解散|清算)/.test(t))
+  return R('會員退會後，個人資料要不要刪除：特定目的消失時要依個資法刪除或停止利用，但執行業務所必須的除外','人民團體法和人民團體會務輔導辦法沒有規定退會的人資料要刪除，也沒有規定要保留多久。\n協會蒐集會員的姓名、電話、地址等，屬於個人資料保護法規範的個人資料：蒐集、處理或利用不得超過特定目的的必要範圍（個資法第5條）；蒐集的特定目的消失或期限屆滿時，應主動或依當事人的請求，刪除、停止處理或利用，但因執行職務或業務所必須，或經當事人書面同意的，不在此限（第11條第3項）。\n所以退會的人如果請求刪除，協會要先判斷這些資料是不是還有執行業務的必要。會計帳簿、憑證和報告表冊另有保存期限，年度決算程序辦理終了後至少保存十年（社會團體財務處理辦法第21條）。\n在還沒有確定之前，建議不要把退會者的資料用在其他活動或對外提供。',[PDPA(5),PDPA(11),{title:'社會團體財務處理辦法第21條',source:LAW+'D0050097'}]);
+ /* 會員資格每年自動延續嗎、要不要續會 */
+ if((/(會員資格|會籍|會員身分|會員身份)/.test(t)||/(?<!手)續會/.test(t))&&/(自動延續|自動續|延續|(?<!手)續會|續期|每年.{0,4}(重新|續|申請)|到期|有效期|期限|失效|過期|明年還|下一年|續會)/.test(t)&&!/(欠|沒繳|不繳|未繳|除名)/.test(t))
+  return R('會員資格會不會每年自動延續：法規沒有訂有效期限，要看章程','人民團體法沒有規定會員資格有期限，也沒有規定每年要重新申請或續會。會員出會只有三種情形：死亡、喪失會員資格、經會員大會決議除名（第15條）。\n什麼情形算「喪失會員資格」（例如章程有沒有訂每年續會、逾期不續算不算），是章程「會員入會、出會與除名」要載明的事項（第12條第7款），請先看您協會的章程。\n協會要隨時更新會籍資料（人民團體會務輔導辦法第10條）。',[PT(15),PT(12),G(10)]);
+ /* 會員證、入會證明：遺失補發沿用既有「會員證遺失怎麼辦」答案；誰發、要不要簽發另答 */
+ if(/(會員證|會員卡|入會證明|會員證明)/.test(t)&&/(遺失|不見|補發|換發|重辦|重新發|掉了|丟了|弄丟)/.test(t))
+  return again('會員證遺失怎麼辦');
+ if(/(會員證|會員卡|入會證明|會員證明)/.test(t)&&/(誰發|誰簽|誰核發|誰負責發|誰來發)/.test(t))
+  return R('會員證、入會證明誰發：法規沒有規定，由協會依章程或理事會決定','人民團體法和人民團體會務輔導辦法沒有規定協會一定要發會員證或入會證明，也沒有規定由誰簽發、長什麼樣子。\n這屬於協會內部管理，請看章程或理事會的決定；會員的入會、出會要寫在章程裡（人民團體法第12條第7款）。協會要建立會籍資料並隨時更新（人民團體會務輔導辦法第10條）。',[PT(12),G(10)]);
+ return null;
+}
 function patrol115(t){
  if(/(合作社|社員|政黨|基金會|寺廟|宗教|工會|公會|職業團體|志工|志願|理事|監事|會員|出席費)/.test(t))return null;
  if(!/(員工|工作人員|職員|同仁|總幹事|秘書|助理|工讀|行政人員|幹事|會計)/.test(t))return null;
@@ -7502,7 +7567,7 @@ function verifiedRoundAnswer(q,ctx){
   const guildCharter=charterAmendment(t);
   if(guildCharter)return guildCharter;
  }
- return patrol115(t)||patrol114(t)||patrol113(t)||patrol112(t)||patrol111(t)||patrol110(t)||patrol109(t)||patrol108(t)||patrol107(t)||patrol106b(t)||patrol106(t)||patrol105(t)||patrol104(t)||patrol103(t)||patrol102(t)||patrol101(t)||patrol100(t)||patrol99(t)||patrol98(t)||patrol97(t)||patrol96(t)||patrol95(t)||patrol94(t)||patrol93(t)||patrol92(t)||patrol91(t)||patrol90(t)||patrol89(t)||patrol88(t)||patrol87(t)||patrol86(t)||guild86(t)||patrol85(t)||charterRound84(t)||taxFiling81(t)||memberRound83(t)||patrol84(t)||patrol83(t)||patrol82(t)||patrol81(t)||patrol80(t)||patrol79(t)||patrol78(t)||patrol77(t)||patrol76(t)||patrol75(t)||patrol74(t)||patrol73(t)||patrol72(t)||patrol71(t)||patrol70(t)||patrol69(t)||patrol68(t)||patrol67(t)||patrol66(t)||patrol65(t)||patrol64(t)||patrol63(t)||patrol62(t)||patrol61(t)||patrol60(t)||patrol59(t)||patrol58(t)||patrol57(t)||patrol56(t)||patrol55(t)||patrol54(t)||patrol53(t)||patrol52(t)||patrol51(t)||patrol50(t)||patrol49(t)||patrol48(t)||chairTermGeneral(t)||patrol47(t)||patrol46(t)||patrol45(t)||patrol44(t)||patrol43(t)||patrol42(t)||patrol41(t)||patrol40(t)||patrol39(t)||patrol38(t)||patrol37(t)||patrol36(t)||patrol35(t)||patrol34(t)||patrol33(t)||patrol32(t)||patrol31(t)||patrol30(t)||patrol29(t)||patrol28(t)||patrol27(t)||patrol26(t)||patrol25(t)||patrol24(t)||patrol23(t)||patrol22(t)||patrol21(t)||patrol20(t)||patrol19(t)||patrol18(t)||patrol17(t)||patrol15(t)||patrol16(t)||patrol14(t)||intlGroupElection(t)||patrol13(t)||patrol11(t)||patrol10(t)||patrol9(t)||patrol8(t)||patrol7(t)||memberStaffPatrol6(t)||communityPatrol(t)||dissolveCharterPatrol(t)||financePatrol(t)||membershipPatrol(t)||formTemplates(t,ctx&&ctx.catalog)||(/^(協會|社區發展協會|我們協會|本會)?的?(理事|監事|理監事)(和監事|跟監事)?(要)?(怎麼選|怎麼產生|如何產生|誰選)/.test(t)?electionHowTo(t):null)||attendanceFeeCan(t)||joinManyGroups(t)||chairReplaceMidTerm(t)||charterItemChange(t)||resolutionOverturn(t)||staffInsurance(t)||intlGroupWho(t)||moneyMisuse(t)||supervisorNoMeeting(t)||rosterView(t)||whoManagesMoney(t)||donationDeduct(t)||annualAccountsHowTo(t)||boardMeetingHowTo(t)||memberQuitHowTo(t)||viceChair(t)||motionSecond(t)||assocLoan(t)||yearEndBonus(t)||entertainmentExpense(t)||englishName(t)||minorOfficer(t)||assocInvest(t)||candidateDeposit(t)||chairAndRecorder(t)||facebookGroup(t)||rulingRules(t)||byElection(t)||receiptsBasic(t)||memberRepThreshold(t)||officerResignHow(t)||finalAccountsWho(t)||publicServantOfficer(t)||relativesAsOfficers(t)||mergeGroups(t)||govCommission(t)||conveneAndPetition(t)||assemblyPrepAndSignIn(t)||whatNeedsAssembly(t)||feeAndMemberStatus(t)||directorMustBeMember(t)||auditAndYear(t)||reorganization(t)||staffResignReport(t)||videoElection(t)||subsidyDetails(t)||subsidyBasics(t)||taxWithholding(t)||commercialGuild(t)||memberSuspension(t)||meetingProcedure(t)||solicitationAfter(t)||coopMore(t)||communityMore(t)||outOfScope(t)||whichAuthority(t)||volunteerMore(t)||submitWhere(t)||timeDeposit(t)||nonCompliance(t)||memberEligibilityOutside(t)||annualMeetings(t)||chairTermLimit(t)||assemblyQuorum(t)||urgentMeetingNotice(t)||directorVacancy(t)||recallOfficer(t)||boardResolution(t)||annualFinanceFiling(t)||receiptAndWithdraw(t)||charterContents(t)||dissolveVote(t)||sealMake(t)||memberOnlyFundraising(t)||communityBasics(t)||countyPhone(t)||advisorAppoint(t)||sealKeeper(t)||assocTravel(t)||activityReport(t)||assocFund(t)||officerAsFinanceStaff(t)||electionShowOfHands(t)||directorProxyVote(t)||memberAdmissionWho(t)||memberRosterReport(t)||attendanceFeeAmount(t)||auditByCPA(t)||financeAnnounce(t)||coopBasics(t)||foundingCost(t)||prepMeetingCount(t)||assemblyShortOfQuorum(t)||twoCommunityAssociations(t)||villageChiefAsChair(t)||intlTermStart(t)||charmCommunityContact(t)||groupTypeDifference(t)||directorAbsence(t)||chairElectionMethod(t)||officerNumbers(t)||meetingNoticeChannel(t)||budgetHowTo(t)||renameGroup(t)||certificateLost(t)||dormantGroup(t)||lookupRegistered(t)||coopWithdraw(t)||termLengthLimit(t)||assemblyAgenda(t)||teacherAssocSetup(t)||commercialGroupSetup(t)||alumniSetup(t)||boardAgenda(t)||assetScrap(t)||taxMissed(t)||officeAtHome(t)||communityAreaSplit(t)||officeMove(t)||crossCountyEvent(t)||dissolvedAssets(t)||groupNameDuplicate(t)||standingDirectorCount(t)||memberViewAccounts(t)||howToReportGroup(t)||groupReported(t)||anonymousDonation(t)||chairRelativeStaff(t)||minorJoinAssoc(t)||volunteerTopics(t)||volunteerTeam(t)||memberCourseFee(t)||staffMustBeMember(t)||chairFundraising(t)||boardBelowHalf(t)||assocMayNotMeet(t)||assocNurseryCenter(t)||assocCareStation(t)||assocDonateGoods(t)||assocGovTender(t)||subsidySettlement(t)||corpRegistration(t)||assocBoardPay(t)||financeStaffConcurrent(t)||staffHiring(t)||coopVsAssocAccountingForms(t)||coopBalanceSheetReport(t)||delegateQuotaCalculation(t)||delegateConcurrentRole(t)||onlineVoting(t)||mailVoting(t)||assemblyVotingMethod(t)||boardVotingMethodDetail(t)||delegateElectionProcess(t)||delegateAssemblyRules(t)||coopMemberRemoval(t)||coopAdvertisingTaxability(t)||coopLoanToMemberTax(t)||coopBankLoanProcedure(t)||coopBankLoan(t)||branchAccountingPractice(t)||memberDelegateElection(t)||branchOrgSetup(t)||delegateProposalProcess(t)||annualMeetingVsAssembly(t)||vacancyQuorum(t)||supervisorConvenerNoMeeting(t)||supervisorMinimumMembers(t)||supervisorChairmanElection(t)||supervisorAuditPowers(t)||branchOrgAccounting(t)||runClassesPermit(t)||residentialCarePermit(t)||chairConvicted(t)||chairDismissStaff(t)||chairDissolve(t)||homeAsOfficeTax(t)||nonprofitTaxThreshold(t)||sameAddressGroups(t)||chairStaffConflict(t)||orgDisposeProperty(t)||orgAcquireEquipment(t)||sellGoodsAllowed(t)||staffActingChair(t)||p2MembershipFee(t)||p2BoardNotice(t)||p2RecordRetention(t)||p2CharterAmend(t)||p2SupervisorAudit(t)||p2CoopShares(t)||p2FoundingMeeting(t)||p2ElectionPrep(t)||p2MinutesContent(t)||p2DelegateSystem(t)||chairAbandonsOffice(t)||chairOtherGroupPosition(t)||chairSpendWithoutBoard(t)||supervisorSpend(t)||supervisorActingChair(t)||candidateSeatCount(t)||ballotRetention(t)||officerResignation(t)||invalidBallotReason(t)||delegateQualification(t)||substitutionOrder(t)||byElectionThreshold(t)||coopChairReelection(t)||chairmanReelectionLimit(t)||chairmanAbsence(t)||recordRetentionPeriod(t)||advertisingIncome(t)||staffBankAccountSetup(t)||meetingSigninDuration(t)||meetingVotingMethod(t)||preElectionBoardMeeting(t)||electionEffectiveDate(t)||politicalDonation(t)||communityReportingRequirements(t)||communityYearlyPlanDeadline(t)||communityVsAssociationDifferences(t)||supervisorAsDirector(t)||newChairTodo(t)||postElectionAccountingDeadline(t)||electionReportDeadline(t)||checkSignature(t)||feePeriods(t)||feeDeferral(t)||threeMonthsWording(t)||electionCandidates(t)||electionObjection(t)||minutesDeadline(t)||coopBoardQuorum(t)||coopTax(t)||communityRename(t)||communityReportTownship(t)||addressCertificate(t)||bankChairChange(t)||eventFee(t)||communityChairTerm(t)||invalidBallot(t)||feeAmount(t)||personalAccount(t)||delegateAssembly(t)||noSupervisor(t)||foundingDocs(t)||investStocks(t)||membershipRefused(t)||coopCapital(t)||receiveDonation(t)||hireEmployee(t)||lendToChair(t)||branchOrg(t)||supervisorMeeting(t)||noAnnualMeeting(t)||chairSpendingAuth(t)||communityVsGeneral(t)||coopDissolutionProperty(t)||charterAmendment(t)||coopSupervisorAudit(t)||patrol112late(t)||publicSolicitation(t)||decisionRevoked(t)||chairResign(t)||memberExpulsion(t)||sealChange(t)||noHandover(t)||communityDissolutionProperty(t)||boardFinanceAgenda(t)||boardQuorumGeneral(t)||delegated(t)||chairNoMeeting(t)||feeAnswer(t)||coopAssemblyQuorum(t)||proxyCount(t)||concurrent(t)||financeQuestioned(t)||financeDeadline(t)||meetingFrequency(t)||videoMeeting(t)||coopMinimum(t)||financeForms(t)||formsDownload(t,ctx&&ctx.catalog)||dissolutionHowTo(t)||patrol95late(t)||null||chairChangeTodo(t)||electionHowTo(t)||meetingHowTo(t);
+ return patrol116(t)||patrol115(t)||patrol114(t)||patrol113(t)||patrol112(t)||patrol111(t)||patrol110(t)||patrol109(t)||patrol108(t)||patrol107(t)||patrol106b(t)||patrol106(t)||patrol105(t)||patrol104(t)||patrol103(t)||patrol102(t)||patrol101(t)||patrol100(t)||patrol99(t)||patrol98(t)||patrol97(t)||patrol96(t)||patrol95(t)||patrol94(t)||patrol93(t)||patrol92(t)||patrol91(t)||patrol90(t)||patrol89(t)||patrol88(t)||patrol87(t)||patrol86(t)||guild86(t)||patrol85(t)||charterRound84(t)||taxFiling81(t)||memberRound83(t)||patrol84(t)||patrol83(t)||patrol82(t)||patrol81(t)||patrol80(t)||patrol79(t)||patrol78(t)||patrol77(t)||patrol76(t)||patrol75(t)||patrol74(t)||patrol73(t)||patrol72(t)||patrol71(t)||patrol70(t)||patrol69(t)||patrol68(t)||patrol67(t)||patrol66(t)||patrol65(t)||patrol64(t)||patrol63(t)||patrol62(t)||patrol61(t)||patrol60(t)||patrol59(t)||patrol58(t)||patrol57(t)||patrol56(t)||patrol55(t)||patrol54(t)||patrol53(t)||patrol52(t)||patrol51(t)||patrol50(t)||patrol49(t)||patrol48(t)||chairTermGeneral(t)||patrol47(t)||patrol46(t)||patrol45(t)||patrol44(t)||patrol43(t)||patrol42(t)||patrol41(t)||patrol40(t)||patrol39(t)||patrol38(t)||patrol37(t)||patrol36(t)||patrol35(t)||patrol34(t)||patrol33(t)||patrol32(t)||patrol31(t)||patrol30(t)||patrol29(t)||patrol28(t)||patrol27(t)||patrol26(t)||patrol25(t)||patrol24(t)||patrol23(t)||patrol22(t)||patrol21(t)||patrol20(t)||patrol19(t)||patrol18(t)||patrol17(t)||patrol15(t)||patrol16(t)||patrol14(t)||intlGroupElection(t)||patrol13(t)||patrol11(t)||patrol10(t)||patrol9(t)||patrol8(t)||patrol7(t)||memberStaffPatrol6(t)||communityPatrol(t)||dissolveCharterPatrol(t)||financePatrol(t)||membershipPatrol(t)||formTemplates(t,ctx&&ctx.catalog)||(/^(協會|社區發展協會|我們協會|本會)?的?(理事|監事|理監事)(和監事|跟監事)?(要)?(怎麼選|怎麼產生|如何產生|誰選)/.test(t)?electionHowTo(t):null)||attendanceFeeCan(t)||joinManyGroups(t)||chairReplaceMidTerm(t)||charterItemChange(t)||resolutionOverturn(t)||staffInsurance(t)||intlGroupWho(t)||moneyMisuse(t)||supervisorNoMeeting(t)||rosterView(t)||whoManagesMoney(t)||donationDeduct(t)||annualAccountsHowTo(t)||boardMeetingHowTo(t)||memberQuitHowTo(t)||viceChair(t)||motionSecond(t)||assocLoan(t)||yearEndBonus(t)||entertainmentExpense(t)||englishName(t)||minorOfficer(t)||assocInvest(t)||candidateDeposit(t)||chairAndRecorder(t)||facebookGroup(t)||rulingRules(t)||byElection(t)||receiptsBasic(t)||memberRepThreshold(t)||officerResignHow(t)||finalAccountsWho(t)||publicServantOfficer(t)||relativesAsOfficers(t)||mergeGroups(t)||govCommission(t)||conveneAndPetition(t)||assemblyPrepAndSignIn(t)||whatNeedsAssembly(t)||feeAndMemberStatus(t)||directorMustBeMember(t)||auditAndYear(t)||reorganization(t)||staffResignReport(t)||videoElection(t)||subsidyDetails(t)||subsidyBasics(t)||taxWithholding(t)||commercialGuild(t)||memberSuspension(t)||meetingProcedure(t)||solicitationAfter(t)||coopMore(t)||communityMore(t)||outOfScope(t)||whichAuthority(t)||volunteerMore(t)||submitWhere(t)||timeDeposit(t)||nonCompliance(t)||memberEligibilityOutside(t)||annualMeetings(t)||chairTermLimit(t)||assemblyQuorum(t)||urgentMeetingNotice(t)||directorVacancy(t)||recallOfficer(t)||boardResolution(t)||annualFinanceFiling(t)||receiptAndWithdraw(t)||charterContents(t)||dissolveVote(t)||sealMake(t)||memberOnlyFundraising(t)||communityBasics(t)||countyPhone(t)||advisorAppoint(t)||sealKeeper(t)||assocTravel(t)||activityReport(t)||assocFund(t)||officerAsFinanceStaff(t)||electionShowOfHands(t)||directorProxyVote(t)||memberAdmissionWho(t)||memberRosterReport(t)||attendanceFeeAmount(t)||auditByCPA(t)||financeAnnounce(t)||coopBasics(t)||foundingCost(t)||prepMeetingCount(t)||assemblyShortOfQuorum(t)||twoCommunityAssociations(t)||villageChiefAsChair(t)||intlTermStart(t)||charmCommunityContact(t)||groupTypeDifference(t)||directorAbsence(t)||chairElectionMethod(t)||officerNumbers(t)||meetingNoticeChannel(t)||budgetHowTo(t)||renameGroup(t)||certificateLost(t)||dormantGroup(t)||lookupRegistered(t)||coopWithdraw(t)||termLengthLimit(t)||assemblyAgenda(t)||teacherAssocSetup(t)||commercialGroupSetup(t)||alumniSetup(t)||boardAgenda(t)||assetScrap(t)||taxMissed(t)||officeAtHome(t)||communityAreaSplit(t)||officeMove(t)||crossCountyEvent(t)||dissolvedAssets(t)||groupNameDuplicate(t)||standingDirectorCount(t)||memberViewAccounts(t)||howToReportGroup(t)||groupReported(t)||anonymousDonation(t)||chairRelativeStaff(t)||minorJoinAssoc(t)||volunteerTopics(t)||volunteerTeam(t)||memberCourseFee(t)||staffMustBeMember(t)||chairFundraising(t)||boardBelowHalf(t)||assocMayNotMeet(t)||assocNurseryCenter(t)||assocCareStation(t)||assocDonateGoods(t)||assocGovTender(t)||subsidySettlement(t)||corpRegistration(t)||assocBoardPay(t)||financeStaffConcurrent(t)||staffHiring(t)||coopVsAssocAccountingForms(t)||coopBalanceSheetReport(t)||delegateQuotaCalculation(t)||delegateConcurrentRole(t)||onlineVoting(t)||mailVoting(t)||assemblyVotingMethod(t)||boardVotingMethodDetail(t)||delegateElectionProcess(t)||delegateAssemblyRules(t)||coopMemberRemoval(t)||coopAdvertisingTaxability(t)||coopLoanToMemberTax(t)||coopBankLoanProcedure(t)||coopBankLoan(t)||branchAccountingPractice(t)||memberDelegateElection(t)||branchOrgSetup(t)||delegateProposalProcess(t)||annualMeetingVsAssembly(t)||vacancyQuorum(t)||supervisorConvenerNoMeeting(t)||supervisorMinimumMembers(t)||supervisorChairmanElection(t)||supervisorAuditPowers(t)||branchOrgAccounting(t)||runClassesPermit(t)||residentialCarePermit(t)||chairConvicted(t)||chairDismissStaff(t)||chairDissolve(t)||homeAsOfficeTax(t)||nonprofitTaxThreshold(t)||sameAddressGroups(t)||chairStaffConflict(t)||orgDisposeProperty(t)||orgAcquireEquipment(t)||sellGoodsAllowed(t)||staffActingChair(t)||p2MembershipFee(t)||p2BoardNotice(t)||p2RecordRetention(t)||p2CharterAmend(t)||p2SupervisorAudit(t)||p2CoopShares(t)||p2FoundingMeeting(t)||p2ElectionPrep(t)||p2MinutesContent(t)||p2DelegateSystem(t)||chairAbandonsOffice(t)||chairOtherGroupPosition(t)||chairSpendWithoutBoard(t)||supervisorSpend(t)||supervisorActingChair(t)||candidateSeatCount(t)||ballotRetention(t)||officerResignation(t)||invalidBallotReason(t)||delegateQualification(t)||substitutionOrder(t)||byElectionThreshold(t)||coopChairReelection(t)||chairmanReelectionLimit(t)||chairmanAbsence(t)||recordRetentionPeriod(t)||advertisingIncome(t)||staffBankAccountSetup(t)||meetingSigninDuration(t)||meetingVotingMethod(t)||preElectionBoardMeeting(t)||electionEffectiveDate(t)||politicalDonation(t)||communityReportingRequirements(t)||communityYearlyPlanDeadline(t)||communityVsAssociationDifferences(t)||supervisorAsDirector(t)||newChairTodo(t)||postElectionAccountingDeadline(t)||electionReportDeadline(t)||checkSignature(t)||feePeriods(t)||feeDeferral(t)||threeMonthsWording(t)||electionCandidates(t)||electionObjection(t)||minutesDeadline(t)||coopBoardQuorum(t)||coopTax(t)||communityRename(t)||communityReportTownship(t)||addressCertificate(t)||bankChairChange(t)||eventFee(t)||communityChairTerm(t)||invalidBallot(t)||feeAmount(t)||personalAccount(t)||delegateAssembly(t)||noSupervisor(t)||foundingDocs(t)||investStocks(t)||membershipRefused(t)||coopCapital(t)||receiveDonation(t)||hireEmployee(t)||lendToChair(t)||branchOrg(t)||supervisorMeeting(t)||noAnnualMeeting(t)||chairSpendingAuth(t)||communityVsGeneral(t)||coopDissolutionProperty(t)||charterAmendment(t)||coopSupervisorAudit(t)||patrol112late(t)||publicSolicitation(t)||decisionRevoked(t)||chairResign(t)||memberExpulsion(t)||sealChange(t)||noHandover(t)||communityDissolutionProperty(t)||boardFinanceAgenda(t)||boardQuorumGeneral(t)||delegated(t)||chairNoMeeting(t)||feeAnswer(t)||coopAssemblyQuorum(t)||proxyCount(t)||concurrent(t)||financeQuestioned(t)||financeDeadline(t)||meetingFrequency(t)||videoMeeting(t)||coopMinimum(t)||financeForms(t)||formsDownload(t,ctx&&ctx.catalog)||dissolutionHowTo(t)||patrol95late(t)||null||chairChangeTodo(t)||electionHowTo(t)||meetingHowTo(t);
 }
 const api={normalizeQuestion,withContext,verifiedRoundAnswer};
 if(typeof module!=='undefined'&&module.exports)module.exports=api;
