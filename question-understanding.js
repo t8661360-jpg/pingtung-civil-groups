@@ -27,7 +27,7 @@
   if(/連任|連選|幾屆|兩屆/.test(q))return{focus:'reelection',domain,chair:/理事長|主席/.test(q)};
   if(/起算|開始算|從.*算/.test(q)&&term)return{focus:'term-start',domain};
   if(/辭職|出缺|過世|死亡|補選|代理/.test(q)&&/理事長|理事|監事|主席|理監事/.test(q))return{focus:'vacancy',domain,chair:/理事長|主席|常務/.test(q)};
-  if(/不改選|沒改選|未改選|未辦.*改選|過期|逾期/.test(q)&&/怎樣|怎麼辦|處理|任期|到期|屆滿|超過|過期|逾期/.test(q))return{focus:'overdue',domain};
+  if((/不改選|沒改選|未改選|未辦.*改選/.test(q)||(/過期|逾期/.test(q)&&/任期|改選|屆滿|理事|監事|理事長|會長/.test(q)))&&/怎樣|怎麼辦|處理|任期|到期|屆滿|超過|過期|逾期/.test(q))return{focus:'overdue',domain};
   if(/延長|延期|延任|延後|來不及|趕不及/.test(q)&&(election||term))return{focus:'extension',domain};
   if(/改選完|改選後|選後/.test(q)&&/多久|幾天|期限|最晚/.test(q)&&/送|報|備查|縣府|資料|文件/.test(q))return{focus:'report-deadline',domain};
   if(/幾年.*改選|改選.*幾年/.test(q))return{focus:'term-length',domain};
