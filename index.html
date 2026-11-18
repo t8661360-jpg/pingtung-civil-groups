@@ -723,7 +723,7 @@ const KB=[
   laws:["zc25","zc28"],notes:[],act:[["看會員大會辦理","meet","m-assembly"],["下載改選書表","forms","改選"]]},
  {k:["總幹事","工作人員","聘任","聘僱","秘書","會計","出納"],cat:"會務辦理",title:"總幹事和工作人員怎麼聘",
   summary:"總幹事等工作人員的職稱、員額及資格條件由理事會訂定，依資格條件遴選後，提經理事會通過聘僱（社會團體工作人員管理辦法第3條）；解聘也要經理事會通過（第6條）。工作人員不得由理事、監事（選任之職員）擔任（第4條），也不得聘僱現任理事長的配偶及三親等以內血親、姻親（第5條，理事長接任前已聘僱者除外）。聘免是否要報縣府，法規沒有要求；章程如果另有規定，依章程辦理，有疑問請洽屏東縣政府社會處。",
-  laws:["zc17"],notes:[],act:[["看職員異動","meet","m-roster"]]},
+  laws:[],notes:[],act:[["看職員異動","meet","m-roster"]]},
  {k:["無給職","薪水","車馬費","報酬"],cat:"法規查詢",title:"理監事有薪水嗎",
   summary:"沒有，理事、監事都是無給職。不過章程可以訂定出席會議的交通費或車馬費。支薪的是總幹事、會計等工作人員，員工的薪給支給基準等事項，不得違反勞動法令，由理事會訂定，提會員（代表）大會通過後實施（社會團體工作人員管理辦法第7條）。",
   laws:["zc20"],notes:[],act:[["看章程範例","law","屏東縣作業規定"]]},
@@ -831,7 +831,7 @@ async function saveChunked(coll,rows,metaExtra){
 async function loadAll(force){
   if(loadPromise&&!force)return loadPromise;
   loadPromise=(async()=>{
-    const base=document.baseURI.replace(/[^/]*$/,"")+"data/";const DV="?v=20261117-114";
+    const base=document.baseURI.replace(/[^/]*$/,"")+"data/";const DV="?v=20261118-115";
     const jf=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);return r.json()};
     const jgz=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);const b=new Uint8Array(await r.arrayBuffer());if(b[0]!==31||b[1]!==139)return JSON.parse(new TextDecoder().decode(b));if(typeof DecompressionStream==="undefined")throw new Error("gzip unsupported");const text=await new Response(new Blob([b]).stream().pipeThrough(new DecompressionStream("gzip"))).text();return JSON.parse(text)};
     const [d,s,k,f]=await Promise.allSettled([jf(base+"directory.json"+DV),jf(base+"staff.json"+DV),jgz(base+"knowledge.json.gz"+DV).catch(()=>jf(base+"knowledge.json"+DV)),jf(base+"forms-catalog.json?v=20261105-5")]);
@@ -1866,13 +1866,13 @@ touch();
   route();
 })();
 </script>
-<script src="feedback-collector.js?v=20261117-114"></script>
-<script src="round-fixes.js?v=20261117-114"></script>
-<script src="answer-arbiter.js?v=20261117-114"></script>
-<script src="question-understanding.js?v=20261117-114"></script>
-<script src="counter-upgrade.js?v=20261117-114"></script>
-<script src="ai-assist.js?v=20261117-114"></script>
-<script src="festive.js?v=20261117-114" defer></script>
+<script src="feedback-collector.js?v=20261118-115"></script>
+<script src="round-fixes.js?v=20261118-115"></script>
+<script src="answer-arbiter.js?v=20261118-115"></script>
+<script src="question-understanding.js?v=20261118-115"></script>
+<script src="counter-upgrade.js?v=20261118-115"></script>
+<script src="ai-assist.js?v=20261118-115"></script>
+<script src="festive.js?v=20261118-115" defer></script>
 </body>
 </html>
 
