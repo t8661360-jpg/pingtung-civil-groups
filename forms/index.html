@@ -1,0 +1,1607 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>人民團體會務表單線上填報</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;600;700&family=Noto+Serif+TC:wght@400;700&display=swap" rel="stylesheet">
+<style>:root{--bg:#eceeea;--panel:#fff;--ink:#1c2628;--mute:#66736f;--line:#d9ddd7;--pri:#1f5f5b;--pri2:#e3efec;--acc:#a8432a;--warn:#b7791f;--ok:#2f7d4f;--r:10px}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{font-family:"Noto Sans TC","Microsoft JhengHei","PingFang TC",system-ui,sans-serif;color:var(--ink);background:var(--bg);font-size:14px;-webkit-font-smoothing:antialiased}
+button{font:inherit;cursor:pointer}
+input,select,textarea{font:inherit;color:inherit}
+#app{display:grid;grid-template-rows:auto 1fr;height:100vh}
+header.top{display:flex;align-items:center;gap:14px;padding:10px 18px;background:#1b3836;color:#f2f5f2;border-bottom:3px solid var(--acc)}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.seal{width:34px;height:34px;border:2px solid #e9b3a3;color:#f3c7b9;border-radius:6px;display:grid;place-items:center;font-family:"Noto Serif TC",serif;font-weight:700;font-size:15px;line-height:1;flex:none;letter-spacing:-1px}
+.brand h1{font-family:"Noto Serif TC",serif;font-size:17px;margin:0;font-weight:700;letter-spacing:.04em;white-space:nowrap}
+.brand small{display:block;font-size:12px;color:#b9cbc6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:38vw}
+.tools{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.tools button{background:transparent;color:#dfe8e4;border:1px solid #4d6b67;border-radius:7px;padding:5px 10px;font-size:13px}
+.tools button:hover{background:#28504c;color:#fff}
+#navToggle,#pvToggle{display:none}
+.body{display:grid;grid-template-columns:236px minmax(0,1fr) minmax(0,44%);min-height:0}
+nav#nav{background:#f6f7f4;border-right:1px solid var(--line);overflow:auto;padding:12px 10px;display:flex;flex-direction:column;gap:3px}
+nav#nav button{display:flex;align-items:center;gap:10px;text-align:left;border:0;background:transparent;border-radius:8px;padding:8px 10px;color:var(--ink)}
+nav#nav button:hover{background:#eaeee9}
+nav#nav button.on{background:var(--pri);color:#fff}
+nav#nav .no{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:11px;background:#e1e6e1;color:var(--mute);flex:none;font-variant-numeric:tabular-nums}
+nav#nav button.on .no{background:rgba(255,255,255,.2);color:#fff}
+nav#nav .tx{display:flex;flex-direction:column;min-width:0;flex:1}
+nav#nav .tx b{font-weight:600;font-size:13.5px;line-height:1.3}
+nav#nav .tx small{font-size:11.5px;color:var(--mute);margin-top:1px}
+nav#nav button.on small{color:#cfe3df}
+nav#nav .warn{background:var(--warn);color:#fff;border-radius:50%;width:18px;height:18px;font-size:11px;display:grid;place-items:center;font-weight:700}
+.navfoot{margin-top:auto;padding:12px 8px 4px;font-size:11.5px;color:var(--mute);line-height:1.6}
+#formcol{overflow:auto;padding:18px 22px 60px;min-width:0}
+.phead{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.phead h2{font-family:"Noto Serif TC",serif;font-size:22px;margin:0;letter-spacing:.03em}
+.phead .dlrow{margin-left:auto}
+.dlrow{display:flex;gap:8px;flex-wrap:wrap}
+.dl{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 12px 6px 6px;font-size:13px;font-weight:600;color:var(--ink);transition:transform .08s,box-shadow .15s}
+.dl:hover{box-shadow:0 2px 8px rgba(0,0,0,.08);transform:translateY(-1px)}
+.dl:disabled{opacity:.5;cursor:wait}
+.dl .ic{width:22px;height:22px;border-radius:5px;color:#fff;display:grid;place-items:center;font-size:12px;font-weight:700}
+.dl.w .ic{background:#2b579a}.dl.x .ic{background:#217346}.dl.p .ic{background:#b42318}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px 16px;margin-bottom:14px}
+.card.hl{border-color:#b9d3cd;background:linear-gradient(180deg,#f4faf8,#fff)}
+.ch{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.ch h3{margin:0;font-size:15px;font-weight:700;color:var(--pri);display:flex;align-items:center;gap:8px}
+.ch h3::before{content:"";width:4px;height:15px;background:var(--acc);border-radius:2px}
+.card h4{font-size:13.5px;margin:14px 0 6px;color:var(--mute)}
+.note{font-size:12.5px;color:var(--mute);margin:-2px 0 10px;line-height:1.6}
+.grid{display:flex;flex-wrap:wrap;gap:10px 14px}
+.f{display:flex;flex-direction:column;gap:4px;flex:1 1 200px;min-width:0}
+.f.s{flex:0 1 150px}.f.m{flex:1 1 240px}.f.l{flex:2 1 320px}.f.full{flex:1 1 100%}.f.half{flex:1 1 300px}
+.f label{font-size:12.5px;color:#46514e;font-weight:600;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.chip{font-size:10.5px;font-weight:600;color:var(--pri);background:var(--pri2);border:1px solid #c5ddd7;border-radius:999px;padding:0 7px;line-height:17px}
+.rst{display:none;font-size:11px;border:0;background:none;color:var(--acc);padding:0}
+.f.ov .rst{display:inline}
+.f.ov .chip{color:#8a6d1f;background:#fbf3dc;border-color:#eddcaa}
+.in{display:flex;align-items:center;gap:5px}
+.in input,.in select,.in textarea,.lst input,.lst select,.lst textarea,.acc input{width:100%;border:1px solid #cfd5ce;border-radius:7px;padding:7px 9px;background:#fff;min-width:0;transition:border-color .15s,box-shadow .15s}
+.in textarea,.lst textarea{resize:vertical;line-height:1.5}
+.in input:focus,.in select:focus,.in textarea:focus,.lst input:focus,.lst select:focus,.lst textarea:focus,.acc input:focus{outline:none;border-color:var(--pri);box-shadow:0 0 0 3px rgba(31,95,91,.14)}
+::placeholder{color:#8fa29d;opacity:1}
+.f:has(.chip) ::placeholder{color:#3d8a80;font-style:normal}
+.suf{color:var(--mute);font-size:13px;white-space:nowrap}
+.in.date{gap:3px;flex-wrap:nowrap}
+.in.date input{width:52px;padding:7px 5px;text-align:center}
+.in.date input.dy{width:56px}
+.in.date select{width:72px;padding:7px 4px}
+.in.date span{color:var(--mute);font-size:12.5px}
+.in.date.sm input{width:38px;padding:6px 2px}.in.date.sm input.dy{width:42px}
+.hint{font-size:11.5px;color:var(--mute)}
+.out{padding:8px 10px;background:#f5f7f4;border:1px dashed #cfd5ce;border-radius:7px;font-family:"Noto Serif TC",serif;font-size:15px;min-height:38px}
+.out-note{font-size:12.5px;color:var(--mute);flex:1 1 100%}
+.ck{display:inline-flex;align-items:center;gap:6px;font-size:13.5px;cursor:pointer}
+.ck.half{flex:1 1 45%}.ck.full{flex:1 1 100%}
+.ck input{width:16px;height:16px;accent-color:var(--pri)}
+.cks{display:flex;flex-wrap:wrap;gap:6px 16px}
+.lst{width:100%}
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:8px}
+.lst table,.acc{width:100%;border-collapse:collapse;font-size:13px}
+.lst.wide table{min-width:980px;table-layout:fixed}
+#form .lst.wide.roster table{min-width:1240px}
+.acc input.nm::placeholder{color:var(--ink)}
+.acc td{white-space:nowrap}
+.lst th,.acc th{background:#f2f4f0;font-weight:600;text-align:left;padding:7px 6px;font-size:12px;color:#46514e;border-bottom:1px solid var(--line);white-space:nowrap}
+.lst td{padding:4px;border-bottom:1px solid #eef0ec;vertical-align:top}
+.lst td input,.lst td select,.lst td textarea{padding:6px 7px;border-radius:6px}
+.lst td.empty{color:var(--mute);text-align:center;padding:14px;font-size:12.5px}
+.lst td.act,.lst th.act{width:86px;white-space:nowrap;text-align:right}
+.lst td.act button{border:0;background:#f1f3ef;border-radius:5px;width:24px;height:26px;margin-left:2px;color:#56625f}
+.lst td.act button:hover{background:#e3e8e3}
+.lst td.act button.del:hover{background:#f7dfd8;color:var(--acc)}
+input.num{text-align:right;font-variant-numeric:tabular-nums}
+.lbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.btn{border:1px solid var(--pri);background:var(--pri);color:#fff;border-radius:7px;padding:6px 12px;font-size:13px;font-weight:600}
+.btn.ghost{background:#fff;color:var(--pri);border-color:#b9d3cd}
+.btn:hover{filter:brightness(1.08)}
+.stat{margin-top:8px;font-size:13px;color:#46514e}
+.calc b{color:var(--pri)}
+.prop{border:1px solid #e3e7e1;border-radius:8px;padding:10px 12px;margin-bottom:10px;background:#fbfcfa}
+.prop.off{opacity:.65}
+.prop .ph{margin-bottom:6px}
+.elres{background:#f5f8f6;border-radius:8px;padding:10px 12px;font-size:13px;line-height:1.8}
+.muted{color:var(--mute)}
+.tabs{display:flex;gap:4px;margin-bottom:12px;flex-wrap:wrap;background:#e2e6e0;padding:4px;border-radius:9px;width:max-content;max-width:100%}
+.tabs button{border:0;background:transparent;padding:6px 12px;border-radius:7px;font-size:13px;color:#46514e}
+.tabs button.on{background:#fff;color:var(--pri);font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.acc td{padding:3px 5px;border-bottom:1px solid #eef0ec}
+.acc td input{padding:5px 7px;border-radius:5px}
+.acc tr.lv0 td{background:#eef4f2;font-weight:700}
+.acc tr.lv1 td{background:#fafbf9}
+.acc input.nm.lv1{padding-left:18px}.acc input.nm.lv2{padding-left:32px}
+.acc input.nm.lv0{font-weight:700}
+.acc td.sum{text-align:right;font-variant-numeric:tabular-nums;padding-right:10px;font-weight:600;color:var(--pri)}
+.acc tr.sur td{border-top:2px solid var(--pri);padding:8px 5px}
+.acc tr.g td{background:#f2f6f4;font-weight:700}
+.acc tr.t td{background:#e3efec;font-weight:700}
+.bs{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.ok{color:var(--ok);font-weight:600}.bad{color:var(--acc);font-weight:600}
+table.map{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px}
+table.map th,table.map td{border-bottom:1px solid #eceee9;padding:6px 8px;text-align:left;vertical-align:top}
+table.map th{background:#f2f4f0;font-size:12px}
+table.map td:first-child{white-space:nowrap;font-weight:600;color:var(--pri)}
+.flow p{margin:0 0 6px;font-size:13px;line-height:1.7}
+.checks{margin-top:14px;border-radius:8px;background:#fffaf0;border:1px solid #f0dfb8;padding:10px 12px;font-size:13px;line-height:1.8}
+.checks.okb{background:#f1f8f3;border-color:#cfe6d6;color:var(--ok)}
+.checks .warn{color:#8a4b14}.checks .info{color:#55605d}
+.checks a{color:var(--pri);font-weight:600}
+#prevcol{background:#d9ddd6;overflow:auto;border-left:1px solid var(--line);position:relative}
+.pvbar{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:8px;padding:8px 14px;background:rgba(217,221,214,.92);backdrop-filter:blur(4px);font-size:12.5px;color:#46514e;border-bottom:1px solid #c9cec6}
+.pvbar b{color:var(--ink)}
+.pvbar .live{width:8px;height:8px;border-radius:50%;background:#2f9e6b;box-shadow:0 0 0 3px rgba(47,158,107,.2)}
+#preview{padding:16px 0 40px;transform-origin:top center}
+#preview .sheet{margin:0 auto 18px;box-shadow:0 2px 10px rgba(0,0,0,.15)}
+.sheet{width:210mm;min-height:297mm;padding:18mm 17mm;background:#fff;color:#000;font-family:"DFKai-SB","BiauKai","標楷體","Noto Serif TC",serif}
+.sheet p{margin:0;white-space:pre-wrap;word-break:break-word}
+.sheet table{width:100%;border-collapse:collapse;table-layout:fixed}
+.sheet td{border:.75pt solid #000;vertical-align:middle;line-height:1.3;white-space:pre-wrap;word-break:break-all}
+.sheet td.h{background:#f2f2f2}
+.pdf-stage{position:fixed;left:0;top:0;z-index:-1;width:182mm;background:#fff}
+.pdf-stage .sheet{width:182mm;min-height:0;padding:0;box-shadow:none;margin:0}
+#busy{position:fixed;inset:0;background:rgba(236,238,234,.94);display:grid;place-items:center;z-index:50}
+#busy[hidden]{display:none}
+#busy div{background:#fff;border:1px solid var(--line);border-radius:12px;padding:20px 26px;display:flex;align-items:center;gap:14px;box-shadow:0 8px 30px rgba(0,0,0,.12);font-weight:600}
+.spin{width:22px;height:22px;border:3px solid var(--pri2);border-top-color:var(--pri);border-radius:50%;animation:sp 0.8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+#modal{position:fixed;inset:0;background:rgba(20,30,28,.45);display:grid;place-items:center;z-index:60}
+#modal[hidden]{display:none}
+#modal .box{background:#fff;border-radius:12px;padding:20px 22px;max-width:420px;width:calc(100% - 40px);box-shadow:0 10px 40px rgba(0,0,0,.25)}
+#modal p{margin:0 0 16px;line-height:1.7}
+#modal .row{display:flex;gap:8px;justify-content:flex-end}
+#toasts{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;gap:8px;z-index:70;align-items:center}
+.toast{background:#1b3836;color:#fff;padding:9px 16px;border-radius:9px;font-size:13.5px;box-shadow:0 6px 20px rgba(0,0,0,.2);transition:opacity .4s,transform .4s;max-width:88vw}
+.toast.err{background:var(--acc)}
+.toast.out{opacity:0;transform:translateY(8px)}
+@media (max-width:1180px){.body{grid-template-columns:210px minmax(0,1fr)}#prevcol{display:none}body.pvopen #prevcol{display:block;position:fixed;inset:58px 0 0 auto;width:min(860px,100%);z-index:30;box-shadow:-8px 0 30px rgba(0,0,0,.2)}#pvToggle{display:inline-block}}
+@media (max-width:760px){.brand h1{font-size:14.5px}.seal{display:none}.tools button{padding:4px 8px;font-size:12px}.body{grid-template-columns:1fr}nav#nav{display:none}body.navopen nav#nav{display:flex;position:fixed;inset:58px auto 0 0;width:260px;z-index:31;box-shadow:8px 0 30px rgba(0,0,0,.2)}#navToggle{display:inline-block}#formcol{padding:14px 12px 60px}.brand small{display:none}.tools .opt{display:none}.bs{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="top">
+    <button id="navToggle" style="border:1px solid #4d6b67;background:none;color:#fff;border-radius:7px;padding:5px 9px">☰</button>
+    <div class="brand"><div class="seal">會務</div><div><h1>人民團體會務表單線上填報</h1><small id="orgName"></small></div></div>
+    <div class="tools">
+      <span id="saved" class="opt" style="font-size:12px;color:#9fb6b0;align-self:center;margin-right:6px"></span>
+      <button data-cmd="sample" class="opt">載入範例</button>
+      <button data-cmd="backup">備份資料</button>
+      <button data-cmd="restore">還原資料</button>
+      <button data-cmd="clear" class="opt">清除</button>
+      <button id="pvToggle">預覽</button>
+    </div>
+  </header>
+  <div class="body">
+    <nav id="nav"></nav>
+    <main id="formcol">
+      <div class="phead"><h2 id="ptitle"></h2><div class="dlrow" id="pdl"></div></div>
+      <div id="form"></div>
+    </main>
+    <aside id="prevcol">
+      <div class="pvbar"><span class="live"></span><b>即時預覽</b><span id="pvinfo"></span><span style="margin-left:auto">下載的 Word／Excel／PDF 內容與此相同</span></div>
+      <div id="preview"></div>
+    </aside>
+  </div>
+</div>
+<input type="file" id="fileIn" accept=".json,application/json" hidden>
+<div id="busy" hidden><div><div class="spin"></div><span>處理中…</span></div></div>
+<div id="modal" hidden><div class="box"><p></p><div class="row"><button class="btn ghost no">取消</button><button class="btn ok">確定</button></div></div></div>
+<div id="toasts"></div>
+<script>
+/* ===== 工具 ===== */
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const num = v => { const n = parseFloat(String(v ?? '').replace(/[,，\s]/g, '')); return isFinite(n) ? n : 0; };
+const hasNum = v => String(v ?? '').trim() !== '' && isFinite(parseFloat(String(v).replace(/[,，\s]/g, '')));
+const fmt = n => { n = Math.round(n || 0); return (n < 0 ? '-' : '') + Math.abs(n).toLocaleString('en-US'); };
+const CNN = ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九', '十'];
+function cn(n) {
+  n = parseInt(n, 10); if (!n || n < 0) return '';
+  if (n <= 10) return CNN[n];
+  if (n < 20) return '十' + (n % 10 ? CNN[n % 10] : '');
+  if (n < 100) return CNN[Math.floor(n / 10)] + '十' + (n % 10 ? CNN[n % 10] : '');
+  return String(n);
+}
+const FW = '　';
+const O = (v, ph = '○○○') => (v === '' || v == null) ? ph : String(v);
+const BL = (v, n = 2) => (v === '' || v == null) ? FW.repeat(n) : String(v);
+const isBlank = v => v == null || (typeof v === 'string' && v.trim() === '');
+function rd(d, n = 2) { d = d || {}; return `${BL(d.y, n)}年${BL(d.m, 1)}月${BL(d.d, 1)}日`; }
+function rdOrBlank(d) { d = d || {}; return (!d.y && !d.m && !d.d) ? '' : rd(d); }
+function rt(t) { t = t || {}; return `${t.ap || FW}午${BL(t.h, 1)}時${BL(t.mi, 1)}分`; }
+function dateEmpty(d) { return !d || (isBlank(d.y) && isBlank(d.m) && isBlank(d.d)); }
+function rocAddYearsMinusDay(d, years) {
+  if (!d || !hasNum(d.y) || !hasNum(d.m) || !hasNum(d.d)) return null;
+  const dt = new Date(num(d.y) + 1911 + num(years), num(d.m) - 1, num(d.d));
+  dt.setDate(dt.getDate() - 1);
+  return { y: String(dt.getFullYear() - 1911), m: String(dt.getMonth() + 1), d: String(dt.getDate()) };
+}
+function todayRoc() { const t = new Date(); return { y: String(t.getFullYear() - 1911), m: String(t.getMonth() + 1), d: String(t.getDate()) }; }
+
+function getp(o, path) { return path.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o); }
+function setp(o, path, v) {
+  const ks = path.split('.'); let a = o;
+  for (let i = 0; i < ks.length - 1; i++) {
+    if (a[ks[i]] == null || typeof a[ks[i]] !== 'object') a[ks[i]] = /^\d+$/.test(ks[i + 1]) ? [] : {};
+    a = a[ks[i]];
+  }
+  a[ks[ks.length - 1]] = v;
+}
+function isEmptyVal(v) {
+  if (v == null) return true;
+  if (typeof v === 'string') return v.trim() === '';
+  if (typeof v === 'object' && !Array.isArray(v)) {
+    if ('y' in v || 'm' in v || 'd' in v) return dateEmpty(v);
+    return Object.keys(v).length === 0;
+  }
+  return false;
+}
+
+/* ===== 狀態 ===== */
+const LS_KEY = 'rt-forms-v1';
+const ROLES = ['理事長', '常務理事', '理事', '候補理事', '常務監事', '監事', '候補監事', '總幹事', '會計', '出納', '會務人員'];
+const DIR_ROLES = ['理事長', '常務理事', '理事'];
+const SUP_ROLES = ['常務監事', '監事'];
+
+function blankState() {
+  return {
+    basic: { county: '屏東縣', town: '', org: '', term: '', year: '', budgetYear: '', termYears: '4',
+      regDate: {}, regWord: '', regNum: '', courtDate: {}, courtNo: '', reelectDate: {},
+      membersGroup: '', membersPerson: '', address: '', phone: '', fax: '', web: '', email: '', fillDate: {} },
+    roster: [],
+    assembly: { term: '', no: '', date: {}, time: {}, place: '', should: '', attend: '', leave: '', absent: '', obs: '',
+      chair: '', rec: '', speech: '', report: '', refTerm: '', refNo: '',
+      fin: { on: true }, plan: { on: true }, bud: { on: true }, props: [], motions: [],
+      hasEl: true, el: { jp: '', fp: '', cp: '', jip: '', dirSeats: '', dirAlt: '', supSeats: '', supAlt: '', dirs: [], sups: [] },
+      end: {} },
+    board: { term: '', no: '', date: {}, time: {}, place: '', dirs: '', sups: '', obs: '', chair: '', rec: '',
+      electTerm: '', stdDir: '', stdSup: '', stdSupVotes: '', chairman: '', chairVotes: '',
+      addr: { on: true }, staff: { on: true }, props: [], motion: '', end: {} },
+    cert: { name: '', birthplace: '', birth: {}, addr: '', phone: '', org: '', term: '', firstDate: {}, tenure: '', note: '' },
+    consent: { loc: '', landNo: '', ping: '', sqm: '', from: {}, to: {}, lender: '', witness: '', chairman: '', date: {} },
+    statute: { boardDate: {}, boardTerm: '', boardNo: '', asmDate: {}, asmTerm: '', asmNo: '', rows: [] },
+    plan: { year: '', rows: [], method: '', refTerm: '', refNo: '' },
+    fin: { names: {}, v: {}, prev: '', cashPrev: '', hideZero: false, prop: [], bs: {}, fund: {}, sel: { bud: true, act: true, prop: true, bs: true, fund: true } },
+    letter: { addr: '', contact: '', phone: '', to: '', date: {}, no: '', speed: '', secret: '', att: '', subject: '', d1: '', d2: '', d3: '', main: '', cc: '', atts: {} },
+    ui: { page: 'basic', finTab: 'acc' }
+  };
+}
+function merge(base, add) {
+  if (add == null) return base;
+  if (Array.isArray(base)) return Array.isArray(add) ? add : base;
+  if (typeof base === 'object') {
+    const o = { ...base };
+    for (const k of Object.keys(add)) o[k] = (k in base && base[k] && typeof base[k] === 'object' && !Array.isArray(base[k])) ? merge(base[k], add[k]) : add[k];
+    return o;
+  }
+  return add;
+}
+let S = blankState();
+try { const raw = localStorage.getItem(LS_KEY); if (raw) S = merge(blankState(), JSON.parse(raw)); } catch (e) { }
+let saveTimer = null;
+function save() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => { try { localStorage.setItem(LS_KEY, JSON.stringify(S)); flashSaved(); } catch (e) { } }, 300);
+}
+function flashSaved() { const el = $('#saved'); if (!el) return; el.textContent = '已自動儲存於此瀏覽器 ' + new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }); }
+
+/* ===== 連動（衍生預設值） ===== */
+const D = {};
+function V(path) { const v = getp(S, path); if (!isEmptyVal(v)) return v; const d = D[path]; if (d) { try { const r = d(); return r == null ? '' : r; } catch (e) { return ''; } } return v ?? ''; }
+
+function rosterSorted() {
+  return S.roster.map((r, i) => ({ ...r, _i: i }))
+    .sort((a, b) => { const ia = ROLES.indexOf(a.role), ib = ROLES.indexOf(b.role); return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib) || a._i - b._i; });
+}
+function person(role) { return rosterSorted().find(r => r.role === role && !isBlank(r.name)); }
+function pname(role) { const p = person(role); return p ? p.name : ''; }
+function names(roles) { return rosterSorted().filter(r => roles.includes(r.role) && !isBlank(r.name)).map(r => r.name); }
+function orgFull() { return (V('basic.county') || '') + (S.basic.town || '') + (S.basic.org || '○○協會'); }
+function orgShort() { return (S.basic.org || '團體') ; }
+const Y = () => V('basic.year');
+const BY = () => V('basic.budgetYear');
+
+Object.assign(D, {
+  'basic.budgetYear': () => hasNum(S.basic.year) ? String(num(S.basic.year) + 1) : '',
+  'basic.fillDate': () => todayRoc(),
+  'basic.membersTotal': () => '',
+  'assembly.term': () => S.basic.term,
+  'assembly.no': () => '1',
+  'assembly.should': () => (hasNum(S.basic.membersPerson) || hasNum(S.basic.membersGroup)) ? String(num(S.basic.membersPerson) + num(S.basic.membersGroup)) : '',
+  'assembly.absent': () => { const s = V('assembly.should'), a = S.assembly.attend; if (!hasNum(s) || !hasNum(a)) return ''; return String(Math.max(0, num(s) - num(a) - num(S.assembly.leave))); },
+  'assembly.chair': () => pname('理事長'),
+  'assembly.rec': () => pname('總幹事'),
+  'assembly.refTerm': () => S.basic.term,
+  'assembly.fin.reason': () => `請審議${O(Y(), '○')}年度經費收支決算案含財產目錄及資產負債表`,
+  'assembly.fin.desc': () => `${O(Y(), '○')}年度經費收支決算表、財產目錄及資產負債表業經第${O(cn(V('assembly.refTerm')), '○')}屆第${O(cn(S.assembly.refNo), '○')}次理（監）事會審議通過。`,
+  'assembly.fin.method': () => `${O(Y(), '○')}年度經費收支決算書經會員大會審議通過，報請主管機關核備後實施。`,
+  'assembly.plan.reason': () => `請審議${O(BY(), '○')}年度工作計畫案`,
+  'assembly.plan.desc': () => `${O(BY(), '○')}年度工作計畫業經第${O(cn(V('assembly.refTerm')), '○')}屆第${O(cn(S.assembly.refNo), '○')}次理（監）事會審議通過。`,
+  'assembly.plan.method': () => `${O(BY(), '○')}年度工作計畫經會員大會審議通過，報請主管機關核備後實施。`,
+  'assembly.bud.reason': () => `請審議${O(BY(), '○')}年度經費收支預算案`,
+  'assembly.bud.desc': () => `${O(BY(), '○')}年度經費收支預算書業經第${O(cn(V('assembly.refTerm')), '○')}屆第${O(cn(S.assembly.refNo), '○')}次理（監）事會審議通過。`,
+  'assembly.bud.method': () => `${O(BY(), '○')}年度經費收支預算書經會員大會審議通過，報請主管機關核備後實施。`,
+  'assembly.fin.proposer': () => '理事會', 'assembly.plan.proposer': () => '理事會', 'assembly.bud.proposer': () => '理事會',
+  'assembly.fin.res': () => '照案通過。', 'assembly.plan.res': () => '照案通過。', 'assembly.bud.res': () => '照案通過。',
+  'assembly.el.dirSeats': () => { const n = names(DIR_ROLES).length; return n ? String(n) : ''; },
+  'assembly.el.dirAlt': () => { const n = names(['候補理事']).length; return n ? String(n) : ''; },
+  'assembly.el.supSeats': () => { const n = names(SUP_ROLES).length; return n ? String(n) : ''; },
+  'assembly.el.supAlt': () => { const n = names(['候補監事']).length; return n ? String(n) : ''; },
+  'board.term': () => S.basic.term,
+  'board.no': () => '1',
+  'board.date': () => dateEmpty(S.assembly.date) ? null : S.assembly.date,
+  'board.place': () => S.assembly.place,
+  'board.dirs': () => names(DIR_ROLES).join('、'),
+  'board.sups': () => names(SUP_ROLES).join('、'),
+  'board.chair': () => pname('理事長'),
+  'board.rec': () => pname('總幹事'),
+  'board.electTerm': () => S.basic.term,
+  'board.stdDir': () => names(['常務理事']).join('、'),
+  'board.stdSup': () => names(['常務監事']).join('、'),
+  'board.chairman': () => pname('理事長'),
+  'board.addr.reason': () => '決定本會會址處所案。',
+  'board.addr.desc': () => '取得使用權證明（例如租約、使用同意書）。',
+  'board.addr.res': () => S.basic.address ? `本會會址設於${S.basic.address}，照案通過。` : '',
+  'board.staff.reason': () => '聘任本會總幹事等工作人員案。',
+  'board.staff.desc': () => '工作人員不得由選任之職員擔任。',
+  'board.staff.res': () => {
+    const parts = [];
+    for (const role of ['總幹事', '會計', '出納', '會務人員']) { const ns = names([role]); if (ns.length) parts.push(`${ns.join('、')}為${role}`); }
+    return parts.length ? `聘任${parts.join('，')}，照案通過。` : '';
+  },
+  'cert.name': () => pname('理事長'),
+  'cert.birth': () => { const p = person('理事長'); return p && !dateEmpty(p.birth) ? p.birth : null; },
+  'cert.addr': () => (person('理事長') || {}).addr || '',
+  'cert.phone': () => (person('理事長') || {}).phone || '',
+  'cert.org': () => orgFull(),
+  'cert.term': () => S.basic.term,
+  'cert.firstDate': () => { const d = V('board.date'); return dateEmpty(d) ? null : d; },
+  'cert.tenure': () => { const f = V('cert.firstDate'); const t = rocAddYearsMinusDay(f, V('basic.termYears') || 4); return t ? `${rd(f)}起至${rd(t)}止` : ''; },
+  'consent.loc': () => S.basic.address,
+  'consent.sqm': () => hasNum(S.consent.ping) ? (num(S.consent.ping) * 3.305785).toFixed(2) : '',
+  'consent.ping': () => hasNum(S.consent.sqm) ? (num(S.consent.sqm) / 3.305785).toFixed(2) : '',
+  'consent.to': () => rocAddYearsMinusDay(S.consent.from, V('basic.termYears') || 4),
+  'consent.chairman': () => pname('理事長'),
+  'consent.date': () => dateEmpty(S.consent.from) ? V('basic.fillDate') : S.consent.from,
+  'statute.boardTerm': () => S.basic.term,
+  'statute.asmDate': () => dateEmpty(S.assembly.date) ? null : S.assembly.date,
+  'statute.asmTerm': () => V('assembly.term'),
+  'statute.asmNo': () => V('assembly.no'),
+  'plan.year': () => BY(),
+  'plan.method': () => '定期召開會員大會及理、監事會，按計畫進度辦理各項活動，並配合上級政府之政策，達成本會設立宗旨及發展目標。',
+  'plan.refTerm': () => S.basic.term,
+  'plan.refNo': () => S.assembly.refNo,
+  'fin.cashPrev': () => S.fin.prev,
+  'fin.fund.add': () => { const v = accVal(ACC_BY.e12, 'a'); return v ? String(v) : ''; },
+});
+
+/* ===== 會計科目 ===== */
+const ACC = [
+  { k: 'inc', name: '收入總計', kids: [
+    { k: 'i1', name: '入會費' }, { k: 'i2', name: '常年會費' }, { k: 'i3', name: '事業費' }, { k: 'i4', name: '會員捐款' },
+    { k: 'i5', name: '補助收入', kids: [{ k: 'i51', name: '政府補助收入' }, { k: 'i52', name: '其他補助收入' }] },
+    { k: 'i6', name: '委託收益' }, { k: 'i7', name: '會員服務收入' }, { k: 'i8', name: '專案計劃收入' }, { k: 'i9', name: '其他收入' }] },
+  { k: 'exp', name: '支出總計', kids: [
+    { k: 'e1', name: '人事費', kids: ['員工薪給', '兼職人員車馬費', '保險補助費', '年終成績考核獎金', '不休假獎金', '其他人事費'].map((n, i) => ({ k: 'e1_' + (i + 1), name: n })) },
+    { k: 'e2', name: '辦公費', kids: ['文具、書報、雜誌費', '印刷費', '水電燃料費', '旅運費', '郵電費', '大樓管理費', '加班值班費', '租賦費', '修繕維護費', '財產保險費', '公共關係費', '人事查核費', '其他辦公費'].map((n, i) => ({ k: 'e2_' + (i + 1), name: n })) },
+    { k: 'e3', name: '業務費', kids: ['會議費', '聯誼活動費', '業務推展費', '展覽費', '考察觀摩費', '會刊（訊）編印費', '調查統計費', '接受委託業務費', '內部作業組織業務費', '研究發展費', '社會服務費', '其他業務費'].map((n, i) => ({ k: 'e3_' + (i + 1), name: n })) },
+    ...['購置費', '折舊', '繳納上級團體會費', '繳納其他團體會費', '捐助費', '專案計畫支出', '雜費支出', '預備金', '提撥基金'].map((n, i) => ({ k: 'e' + (i + 4), name: n }))] }
+];
+const ACC_FLAT = []; (function walk(list, lvl, parent) { list.forEach((a, i) => { a.lvl = lvl; a.idx = i + 1; a.parent = parent; ACC_FLAT.push(a); if (a.kids) walk(a.kids, lvl + 1, a); }); })(ACC, 0, null);
+const ACC_BY = Object.fromEntries(ACC_FLAT.map(a => [a.k, a]));
+const accName = a => (!isBlank(S.fin.names[a.k]) ? S.fin.names[a.k] : a.name);
+function accVal(a, col) { if (a.kids) return a.kids.reduce((s, c) => s + accVal(c, col), 0); return num((S.fin.v[a.k] || {})[col]); }
+function accZero(a) { return ['b', 'pb', 'a'].every(c => accVal(a, c) === 0); }
+const finSurplus = col => accVal(ACC_BY.inc, col) - accVal(ACC_BY.exp, col);
+
+/* 財產目錄 → 資產負債表 */
+const BS_LEFT = [
+  { k: 'L_cur', name: '流動資產小計', kids: ['庫存現金', '銀行存款', '定期存款', '有價證券', '應收票據', '應收款項', '預付款項'] },
+  { k: 'L_fix', name: '固定資產小計', kids: ['土地', '房屋及建築', '事務器械設備', '儀器設備', '交通運輸設備', '雜項設備'] },
+  { k: 'L_oth', name: '其他資產小計', kids: ['基金', '存出保證金', '雜項資產'] },
+];
+const BS_RIGHT_L = [
+  { k: 'R_cur', name: '流動負債小計', kids: ['短期借款', '應付票據', '應付款項', '代收款項', '預收款項'] },
+  { k: 'R_long', name: '長期負債小計', kids: ['長期借款'] },
+  { k: 'R_oth', name: '其他負債小計', kids: ['存入保證金', '雜項負債'] },
+];
+const BS_RIGHT_E = [
+  { k: 'R_cap', name: '投入資本小計', kids: ['投入資本'] },
+  { k: 'R_fund', name: '基金小計', kids: ['資產基金', '提撥基金'] },
+  { k: 'R_sur', name: '累計餘絀小計', kids: ['本期餘絀', '上期餘絀'] },
+];
+const PROP_CATS = ['土地', '房屋及建築', '事務器械設備', '儀器設備', '交通運輸設備', '雜項設備', '雜項資產'];
+function propSum(cat) { let cur = ''; let s = 0; for (const r of S.fin.prop) { if (!isBlank(r.cat)) cur = r.cat.trim(); if (!cat || cur === cat) s += num(r.amt); } return s; }
+function fundIn() { return num(S.fin.fund.acc) + num(S.fin.fund.int) + (hasNum(S.fin.fund.add) ? num(S.fin.fund.add) : accVal(ACC_BY.e12, 'a')); }
+function fundOut() { return num(S.fin.fund.o1) + num(S.fin.fund.o2) + num(S.fin.fund.o3) + num(S.fin.fund.o4); }
+function bsDerived(name) {
+  if (['土地', '房屋及建築', '事務器械設備', '儀器設備', '交通運輸設備', '雜項設備', '雜項資產'].includes(name)) { const s = propSum(name); return s ? s : null; }
+  if (name === '基金' || name === '提撥基金') { const s = fundIn() - fundOut(); return s ? s : null; }
+  if (name === '本期餘絀') return finSurplus('a');
+  if (name === '上期餘絀') return hasNum(S.fin.prev) ? num(S.fin.prev) : null;
+  if (name === '資產基金') { const s = bsGroupSum(BS_LEFT[1]) + bsVal('雜項資產') + bsVal('存出保證金'); return s ? s : null; }
+  return null;
+}
+function bsVal(name) { const raw = S.fin.bs[name]; if (hasNum(raw)) return num(raw); const d = bsDerived(name); return d == null ? 0 : d; }
+function bsGroupSum(g) { return g.kids.reduce((s, n) => s + bsVal(n), 0); }
+const bsAssets = () => BS_LEFT.reduce((s, g) => s + bsGroupSum(g), 0);
+const bsLiab = () => BS_RIGHT_L.reduce((s, g) => s + bsGroupSum(g), 0);
+const bsEquity = () => BS_RIGHT_E.reduce((s, g) => s + bsGroupSum(g), 0);
+function cashPrev() { return hasNum(S.fin.cashPrev) ? num(S.fin.cashPrev) : num(S.fin.prev); }
+function cashEnd() { return cashPrev() + accVal(ACC_BY.inc, 'a') - accVal(ACC_BY.exp, 'a'); }
+
+/* 選舉結果 */
+function elResult(list, seats, alt) {
+  const c = (list || []).filter(r => !isBlank(r.name)).map((r, i) => ({ ...r, _i: i, v: num(r.votes) })).sort((a, b) => b.v - a.v || a._i - b._i);
+  const s = num(seats), a = num(alt);
+  return { all: c, win: c.slice(0, s), alt: c.slice(s, s + a) };
+}
+
+/* 檢核 */
+function checks() {
+  const out = [];
+  const bud = finSurplus('b');
+  if (accVal(ACC_BY.inc, 'b') + accVal(ACC_BY.exp, 'b') > 0 && bud !== 0) out.push({ lv: 'warn', page: 'finance', t: `預算表收支未平衡：本期餘絀 ${fmt(bud)}，預算應編列至餘絀為 0。` });
+  const a = bsAssets(), r = bsLiab() + bsEquity();
+  if (a + r > 0 && a !== r) out.push({ lv: 'warn', page: 'finance', t: `資產負債表兩方合計不同：資產 ${fmt(a)}，負債基金暨餘絀 ${fmt(r)}。` });
+  const ps = propSum(''), fo = bsGroupSum(BS_LEFT[1]) + bsVal('雜項資產');
+  if (ps && ps !== fo) out.push({ lv: 'warn', page: 'finance', t: `財產目錄合計 ${fmt(ps)} 與資產負債表固定資產＋雜項資產 ${fmt(fo)} 不一致。` });
+  const cash = bsVal('庫存現金') + bsVal('銀行存款') + bsVal('定期存款');
+  if ((accVal(ACC_BY.inc, 'a') || accVal(ACC_BY.exp, 'a')) && cash && cash !== cashEnd()) out.push({ lv: 'info', page: 'finance', t: `現金出納表本期結存 ${fmt(cashEnd())} 與資產負債表現金＋存款 ${fmt(cash)} 不同，請確認。` });
+  const planSum = S.plan.rows.reduce((s, r) => s + num(r.cost), 0), budExp = accVal(ACC_BY.exp, 'b');
+  if (planSum && budExp && planSum !== budExp) out.push({ lv: 'info', page: 'plan', t: `工作計畫經費預估合計 ${fmt(planSum)}，與預算表支出總計 ${fmt(budExp)} 不同（僅供參考）。` });
+  if (!S.roster.some(r => r.role === '理事長' && !isBlank(r.name))) out.push({ lv: 'info', page: 'roster', t: '一覽表尚未填入理事長，各表單的理事長欄位將無法自動帶入。' });
+  if (S.roster.filter(r => r.role === '理事長').length > 1) out.push({ lv: 'warn', page: 'roster', t: '一覽表有兩位以上理事長，請確認職別。' });
+  return out;
+}
+
+[...BS_LEFT, ...BS_RIGHT_L, ...BS_RIGHT_E].forEach(g => g.kids.forEach(n => { D['fin.bs.' + n] = () => { const d = bsDerived(n); return d == null ? '' : String(d); }; }));
+
+/* ===== 文件模型 =====
+ sheet: {name, cols:[相對寬度], size(pt), ls(行距), blocks:[...]}
+ block p: {t:'p', text, align, size, bold, indent(em), hang(em), before, after(pt), sp(字距em)}
+ block table: {t:'table', size, rows:[{key, hdr, cells:[{v, cs, rs, al:'c'|'l'|'r', b, n(數字), f(公式樣板), h(底色)}]}]}
+*/
+const P = (text, o = {}) => ({ t: 'p', text, ...o });
+const T = (rows, o = {}) => ({ t: 'table', rows, ...o });
+const TITLE = (text, o = {}) => P(text, { align: 'c', size: 16, bold: true, after: 8, ...o });
+const NUMC = (n, o = {}) => ({ v: n, n: true, al: 'r', ...o });
+
+function sigLine(pairs) { const g = pairs.length > 4 ? 2 : 3; return pairs.map(([k, v]) => `${k}${v ? v : FW.repeat(pairs.length > 4 ? 3 : 4)}`).join(FW.repeat(g)); }
+
+/* ---------- 會員大會會議紀錄 ---------- */
+function docAssembly() {
+  const A = S.assembly, B = [];
+  let n = 0; const H = t => { n++; B.push(P(`${cn(n)}、${t}`, { hang: 0 })); };
+  const sub = (t, lv = 1, hang = 0) => B.push(P(t, { indent: lv * 2, hang }));
+  B.push(TITLE(`${orgFull()}第${O(cn(V('assembly.term')), '○')}屆第${O(cn(V('assembly.no')), '○')}次會員大會會議紀錄`));
+  H(`時　　間：中華民國${rd(A.date)}${rt(A.time)}`);
+  H(`地　　點：${A.place || ''}`);
+  H(`出席人員：應出席人數${BL(V('assembly.should'))}人。實際出席人數${BL(A.attend)}人。（附簽到表影本）`);
+  H(`缺席人員：${BL(V('assembly.absent'))}人。`);
+  H(`請假人員：${BL(A.leave)}人。`);
+  H(`列席人員：${BL(A.obs)}人。`);
+  H(`主　　席：${V('assembly.chair') || FW.repeat(6)}${FW.repeat(4)}紀錄：${V('assembly.rec') || ''}`);
+  H(`主席致詞：${A.speech || '（略）'}${A.speech ? '' : '。'}`);
+  H('主管機關代表致詞：（略）。');
+  H(`上年度工作報告${A.report ? '：' : '。'}`); if (A.report) sub(A.report);
+  H('討論事項：');
+  let pn = 0;
+  const prop = (base, isFixed) => {
+    pn++;
+    const g = k => isFixed ? V(`assembly.${base}.${k}`) : (base[k] || '');
+    const proposer = g('proposer');
+    sub(`（${cn(pn)}）案由：${(g('reason') || '').replace(/。$/, '')}${proposer ? `（提案人－${proposer}）` : ''}。`, 0, 6);
+    if (g('desc')) sub(`說明：${g('desc')}`, 1, 3);
+    if (g('method')) sub(`辦法：${g('method')}`, 1, 3);
+    sub(`決議：${g('res') || ''}`, 1, 3);
+  };
+  if (A.fin.on) prop('fin', true);
+  if (A.plan.on) prop('plan', true);
+  if (A.bud.on) prop('bud', true);
+  A.props.forEach(p => prop(p, false));
+  if (!pn) sub('無。');
+  H('臨時動議：');
+  const ms = A.motions.filter(m => !isBlank(m.prop) || !isBlank(m.desc));
+  if (!ms.length) sub('無。');
+  ms.forEach((m, i) => { sub(`（${cn(i + 1)}）提案：${m.prop || ''}`, 0, 6); if (m.desc) sub(`說明：${m.desc}`, 1, 3); sub(`決議：${m.res || ''}`, 1, 3); });
+  if (A.hasEl) {
+    const E = A.el;
+    H('選舉');
+    sub('（一）推選選務工作人員：', 0);
+    sub(`1.監票員：${O(E.jp)}${FW.repeat(2)}2.發票員：${O(E.fp)}`, 1);
+    sub(`3.唱票員：${O(E.cp)}${FW.repeat(2)}4.記票員：${O(E.jip)}`, 1);
+    const dr = elResult(E.dirs, V('assembly.el.dirSeats'), V('assembly.el.dirAlt'));
+    const sr = elResult(E.sups, V('assembly.el.supSeats'), V('assembly.el.supAlt'));
+    const vl = l => l.map(c => `${c.name}（${c.votes === '' || c.votes == null ? '　' : c.votes}票）`).join('、');
+    sub('（二）選舉得票數：', 0);
+    sub(`1.理事：${dr.all.length ? vl(dr.all) : '（候選人姓名）（得票數）'}`, 1, 2);
+    sub(`2.監事：${sr.all.length ? vl(sr.all) : '（候選人姓名）（得票數）'}`, 1, 2);
+    const winD = dr.all.length ? vl(dr.win) : names(DIR_ROLES).join('、');
+    const winS = sr.all.length ? vl(sr.win) : names(SUP_ROLES).join('、');
+    const altL = (l, fallback) => (l.length ? l.map((c, i) => `第${cn(i + 1)}候補${c.name}`) : fallback.map((nm, i) => `第${cn(i + 1)}候補${nm}`)).join('、');
+    sub('（三）當選人：', 0);
+    sub(`1.理事：${winD || '（當選人姓名）（得票數）'}`, 1, 2);
+    sub(`2.監事：${winS || '（當選人姓名）（得票數）'}`, 1, 2);
+    sub(`3.候補理事：${altL(dr.alt, dr.all.length ? [] : names(['候補理事'])) || '無'}`, 1, 2);
+    sub(`4.候補監事：${altL(sr.alt, sr.all.length ? [] : names(['候補監事'])) || '無'}`, 1, 2);
+    H('主席當場宣布當選名單，無人異議。');
+  }
+  H(`散　　會：${rt(A.end)}。`);
+  B.push(P(sigLine([['理 事 長　', pname('理事長') + '（簽章）'], ['紀　　錄　', (V('assembly.rec') || '') + '（簽章）']]), { before: 24 }));
+  return { title: '會員大會會議紀錄', sheets: [{ name: '會員大會紀錄', cols: [1], size: 13, ls: 1.5, blocks: B }] };
+}
+
+/* ---------- 理監事聯席會議紀錄 ---------- */
+function docBoard() {
+  const A = S.board, B = [];
+  let n = 0; const H = t => { n++; B.push(P(`${cn(n)}、${t}`)); };
+  const sub = (t, lv = 1, hang = 0) => B.push(P(t, { indent: lv * 2, hang }));
+  B.push(TITLE(`${orgFull()}第${O(cn(V('board.term')), '○')}屆第${O(cn(V('board.no')), '○')}次理監事聯席會議紀錄`));
+  H(`時　　間：中華民國${rd(V('board.date'))}${rt(A.time)}`);
+  H(`地　　點：${V('board.place') || ''}`);
+  H('出席人員：（附簽到表影本，分別職稱簽到）');
+  sub(`理　　事：${V('board.dirs')}`, 1, 5);
+  sub(`監　　事：${V('board.sups')}`, 1, 5);
+  H(`列席人員：${BL(A.obs)}人。`);
+  H(`主　　席：${V('board.chair') || FW.repeat(6)}${FW.repeat(4)}紀錄：${V('board.rec') || ''}`);
+  H('主席致詞：（略）。');
+  H('主管機關代表致詞：（略）。');
+  const std = V('board.stdDir');
+  H(`選舉第${O(cn(V('board.electTerm')), '○')}屆${std ? '常務理事、' : ''}常務監事及理事長：`);
+  sub('當選人：');
+  let k = 0;
+  if (std) sub(`${++k}.常務理事：${std}`, 1, 2);
+  sub(`${++k}.常務監事：${V('board.stdSup') || '（當選人姓名及得票數）'}${A.stdSupVotes ? `（${A.stdSupVotes}票）` : ''}`, 1, 2);
+  sub(`${++k}.理事長：${V('board.chairman') || '（當選人姓名及得票數）'}${A.chairVotes ? `（${A.chairVotes}票）` : ''}`, 1, 2);
+  sub('主席當場宣布當選結果，無人異議。');
+  H('討論提案：');
+  let pn = 0;
+  const prop = (base, fixed) => {
+    pn++; const g = k => fixed ? V(`board.${base}.${k}`) : (base[k] || '');
+    sub(`（${cn(pn)}）案由：${g('reason')}`, 0, 6);
+    if (g('desc')) sub(`說明：${g('desc')}`, 1, 3);
+    sub(`決議：${g('res') || ''}`, 1, 3);
+  };
+  if (A.addr.on) prop('addr', true);
+  if (A.staff.on) prop('staff', true);
+  A.props.forEach(p => prop(p, false));
+  if (!pn) sub('無。');
+  H(`臨時動議：${A.motion || '無。'}`);
+  H(`散　　會：${rt(A.end)}。`);
+  B.push(P(sigLine([['理 事 長　', (V('board.chairman') || '') + '（簽章）'], ['紀　　錄　', (V('board.rec') || '') + '（簽章）']]), { before: 24 }));
+  return { title: '理監事聯席會議紀錄', sheets: [{ name: '理監事聯席會議紀錄', cols: [1], size: 13, ls: 1.5, blocks: B }] };
+}
+
+/* ---------- 理監事暨會務人員一覽表 ---------- */
+function docRoster() {
+  const b = S.basic, L = { al: 'c', h: true };
+  const rows = [];
+  rows.push({ cells: [{ v: `${orgFull()}理監事暨會務人員一覽表`, cs: 7, b: true, al: 'c', sz: 14 }, { v: `${rd(V('basic.fillDate'))}填送\n（請加蓋團體圖記）`, cs: 3, al: 'c', sz: 9 }] });
+  rows.push({ cells: [{ v: '團體名稱', cs: 2, rs: 2, ...L }, { v: '社會局立案', cs: 3, ...L }, { v: '社團法人登記日期字號（法院）', rs: 2, ...L }, { v: '本屆別', rs: 2, ...L }, { v: '改選日期', rs: 2, ...L }, { v: '會員人數', cs: 2, ...L }] });
+  rows.push({ cells: [{ v: '日期', cs: 2, ...L }, { v: '字號', ...L }, { v: '團體', ...L }, { v: '個人', ...L }] });
+  const court = [rdOrBlank(b.courtDate), b.courtNo].filter(Boolean).join('\n');
+  rows.push({ cells: [{ v: orgFull(), cs: 2, al: 'c' }, { v: rd(b.regDate), cs: 2, al: 'c' }, { v: `${b.regWord || FW}字\n第${b.regNum || FW.repeat(3)}號`, al: 'c' }, { v: court, al: 'c' }, { v: `第${O(b.term, FW)}屆`, al: 'c' }, { v: rd(b.reelectDate), al: 'c' }, NUMC(hasNum(b.membersGroup) ? num(b.membersGroup) : b.membersGroup, { al: 'c' }), NUMC(hasNum(b.membersPerson) ? num(b.membersPerson) : b.membersPerson, { al: 'c' })] });
+  rows.push({ cells: [{ v: '團體會址', cs: 2, ...L }, { v: b.address, cs: 5 }, { v: '電話號碼', ...L }, { v: b.phone, cs: 2 }] });
+  rows.push({ cells: [{ v: '網址', cs: 2, ...L }, { v: b.web, cs: 3 }, { v: '電子信箱', ...L }, { v: b.email, cs: 2 }, { v: '傳真號碼', ...L }, { v: b.fax }] });
+  rows.push({ hdr: true, cells: [...['職別', '姓名', '性別', '出生年月日', '現職', '身分證統一編號'].map(v => ({ v, ...L })), { v: '戶籍所在地或工作地址', cs: 3, ...L }, { v: '電話號碼', ...L }] });
+  const bd = d => dateEmpty(d) ? '' : [d.y, d.m, d.d].map((x, i) => i ? String(x || '').padStart(2, '0') : String(x || '')).join('.');
+  const ppl = rosterSorted().filter(r => !isBlank(r.name) || !isBlank(r.role));
+  ppl.forEach(r => rows.push({ cells: [{ v: r.role, al: 'c' }, { v: r.name, al: 'c' }, { v: r.gender, al: 'c' }, { v: bd(r.birth), al: 'c' }, { v: r.job, al: 'c' }, { v: r.idno, al: 'c' }, { v: r.addr, cs: 3 }, { v: r.phone, al: 'c' }] }));
+  for (let i = ppl.length; i < 3; i++) rows.push({ cells: [...Array.from({ length: 6 }, () => ({ v: '' })), { v: '', cs: 3 }, { v: '' }] });
+  return { title: '理監事暨會務人員一覽表', sheets: [{ name: '理監事暨會務人員一覽表', cols: [7, 8, 4, 9, 9, 11, 9, 9, 8, 12], size: 10, ls: 1.2, blocks: [
+    T(rows, { size: 10 }),
+    P('注意：請按下列次序填列－理事長、常務理事、理事、候補理事、常務監事、監事、候補監事、會務人員。', { size: 10, before: 4 }),
+    P('本表一式三份，其中二份函送屏東縣政府社會處，一份團體自存。', { size: 10 }),
+  ] }] };
+}
+
+/* ---------- 理事長當選證明書資料 ---------- */
+function docCert() {
+  const L = { al: 'c', h: true };
+  const row = (a, b, c, d) => ({ cells: [{ v: a, ...L }, { v: b }, { v: c, ...L }, { v: d }] });
+  const rows = [
+    row('理事長姓名', V('cert.name'), '團體名稱', V('cert.org')),
+    row('出生地', S.cert.birthplace, '當選屆次', `第${O(V('cert.term'), FW)}屆`),
+    row('出生日期', rdOrBlank(V('cert.birth')), '召開第一次理事會日期（補選日期）', rdOrBlank(V('cert.firstDate'))),
+    row('戶籍地址', V('cert.addr'), '任期', V('cert.tenure')),
+    row('電話', V('cert.phone'), '備註', S.cert.note),
+  ];
+  rows.forEach(r => r.h = 1.2);
+  return { title: '理事長當選證明書填報資料', sheets: [{ name: '理事長當選證明書資料', cols: [14, 30, 18, 30], size: 13, ls: 1.4, blocks: [
+    TITLE('申請理事長當選證明書填報資料內容', { after: 12 }),
+    T(rows, { size: 13, pad: 10 }),
+    P('註：如有申請理事長當選證明書需要者於任期內請備函並檢具本表及申請人二吋半身照片乙張及身分證正反影本乙份。', { size: 12, before: 8, hang: 2 }),
+  ] }] };
+}
+
+/* ---------- 會址使用同意書 ---------- */
+function docConsent() {
+  const c = S.consent;
+  const sqm = V('consent.sqm'), ping = V('consent.ping');
+  const body = `茲有本人座落於【${O(V('consent.loc'), '屏東縣○○鄉鎮市○○村里○○路○○號')}】房屋一間（棟），地號${BL(c.landNo, 4)}號，坪數${O(ping, '○○○')}坪（或）${O(sqm, '○○○○')}平方公尺，同意免費借予「${orgFull()}」使用，期限自民國${rd(c.from)}起至${rd(V('consent.to'))}止，恐空口無憑，特立此同意書以昭公信。`;
+  const d = V('consent.date') || {};
+  const sp = s => String(s).split('').join(FW);
+  return { title: '會址使用同意書', sheets: [{ name: '會址使用同意書', cols: [1], size: 16, ls: 2, blocks: [
+    TITLE('會址使用同意書', { size: 22, after: 24, sp: 0.3 }),
+    P(body, { firstIndent: 2, align: 'j' }),
+    P('', { after: 18 }),
+    P(`房屋出借人：${c.lender || ''}${FW.repeat(2)}（簽章）`, { indent: 6, after: 10 }),
+    P(`見　證　人：${c.witness || ''}${FW.repeat(2)}（簽章）`, { indent: 6, after: 10 }),
+    P(`理　事　長：${V('consent.chairman') || ''}${FW.repeat(2)}（簽章）`, { indent: 6, after: 30 }),
+    P(`中${FW}華${FW}民${FW}國${FW.repeat(2)}${BL(d.y, 2)}${FW.repeat(2)}年${FW.repeat(2)}${BL(d.m, 1)}${FW.repeat(2)}月${FW.repeat(2)}${BL(d.d, 1)}${FW.repeat(2)}日`, { align: 'c', before: 30 }),
+  ] }] };
+}
+
+/* ---------- 章程修正條文對照表 ---------- */
+function docStatute() {
+  const s = S.statute, L = { al: 'c', h: true, b: true };
+  const rows = [{ hdr: true, cells: [{ v: '原條文', ...L }, { v: '修正後條文', ...L }, { v: '說明', ...L }] }];
+  s.rows.forEach(r => rows.push({ cells: [{ v: r.orig, al: 'l', va: 't' }, { v: r.rev, al: 'l', va: 't' }, { v: r.note, al: 'l', va: 't' }] }));
+  if (!s.rows.length) rows.push({ cells: [{ v: '' }, { v: '' }, { v: '' }] });
+  return { title: '章程修正條文對照表', sheets: [{ name: '章程修正條文對照表', cols: [1, 1, 1], size: 12, ls: 1.3, blocks: [
+    TITLE(orgFull(), { after: 0 }),
+    TITLE('章程修正條文對照表', { after: 6 }),
+    P(`${rd(s.boardDate, 3)}第${O(cn(V('statute.boardTerm')), '○')}屆第${O(cn(s.boardNo), '○')}次理（監）事會審議通過`, { align: 'r', size: 11 }),
+    P(`${rd(V('statute.asmDate'), 3)}第${O(cn(V('statute.asmTerm')), '○')}屆第${O(cn(V('statute.asmNo')), '○')}次會員大會議決通過`, { align: 'r', size: 11, after: 6 }),
+    T(rows, { size: 12 }),
+    P(sigLine([['總幹事　', (pname('總幹事') || '') + '（簽章）'], ['理事長　', (pname('理事長') || '') + '（簽章）']]), { before: 18, align: 'c' }),
+  ] }] };
+}
+
+/* ---------- 年度工作計畫 ---------- */
+const stripCat = s => String(s || '').replace(/^[一二三四五六七八九十]+、/, '').trim();
+const stripItem = s => String(s || '').replace(/^[（(][一二三四五六七八九十]+[）)]/, '').trim();
+function docPlan() {
+  const p = S.plan, y = V('plan.year'), L = { al: 'c', h: true, b: true };
+  const rows = [{ hdr: true, cells: ['工作類別', '項目', '說明', '數量', '執行進度', '經費預估', '協辦單位', '備註'].map(v => ({ v, ...L })) }];
+  const list = p.rows.filter(r => Object.values(r).some(v => !isBlank(v)));
+  // 自動編號並合併相同類別/項目
+  let catNo = 0, itemNo = 0, lastCat = null, lastItem = null; const lab = [];
+  list.forEach(r => {
+    const c = stripCat(r.cat) || lastCat || '', it = stripItem(r.item) || '';
+    if (c !== lastCat) { catNo++; itemNo = 0; lastItem = null; lastCat = c; }
+    if (it && it !== lastItem) { itemNo++; lastItem = it; }
+    lab.push({ cat: c ? `${cn(catNo)}、${c}` : '', catKey: catNo, item: it ? `（${cn(itemNo)}）${it}` : '', itemKey: catNo + '-' + (it ? itemNo : 'x' + Math.random()) });
+  });
+  const span = (key, i) => { if (i > 0 && lab[i - 1][key] === lab[i][key]) return 0; let n = 1; while (i + n < lab.length && lab[i + n][key] === lab[i][key]) n++; return n; };
+  list.forEach((r, i) => {
+    const cells = [];
+    const cs = span('catKey', i); if (cs) cells.push({ v: lab[i].cat, rs: cs, al: 'c' });
+    const is = span('itemKey', i); if (is) cells.push({ v: lab[i].item, rs: is, al: 'l' });
+    cells.push({ v: r.desc, al: 'l' }, { v: r.qty, al: 'c' }, { v: r.prog, al: 'c' }, NUMC(hasNum(r.cost) ? num(r.cost) : r.cost), { v: r.co, al: 'c' }, { v: r.note, al: 'l' });
+    rows.push({ key: 'r' + i, cells });
+  });
+  const total = list.reduce((s, r) => s + num(r.cost), 0);
+  rows.push({ key: 'tot', cells: [{ v: '合　　計', cs: 5, al: 'c', b: true }, NUMC(total, { b: true, f: list.length ? `SUM({F:r0}:{F:r${list.length - 1}})` : '' }), { v: '' }, { v: '' }] });
+  return { title: '年度工作計畫', sheets: [{ name: '年度工作計畫', cols: [9, 15, 28, 6, 10, 10, 8, 7], size: 12, ls: 1.4, blocks: [
+    TITLE(`${orgFull()}${O(y, FW.repeat(2))}年度工作計畫`),
+    P(`一、實施時間：民國${BL(y)}年1月1日至${BL(y)}年12月31日止`),
+    P('二、工作內容：', { after: 4 }),
+    T(rows, { size: 11 }),
+    P(`三、經費預估合計：新臺幣${fmt(total)}元整。`, { before: 6 }),
+    P('四、實施要領（或工作方法）：'),
+    P(V('plan.method'), { indent: 2 }),
+    P(`五、本項工作計畫提經第${O(cn(V('plan.refTerm')), '○')}屆第${O(cn(V('plan.refNo')), '○')}次理（監）事會議決通過並報請主管機關備查後施行。`, { hang: 2 }),
+  ] }] };
+}
+
+/* ---------- 財務報表 ---------- */
+function finHeader(title, period) {
+  return [TITLE(orgFull(), { after: 2 }), TITLE(title, { size: 15, sp: 0.3, after: 2 }), P(period, { align: 'c', size: 11, after: 6 })];
+}
+const finSign = () => P(sigLine([['製表：', ''], ['會計：', pname('會計')], ['總幹事：', pname('總幹事')], ['理事長：', pname('理事長')]]), { before: 8, size: 11 });
+function accRows(cols, extra) {
+  // cols: [{c:'b'}...] 三個金額欄 + 說明欄 key
+  const hide = S.fin.hideZero; const rows = [];
+  const showAcc = a => a.lvl === 0 || !hide || !accZero(a);
+  const walk = (list) => list.forEach(a => {
+    if (!showAcc(a)) return;
+    const name = (a.lvl === 0 ? '' : FW.repeat(a.lvl === 1 ? 1 : 2)) + accName(a);
+    const kidsShown = a.kids ? a.kids.filter(showAcc) : [];
+    const sumF = col => kidsShown.length ? kidsShown.map(k => `{${col}:${k.k}}`).join('+') : '';
+    const cells = [
+      { v: a.lvl === 0 ? String(a.idx) : '', al: 'c' }, { v: a.lvl === 1 ? String(a.idx) : '', al: 'c' }, { v: a.lvl === 2 ? String(a.idx) : '', al: 'c' },
+      { v: name, b: a.lvl === 0 },
+      NUMC(accVal(a, cols[0]), { b: a.lvl === 0, f: a.kids ? sumF('E') : '' }),
+      NUMC(accVal(a, cols[1]), { b: a.lvl === 0, f: a.kids ? sumF('F') : '' }),
+      NUMC(accVal(a, cols[0]) - accVal(a, cols[1]), { b: a.lvl === 0, f: '{E:@}-{F:@}' }),
+      { v: (S.fin.v[a.k] || {})[cols[2]] || '', sz: 9 },
+    ];
+    rows.push({ key: a.k, cells });
+    if (a.kids) walk(a.kids);
+  });
+  walk(ACC);
+  const surB = finSurplus(cols[0]), surP = finSurplus(cols[1]);
+  rows.push({ key: 'sur', cells: [{ v: '3', al: 'c' }, { v: '' }, { v: '' }, { v: '本期餘絀', b: true }, NUMC(surB, { b: true, f: '{E:inc}-{E:exp}' }), NUMC(surP, { b: true, f: '{F:inc}-{F:exp}' }), NUMC(surB - surP, { b: true, f: '{E:@}-{F:@}' }), { v: '' }] });
+  if (extra) extra(rows);
+  return rows;
+}
+function finHeadRows(c1, c2, c3) {
+  const L = { al: 'c', h: true, b: true };
+  return [
+    { hdr: true, cells: [{ v: '科　　　　目', cs: 4, ...L }, { v: c1, rs: 2, ...L }, { v: c2, rs: 2, ...L }, { v: c3, rs: 2, ...L }, { v: '說　　明', rs: 2, ...L }] },
+    { hdr: true, cells: ['款', '項', '目', '名　　稱'].map(v => ({ v, ...L })) },
+  ];
+}
+const FIN_COLS = [3, 3, 3, 17, 10, 10, 10, 17];
+function sheetBudget() {
+  const y = BY();
+  return { name: '預算', cols: FIN_COLS, size: 10, ls: 1.15, blocks: [
+    ...finHeader('收　支　預　算　表', `中華民國${BL(y)}年01月01日至${BL(y)}年12月31日止`),
+    T([...finHeadRows('預 算 數', '上 年 度\n預 算 數', '上年度預算與\n預算比較數'), ...accRows(['b', 'pb', 'n1'])], { size: 10 }),
+    finSign(),
+  ] };
+}
+function sheetActual() {
+  const y = Y();
+  const rows = [...finHeadRows('決 算 數', '預 算 數', '決算與預算\n比較數'), ...accRows(['a', 'pb', 'n2'], rows => {
+    const prev = num(S.fin.prev), sur = finSurplus('a');
+    rows.push({ key: 'prev', cells: [{ v: '4', al: 'c' }, { v: '' }, { v: '' }, { v: '上期餘絀', b: true }, NUMC(prev, { b: true }), { v: '' }, { v: '' }, { v: '' }] });
+    rows.push({ key: 'cum', cells: [{ v: '5', al: 'c' }, { v: '' }, { v: '' }, { v: '累計餘絀', b: true }, NUMC(sur + prev, { b: true, f: '{E:sur}+{E:prev}' }), { v: '' }, { v: '' }, { v: '' }] });
+  })];
+  const L = { al: 'c', h: true, b: true };
+  const cp = cashPrev(), ci = accVal(ACC_BY.inc, 'a'), ce = accVal(ACC_BY.exp, 'a');
+  const cash = [
+    { hdr: true, cells: [{ v: '收　　項', cs: 4, ...L }, { v: '金　額', ...L }, { v: '付　　項', cs: 2, ...L }, { v: '金　額', ...L }] },
+    { key: 'c1', cells: [{ v: '上期結存', cs: 4 }, NUMC(cp), { v: '本期支出', cs: 2 }, NUMC(ce, { f: '{E:exp}' })] },
+    { key: 'c2', cells: [{ v: '本期收入', cs: 4 }, NUMC(ci, { f: '{E:inc}' }), { v: '本期結存', cs: 2 }, NUMC(cp + ci - ce, { f: '{E:c1}+{E:c2}-{H:c1}' })] },
+    { key: 'c3', cells: [{ v: '合　　計', cs: 4, al: 'c', b: true }, NUMC(cp + ci, { b: true, f: '{E:c1}+{E:c2}' }), { v: '合　　計', cs: 2, al: 'c', b: true }, NUMC(cp + ci, { b: true, f: '{H:c1}+{H:c2}' })] },
+  ];
+  return { name: '決算與現金出納表', cols: FIN_COLS, size: 10, ls: 1.15, blocks: [
+    ...finHeader('收支決算表及現金出納表', `中華民國${BL(y)}年01月01日至${BL(y)}年12月31日止`),
+    T(rows, { size: 10 }),
+    P('現金出納表', { align: 'c', bold: true, size: 12, before: 10, after: 4 }),
+    T(cash, { size: 10 }),
+    finSign(),
+  ] };
+}
+function sheetProp() {
+  const y = Y(), L = { al: 'c', h: true, b: true };
+  const rows = [{ hdr: true, cells: ['財產編號', '財產科目', '名　　稱', '購置日期', '單位', '數量', '金　　額', '存放地點', '說　　明'].map(v => ({ v, ...L })) }];
+  const list = S.fin.prop.filter(r => Object.values(r).some(v => !isBlank(v)));
+  let cur = ''; const cats = list.map(r => { if (!isBlank(r.cat)) cur = r.cat.trim(); return cur; });
+  list.forEach((r, i) => {
+    const cells = [{ v: String(i + 1).padStart(3, '0'), al: 'c' }];
+    if (i === 0 || cats[i] !== cats[i - 1]) { let n = 1; while (i + n < list.length && cats[i + n] === cats[i]) n++; cells.push({ v: cats[i], rs: n, al: 'c' }); }
+    cells.push({ v: r.name }, { v: r.date, al: 'c' }, { v: r.unit, al: 'c' }, NUMC(hasNum(r.qty) ? num(r.qty) : r.qty, { al: 'c' }), NUMC(hasNum(r.amt) ? num(r.amt) : r.amt), { v: r.loc, al: 'c' }, { v: r.note });
+    rows.push({ key: 'p' + i, cells });
+  });
+  if (!list.length) rows.push({ key: 'p0', cells: Array.from({ length: 9 }, () => ({ v: '' })) });
+  rows.push({ key: 'tot', cells: [{ v: '合　　　　計', cs: 6, al: 'c', b: true }, NUMC(propSum(''), { b: true, f: `SUM({G:p0}:{G:p${Math.max(0, list.length - 1)}})` }), { v: '' }, { v: '' }] });
+  return { name: '財產目錄', cols: [7, 10, 14, 9, 5, 5, 10, 9, 10], size: 10, ls: 1.2, blocks: [
+    ...finHeader('財　產　目　錄', `中華民國${BL(y)}年12月31日`),
+    T(rows, { size: 10 }),
+    P(sigLine([['製表：', ''], ['保管：', ''], ['會計：', pname('會計')], ['總幹事：', pname('總幹事')], ['團體負責人：', pname('理事長')]]), { before: 8, size: 11 }),
+    P('說明：', { size: 10, before: 6 }),
+    P('1.本目錄根據財產登記簿，按本辦法所訂固定資產之科目編造。', { size: 10, indent: 1 }),
+    P('2.本表須經製表、保管、會計、總幹事及團體負責人蓋章。', { size: 10, indent: 1 }),
+  ] };
+}
+function sheetBS() {
+  const y = Y(), L = { al: 'c', h: true, b: true };
+  const left = [{ name: '資產合計', v: bsAssets(), b: true, id: 'LT', sum: BS_LEFT.map(g => g.k) }];
+  BS_LEFT.forEach(g => { left.push({ name: g.name, v: bsGroupSum(g), b: true, id: g.k, sum: g.kids.map(n => 'L:' + n) }); g.kids.forEach(n => left.push({ name: FW + n, v: bsVal(n), id: 'L:' + n })); });
+  const right = [{ name: '負債合計', v: bsLiab(), b: true, id: 'RL', sum: BS_RIGHT_L.map(g => g.k) }];
+  BS_RIGHT_L.forEach(g => { right.push({ name: g.name, v: bsGroupSum(g), b: true, id: g.k, sum: g.kids.map(n => 'R:' + n) }); g.kids.forEach(n => right.push({ name: FW + n, v: bsVal(n), id: 'R:' + n })); });
+  right.push({ name: '權益合計', v: bsEquity(), b: true, id: 'RE', sum: BS_RIGHT_E.map(g => g.k) });
+  BS_RIGHT_E.forEach(g => { right.push({ name: g.name, v: bsGroupSum(g), b: true, id: g.k, sum: g.kids.map(n => 'R:' + n) }); g.kids.forEach(n => right.push({ name: FW + n, v: bsVal(n), id: 'R:' + n })); });
+  const nRows = Math.max(left.length, right.length);
+  const where = {}; left.forEach((x, i) => where[x.id] = { col: 'B', row: 'b' + i }); right.forEach((x, i) => where[x.id] = { col: 'D', row: 'b' + i });
+  const ref = id => `{${where[id].col}:${where[id].row}}`;
+  const cellPair = x => x ? [{ v: x.name, b: x.b }, NUMC(x.v, { b: x.b, f: x.sum ? x.sum.map(ref).join('+') : '' })] : [{ v: '' }, { v: '' }];
+  const rows = [
+    { hdr: true, cells: [{ v: '資　　　產', cs: 2, ...L }, { v: '負債、基金暨餘絀', cs: 2, ...L }] },
+    { hdr: true, cells: [{ v: '科　　目', ...L }, { v: '金　　額', ...L }, { v: '科　　目', ...L }, { v: '金　　額', ...L }] },
+  ];
+  for (let i = 0; i < nRows; i++) rows.push({ key: 'b' + i, cells: [...cellPair(left[i]), ...cellPair(right[i])] });
+  rows.push({ key: 'tot', cells: [{ v: '合　　計', al: 'c', b: true }, NUMC(bsAssets(), { b: true, f: ref('LT') }), { v: '合　　計', al: 'c', b: true }, NUMC(bsLiab() + bsEquity(), { b: true, f: ref('RL') + '+' + ref('RE') })] });
+  return { name: '資產負債表', cols: [16, 11, 16, 11], size: 10, ls: 1.15, blocks: [
+    ...finHeader('資　產　負　債　表', `中華民國${BL(y)}年12月31日`),
+    T(rows, { size: 10 }),
+    P(sigLine([['製表：', ''], ['出納：', pname('出納')], ['會計：', pname('會計')], ['總幹事：', pname('總幹事')], ['團體負責人：', pname('理事長')]]), { before: 8, size: 11 }),
+    P('說明：', { size: 9.5, before: 4 }),
+    ...['1.流動資產＋固定資產＋其他資產＝合計（資產）。', '2.流動負債＋長期負債＋其他負債＋基金＋餘絀＝合計（負債、基金暨餘絀）。', '3.資產部份之合計金額與負債、基金暨餘絀部份之合計金額需相同才正確。', '4.本表資產、負債、基金暨餘絀之科目根據本辦法所訂之資產、負債、基金暨餘絀類科目編列。', '5.本表須經製表、出納、會計、總幹事及團體負責人蓋章。'].map(t => P(t, { size: 9.5, indent: 1, hang: 1 })),
+  ] };
+}
+function sheetFund() {
+  const y = Y(), f = S.fin.fund, L = { al: 'c', h: true, b: true };
+  const add = hasNum(f.add) ? num(f.add) : accVal(ACC_BY.e12, 'a');
+  const rows = [
+    { hdr: true, cells: [{ v: '收　　　入', cs: 2, ...L }, { v: '支　　　出', cs: 2, ...L }] },
+    { hdr: true, cells: [{ v: '科目名稱', ...L }, { v: '金　　額', ...L }, { v: '科目名稱', ...L }, { v: '金　　額', ...L }] },
+    { key: 'f0', cells: [{ v: '準備基金', b: true }, { v: '／', al: 'c' }, { v: '準備基金', b: true }, { v: '／', al: 'c' }] },
+    { key: 'f1', cells: [{ v: FW + '歷年累存' }, NUMC(num(f.acc)), { v: FW + '支付' + (f.o1n || '') }, NUMC(num(f.o1))] },
+    { key: 'f2', cells: [{ v: FW + '本年度利息收入' }, NUMC(num(f.int)), { v: FW + '支付' + (f.o2n || '') }, NUMC(num(f.o2))] },
+    { key: 'f3', cells: [{ v: FW + '本年度提撥' }, NUMC(add), { v: FW + '支付退職金' }, NUMC(num(f.o3))] },
+    { key: 'f4', cells: [{ v: '' }, { v: '' }, { v: FW + '支付退休金' }, NUMC(num(f.o4))] },
+    { key: 'f5', cells: [{ v: '合　　計', al: 'c', b: true }, NUMC(fundIn(), { b: true, f: 'SUM({B:f1}:{B:f3})' }), { v: '結　　餘', al: 'c', b: true }, NUMC(fundIn() - fundOut(), { b: true, f: '{B:f5}-SUM({D:f1}:{D:f4})' })] },
+  ];
+  const notes = (f.notes || '').split('\n').filter(t => t.trim());
+  return { name: '基金收支表', cols: [16, 11, 16, 11], size: 11, ls: 1.2, blocks: [
+    ...finHeader('基　金　收　支　表', `中華民國${BL(y)}年1月1日至${BL(y)}年12月31日止`),
+    T(rows, { size: 11 }),
+    P(sigLine([['製表：', ''], ['出納：', pname('出納')], ['會計：', pname('會計')], ['總幹事：', pname('總幹事')], ['團體負責人：', pname('理事長')]]), { before: 8, size: 11 }),
+    P('說明：', { size: 10, before: 4 }),
+    ...(notes.length ? notes : ['（動支基金應註明理事會通過之屆次與主管機關核備之文號）']).map((t, i) => P(t, { size: 10, indent: 1 })),
+    P(`${notes.length + 1}.各基金收支結存應與收支決算表及資產負債表相關科目金額一致。`, { size: 10, indent: 1 }),
+    P(`${notes.length + 2}.本表須經製表、出納、會計、總幹事、團體負責人蓋章。`, { size: 10, indent: 1 }),
+  ] };
+}
+function docFinance(all) {
+  const sel = S.fin.sel, sh = [];
+  if (all || sel.bud) sh.push(sheetBudget());
+  if (all || sel.act) sh.push(sheetActual());
+  if (all || sel.prop) sh.push(sheetProp());
+  if (all || sel.bs) sh.push(sheetBS());
+  if (all || sel.fund) sh.push(sheetFund());
+  return { title: '財務報表', sheets: sh };
+}
+
+const DOCS = { roster: docRoster, assembly: docAssembly, board: docBoard, cert: docCert, consent: docConsent, statute: docStatute, plan: docPlan, finance: () => docFinance(false) };
+
+/* ---------- 送件公函 ---------- */
+Object.assign(D, {
+  'letter.addr': () => S.basic.address,
+  'letter.contact': () => pname('總幹事'),
+  'letter.phone': () => S.basic.phone,
+  'letter.to': () => (V('basic.county') || '屏東縣') + '政府',
+  'letter.date': () => V('basic.fillDate'),
+  'letter.speed': () => '普通',
+  'letter.secret': () => '普通',
+  'letter.att': () => '如說明二',
+  'letter.subject': () => `檢送本會第${O(cn(V('assembly.term')), '○')}屆第${O(cn(V('assembly.no')), '○')}次會員大會暨理監事會會議紀錄及相關附件各一式二份，敬請鈞府准予備查見復，請　鑒核。`,
+  'letter.d1': () => `依據本會${O(BY(), '○○○')}年度工作計畫辦理。`,
+  'letter.d2': () => {
+    const dt = V('assembly.date');
+    const atts = [];
+    const sel = S.letter && S.letter.atts || {};
+    const L = [
+      ['act', `${O(Y(), '○○○')}年度經費收支決算表（含財產目錄及資產負債表）`],
+      ['plan', `${O(BY(), '○○○')}年度工作計畫`], ['bud', `${O(BY(), '○○○')}年度經費收支預算表`],
+      ['mem', '會員名冊'], ['roster', '新任理監事暨聘僱人員名冊'], ['handover', '移交清冊'], ['consent', '會址使用同意書'],
+      ['charter', '章程'], ['statute', '章程修正條文對照表'], ['cert', '理事長當選證明書申請表'], ['book', '大會手冊']];
+    L.forEach(([k, t]) => { if (sel[k] !== false) atts.push(t); });
+    return `旨揭會議業於${dateEmpty(dt) ? '○○○年○○月○○日' : rd(dt)}假${S.assembly.place || '○○○'}召開完畢，隨函檢附${atts.join('、')}呈請備查。`;
+  },
+  'letter.main': () => (V('basic.county') || '屏東縣') + '政府',
+  'letter.cc': () => '本會',
+});
+const LETTER_ATTS = [['act', '決算表（含財產目錄、資產負債表）'], ['plan', '工作計畫'], ['bud', '預算表'], ['mem', '會員名冊'], ['roster', '理監事暨聘僱人員名冊'], ['handover', '移交清冊'], ['consent', '會址使用同意書'], ['charter', '章程'], ['statute', '章程修正條文對照表'], ['cert', '理事長當選證明書申請表'], ['book', '大會手冊']];
+function docLetter() {
+  const l = S.letter || {};
+  const kv = (k, v) => P(`${k}：${v || ''}`, { size: 12, indent: 14, hang: 0, after: 0 });
+  return { title: '送件公函', sheets: [{ name: '送件公函', cols: [1], size: 14, ls: 1.5, blocks: [
+    TITLE(`${orgFull()}　函`, { size: 20, after: 10 }),
+    kv('機關地址', V('letter.addr')), kv('聯 絡 人', V('letter.contact')), kv('聯絡電話', V('letter.phone')),
+    P('', { after: 4 }),
+    P(`受文者：${V('letter.to')}`, { size: 14, after: 6 }),
+    P(`發文日期：中華民國${rd(V('letter.date'), 3)}`, { size: 12, after: 0 }),
+    P(`發文字號：${l.no || ''}`, { size: 12, after: 0 }),
+    P(`速別：${V('letter.speed')}`, { size: 12, after: 0 }),
+    P(`密等及解密條件：${V('letter.secret')}`, { size: 12, after: 0 }),
+    P(`附件：${V('letter.att')}`, { size: 12, after: 10 }),
+    P(`主旨：${V('letter.subject')}`, { size: 16, hang: 3, after: 6 }),
+    P('說明：', { size: 16, after: 0 }),
+    P(`一、${V('letter.d1')}`, { size: 16, indent: 1, hang: 2, after: 0 }),
+    P(`二、${V('letter.d2')}`, { size: 16, indent: 1, hang: 2, after: 0 }),
+    ...(l.d3 ? [P(`三、${l.d3}`, { size: 16, indent: 1, hang: 2, after: 0 })] : []),
+    P(`理事長　${pname('理事長') || '○○○'}（簽字章或私章）`, { size: 16, align: 'r', before: 30, after: 30 }),
+    P(`正本：${V('letter.main')}`, { size: 12, after: 0 }),
+    P(`副本：${V('letter.cc')}`, { size: 12 }),
+  ] }] };
+}
+DOCS.letter = docLetter;
+
+/* ===== 表格排版（處理跨欄跨列） ===== */
+function layoutTable(rows) {
+  const occ = []; const out = [];
+  rows.forEach((row, ri) => {
+    occ[ri] = occ[ri] || [];
+    const cont = occ[ri].some(Boolean); // 有上列跨列延伸進來
+    let c = 0; const pl = [];
+    for (const cell of row.cells) {
+      while (occ[ri][c]) c++;
+      const cs = cell.cs || 1, rs = cell.rs || 1;
+      for (let i = 0; i < rs; i++) { occ[ri + i] = occ[ri + i] || []; for (let j = 0; j < cs; j++) occ[ri + i][c + j] = 1; }
+      pl.push({ cell, col: c, cs, rs }); c += cs;
+    }
+    out.push({ row, pl, cont });
+  });
+  return out;
+}
+const cellText = c => (c.n && typeof c.v === 'number') ? fmt(c.v) : (c.v == null ? '' : String(c.v));
+const ALC = { c: 'center', r: 'right', j: 'justify', l: 'left' };
+
+/* ===== HTML（預覽與 PDF） ===== */
+function sheetHTML(sh) {
+  const tot = sh.cols.reduce((a, b) => a + b, 0);
+  let h = `<div class="sheet" style="font-size:${sh.size || 12}pt;line-height:${sh.ls || 1.4}">`;
+  for (const b of sh.blocks) {
+    if (b.t === 'p') {
+      const st = [`text-align:${ALC[b.align] || 'left'}`];
+      if (b.size) st.push(`font-size:${b.size}pt`);
+      if (b.bold) st.push('font-weight:700');
+      const ind = (b.indent || 0) + (b.hang || 0); if (ind) st.push(`padding-left:${ind}em`);
+      if (b.hang) st.push(`text-indent:-${b.hang}em`);
+      if (b.firstIndent) st.push(`text-indent:${b.firstIndent}em`);
+      if (b.sp) st.push(`letter-spacing:${b.sp}em`);
+      st.push(`margin:${b.before || 0}pt 0 ${b.after ?? 2}pt`);
+      h += `<p style="${st.join(';')}">${esc(b.text) || '&nbsp;'}</p>`;
+    } else if (b.t === 'table') {
+      const pad = b.pad != null ? b.pad : 2;
+      h += `<table style="font-size:${b.size || sh.size}pt"><colgroup>${sh.cols.map(w => `<col style="width:${(w / tot * 100).toFixed(3)}%">`).join('')}</colgroup>`;
+      for (const L of layoutTable(b.rows)) {
+        h += `<tr${L.cont ? ' data-nb="1"' : ''}>`;
+        for (const p of L.pl) {
+          const c = p.cell, st = [`text-align:${ALC[c.al] || 'left'}`, `padding:${pad}pt 3pt`];
+          if (c.b) st.push('font-weight:700'); if (c.sz) st.push(`font-size:${c.sz}pt`); if (c.va === 't') st.push('vertical-align:top');
+          h += `<td${p.cs > 1 ? ` colspan="${p.cs}"` : ''}${p.rs > 1 ? ` rowspan="${p.rs}"` : ''}${c.h ? ' class="h"' : ''} style="${st.join(';')}">${esc(cellText(c))}</td>`;
+        }
+        h += '</tr>';
+      }
+      h += '</table>';
+    }
+  }
+  return h + '</div>';
+}
+
+/* ===== 函式庫載入 ===== */
+const LIBS = {
+  docx: ['https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js', () => window.docx],
+  exceljs: ['https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js', () => window.ExcelJS],
+  h2c: ['https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js', () => window.html2canvas],
+  jspdf: ['https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js', () => window.jspdf],
+};
+const libP = {};
+function loadLib(k) {
+  if (LIBS[k][1]()) return Promise.resolve(LIBS[k][1]());
+  if (!libP[k]) libP[k] = new Promise((res, rej) => {
+    const s = document.createElement('script'); s.src = LIBS[k][0]; s.async = true;
+    s.onload = () => LIBS[k][1]() ? res(LIBS[k][1]()) : rej(new Error('函式庫載入失敗：' + k));
+    s.onerror = () => { delete libP[k]; rej(new Error('無法下載函式庫（' + k + '），請檢查網路後再試一次')); };
+    document.head.appendChild(s);
+  });
+  return libP[k];
+}
+
+/* ===== Word (.docx) ===== */
+async function toDocx(doc) {
+  const X = await loadLib('docx');
+  const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, AlignmentType, VerticalAlign, BorderStyle, ShadingType, TableLayoutType, LineRuleType } = X;
+  const FONT = { ascii: 'Times New Roman', hAnsi: 'Times New Roman', eastAsia: '標楷體', cs: 'Times New Roman' };
+  const AL = { c: AlignmentType.CENTER, r: AlignmentType.RIGHT, j: AlignmentType.BOTH, l: AlignmentType.LEFT };
+  const runs = (text, size, bold, sp) => String(text ?? '').split('\n').map((line, i) => new TextRun({ text: line, break: i ? 1 : 0, font: FONT, size: Math.round(size * 2), bold: !!bold, characterSpacing: sp ? Math.round(sp * size * 20) : undefined }));
+  const PAGE_W = 11906, PAGE_H = 16838, MX = 964, MY = 1020, CW = PAGE_W - 2 * MX;
+  const B1 = { style: BorderStyle.SINGLE, size: 6, color: '000000' };
+  const borders = { top: B1, bottom: B1, left: B1, right: B1 };
+  const sections = doc.sheets.map(sh => {
+    const tot = sh.cols.reduce((a, b) => a + b, 0);
+    const colTw = sh.cols.map(w => Math.floor(w / tot * CW));
+    const children = [];
+    for (const b of sh.blocks) {
+      if (b.t === 'p') {
+        const sz = b.size || sh.size || 12, em = sz * 20;
+        const ind = {};
+        if (b.indent || b.hang) { ind.left = Math.round(((b.indent || 0) + (b.hang || 0)) * em); if (b.hang) ind.hanging = Math.round(b.hang * em); }
+        if (b.firstIndent) ind.firstLine = Math.round(b.firstIndent * em);
+        children.push(new Paragraph({ children: runs(b.text, sz, b.bold, b.sp), alignment: AL[b.align] || AlignmentType.LEFT, indent: ind,
+          spacing: { before: Math.round((b.before || 0) * 20), after: Math.round((b.after ?? 2) * 20), line: Math.round(240 * (sh.ls || 1.3)), lineRule: LineRuleType.AUTO } }));
+      } else if (b.t === 'table') {
+        const tsz = b.size || sh.size || 12, pad = b.pad != null ? b.pad : 2;
+        const rows = layoutTable(b.rows).map(L => new TableRow({ cantSplit: true, tableHeader: !!L.row.hdr, children: L.pl.map(p => {
+          const c = p.cell, sz = c.sz || tsz;
+          const paras = cellText(c).split('\n').map(line => new Paragraph({ children: runs(line, sz, c.b), alignment: AL[c.al] || AlignmentType.LEFT, spacing: { before: 0, after: 0, line: 252, lineRule: LineRuleType.AUTO } }));
+          return new TableCell({ children: paras, columnSpan: p.cs > 1 ? p.cs : undefined, rowSpan: p.rs > 1 ? p.rs : undefined,
+            width: { size: colTw.slice(p.col, p.col + p.cs).reduce((a, b) => a + b, 0), type: WidthType.DXA },
+            verticalAlign: c.va === 't' ? VerticalAlign.TOP : VerticalAlign.CENTER, borders,
+            margins: { top: Math.round(pad * 20), bottom: Math.round(pad * 20), left: 70, right: 70 },
+            shading: c.h ? { fill: 'F2F2F2', type: ShadingType.CLEAR, color: 'auto' } : undefined });
+        }) }));
+        children.push(new Table({ rows, width: { size: CW, type: WidthType.DXA }, columnWidths: colTw, layout: TableLayoutType.FIXED }));
+      }
+    }
+    return { properties: { page: { size: { width: PAGE_W, height: PAGE_H }, margin: { top: MY, bottom: MY, left: MX, right: MX } } }, children };
+  });
+  const d = new Document({ creator: '人民團體會務線上填報', title: doc.title, styles: { default: { document: { run: { font: FONT, size: 24 } } } }, sections });
+  return Packer.toBlob(d);
+}
+
+/* ===== Excel (.xlsx) ===== */
+function textUnits(s, size) { let u = 0; for (const ch of String(s)) u += ch.charCodeAt(0) < 256 ? 1.1 : 2.05; return u * size / 11; }
+function estLines(text, width, size) { return String(text ?? '').split('\n').reduce((n, line) => n + Math.max(1, Math.ceil(textUnits(line, size) / Math.max(4, width - 1.5))), 0); }
+async function toXlsx(doc) {
+  const ExcelJS = await loadLib('exceljs');
+  const wb = new ExcelJS.Workbook(); wb.creator = '人民團體會務線上填報'; wb.created = new Date();
+  const used = new Set();
+  const thin = { style: 'thin', color: { argb: 'FF000000' } };
+  const BORDER = { top: thin, left: thin, bottom: thin, right: thin };
+  const AH = { c: 'center', r: 'right', j: 'justify', l: 'left' };
+  for (const sh of doc.sheets) {
+    let name = sh.name.replace(/[\[\]:*?\/\\]/g, '').slice(0, 31), k = 2;
+    while (used.has(name)) name = sh.name.slice(0, 28) + '_' + (k++); used.add(name);
+    const ws = wb.addWorksheet(name, { views: [{ showGridLines: false }], pageSetup: { paperSize: 9, orientation: 'portrait', fitToPage: true, fitToWidth: 1, fitToHeight: 0, horizontalCentered: true, margins: { left: 0.5, right: 0.5, top: 0.6, bottom: 0.6, header: 0.3, footer: 0.3 } } });
+    const nc = sh.cols.length, tot = sh.cols.reduce((a, b) => a + b, 0), TW = nc === 1 ? 92 : 104;
+    const colW = sh.cols.map(w => w / tot * TW);
+    ws.columns = colW.map(w => ({ width: w }));
+    const font = (sz, b) => ({ name: '標楷體', size: sz, bold: !!b });
+    let r = 1; const keyRow = {}; const fm = [];
+    for (const b of sh.blocks) {
+      if (b.t === 'p') {
+        const sz = b.size || sh.size || 12;
+        if (nc > 1) ws.mergeCells(r, 1, r, nc);
+        const cell = ws.getCell(r, 1);
+        const pre = FW.repeat(Math.round(b.indent || 0) + Math.round(b.firstIndent || 0));
+        cell.value = pre + (b.sp ? String(b.text).split('').join(' ') : b.text);
+        cell.font = font(sz, b.bold);
+        cell.alignment = { horizontal: AH[b.align] || 'left', vertical: 'middle', wrapText: true };
+        const lines = estLines(cell.value, TW, sz);
+        ws.getRow(r).height = Math.max(sz * 1.5, lines * sz * 1.4 + 2) + Math.min(14, (b.before || 0) * 0.5 + (b.after || 0) * 0.5);
+        r++;
+      } else if (b.t === 'table') {
+        const tsz = b.size || sh.size || 12, pad = b.pad != null ? b.pad : 2;
+        const lay = layoutTable(b.rows);
+        lay.forEach((L, ri) => { if (L.row.key) keyRow[L.row.key] = r + ri; });
+        lay.forEach((L, ri) => {
+          const R = r + ri; let maxH = 0;
+          for (const p of L.pl) {
+            const c = p.cell, sz = c.sz || tsz, C = p.col + 1;
+            if (p.cs > 1 || p.rs > 1) ws.mergeCells(R, C, R + p.rs - 1, C + p.cs - 1);
+            const x = ws.getCell(R, C);
+            const isNum = c.n && typeof c.v === 'number';
+            if (c.f) fm.push({ x, f: c.f, R, v: isNum ? c.v : 0 });
+            else x.value = isNum ? c.v : cellText(c);
+            if (c.n) x.numFmt = '#,##0;-#,##0;0';
+            x.font = font(sz, c.b);
+            x.alignment = { horizontal: AH[c.al] || (c.n ? 'right' : 'left'), vertical: c.va === 't' ? 'top' : 'middle', wrapText: true };
+            if (c.h) x.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF2F2F2' } };
+            for (let i = 0; i < p.rs; i++) for (let j = 0; j < p.cs; j++) ws.getCell(R + i, C + j).border = BORDER;
+            const w = colW.slice(p.col, p.col + p.cs).reduce((a, b) => a + b, 0);
+            const hh = (estLines(cellText(c), w, sz) * sz * 1.45 + 5 + pad * 2) / p.rs;
+            if (hh > maxH) maxH = hh;
+          }
+          ws.getRow(R).height = Math.max(tsz * 1.7 + pad * 2, maxH);
+        });
+        r += lay.length;
+      }
+    }
+    for (const it of fm) {
+      let ok = true;
+      const formula = it.f.replace(/\{([A-Z]+):([\w@]+)\}/g, (m, col, key) => { const rr = key === '@' ? it.R : keyRow[key]; if (!rr) ok = false; return col + rr; });
+      it.x.value = ok ? { formula, result: it.v } : it.v;
+    }
+  }
+  const buf = await wb.xlsx.writeBuffer();
+  return new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+}
+
+/* ===== PDF ===== */
+async function toPdf(doc, onProgress) {
+  const [h2c, jsp] = await Promise.all([loadLib('h2c'), loadLib('jspdf')]);
+  const MM = 96 / 25.4, MARG = 14, CWmm = 210 - 2 * MARG, CHmm = 297 - 2 * MARG;
+  const stage = document.createElement('div'); stage.className = 'pdf-stage';
+  document.body.appendChild(stage);
+  const pdf = new jsp.jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait', compress: true });
+  let first = true;
+  try {
+    for (let si = 0; si < doc.sheets.length; si++) {
+      onProgress && onProgress(si + 1, doc.sheets.length);
+      stage.innerHTML = sheetHTML(doc.sheets[si]);
+      const el = stage.firstElementChild;
+      try { await document.fonts.ready; } catch (e) { }
+      await new Promise(r => setTimeout(r, 30));
+      const W = el.offsetWidth, H = el.offsetHeight, pageH = CHmm * MM * (W / (CWmm * MM));
+      const top0 = el.getBoundingClientRect().top;
+      const bps = [...el.querySelectorAll('p, tr')].filter(x => !(x.tagName === 'TR' && x.dataset.nb)).map(x => x.getBoundingClientRect().top - top0).filter(y => y > 0);
+      const slices = []; let a = 0;
+      while (H - a > pageH + 1) {
+        let b = 0; for (const y of bps) if (y > a + 20 && y <= a + pageH) b = Math.max(b, y);
+        if (!b) b = a + pageH;
+        slices.push([a, b]); a = b;
+      }
+      slices.push([a, H]);
+      const canvas = await h2c(el, { scale: 2, backgroundColor: '#ffffff', logging: false, useCORS: true, windowWidth: document.documentElement.clientWidth });
+      const k = canvas.width / W;
+      for (const [s, e] of slices) {
+        const c = document.createElement('canvas'); c.width = canvas.width; c.height = Math.max(1, Math.round((e - s) * k));
+        const g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height);
+        g.drawImage(canvas, 0, Math.round(s * k), canvas.width, c.height, 0, 0, c.width, c.height);
+        if (!first) pdf.addPage(); first = false;
+        pdf.addImage(c.toDataURL('image/jpeg', 0.92), 'JPEG', MARG, MARG, CWmm, (e - s) * CWmm / W);
+      }
+    }
+  } finally { stage.remove(); }
+  return pdf.output('blob');
+}
+
+/* ===== 儲存檔案 ===== */
+let DLP = null;
+function dlNS() {
+  if (!DLP) DLP = (async () => { try { if (window.claude && window.claude.use) return await window.claude.use('downloads'); } catch (e) { } return null; })();
+  return DLP;
+}
+async function saveFile(filename, blob) {
+  if (window.claude && window.claude.use) {
+    const dl = await dlNS();
+    if (!dl) { toast('目前的檢視無法下載檔案，請在 claude.ai 開啟此頁面後再試。', 'err'); return false; }
+    try { await dl.save({ filename, data: blob }); toast('已下載：' + filename); return true; }
+    catch (e) {
+      if (e && e.code === 'declined') toast('已取消下載');
+      else if (e && e.code === 'rate_limited') toast('已有下載確認視窗開啟中，請稍候再試', 'err');
+      else toast('下載失敗：' + ((e && (e.message || e.code)) || e), 'err');
+      return false;
+    }
+  }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = filename;
+  document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 2000);
+  toast('已下載：' + filename); return true;
+}
+async function exportDoc(doc, fmtType, baseName) {
+  const file = `${baseName}.${fmtType}`;
+  const busy = showBusy(`正在產生 ${fmtType === 'docx' ? 'Word' : fmtType === 'xlsx' ? 'Excel' : 'PDF'} 檔…`);
+  try {
+    let blob;
+    if (fmtType === 'docx') blob = await toDocx(doc);
+    else if (fmtType === 'xlsx') blob = await toXlsx(doc);
+    else blob = await toPdf(doc, (i, n) => busy.set(`正在產生 PDF（第 ${i}/${n} 張表）…`));
+    busy.done();
+    return await saveFile(file, blob);
+  } catch (e) { busy.done(); console.error(e); toast('產生檔案失敗：' + (e.message || e), 'err'); return false; }
+}
+
+/* ===== 欄位元件 ===== */
+function raw(p) { const v = getp(S, p); return v == null ? '' : v; }
+function chip(p) { return D[p] ? `<span class="chip" title="留白時自動帶入其他表單的資料；直接輸入即可覆寫">連動</span><button type="button" class="rst" data-reset="${p}" title="清除覆寫，改回自動帶入">↺ 還原</button>` : ''; }
+function F(p, label, o = {}) {
+  const tag = o.area
+    ? `<textarea data-p="${p}" rows="${o.rows || 3}"${o.ph ? ` data-ph="${esc(o.ph)}"` : ''}>${esc(raw(p))}</textarea>`
+    : `<input data-p="${p}" value="${esc(raw(p))}"${o.num ? ' inputmode="decimal"' : ''}${o.ph ? ` data-ph="${esc(o.ph)}"` : ''}${o.list ? ` list="${o.list}"` : ''}>`;
+  return `<div class="f ${o.w || ''}"><label>${label}${chip(p)}</label><div class="in">${o.pre ? `<span class="suf">${o.pre}</span>` : ''}${tag}${o.suf ? `<span class="suf">${o.suf}</span>` : ''}</div>${o.hint ? `<div class="hint">${o.hint}</div>` : ''}</div>`;
+}
+function dateIns(p, v) { v = v || {}; return ['y', 'm', 'd'].map((k, i) => `<input data-p="${p}" data-part="${k}" value="${esc(v[k] ?? '')}" inputmode="numeric" class="d${k}" aria-label="${'年月日'[i]}"><span>${'年月日'[i]}</span>`).join(''); }
+function FD(p, label, o = {}) { return `<div class="f ${o.w || ''}"><label>${label}${chip(p)}</label><div class="in date">${o.pre ? '<span class="suf">民國</span>' : ''}${dateIns(p, getp(S, p))}</div>${o.hint ? `<div class="hint">${o.hint}</div>` : ''}</div>`; }
+function FT(p, label) {
+  const v = getp(S, p) || {};
+  return `<div class="f"><label>${label}</label><div class="in date"><select data-p="${p}" data-part="ap"><option value=""></option><option value="上"${v.ap === '上' ? ' selected' : ''}>上午</option><option value="下"${v.ap === '下' ? ' selected' : ''}>下午</option></select><input data-p="${p}" data-part="h" value="${esc(v.h ?? '')}" inputmode="numeric" class="dm"><span>時</span><input data-p="${p}" data-part="mi" value="${esc(v.mi ?? '')}" inputmode="numeric" class="dm"><span>分</span></div></div>`;
+}
+function FS(p, label, opts, o = {}) { const v = raw(p); return `<div class="f ${o.w || ''}"><label>${label}${chip(p)}</label><div class="in"><select data-p="${p}">${opts.map(x => `<option${x === v ? ' selected' : ''}>${esc(x)}</option>`).join('')}</select></div></div>`; }
+function FC(p, label, o = {}) { const v = getp(S, p); return `<label class="ck ${o.w || ''}"><input type="checkbox" data-p="${p}"${v !== false ? ' checked' : ''}${o.rr ? ' data-rr="1"' : ''}> ${label}</label>`; }
+const card = (title, inner, o = {}) => `<section class="card${o.cls ? ' ' + o.cls : ''}"${o.id ? ` id="${o.id}"` : ''}><div class="ch"><h3>${title}</h3>${o.right || ''}</div>${o.note ? `<p class="note">${o.note}</p>` : ''}<div class="grid">${inner}</div></section>`;
+const calc = (key, cls = '') => `<span class="calc ${cls}" data-calc="${key}"></span>`;
+
+function LIST(path, cols, o = {}) {
+  const arr = getp(S, path) || [];
+  const head = cols.map(c => `<th style="width:${c.w || 'auto'}">${c.label}</th>`).join('');
+  const body = arr.map((row, i) => `<tr>${cols.map(c => {
+    const p = `${path}.${i}.${c.k}`;
+    let inp;
+    if (c.type === 'sel') inp = `<select data-p="${p}">${['', ...c.opts].map(x => `<option${x === (row[c.k] || '') ? ' selected' : ''}>${esc(x)}</option>`).join('')}</select>`;
+    else if (c.type === 'date') inp = `<div class="in date sm">${dateIns(p, row[c.k])}</div>`;
+    else if (c.type === 'area') inp = `<textarea data-p="${p}" rows="${c.rows || 3}">${esc(row[c.k] ?? '')}</textarea>`;
+    else inp = `<input data-p="${p}" value="${esc(row[c.k] ?? '')}"${c.num ? ' inputmode="decimal" class="num"' : ''}${c.list ? ` list="${c.list}"` : ''}${c.ph ? ` placeholder="${esc(c.ph)}"` : ''}>`;
+    return `<td>${inp}</td>`;
+  }).join('')}<td class="act"><button type="button" data-act="up" data-list="${path}" data-i="${i}" title="上移">↑</button><button type="button" data-act="down" data-list="${path}" data-i="${i}" title="下移">↓</button><button type="button" class="del" data-act="del" data-list="${path}" data-i="${i}" title="刪除">✕</button></td></tr>`).join('');
+  return `<div class="lst${o.cls ? ' ' + o.cls : ''}"><div class="tw"><table><thead><tr>${head}<th class="act"></th></tr></thead><tbody>${body || `<tr><td colspan="${cols.length + 1}" class="empty">${o.empty || '尚無資料，請按下方「新增」'}</td></tr>`}</tbody></table></div>
+    <div class="lbar"><button type="button" class="btn ghost" data-act="add" data-list="${path}">＋ 新增一列</button>${o.extra || ''}</div></div>`;
+}
+
+/* ===== 頁面 ===== */
+const PAGES = [
+  { id: 'basic', t: '基本資料', s: '共用欄位・全部下載' },
+  { id: 'roster', t: '理監事暨會務人員一覽表', s: '人員主檔' },
+  { id: 'assembly', t: '會員大會會議紀錄', s: '含選舉' },
+  { id: 'board', t: '理監事聯席會議紀錄', s: '選舉理事長' },
+  { id: 'cert', t: '理事長當選證明書資料' },
+  { id: 'consent', t: '會址使用同意書' },
+  { id: 'statute', t: '章程修正條文對照表' },
+  { id: 'plan', t: '年度工作計畫' },
+  { id: 'finance', t: '財務報表', s: '預算・決算・財產・資產負債・基金' },
+  { id: 'letter', t: '送件公函', s: '函送縣府備查' },
+];
+
+const UI = {};
+UI.basic = () => card('團體', F('basic.county', '縣市', { w: 's' }) + F('basic.town', '鄉鎮市', { w: 's', ph: '例：屏東市' }) + F('basic.org', '團體名稱', { w: 'l', ph: '例：○○社區發展協會' }) +
+  `<div class="f full"><label>團體全銜（自動組合，用於所有表單抬頭）</label><div class="out">${calc('orgFull')}</div></div>` +
+  F('basic.term', '本屆別', { w: 's', pre: '第', suf: '屆', num: true }) + F('basic.termYears', '每屆任期', { w: 's', suf: '年', num: true }) +
+  F('basic.membersGroup', '團體會員', { w: 's', suf: '個', num: true }) + F('basic.membersPerson', '個人會員', { w: 's', suf: '人', num: true }), { note: '資料會自動儲存在這台電腦的瀏覽器。第一次使用可按右上角「載入範例」看看填好的樣子；換電腦或與他人交接時，請用「備份資料」存成檔案。' })
+  + card('年度', F('basic.year', '決算年度（民國）', { w: 's', suf: '年', num: true, hint: '決算表、財產目錄、資產負債表、基金收支表用' }) +
+    F('basic.budgetYear', '預算／工作計畫年度', { w: 's', suf: '年', num: true, hint: '預設為決算年度＋1' }) +
+    FD('basic.fillDate', '填送日期', { hint: '預設為今天' }))
+  + card('立案與登記', FD('basic.regDate', '社會局立案日期') + F('basic.regWord', '立案字號（○○字）', { w: 's', suf: '字' }) + F('basic.regNum', '第', { w: 's', suf: '號' }) +
+    FD('basic.courtDate', '法院登記日期') + F('basic.courtNo', '法院登記字號', { w: 'm' }) + FD('basic.reelectDate', '改選日期'))
+  + card('聯絡資料', F('basic.address', '團體會址', { w: 'full', ph: '屏東縣○○鄉○○村○○路○○號' }) + F('basic.phone', '電話', { w: 'm' }) + F('basic.fax', '傳真', { w: 'm' }) + F('basic.web', '網址', { w: 'm' }) + F('basic.email', '電子信箱', { w: 'm' }))
+  + card('連動說明', `<div class="full flow">
+      <p>標示 <span class="chip">連動</span> 的欄位留白時，會自動帶入其他表單的資料（灰色提示文字就是會帶入的內容）。直接輸入可覆寫，按「↺ 還原」改回自動帶入。</p>
+      <table class="map"><tr><th>來源</th><th>自動帶入到</th></tr>
+      <tr><td>團體名稱・屆別・年度</td><td>全部表單的抬頭、會議紀錄案由、工作計畫、財務報表期間、公函主旨</td></tr>
+      <tr><td>一覽表的理事長</td><td>會議主席、簽章欄、當選證明（姓名・生日・地址・電話）、同意書、公函</td></tr>
+      <tr><td>一覽表的理事／監事</td><td>聯席會議出席名單、選舉當選人、候補名單</td></tr>
+      <tr><td>一覽表的總幹事・會計・出納</td><td>會議紀錄人、聘任工作人員案決議、財務報表簽章欄、公函聯絡人</td></tr>
+      <tr><td>會員人數</td><td>會員大會應出席人數（缺席人數自動計算）</td></tr>
+      <tr><td>會員大會日期・地點</td><td>聯席會議、章程對照表、當選證明（任期自動推算）、公函說明</td></tr>
+      <tr><td>決算數・財產目錄・基金</td><td>現金出納表、資產負債表（本期餘絀、固定資產、資產基金、提撥基金）</td></tr>
+      </table></div>`)
+  + card('全部表單一次下載', `<div class="full"><p class="note" style="margin:0 0 10px">把 9 份表單合併成一個檔案（Word 與 PDF 每份表單自成一頁起，Excel 每份表單一個工作表）。</p>
+      <div class="dlrow">${dlButtons('all')}</div><div id="checks"></div></div>`, { cls: 'hl' });
+
+UI.roster = () => {
+  const extra = `<button type="button" class="btn ghost" data-cmd="fromElection">⇣ 依會員大會選舉結果帶入</button>`;
+  return card('人員名單', `<div class="full">${LIST('roster', [
+    { k: 'role', label: '職別', type: 'sel', opts: ROLES, w: '108px' }, { k: 'name', label: '姓名', w: '96px' }, { k: 'gender', label: '性別', type: 'sel', opts: ['男', '女'], w: '64px' },
+    { k: 'birth', label: '出生年月日（民國）', type: 'date', w: '170px' }, { k: 'job', label: '現職', w: '110px' }, { k: 'idno', label: '身分證統一編號', w: '118px' },
+    { k: 'addr', label: '戶籍所在地或工作地址', w: '220px' }, { k: 'phone', label: '電話號碼', w: '112px' }], { extra, cls: 'wide roster' })}
+    <div class="stat">${calc('rosterCount')}</div></div>`, { note: '輸出時會自動依「理事長、常務理事、理事、候補理事、常務監事、監事、候補監事、會務人員」排序。這裡的資料會帶入其他所有表單。' })
+    + card('表頭資料', `<div class="full out-note">團體名稱、立案字號、會址、電話等表頭欄位來自「基本資料」頁。</div>` + FD('basic.fillDate', '填送日期'));
+};
+
+function propCard(base, title, fields, onKey) {
+  const on = getp(S, base + '.on') !== false;
+  return `<div class="prop${on ? '' : ' off'}"><div class="ph">${FC(base + '.on', `<b>${title}</b>`, { rr: true })}</div>${on ? `<div class="grid">${fields.map(([k, l, o]) => F(`${base}.${k}`, l, { w: 'full', area: true, rows: 2, ...(o || {}) })).join('')}</div>` : ''}</div>`;
+}
+UI.assembly = () => {
+  const A = S.assembly;
+  const propCols = [{ k: 'reason', label: '案由', type: 'area', rows: 2 }, { k: 'proposer', label: '提案人', w: '90px' }, { k: 'desc', label: '說明', type: 'area', rows: 2 }, { k: 'method', label: '辦法', type: 'area', rows: 2 }, { k: 'res', label: '決議', type: 'area', rows: 2 }];
+  let el = '';
+  if (A.hasEl) {
+    const cand = (path) => LIST(path, [{ k: 'name', label: '候選人姓名' }, { k: 'votes', label: '得票數', num: true, w: '90px' }], { empty: '尚未輸入；留白時當選人由一覽表帶入' });
+    el = F('assembly.el.jp', '監票員', { w: 's' }) + F('assembly.el.fp', '發票員', { w: 's' }) + F('assembly.el.cp', '唱票員', { w: 's' }) + F('assembly.el.jip', '記票員', { w: 's' }) +
+      F('assembly.el.dirSeats', '理事名額', { w: 's', num: true, suf: '名' }) + F('assembly.el.dirAlt', '候補理事名額', { w: 's', num: true, suf: '名' }) +
+      F('assembly.el.supSeats', '監事名額', { w: 's', num: true, suf: '名' }) + F('assembly.el.supAlt', '候補監事名額', { w: 's', num: true, suf: '名' }) +
+      `<div class="f half"><label>理事候選人得票</label>${cand('assembly.el.dirs')}</div><div class="f half"><label>監事候選人得票</label>${cand('assembly.el.sups')}</div>
+       <div class="full elres">${calc('elResult')}</div>
+       <div class="full dlrow"><button type="button" class="btn ghost" data-cmd="candFromRoster">⇡ 由一覽表帶入候選人</button><button type="button" class="btn" data-cmd="fromElection">⇣ 將當選名單更新到一覽表</button></div>`;
+  }
+  return card('會議資訊', F('assembly.term', '屆次', { w: 's', pre: '第', suf: '屆', num: true }) + F('assembly.no', '會次', { w: 's', pre: '第', suf: '次', num: true }) +
+    FD('assembly.date', '日期') + FT('assembly.time', '開會時間') + F('assembly.place', '地點', { w: 'l', ph: '例：本社區活動中心' }) +
+    F('assembly.chair', '主席', { w: 's' }) + F('assembly.rec', '紀錄', { w: 's' }))
+    + card('出席情形', F('assembly.should', '應出席人數', { w: 's', num: true, suf: '人' }) + F('assembly.attend', '實際出席', { w: 's', num: true, suf: '人' }) + F('assembly.leave', '請假', { w: 's', num: true, suf: '人' }) + F('assembly.absent', '缺席', { w: 's', num: true, suf: '人' }) + F('assembly.obs', '列席', { w: 's', num: true, suf: '人' }))
+    + card('致詞與報告', F('assembly.speech', '主席致詞（留白＝略）', { w: 'full', area: true, rows: 2 }) + F('assembly.report', '上年度工作報告（可留白）', { w: 'full', area: true, rows: 3 }))
+    + card('討論事項', F('assembly.refTerm', '審議的理（監）事會：第', { w: 's', suf: '屆', num: true }) + F('assembly.refNo', '第', { w: 's', suf: '次', num: true, hint: '用於各案「說明」' }) +
+      `<div class="full">${propCard('assembly.fin', '（一）決算案', [['reason', '案由'], ['proposer', '提案人', { area: false, w: 's' }], ['desc', '說明'], ['method', '辦法'], ['res', '決議', { area: false }]])}
+      ${propCard('assembly.plan', '（二）工作計畫案', [['reason', '案由'], ['proposer', '提案人', { area: false, w: 's' }], ['desc', '說明'], ['method', '辦法'], ['res', '決議', { area: false }]])}
+      ${propCard('assembly.bud', '（三）預算案', [['reason', '案由'], ['proposer', '提案人', { area: false, w: 's' }], ['desc', '說明'], ['method', '辦法'], ['res', '決議', { area: false }]])}
+      <h4>其他提案</h4>${LIST('assembly.props', propCols, { cls: 'wide', empty: '無其他提案' })}</div>`, { note: '三個常用案由會依年度、屆次自動產生文字；不需要的案可取消勾選。' })
+    + card('臨時動議', `<div class="full">${LIST('assembly.motions', [{ k: 'prop', label: '提案', type: 'area', rows: 2 }, { k: 'desc', label: '說明', type: 'area', rows: 2 }, { k: 'res', label: '決議', type: 'area', rows: 2 }], { empty: '無臨時動議（紀錄會寫「無。」）' })}</div>`)
+    + card('選舉', `<div class="full">${FC('assembly.hasEl', '本次會議辦理理監事選舉', { rr: true })}</div>` + el)
+    + card('散會', FT('assembly.end', '散會時間'));
+};
+UI.board = () => card('會議資訊', F('board.term', '屆次', { w: 's', pre: '第', suf: '屆', num: true }) + F('board.no', '會次', { w: 's', pre: '第', suf: '次', num: true }) +
+  FD('board.date', '日期') + FT('board.time', '開會時間') + F('board.place', '地點', { w: 'l' }) + F('board.chair', '主席', { w: 's' }) + F('board.rec', '紀錄', { w: 's' }))
+  + card('出席人員', F('board.dirs', '理事', { w: 'full', area: true, rows: 2 }) + F('board.sups', '監事', { w: 'full', area: true, rows: 2 }) + F('board.obs', '列席人數', { w: 's', num: true, suf: '人' }), { note: '理事、監事名單預設由一覽表帶入。' })
+  + card('選舉', F('board.electTerm', '選舉第', { w: 's', suf: '屆', num: true }) + F('board.stdDir', '常務理事（可留白）', { w: 'l' }) +
+    F('board.stdSup', '常務監事當選人', { w: 'm' }) + F('board.stdSupVotes', '得票數', { w: 's', num: true, suf: '票' }) +
+    F('board.chairman', '理事長當選人', { w: 'm' }) + F('board.chairVotes', '得票數', { w: 's', num: true, suf: '票' }), { note: '當選人預設帶入一覽表中職別為常務理事、常務監事、理事長的人。' })
+  + card('討論提案', `<div class="full">${propCard('board.addr', '（一）會址處所案', [['reason', '案由', { area: false }], ['desc', '說明'], ['res', '決議']])}
+      ${propCard('board.staff', '（二）聘任工作人員案', [['reason', '案由', { area: false }], ['desc', '說明'], ['res', '決議']])}
+      <h4>其他提案</h4>${LIST('board.props', [{ k: 'reason', label: '案由', type: 'area', rows: 2 }, { k: 'desc', label: '說明', type: 'area', rows: 2 }, { k: 'res', label: '決議', type: 'area', rows: 2 }], { empty: '無其他提案' })}</div>`)
+  + card('臨時動議與散會', F('board.motion', '臨時動議（留白＝無）', { w: 'full', area: true, rows: 2 }) + FT('board.end', '散會時間'));
+
+UI.cert = () => card('理事長資料', F('cert.name', '理事長姓名', { w: 'm' }) + F('cert.birthplace', '出生地', { w: 'm' }) + FD('cert.birth', '出生日期') +
+  F('cert.phone', '電話', { w: 'm' }) + F('cert.addr', '戶籍地址', { w: 'full' }), { note: '姓名、出生日期、地址、電話預設帶入一覽表中的理事長資料。' })
+  + card('當選資料', F('cert.org', '團體名稱', { w: 'full' }) + F('cert.term', '當選屆次', { w: 's', pre: '第', suf: '屆', num: true }) +
+    FD('cert.firstDate', '召開第一次理事會日期（補選日期）') + F('cert.tenure', '任期', { w: 'full', hint: '預設由第一次理事會日期加上每屆任期年數推算' }) + F('cert.note', '備註', { w: 'full' }));
+
+UI.consent = () => card('房屋資料', F('consent.loc', '房屋座落', { w: 'full' }) + F('consent.landNo', '地號', { w: 'm' }) +
+  F('consent.ping', '坪數', { w: 's', num: true, suf: '坪' }) + F('consent.sqm', '面積', { w: 's', num: true, suf: '平方公尺' }), { note: '坪數與平方公尺擇一填寫，另一個會自動換算。' })
+  + card('借用期限與簽章', FD('consent.from', '期限自') + FD('consent.to', '至', { hint: '預設為起日加每屆任期年數' }) +
+    F('consent.lender', '房屋出借人', { w: 'm' }) + F('consent.witness', '見證人', { w: 'm' }) + F('consent.chairman', '理事長', { w: 'm' }) + FD('consent.date', '立書日期'));
+
+UI.statute = () => card('審議通過', FD('statute.boardDate', '理（監）事會日期') + F('statute.boardTerm', '第', { w: 's', suf: '屆', num: true }) + F('statute.boardNo', '第', { w: 's', suf: '次', num: true }) +
+  FD('statute.asmDate', '會員大會日期') + F('statute.asmTerm', '第', { w: 's', suf: '屆', num: true }) + F('statute.asmNo', '第', { w: 's', suf: '次', num: true }))
+  + card('條文對照', `<div class="full">${LIST('statute.rows', [{ k: 'orig', label: '原條文', type: 'area', rows: 5 }, { k: 'rev', label: '修正後條文', type: 'area', rows: 5 }, { k: 'note', label: '說明', type: 'area', rows: 5 }], { cls: 'wide' })}</div>`);
+
+UI.plan = () => card('計畫', F('plan.year', '計畫年度', { w: 's', suf: '年', num: true }) + F('plan.refTerm', '提經第', { w: 's', suf: '屆', num: true }) + F('plan.refNo', '第', { w: 's', suf: '次理（監）事會', num: true }))
+  + card('工作內容', `<div class="full">${LIST('plan.rows', [{ k: 'cat', label: '工作類別', w: '110px', list: 'dl-cat' }, { k: 'item', label: '項目', w: '120px' }, { k: 'desc', label: '說明', type: 'area', rows: 2 },
+    { k: 'qty', label: '數量', w: '60px' }, { k: 'prog', label: '執行進度', w: '90px' }, { k: 'cost', label: '經費預估', num: true, w: '96px' }, { k: 'co', label: '協辦單位', w: '90px' }, { k: 'note', label: '備註', w: '80px' }], { cls: 'wide' })}
+    <datalist id="dl-cat"><option>會務推展</option><option>公共建設</option><option>業務推展</option></datalist><div class="stat">${calc('planTotal')}</div></div>`, { note: '同一類別、項目連續填寫時，輸出會自動合併儲存格並加上「一、」「（一）」編號，不必自己打。' })
+  + card('實施要領', F('plan.method', '實施要領（或工作方法）', { w: 'full', area: true, rows: 3 }));
+
+UI.finance = () => {
+  const tab = S.ui.finTab || 'acc';
+  const tabs = [['acc', '收支預算／決算'], ['prop', '財產目錄'], ['bs', '資產負債表'], ['fund', '基金收支表'], ['out', '輸出設定']];
+  let body = '';
+  if (tab === 'acc') {
+    const rows = ACC_FLAT.map(a => {
+      const v = S.fin.v[a.k] || {};
+      const nameCell = `<input data-p="fin.names.${a.k}" value="${esc(S.fin.names[a.k] || '')}" placeholder="${esc(a.name)}" class="nm lv${a.lvl}">`;
+      const amt = col => a.kids ? `<td class="sum">${calc(`acc:${a.k}:${col}`)}</td>` : `<td><input data-p="fin.v.${a.k}.${col}" value="${esc(v[col] ?? '')}" inputmode="decimal" class="num"></td>`;
+      const note = col => a.kids && a.lvl === 0 ? '<td></td>' : `<td><input data-p="fin.v.${a.k}.${col}" value="${esc(v[col] ?? '')}"></td>`;
+      return `<tr class="lv${a.lvl}"><td>${nameCell}</td>${amt('b')}${amt('pb')}${amt('a')}${note('n1')}${note('n2')}</tr>`;
+    }).join('');
+    body = card('收支科目', `<div class="full"><div class="tw"><table class="acc"><thead><tr><th style="width:190px">科目名稱（可修改）</th><th>預算數<br><small>${calc('yrBY')}年度</small></th><th>上年度預算數<br><small>${calc('yrY')}年度</small></th><th>決算數<br><small>${calc('yrY')}年度</small></th><th>預算說明</th><th>決算說明</th></tr></thead>
+      <tbody>${rows}<tr class="lv0 sur"><td>本期餘絀</td><td class="sum">${calc('sur:b')}</td><td class="sum">${calc('sur:pb')}</td><td class="sum">${calc('sur:a')}</td><td></td><td></td></tr></tbody></table></div></div>`
+      + F('fin.prev', '上期餘絀（決算用）', { w: 's', num: true, suf: '元' }) + F('fin.cashPrev', '上期現金結存（現金出納表）', { w: 's', num: true, suf: '元' }) + `<div class="f full">${calc('finChecks')}</div>`,
+      { note: '「上年度預算數」同時是預算表的上年度欄與決算表的預算數欄，只要填一次。修改科目名稱，預算表與決算表會同步。' });
+  } else if (tab === 'prop') {
+    body = card('財產目錄', `<div class="full">${LIST('fin.prop', [{ k: 'cat', label: '財產科目', list: 'dl-pc', w: '118px' }, { k: 'name', label: '名稱' }, { k: 'date', label: '購置日期', w: '96px', ph: '104年12月' }, { k: 'unit', label: '單位', w: '56px' }, { k: 'qty', label: '數量', num: true, w: '60px' }, { k: 'amt', label: '金額', num: true, w: '96px' }, { k: 'loc', label: '存放地點', w: '90px' }, { k: 'note', label: '說明', w: '100px' }], { cls: 'wide' })}
+      <datalist id="dl-pc">${PROP_CATS.map(c => `<option>${c}</option>`).join('')}</datalist><div class="stat">${calc('propTotal')}</div></div>`, { note: '財產科目留白表示與上一列相同。各科目金額會自動帶入資產負債表的固定資產／雜項資產。' });
+  } else if (tab === 'bs') {
+    const grp = (g, side) => `<tr class="g"><td>${g.name}</td><td class="sum">${calc('bsg:' + g.k)}</td></tr>` + g.kids.map(n => `<tr><td>　${n}${D['fin.bs.' + n] && bsDerived(n) != null ? ' <span class="chip">連動</span>' : ''}</td><td><input data-p="fin.bs.${n}" value="${esc(S.fin.bs[n] ?? '')}" inputmode="decimal" class="num"></td></tr>`).join('');
+    body = card('資產負債表', `<div class="full bs"><div><table class="acc"><thead><tr><th>資產科目</th><th style="width:130px">金額</th></tr></thead><tbody><tr class="t"><td>資產合計</td><td class="sum">${calc('bsA')}</td></tr>${BS_LEFT.map(g => grp(g)).join('')}</tbody></table></div>
+      <div><table class="acc"><thead><tr><th>負債、基金暨餘絀科目</th><th style="width:130px">金額</th></tr></thead><tbody><tr class="t"><td>負債合計</td><td class="sum">${calc('bsL')}</td></tr>${BS_RIGHT_L.map(g => grp(g)).join('')}<tr class="t"><td>權益合計</td><td class="sum">${calc('bsE')}</td></tr>${BS_RIGHT_E.map(g => grp(g)).join('')}</tbody></table></div></div>
+      <div class="f full">${calc('bsCheck')}</div>`, { note: '灰色數字為自動帶入：固定資產與雜項資產來自財產目錄，資產基金＝固定資產＋雜項資產＋存出保證金，基金／提撥基金來自基金收支表結餘，本期／上期餘絀來自決算。' });
+  } else if (tab === 'fund') {
+    body = card('收入', F('fin.fund.acc', '歷年累存', { w: 's', num: true, suf: '元' }) + F('fin.fund.int', '本年度利息收入', { w: 's', num: true, suf: '元' }) + F('fin.fund.add', '本年度提撥', { w: 's', num: true, suf: '元', hint: '預設帶入決算「提撥基金」' }))
+      + card('支出', F('fin.fund.o1n', '支付（項目）', { w: 's' }) + F('fin.fund.o1', '金額', { w: 's', num: true, suf: '元' }) + F('fin.fund.o2n', '支付（項目）', { w: 's' }) + F('fin.fund.o2', '金額', { w: 's', num: true, suf: '元' }) +
+        F('fin.fund.o3', '支付退職金', { w: 's', num: true, suf: '元' }) + F('fin.fund.o4', '支付退休金', { w: 's', num: true, suf: '元' }) + `<div class="f full">${calc('fundTotal')}</div>`)
+      + card('說明', F('fin.fund.notes', '說明（每行一點；無動支可留白）', { w: 'full', area: true, rows: 3, ph: '1.支付○○○總幹事退職金經第○屆第○次理事會通過，報經屏東縣政府○年○月○日屏府社政字第○○○○號函核准動支。' }));
+  } else {
+    body = card('要輸出的報表', ['bud:收支預算表', 'act:收支決算表及現金出納表', 'prop:財產目錄', 'bs:資產負債表', 'fund:基金收支表'].map(x => { const [k, l] = x.split(':'); return FC('fin.sel.' + k, l, { w: 'half' }); }).join('') +
+      `<label class="ck full"><input type="checkbox" data-p="fin.hideZero"${S.fin.hideZero ? ' checked' : ''}> 省略預算、上年度預算、決算皆為 0 的科目（說明：預算科目不適用可自行刪除）</label>`);
+  }
+  return `<div class="tabs">${tabs.map(([k, l]) => `<button type="button" data-fintab="${k}" class="${k === tab ? 'on' : ''}">${l}</button>`).join('')}</div>${body}`;
+};
+
+UI.letter = () => card('發文資料', F('letter.no', '發文字號', { w: 'l', ph: '屏縣○鄉○○（○）字第○○○○號' }) + FD('letter.date', '發文日期') + F('letter.to', '受文者', { w: 'm' }) +
+  F('letter.speed', '速別', { w: 's' }) + F('letter.secret', '密等及解密條件', { w: 's' }) + F('letter.att', '附件', { w: 's' }))
+  + card('聯絡資料', F('letter.addr', '機關地址', { w: 'full' }) + F('letter.contact', '聯絡人', { w: 'm' }) + F('letter.phone', '聯絡電話', { w: 'm' }))
+  + card('主旨與說明', F('letter.subject', '主旨', { w: 'full', area: true, rows: 2 }) + F('letter.d1', '說明一', { w: 'full', area: true, rows: 2 }) +
+    `<div class="f full"><label>隨函檢附（勾選後自動寫入說明二）</label><div class="cks">${LETTER_ATTS.map(([k, l]) => `<label class="ck"><input type="checkbox" data-p="letter.atts.${k}"${(S.letter.atts || {})[k] !== false ? ' checked' : ''}> ${l}</label>`).join('')}</div></div>` +
+    F('letter.d2', '說明二', { w: 'full', area: true, rows: 4 }) + F('letter.d3', '說明三（可留白）', { w: 'full', area: true, rows: 2 }))
+  + card('正副本', F('letter.main', '正本', { w: 'm' }) + F('letter.cc', '副本', { w: 'm' }));
+
+/* ===== 計算顯示 ===== */
+const CALC = {
+  orgFull: () => esc(orgFull()),
+  rosterCount: () => {
+    const c = {}; S.roster.forEach(r => { if (r.role) c[r.role] = (c[r.role] || 0) + 1; });
+    const s = ROLES.filter(r => c[r]).map(r => `${r} ${c[r]}`).join('・');
+    return s ? `共 ${S.roster.length} 人：${s}` : '尚未輸入人員';
+  },
+  elResult: () => {
+    const E = S.assembly.el;
+    const dr = elResult(E.dirs, V('assembly.el.dirSeats'), V('assembly.el.dirAlt')), sr = elResult(E.sups, V('assembly.el.supSeats'), V('assembly.el.supAlt'));
+    if (!dr.all.length && !sr.all.length) return '<span class="muted">輸入候選人與得票數後，這裡會依票數自動排出當選人與候補順序。</span>';
+    const f = (t, l) => `<div><b>${t}</b>${l.length ? l.map(c => `${esc(c.name)}（${c.v}）`).join('、') : '—'}</div>`;
+    return f('當選理事：', dr.win) + f('候補理事：', dr.alt) + f('當選監事：', sr.win) + f('候補監事：', sr.alt);
+  },
+  planTotal: () => `經費預估合計：<b>${fmt(S.plan.rows.reduce((s, r) => s + num(r.cost), 0))}</b> 元　｜　預算表支出總計：${fmt(accVal(ACC_BY.exp, 'b'))} 元`,
+  yrBY: () => esc(O(BY(), '○')), yrY: () => esc(O(Y(), '○')),
+  propTotal: () => `財產合計：<b>${fmt(propSum(''))}</b> 元` + PROP_CATS.filter(c => propSum(c)).map(c => `　${c} ${fmt(propSum(c))}`).join(''),
+  bsA: () => fmt(bsAssets()), bsL: () => fmt(bsLiab()), bsE: () => fmt(bsEquity()),
+  bsCheck: () => { const a = bsAssets(), r = bsLiab() + bsEquity(); return a === r ? `<span class="ok">✓ 兩方合計相同：${fmt(a)} 元</span>` : `<span class="bad">⚠ 兩方合計不同：資產 ${fmt(a)}，負債基金暨餘絀 ${fmt(r)}（差 ${fmt(a - r)}）</span>`; },
+  fundTotal: () => `收入合計 <b>${fmt(fundIn())}</b> 元　支出合計 ${fmt(fundOut())} 元　結餘 <b>${fmt(fundIn() - fundOut())}</b> 元`,
+  finChecks: () => {
+    const b = finSurplus('b');
+    return `<div class="${b === 0 ? 'ok' : 'bad'}">${b === 0 ? '✓ 預算收支平衡（本期餘絀為 0）' : `⚠ 預算本期餘絀為 ${fmt(b)}，預算應本收支平衡原則編列，餘絀需歸零。`}</div>
+      <div>決算：收入 ${fmt(accVal(ACC_BY.inc, 'a'))}・支出 ${fmt(accVal(ACC_BY.exp, 'a'))}・本期餘絀 <b>${fmt(finSurplus('a'))}</b>・累計餘絀 <b>${fmt(finSurplus('a') + num(S.fin.prev))}</b>・現金本期結存 ${fmt(cashEnd())}</div>`;
+  },
+};
+function calcVal(key) {
+  if (CALC[key]) return CALC[key]();
+  const [t, a, b] = key.split(':');
+  if (t === 'acc') return fmt(accVal(ACC_BY[a], b));
+  if (t === 'sur') return fmt(finSurplus(a));
+  if (t === 'bsg') return fmt(bsGroupSum([...BS_LEFT, ...BS_RIGHT_L, ...BS_RIGHT_E].find(g => g.k === a)));
+  return '';
+}
+
+/* ===== 範例資料 ===== */
+function sampleState() {
+  const s = blankState();
+  Object.assign(s.basic, { county: '屏東縣', town: '屏東市', org: '示範社區發展協會', term: '5', termYears: '4', year: '114',
+    regDate: { y: '89', m: '3', d: '15' }, regWord: '屏府社行', regNum: '0890012345', courtDate: { y: '89', m: '5', d: '2' }, courtNo: '屏院社登字第123號',
+    reelectDate: { y: '115', m: '1', d: '10' }, membersGroup: '2', membersPerson: '120', address: '屏東縣屏東市示範里中正路100號', phone: '08-7320000', fax: '08-7320001', email: 'demo@example.org' });
+  const P = (role, name, gender, by, bm, bd, job, addrNo, ph) => ({ role, name, gender, birth: { y: by, m: bm, d: bd }, job, idno: '', addr: `屏東縣屏東市示範里中正路${addrNo}號`, phone: ph });
+  s.roster = [
+    P('理事長', '陳志明', '男', '50', '4', '12', '自營商', '12', '0912-000001'), P('常務理事', '林美玲', '女', '55', '8', '3', '教師', '18', '0912-000002'),
+    P('理事', '張建國', '男', '48', '1', '20', '農', '25', '0912-000003'), P('理事', '李淑芬', '女', '60', '11', '9', '家管', '31', '0912-000004'),
+    P('理事', '王俊傑', '男', '62', '6', '30', '公', '36', '0912-000005'), P('理事', '黃雅婷', '女', '66', '2', '14', '商', '44', '0912-000006'),
+    P('理事', '吳宗翰', '男', '58', '9', '1', '工', '52', '0912-000007'), P('候補理事', '鄭文華', '男', '61', '12', '5', '商', '57', '0912-000008'),
+    P('常務監事', '許秀英', '女', '47', '7', '22', '退休', '63', '0912-000009'), P('監事', '郭志強', '男', '53', '3', '3', '農', '70', '0912-000010'),
+    P('監事', '洪麗華', '女', '57', '10', '18', '家管', '76', '0912-000011'), P('候補監事', '曾國峰', '男', '64', '5', '27', '工', '81', '0912-000012'),
+    P('總幹事', '楊惠如', '女', '63', '1', '8', '專職', '88', '0912-000013'), P('會計', '周美珠', '女', '59', '4', '19', '專職', '93', '0912-000014'), P('出納', '賴俊宏', '男', '65', '8', '25', '專職', '97', '0912-000015'),
+  ];
+  Object.assign(s.assembly, { date: { y: '115', m: '1', d: '10' }, time: { ap: '上', h: '9', mi: '0' }, place: '本社區活動中心', attend: '86', leave: '6', obs: '3', refNo: '12',
+    report: '一、辦理會員大會 1 次、理監事會 4 次。\n二、辦理母親節活動、老人健康檢查等社區活動，參與人數約 600 人次。', end: { ap: '上', h: '11', mi: '30' } });
+  Object.assign(s.assembly.el, { jp: '郭志強', fp: '鄭文華', cp: '曾國峰', jip: '楊惠如', dirSeats: '7', dirAlt: '1', supSeats: '3', supAlt: '1',
+    dirs: [['陳志明', 62], ['林美玲', 58], ['張建國', 51], ['李淑芬', 49], ['王俊傑', 44], ['黃雅婷', 40], ['吳宗翰', 37], ['鄭文華', 21]].map(([name, v]) => ({ name, votes: String(v) })),
+    sups: [['許秀英', 55], ['郭志強', 47], ['洪麗華', 39], ['曾國峰', 18]].map(([name, v]) => ({ name, votes: String(v) })) });
+  s.assembly.motions = [{ prop: '建請增設社區巡守隊夜間巡邏班次。', desc: '近期夜間治安事件增加。', res: '交由理事會研議辦理。' }];
+  Object.assign(s.board, { time: { ap: '上', h: '11', mi: '40' }, obs: '2', stdSupVotes: '3', chairVotes: '6', end: { ap: '下', h: '12', mi: '10' } });
+  Object.assign(s.cert, { birthplace: '屏東縣' });
+  Object.assign(s.consent, { landNo: '示範段123', ping: '30', from: { y: '115', m: '1', d: '1' }, lender: '陳大同', witness: '林美玲' });
+  Object.assign(s.statute, { boardDate: { y: '114', m: '12', d: '6' }, boardNo: '12' });
+  s.statute.rows = [
+    { orig: '章程全文條文內容涉及「左列」、「如左」。', rev: '取代為「下列」、「如下」。', note: '因應公文書格式改為直式橫書，原條文【左】修改為【下】。' },
+    { orig: '第八條　會員有下列情事之一者，為出會：\n一、喪失會員資格者（含死亡）。\n二、經會員大會決議除名者。', rev: '第八條　會員有下列情事之一者，為出會：\n一、喪失會員資格者（含死亡）。\n二、經會員大會決議除名者。\n三、會員未依規定繳納常年會費，予以停權，停權滿一年者視同出會。', note: '為保障持續參與本會運作之會員權益，凡未依規定繳納常年會費者依法本應停權，未繳納一整年度之常年會費，要再次參與本會運作之居民，需重新繳納入會費及常年會費。' },
+  ];
+  const pr = (cat, item, desc, qty, prog, cost) => ({ cat, item, desc, qty, prog, cost: String(cost), co: '', note: '' });
+  s.plan.rows = [
+    pr('會務推展', '會議', '1.召開會員大會', '1', '1月', 40000), pr('會務推展', '會議', '2.召開理監事會', '4', '1、4、7、10月', 10000), pr('會務推展', '檔案管理', '公文處理、文書建檔、登錄保管', '全年', '', 5000),
+    pr('公共建設', '道路', '路面維護', '全年', '', 5000), pr('公共建設', '排水溝', '排水溝清淤', '全年', '', 5000), pr('公共建設', '社區環境', '環境整理及綠美化', '全年', '', 5000), pr('公共建設', '活動中心', '管理及維護', '全年', '', 5000),
+    pr('業務推展', '兒童服務', '1.舉辦書法繪畫作文比賽活動', '1', '3月', 10000), pr('業務推展', '兒童服務', '2.舉辦趣味營活動', '1', '4月', 5000), pr('業務推展', '兒童服務', '3.購置兒童文物', '1', '5月', 5000),
+    pr('業務推展', '老人服務', '老人義診及健康檢查', '1', '10月', 90000), pr('業務推展', '婦女服務', '1.舉辦烹飪研習', '2', '3、12月', 20000), pr('業務推展', '婦女服務', '2.舉辦母親節活動', '1', '5月', 30000),
+  ];
+  const v = (k, b, pb, a) => { s.fin.v[k] = { b: String(b), pb: String(pb), a: String(a) }; };
+  v('i1', 10000, 10000, 10000); v('i2', 30000, 30000, 40000); v('i4', 20000, 20000, 20000); v('i51', 20000, 20000, 20000); v('i52', 20000, 20000, 20000);
+  v('e2_1', 5000, 5000, 4500); v('e2_2', 5000, 5000, 3500); v('e2_3', 10000, 10000, 9600); v('e2_4', 5000, 5000, 4600); v('e2_5', 5000, 5000, 4200);
+  v('e3_1', 20000, 20000, 15000); v('e3_5', 20000, 20000, 20000); v('e3_8', 20000, 20000, 20000); v('e10', 10000, 10000, 7000);
+  s.fin.prev = '16000';
+  s.fin.prop = [
+    { cat: '事務器械設備', name: '辦公桌、椅', date: '104年12月', unit: '組', qty: '2', amt: '12000', loc: '辦公室', note: '' },
+    { cat: '', name: '電腦', date: '110年3月', unit: '台', qty: '1', amt: '25000', loc: '辦公室', note: '' },
+    { cat: '雜項設備', name: '冰箱', date: '108年6月', unit: '台', qty: '1', amt: '8000', loc: '辦公室', note: '' },
+  ];
+  s.fin.bs = { '庫存現金': '7600', '銀行存款': '30000' };
+  Object.assign(s.letter, { no: '屏市示社字第1150000001號' });
+  s.ui.page = S.ui.page;
+  return s;
+}
+
+/* ===== 介面 ===== */
+function dlButtons(id) {
+  return [['docx', 'Word', 'w'], ['xlsx', 'Excel', 'x'], ['pdf', 'PDF', 'p']].map(([f, l, c]) => `<button type="button" class="dl ${c}" data-dl="${f}" data-doc="${id}"><span class="ic">${l[0]}</span>下載 ${l}</button>`).join('');
+}
+function docFor(id) {
+  if (id === 'all') return { title: '全部表單', sheets: ['letter', 'assembly', 'board', 'roster', 'cert', 'consent', 'statute', 'plan'].flatMap(k => DOCS[k]().sheets).concat(docFinance(true).sheets) };
+  if (id === 'basic') return { title: '基本資料', sheets: [...DOCS.letter().sheets, ...DOCS.roster().sheets] };
+  return DOCS[id]();
+}
+function renderNav() {
+  const issues = checks();
+  $('#nav').innerHTML = PAGES.map((p, i) => {
+    const n = issues.filter(c => c.page === p.id && c.lv === 'warn').length;
+    return `<button type="button" data-page="${p.id}" class="${S.ui.page === p.id ? 'on' : ''}"><span class="no">${i === 0 ? '●' : i}</span><span class="tx"><b>${p.t}</b>${p.s ? `<small>${p.s}</small>` : ''}</span>${n ? `<span class="warn" title="有 ${n} 項需要確認">!</span>` : ''}</button>`;
+  }).join('') + `<div class="navfoot">🔒 填寫的資料只存在您自己的瀏覽器，不會上傳到任何伺服器。換電腦或交接請用「備份資料」。<br>本工具為協助填報之輔助網頁，非政府機關官方網站；送件格式以主管機關規定為準。</div>`;
+  $('#orgName').textContent = S.basic.org ? orgFull() : '尚未填寫團體名稱';
+}
+function renderPage() {
+  const id = S.ui.page, pg = PAGES.find(p => p.id === id) || PAGES[0];
+  $('#ptitle').textContent = pg.t;
+  $('#pdl').innerHTML = id === 'basic' ? '' : dlButtons(id);
+  $('#form').innerHTML = UI[pg.id]();
+  refreshLinked(); refreshCalc(); renderChecks();
+  renderNav(); renderPreview();
+  $('#formcol').scrollTop = 0;
+}
+function refreshLinked() {
+  $$('#form [data-p]').forEach(el => {
+    const p = el.dataset.p, part = el.dataset.part;
+    if (el.type === 'checkbox' || el.tagName === 'SELECT') return;
+    if (!D[p] && el.dataset.ph == null) return;
+    let ph = el.dataset.ph || '';
+    if (D[p]) { let d = ''; try { d = D[p](); } catch (e) { } if (part) d = d && d[part]; if (d != null && d !== '') ph = String(d); }
+    el.placeholder = ph;
+  });
+  $$('#form [data-reset]').forEach(b => { b.closest('.f, label')?.closest('.f')?.classList.toggle('ov', !isEmptyVal(getp(S, b.dataset.reset))); });
+}
+function refreshCalc() { $$('#form [data-calc]').forEach(el => { el.innerHTML = calcVal(el.dataset.calc); }); }
+function renderChecks() {
+  const el = $('#checks'); if (!el) return;
+  const cs = checks();
+  el.innerHTML = cs.length ? `<div class="checks"><b>檢核提醒</b>${cs.map(c => `<div class="${c.lv}"><a href="#" data-page="${c.page}">${PAGES.find(p => p.id === c.page).t}</a>　${esc(c.t)}</div>`).join('')}</div>` : '<div class="checks okb">✓ 目前沒有需要確認的檢核項目</div>';
+}
+let pvTimer = null;
+function renderPreview() {
+  clearTimeout(pvTimer);
+  pvTimer = setTimeout(() => {
+    const id = S.ui.page;
+    let doc; try { doc = docFor(id); } catch (e) { console.error(e); return; }
+    const box = $('#preview');
+    box.innerHTML = doc.sheets.map(sheetHTML).join('');
+    fitPreview();
+    $('#pvinfo').textContent = `${doc.sheets.length} 頁表單・A4`;
+  }, 120);
+}
+function fitPreview() { const col = $('#prevcol'), box = $('#preview'); if (!col || !box) return; const w = col.clientWidth - 40; box.style.zoom = Math.min(1, w / 794).toFixed(3); }
+window.addEventListener('resize', fitPreview);
+
+/* 互動 */
+function onInput(e) {
+  const el = e.target; const p = el.dataset && el.dataset.p; if (!p) return;
+  let val = el.type === 'checkbox' ? el.checked : el.value;
+  if (el.dataset.part) { const o = { ...(getp(S, p) || {}) }; o[el.dataset.part] = val; setp(S, p, o); }
+  else setp(S, p, val);
+  save();
+  if (el.dataset.rr) { renderPage(); return; }
+  refreshLinked(); refreshCalc(); renderChecks(); renderPreview();
+  if (p.startsWith('basic.org') || p.startsWith('basic.town') || p.startsWith('basic.county')) renderNav();
+  clearTimeout(onInput.nt); onInput.nt = setTimeout(renderNav, 600);
+}
+function listOp(act, path, i) {
+  const arr = getp(S, path) || []; i = +i;
+  if (act === 'add') { arr.push({}); setp(S, path, arr); }
+  if (act === 'del') arr.splice(i, 1);
+  if (act === 'up' && i > 0) [arr[i - 1], arr[i]] = [arr[i], arr[i - 1]];
+  if (act === 'down' && i < arr.length - 1) [arr[i + 1], arr[i]] = [arr[i], arr[i + 1]];
+  save(); renderPage();
+  if (act === 'add') { const rows = $$(`#form [data-p^="${path}.${arr.length - 1}."]`); if (rows[0]) rows[0].focus(); }
+}
+const CMDS = {
+  fromElection() {
+    const E = S.assembly.el;
+    const dr = elResult(E.dirs, V('assembly.el.dirSeats'), V('assembly.el.dirAlt')), sr = elResult(E.sups, V('assembly.el.supSeats'), V('assembly.el.supAlt'));
+    if (!dr.all.length && !sr.all.length) { toast('請先在「會員大會會議紀錄 › 選舉」輸入候選人與得票數', 'err'); return; }
+    let add = 0, upd = 0;
+    const put = (name, role, keep) => {
+      const r = S.roster.find(x => x.name === name);
+      if (r) { if (!(keep.includes(r.role))) { if (r.role !== role) upd++; r.role = role; } }
+      else { S.roster.push({ role, name }); add++; }
+    };
+    dr.win.forEach(c => put(c.name, '理事', ['理事長', '常務理事', '理事']));
+    dr.alt.forEach(c => put(c.name, '候補理事', ['候補理事']));
+    sr.win.forEach(c => put(c.name, '監事', ['常務監事', '監事']));
+    sr.alt.forEach(c => put(c.name, '候補監事', ['候補監事']));
+    save(); renderPage(); toast(`一覽表已更新：新增 ${add} 人、變更職別 ${upd} 人。理事長、常務理監事請在一覽表調整。`);
+  },
+  candFromRoster() {
+    const E = S.assembly.el;
+    const mk = roles => names(roles).map(name => ({ name, votes: '' }));
+    if (!E.dirs.length) E.dirs = mk([...DIR_ROLES, '候補理事']);
+    if (!E.sups.length) E.sups = mk([...SUP_ROLES, '候補監事']);
+    save(); renderPage(); toast('已帶入候選人（只補空白的名單），請輸入得票數');
+  },
+  async sample() {
+    if (!(await ask('載入範例資料？目前填寫的內容會被範例取代。建議先「備份資料」。'))) return;
+    S = sampleState(); save(); renderPage(); toast('已載入範例資料');
+  },
+  async clear() {
+    if (!(await ask('清除全部填寫內容？此動作無法復原，建議先「備份資料」。'))) return;
+    const page = S.ui.page; S = blankState(); S.ui.page = page; save(); renderPage(); toast('已清除');
+  },
+  async backup() {
+    const name = `${orgShort()}_填報資料備份_${new Date().toISOString().slice(0, 10)}.json`;
+    await saveFile(name, new Blob([JSON.stringify(S, null, 1)], { type: 'application/json' }));
+  },
+  restore() { $('#fileIn').click(); },
+};
+$('#fileIn').addEventListener('change', async e => {
+  const f = e.target.files[0]; if (!f) return;
+  try { const data = JSON.parse(await f.text()); if (!data || !data.basic) throw new Error('格式不符'); S = merge(blankState(), data); save(); renderPage(); toast('已還原資料：' + f.name); }
+  catch (err) { toast('無法讀取這個檔案：' + err.message, 'err'); }
+  e.target.value = '';
+});
+
+document.addEventListener('input', onInput);
+document.addEventListener('change', e => { if (e.target.type === 'checkbox' || e.target.tagName === 'SELECT') onInput(e); });
+document.addEventListener('click', async e => {
+  const t = e.target.closest('button, a'); if (!t) return;
+  if (t.dataset.page) { e.preventDefault(); S.ui.page = t.dataset.page; save(); renderPage(); document.body.classList.remove('navopen'); return; }
+  if (t.dataset.reset) { const v = getp(S, t.dataset.reset); setp(S, t.dataset.reset, (v && typeof v === 'object') ? {} : ''); save(); renderPage(); return; }
+  if (t.dataset.act) { listOp(t.dataset.act, t.dataset.list, t.dataset.i); return; }
+  if (t.dataset.fintab) { S.ui.finTab = t.dataset.fintab; save(); renderPage(); return; }
+  if (t.dataset.cmd) { CMDS[t.dataset.cmd](); return; }
+  if (t.dataset.dl) {
+    const id = t.dataset.doc, doc = docFor(id === 'basic' ? 'all' : id);
+    if (!doc.sheets.length) { toast('沒有選擇要輸出的報表', 'err'); return; }
+    const pg = PAGES.find(p => p.id === id);
+    const name = `${orgShort()}_${id === 'all' ? '全部表單' : id === 'finance' ? `${O(Y(), '')}年度財務報表` : pg.t}`;
+    t.disabled = true; await exportDoc(doc, t.dataset.dl, name); t.disabled = false; return;
+  }
+  if (t.id === 'navToggle') document.body.classList.toggle('navopen');
+  if (t.id === 'pvToggle') { document.body.classList.toggle('pvopen'); fitPreview(); }
+});
+
+/* 提示、忙碌、確認 */
+function toast(msg, kind) {
+  const el = document.createElement('div'); el.className = 'toast' + (kind === 'err' ? ' err' : ''); el.textContent = msg;
+  $('#toasts').appendChild(el); setTimeout(() => el.classList.add('out'), 3800); setTimeout(() => el.remove(), 4300);
+}
+function showBusy(msg) {
+  const el = $('#busy'); el.querySelector('span').textContent = msg; el.hidden = false;
+  return { set: m => el.querySelector('span').textContent = m, done: () => el.hidden = true };
+}
+function ask(msg) {
+  return new Promise(res => {
+    const m = $('#modal'); m.querySelector('p').textContent = msg; m.hidden = false;
+    const done = v => { m.hidden = true; ok.onclick = no.onclick = null; res(v); };
+    const ok = m.querySelector('.ok'), no = m.querySelector('.no');
+    ok.onclick = () => done(true); no.onclick = () => done(false);
+  });
+}
+
+if (!['basic', ...PAGES.map(p => p.id)].includes(S.ui.page)) S.ui.page = 'basic';
+renderPage();
+dlNS();
+
+</script>
+</body>
+</html>
