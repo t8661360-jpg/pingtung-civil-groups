@@ -1,0 +1,4 @@
+{
+  "googleClientId": "",
+  "_說明": "填入 Google OAuth 用戶端 ID（格式：xxxx.apps.googleusercontent.com）後，網頁選單會出現「雲端存檔（Google 帳號）」。設定步驟請見 forms/README.md。"
+}

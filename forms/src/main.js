@@ -1,218 +1,267 @@
-/* ===== 範例資料 ===== */
-function sampleState() {
-  const s = blankState();
-  Object.assign(s.basic, { county: '屏東縣', town: '屏東市', org: '示範社區發展協會', term: '5', termYears: '4', year: '114',
-    regDate: { y: '89', m: '3', d: '15' }, regWord: '屏府社行', regNum: '0890012345', courtDate: { y: '89', m: '5', d: '2' }, courtNo: '屏院社登字第123號',
-    reelectDate: { y: '115', m: '1', d: '10' }, membersGroup: '2', membersPerson: '120', address: '屏東縣屏東市示範里中正路100號', phone: '08-7320000', fax: '08-7320001', email: 'demo@example.org' });
-  const P = (role, name, gender, by, bm, bd, job, addrNo, ph) => ({ role, name, gender, birth: { y: by, m: bm, d: bd }, job, idno: '', addr: `屏東縣屏東市示範里中正路${addrNo}號`, phone: ph });
-  s.roster = [
-    P('理事長', '陳志明', '男', '50', '4', '12', '自營商', '12', '0912-000001'), P('常務理事', '林美玲', '女', '55', '8', '3', '教師', '18', '0912-000002'),
-    P('理事', '張建國', '男', '48', '1', '20', '農', '25', '0912-000003'), P('理事', '李淑芬', '女', '60', '11', '9', '家管', '31', '0912-000004'),
-    P('理事', '王俊傑', '男', '62', '6', '30', '公', '36', '0912-000005'), P('理事', '黃雅婷', '女', '66', '2', '14', '商', '44', '0912-000006'),
-    P('理事', '吳宗翰', '男', '58', '9', '1', '工', '52', '0912-000007'), P('候補理事', '鄭文華', '男', '61', '12', '5', '商', '57', '0912-000008'),
-    P('常務監事', '許秀英', '女', '47', '7', '22', '退休', '63', '0912-000009'), P('監事', '郭志強', '男', '53', '3', '3', '農', '70', '0912-000010'),
-    P('監事', '洪麗華', '女', '57', '10', '18', '家管', '76', '0912-000011'), P('候補監事', '曾國峰', '男', '64', '5', '27', '工', '81', '0912-000012'),
-    P('總幹事', '楊惠如', '女', '63', '1', '8', '專職', '88', '0912-000013'), P('會計', '周美珠', '女', '59', '4', '19', '專職', '93', '0912-000014'), P('出納', '賴俊宏', '男', '65', '8', '25', '專職', '97', '0912-000015'),
-  ];
-  Object.assign(s.assembly, { date: { y: '115', m: '1', d: '10' }, time: { ap: '上', h: '9', mi: '0' }, place: '本社區活動中心', attend: '86', leave: '6', obs: '3', refNo: '12',
-    report: '一、辦理會員大會 1 次、理監事會 4 次。\n二、辦理母親節活動、老人健康檢查等社區活動，參與人數約 600 人次。', end: { ap: '上', h: '11', mi: '30' } });
-  Object.assign(s.assembly.el, { jp: '郭志強', fp: '鄭文華', cp: '曾國峰', jip: '楊惠如', dirSeats: '7', dirAlt: '1', supSeats: '3', supAlt: '1',
-    dirs: [['陳志明', 62], ['林美玲', 58], ['張建國', 51], ['李淑芬', 49], ['王俊傑', 44], ['黃雅婷', 40], ['吳宗翰', 37], ['鄭文華', 21]].map(([name, v]) => ({ name, votes: String(v) })),
-    sups: [['許秀英', 55], ['郭志強', 47], ['洪麗華', 39], ['曾國峰', 18]].map(([name, v]) => ({ name, votes: String(v) })) });
-  s.assembly.motions = [{ prop: '建請增設社區巡守隊夜間巡邏班次。', desc: '近期夜間治安事件增加。', res: '交由理事會研議辦理。' }];
-  Object.assign(s.board, { time: { ap: '上', h: '11', mi: '40' }, obs: '2', stdSupVotes: '3', chairVotes: '6', end: { ap: '下', h: '12', mi: '10' } });
-  Object.assign(s.cert, { birthplace: '屏東縣' });
-  Object.assign(s.consent, { landNo: '示範段123', ping: '30', from: { y: '115', m: '1', d: '1' }, lender: '陳大同', witness: '林美玲' });
-  Object.assign(s.statute, { boardDate: { y: '114', m: '12', d: '6' }, boardNo: '12' });
-  s.statute.rows = [
-    { orig: '章程全文條文內容涉及「左列」、「如左」。', rev: '取代為「下列」、「如下」。', note: '因應公文書格式改為直式橫書，原條文【左】修改為【下】。' },
-    { orig: '第八條　會員有下列情事之一者，為出會：\n一、喪失會員資格者（含死亡）。\n二、經會員大會決議除名者。', rev: '第八條　會員有下列情事之一者，為出會：\n一、喪失會員資格者（含死亡）。\n二、經會員大會決議除名者。\n三、會員未依規定繳納常年會費，予以停權，停權滿一年者視同出會。', note: '為保障持續參與本會運作之會員權益，凡未依規定繳納常年會費者依法本應停權，未繳納一整年度之常年會費，要再次參與本會運作之居民，需重新繳納入會費及常年會費。' },
-  ];
-  const pr = (cat, item, desc, qty, prog, cost) => ({ cat, item, desc, qty, prog, cost: String(cost), co: '', note: '' });
-  s.plan.rows = [
-    pr('會務推展', '會議', '1.召開會員大會', '1', '1月', 40000), pr('會務推展', '會議', '2.召開理監事會', '4', '1、4、7、10月', 10000), pr('會務推展', '檔案管理', '公文處理、文書建檔、登錄保管', '全年', '', 5000),
-    pr('公共建設', '道路', '路面維護', '全年', '', 5000), pr('公共建設', '排水溝', '排水溝清淤', '全年', '', 5000), pr('公共建設', '社區環境', '環境整理及綠美化', '全年', '', 5000), pr('公共建設', '活動中心', '管理及維護', '全年', '', 5000),
-    pr('業務推展', '兒童服務', '1.舉辦書法繪畫作文比賽活動', '1', '3月', 10000), pr('業務推展', '兒童服務', '2.舉辦趣味營活動', '1', '4月', 5000), pr('業務推展', '兒童服務', '3.購置兒童文物', '1', '5月', 5000),
-    pr('業務推展', '老人服務', '老人義診及健康檢查', '1', '10月', 90000), pr('業務推展', '婦女服務', '1.舉辦烹飪研習', '2', '3、12月', 20000), pr('業務推展', '婦女服務', '2.舉辦母親節活動', '1', '5月', 30000),
-  ];
-  const v = (k, b, pb, a) => { s.fin.v[k] = { b: String(b), pb: String(pb), a: String(a) }; };
-  v('i1', 10000, 10000, 10000); v('i2', 30000, 30000, 40000); v('i4', 20000, 20000, 20000); v('i51', 20000, 20000, 20000); v('i52', 20000, 20000, 20000);
-  v('e2_1', 5000, 5000, 4500); v('e2_2', 5000, 5000, 3500); v('e2_3', 10000, 10000, 9600); v('e2_4', 5000, 5000, 4600); v('e2_5', 5000, 5000, 4200);
-  v('e3_1', 20000, 20000, 15000); v('e3_5', 20000, 20000, 20000); v('e3_8', 20000, 20000, 20000); v('e10', 10000, 10000, 7000);
-  s.fin.prev = '16000';
-  s.fin.prop = [
-    { cat: '事務器械設備', name: '辦公桌、椅', date: '104年12月', unit: '組', qty: '2', amt: '12000', loc: '辦公室', note: '' },
-    { cat: '', name: '電腦', date: '110年3月', unit: '台', qty: '1', amt: '25000', loc: '辦公室', note: '' },
-    { cat: '雜項設備', name: '冰箱', date: '108年6月', unit: '台', qty: '1', amt: '8000', loc: '辦公室', note: '' },
-  ];
-  s.fin.bs = { '庫存現金': '7600', '銀行存款': '30000' };
-  Object.assign(s.letter, { no: '屏市示社字第1150000001號' });
-  s.ui.page = S.ui.page;
-  return s;
+/* ===== 從 Excel 貼上 ===== */
+const HDR = [['skip', /編號|序號|^No/i], ['idno', /身分證|身份證/], ['type', /類別|會員別|身分別/], ['role', /職別|職稱|職務/], ['gender', /性別/], ['birth', /出生|生日/], ['origin', /籍貫/], ['addr', /地址|住址/], ['phone', /電話|手機|聯絡/], ['job', /現職|職業|服務單位/], ['note', /備註/], ['name', /姓名|名稱|會員/]];
+function normRow(o) {
+  if (o.gender) o.gender = /女|F/i.test(o.gender) ? '女' : /男|M/i.test(o.gender) ? '男' : '';
+  if (o.type !== undefined) o.type = /團體/.test(o.type) ? '團體會員' : /贊助/.test(o.type) ? '贊助會員' : /停權/.test(o.type) ? '停權會員' : '個人會員';
+  if (o.role && !ROLES.includes(o.role)) { const r = ROLES.find(x => o.role.replace(/\s/g, '').includes(x)); o.role = r || o.role; }
+  return o;
+}
+function parsePaste(text, target) {
+  text = String(text || '').replace(/\r/g, '').trim(); if (!text) return [];
+  let lines = text.split('\n').map(l => l.replace(/\s+$/, '')).filter(l => l.trim());
+  if (lines.length === 1 && /[、，,;；]/.test(lines[0]) && !/\t/.test(lines[0])) lines = lines[0].split(/[、，,;；]/).map(s => s.trim()).filter(Boolean);
+  const split = l => l.includes('\t') ? l.split('\t') : (l.includes(',') ? l.split(',') : l.trim().split(/\s{2,}|　+|\s+/));
+  let rows = lines.map(split).map(r => r.map(c => c.trim()));
+  let map = null;
+  if (rows[0].some(c => HDR.some(([, re]) => re.test(c)))) { map = rows[0].map(c => (HDR.find(([, re]) => re.test(c)) || [null])[0]); rows = rows.slice(1); }
+  if (!map) {
+    const looksRole = rows.some(r => ROLES.includes(r[0]));
+    map = target === 'people' ? (looksRole ? ['role', 'name', 'gender', 'birth', 'job', 'idno', 'addr', 'phone'] : ['name', 'role', 'gender', 'birth', 'job', 'idno', 'addr', 'phone'])
+      : ['name', 'gender', 'birth', 'origin', 'addr', 'phone', 'type', 'note'];
+    if (rows.every(r => r.length === 1)) map = ['name'];
+  }
+  return rows.map(r => { const o = {}; r.forEach((c, i) => { const k = map[i]; if (k && k !== 'skip' && c) o[k] = c; }); return normRow(o); }).filter(o => o.name);
+}
+function openPaste(target) {
+  const m = $('#sheet');
+  m.innerHTML = `<div class="sbox"><h3>${icon('paste')}從 Excel／試算表貼上${target === 'people' ? '人員' : '會員'}</h3>
+    <p class="muted small">在 Excel 選取整個範圍（可含第一列標題）複製後，貼到下面。也可以只貼姓名，用換行或「、」分隔。</p>
+    <textarea id="pasteBox" rows="8" placeholder="${target === 'people' ? '職別\t姓名\t性別\t出生年月日\t現職\n理事長\t王大明\t男\t50/4/12\t自營商' : '姓名\t性別\t出生年月日\t地址\t電話\n王大明\t男\t50/4/12\t屏東市…\t0912…'}"></textarea>
+    <label class="btn ghost filebtn">${icon('up')}或選擇 Excel（.xlsx）／CSV 檔<input type="file" accept=".xlsx,.csv,.txt,.xls" data-import="${target}" hidden></label>
+    <div id="pastePv" class="pastepv muted small">尚未貼上資料</div>
+    <div class="row"><button class="btn ghost" data-cmd="sheetClose">取消</button><button class="btn pri" data-cmd="pasteDo" data-target="${target}" disabled>加入</button></div></div>`;
+  m.hidden = false; setTimeout(() => $('#pasteBox').focus(), 50);
+}
+function pastePreview(target) {
+  const rows = parsePaste($('#pasteBox').value, target), btn = $('[data-cmd=pasteDo]');
+  $('#pastePv').innerHTML = rows.length ? `辨識到 <b>${rows.length}</b> 筆：${esc(rows.slice(0, 8).map(r => r.name + (r.role ? `（${r.role}）` : '')).join('、'))}${rows.length > 8 ? '…' : ''}` : '尚未辨識到姓名';
+  btn.disabled = !rows.length; btn.textContent = rows.length ? `加入 ${rows.length} 筆` : '加入';
 }
 
-/* ===== 介面 ===== */
-function dlButtons(id) {
-  return [['docx', 'Word', 'w'], ['xlsx', 'Excel', 'x'], ['pdf', 'PDF', 'p']].map(([f, l, c]) => `<button type="button" class="dl ${c}" data-dl="${f}" data-doc="${id}"><span class="ic">${l[0]}</span>下載 ${l}</button>`).join('');
-}
-function docFor(id) {
-  if (id === 'all') return { title: '全部表單', sheets: ['letter', 'assembly', 'board', 'roster', 'cert', 'consent', 'statute', 'plan'].flatMap(k => DOCS[k]().sheets).concat(docFinance(true).sheets) };
-  if (id === 'basic') return { title: '基本資料', sheets: [...DOCS.letter().sheets, ...DOCS.roster().sheets] };
-  return DOCS[id]();
-}
-function renderNav() {
-  const issues = checks();
-  $('#nav').innerHTML = PAGES.map((p, i) => {
-    const n = issues.filter(c => c.page === p.id && c.lv === 'warn').length;
-    return `<button type="button" data-page="${p.id}" class="${S.ui.page === p.id ? 'on' : ''}"><span class="no">${i === 0 ? '●' : i}</span><span class="tx"><b>${p.t}</b>${p.s ? `<small>${p.s}</small>` : ''}</span>${n ? `<span class="warn" title="有 ${n} 項需要確認">!</span>` : ''}</button>`;
-  }).join('') + `<div class="navfoot">🔒 填寫的資料只存在您自己的瀏覽器，不會上傳到任何伺服器。換電腦或交接請用「備份資料」。<br>本工具為協助填報之輔助網頁，非政府機關官方網站；送件格式以主管機關規定為準。</div>`;
-  $('#orgName').textContent = S.basic.org ? orgFull() : '尚未填寫團體名稱';
-}
-function renderPage() {
-  const id = S.ui.page, pg = PAGES.find(p => p.id === id) || PAGES[0];
-  $('#ptitle').textContent = pg.t;
-  $('#pdl').innerHTML = id === 'basic' ? '' : dlButtons(id);
-  $('#form').innerHTML = UI[pg.id]();
-  refreshLinked(); refreshCalc(); renderChecks();
-  renderNav(); renderPreview();
-  $('#formcol').scrollTop = 0;
-}
-function refreshLinked() {
-  $$('#form [data-p]').forEach(el => {
-    const p = el.dataset.p, part = el.dataset.part;
-    if (el.type === 'checkbox' || el.tagName === 'SELECT') return;
-    if (!D[p] && el.dataset.ph == null) return;
-    let ph = el.dataset.ph || '';
-    if (D[p]) { let d = ''; try { d = D[p](); } catch (e) { } if (part) d = d && d[part]; if (d != null && d !== '') ph = String(d); }
-    el.placeholder = ph;
-  });
-  $$('#form [data-reset]').forEach(b => { b.closest('.f, label')?.closest('.f')?.classList.toggle('ov', !isEmptyVal(getp(S, b.dataset.reset))); });
-}
-function refreshCalc() { $$('#form [data-calc]').forEach(el => { el.innerHTML = calcVal(el.dataset.calc); }); }
-function renderChecks() {
-  const el = $('#checks'); if (!el) return;
-  const cs = checks();
-  el.innerHTML = cs.length ? `<div class="checks"><b>檢核提醒</b>${cs.map(c => `<div class="${c.lv}"><a href="#" data-page="${c.page}">${PAGES.find(p => p.id === c.page).t}</a>　${esc(c.t)}</div>`).join('')}</div>` : '<div class="checks okb">✓ 目前沒有需要確認的檢核項目</div>';
-}
-let pvTimer = null;
-function renderPreview() {
-  clearTimeout(pvTimer);
-  pvTimer = setTimeout(() => {
-    const id = S.ui.page;
-    let doc; try { doc = docFor(id); } catch (e) { console.error(e); return; }
-    const box = $('#preview');
-    box.innerHTML = doc.sheets.map(sheetHTML).join('');
-    fitPreview();
-    $('#pvinfo').textContent = `${doc.sheets.length} 頁表單・A4`;
-  }, 120);
-}
-function fitPreview() { const col = $('#prevcol'), box = $('#preview'); if (!col || !box) return; const w = col.clientWidth - 40; box.style.zoom = Math.min(1, w / 794).toFixed(3); }
-window.addEventListener('resize', fitPreview);
-
-/* 互動 */
-function onInput(e) {
-  const el = e.target; const p = el.dataset && el.dataset.p; if (!p) return;
-  let val = el.type === 'checkbox' ? el.checked : el.value;
-  if (el.dataset.part) { const o = { ...(getp(S, p) || {}) }; o[el.dataset.part] = val; setp(S, p, o); }
-  else setp(S, p, val);
-  save();
-  if (el.dataset.rr) { renderPage(); return; }
-  refreshLinked(); refreshCalc(); renderChecks(); renderPreview();
-  if (p.startsWith('basic.org') || p.startsWith('basic.town') || p.startsWith('basic.county')) renderNav();
-  clearTimeout(onInput.nt); onInput.nt = setTimeout(renderNav, 600);
-}
-function listOp(act, path, i) {
-  const arr = getp(S, path) || []; i = +i;
-  if (act === 'add') { arr.push({}); setp(S, path, arr); }
-  if (act === 'del') arr.splice(i, 1);
-  if (act === 'up' && i > 0) [arr[i - 1], arr[i]] = [arr[i], arr[i - 1]];
-  if (act === 'down' && i < arr.length - 1) [arr[i + 1], arr[i]] = [arr[i], arr[i + 1]];
-  save(); renderPage();
-  if (act === 'add') { const rows = $$(`#form [data-p^="${path}.${arr.length - 1}."]`); if (rows[0]) rows[0].focus(); }
-}
+/* ===== 指令 ===== */
 const CMDS = {
-  fromElection() {
-    const E = S.assembly.el;
-    const dr = elResult(E.dirs, V('assembly.el.dirSeats'), V('assembly.el.dirAlt')), sr = elResult(E.sups, V('assembly.el.supSeats'), V('assembly.el.supAlt'));
-    if (!dr.all.length && !sr.all.length) { toast('請先在「會員大會會議紀錄 › 選舉」輸入候選人與得票數', 'err'); return; }
+  menu() {
+    const m = $('#sheet');
+    m.innerHTML = `<div class="sbox menu"><h3>更多</h3>
+      <button data-cmd="sample">${icon('doc')}<span><b>載入範例資料</b><small>看看填好的樣子（會覆蓋目前資料）</small></span></button>
+      ${cloudReady() ? `<button data-cmd="cloud">${icon('cloud')}<span><b>雲端存檔（Google 帳號）</b><small>${cloudOn() ? `已連線${S.cloud.email ? '：' + esc(S.cloud.email) : ''}` : '登入後自動存到自己的雲端硬碟，換裝置也能接著填'}</small></span></button>` : ''}
+      <button data-cmd="backup">${icon('dl')}<span><b>備份資料</b><small>下載 .json 檔，換裝置或交接時使用${(S.meta || {}).lastBackup ? `（上次 ${fmtTime(S.meta.lastBackup)}）` : ''}</small></span></button>
+      ${canShareFiles() ? `<button data-cmd="share">${icon('up')}<span><b>分享備份檔</b><small>寄到自己的電子信箱、存到雲端硬碟或 LINE</small></span></button>` : ''}
+      <button data-cmd="restore">${icon('up')}<span><b>還原資料</b><small>讀取之前備份的 .json 檔</small></span></button>
+      <button data-cmd="sealOpen">${icon('stamp')}<span><b>電子印章與簽名</b><small>上傳印章、手寫簽名，文件自動核章</small></span></button>
+      <button data-go="help">${icon('info')}<span><b>會務事項一覽表</b><small>報核、報備期限與法規依據</small></span></button>
+      <button data-cmd="clear" class="danger">${icon('x')}<span><b>清除全部資料</b><small>清除這個瀏覽器裡的填寫內容</small></span></button>
+      <p class="muted small">${cloudReady() ? '資料預設只存在這個瀏覽器；登入 Google 帳號後，會另存一份到您自己的雲端硬碟，本網站不會保存您的資料。' : '資料只存在這個瀏覽器，不會上傳。'}本網頁為協助填報的輔助工具，送件格式以主管機關規定為準。</p>
+      <div class="row"><button class="btn ghost" data-cmd="sheetClose">關閉</button></div></div>`;
+    m.hidden = false;
+  },
+  sheetClose() { $('#sheet').hidden = true; },
+  paste(t) { openPaste(t.dataset.target); },
+  pasteDo(t) {
+    const target = t.dataset.target, rows = parsePaste($('#pasteBox').value, target);
+    if (target === 'people') rows.forEach(r => S.people.push({ role: r.role || '理事', name: r.name, gender: r.gender || '', birth: r.birth || '', job: r.job || '', idno: r.idno || '', addr: r.addr || '', phone: r.phone || '' }));
+    else { const have = new Set(S.members.map(m => (m.name || '').trim())); rows.forEach(r => { if (!have.has(r.name)) S.members.push({ name: r.name, type: r.type || '個人會員', gender: r.gender || '', birth: r.birth || '', origin: r.origin || '', addr: r.addr || '', phone: r.phone || '', note: r.note || '' }); }); }
+    save(); $('#sheet').hidden = true; rerenderSection(); toast(`已加入 ${rows.length} 筆`);
+  },
+  clearMembers: async () => { if (await ask(`確定清空會員名冊（${S.members.length} 筆）？`)) { S.members = []; save(); rerenderSection(); } },
+  candFromPeople(t) {
+    const mk = t.dataset.mk, el = M(mk).el || (M(mk).el = {});
+    const mk2 = roles => names(roles).map(name => ({ name, votes: '' }));
+    let n = 0;
+    if (!(el.dirs || []).some(c => !isBlank(c.name))) { el.dirs = mk2([...DIR_ROLES, '候補理事']); n += el.dirs.length; }
+    if (!(el.sups || []).some(c => !isBlank(c.name))) { el.sups = mk2([...SUP_ROLES, '候補監事']); n += el.sups.length; }
+    save(); rerenderSection(); toast(n ? `已帶入 ${n} 位候選人，請輸入得票數` : '候選人名單已有資料，未變更');
+  },
+  applyElection(t) {
+    const mk = t.dataset.mk, { dr, sr } = elOf(mk);
+    if (!dr.all.length && !sr.all.length) { toast('請先輸入候選人與得票數', 'err'); return; }
     let add = 0, upd = 0;
-    const put = (name, role, keep) => {
-      const r = S.roster.find(x => x.name === name);
-      if (r) { if (!(keep.includes(r.role))) { if (r.role !== role) upd++; r.role = role; } }
-      else { S.roster.push({ role, name }); add++; }
-    };
-    dr.win.forEach(c => put(c.name, '理事', ['理事長', '常務理事', '理事']));
-    dr.alt.forEach(c => put(c.name, '候補理事', ['候補理事']));
-    sr.win.forEach(c => put(c.name, '監事', ['常務監事', '監事']));
-    sr.alt.forEach(c => put(c.name, '候補監事', ['候補監事']));
-    save(); renderPage(); toast(`一覽表已更新：新增 ${add} 人、變更職別 ${upd} 人。理事長、常務理監事請在一覽表調整。`);
+    const put = (name, role, keep) => { const r = S.people.find(x => (x.name || '').trim() === name); if (r) { if (!keep.includes(r.role) && r.role !== role) { r.role = role; upd++; } } else { S.people.push({ role, name }); add++; } };
+    dr.win.forEach(c => put(c.name, '理事', DIR_ROLES)); dr.alt.forEach(c => put(c.name, '候補理事', ['候補理事']));
+    sr.win.forEach(c => put(c.name, '監事', SUP_ROLES)); sr.alt.forEach(c => put(c.name, '候補監事', ['候補監事']));
+    const elected = new Set([...dr.win, ...dr.alt, ...sr.win, ...sr.alt].map(c => c.name));
+    const out = S.people.filter(p => [...DIR_ROLES, ...SUP_ROLES, '候補理事', '候補監事'].includes(p.role) && !elected.has((p.name || '').trim()));
+    save(); rerenderSection();
+    toast(`人員名單已更新：新增 ${add} 人、變更職別 ${upd} 人。${out.length ? `另有 ${out.length} 位原理監事未當選，請到人員名單調整。` : ''}理事長、常務理監事請在選後理監事會選出後調整。`);
   },
-  candFromRoster() {
-    const E = S.assembly.el;
-    const mk = roles => names(roles).map(name => ({ name, votes: '' }));
-    if (!E.dirs.length) E.dirs = mk([...DIR_ROLES, '候補理事']);
-    if (!E.sups.length) E.sups = mk([...SUP_ROLES, '候補監事']);
-    save(); renderPage(); toast('已帶入候選人（只補空白的名單），請輸入得票數');
-  },
-  async sample() {
-    if (!(await ask('載入範例資料？目前填寫的內容會被範例取代。建議先「備份資料」。'))) return;
-    S = sampleState(); save(); renderPage(); toast('已載入範例資料');
-  },
-  async clear() {
-    if (!(await ask('清除全部填寫內容？此動作無法復原，建議先「備份資料」。'))) return;
-    const page = S.ui.page; S = blankState(); S.ui.page = page; save(); renderPage(); toast('已清除');
-  },
+  async sample() { $('#sheet').hidden = true; if (!(await ask('載入範例資料會覆蓋目前填寫的內容，建議先備份。確定載入？'))) return; const ui = { ...S.ui }, cl = S.cloud; S = sampleState(); S.ui = { ...S.ui, view: ui.view, scen: ui.scen, step: ui.step, large: ui.large }; S.cloud = cl; S.meta = { ...(S.meta || {}), sample: true }; save(); render(); toast(cloudOn() ? '已載入範例資料（範例資料不會上傳到雲端）' : '已載入範例資料'); },
   async backup() {
-    const name = `${orgShort()}_填報資料備份_${new Date().toISOString().slice(0, 10)}.json`;
-    await saveFile(name, new Blob([JSON.stringify(S, null, 1)], { type: 'application/json' }));
+    $('#sheet').hidden = true;
+    const seals = S.seals.length && await ask('備份檔要一併包含印章圖檔嗎？\n換裝置時需要；含印章的備份檔請妥善保管，不要交給他人。', { ok: '包含印章', no: '不含印章' });
+    if (await saveFile(`${orgShort()}_會務填報備份_${isoToday()}.json`, await backupBlob(seals))) { S.meta.lastBackup = Date.now(); save({ keepTime: true }); if (S.ui.view === 'home') render(); }
   },
-  restore() { $('#fileIn').click(); },
+  async share() { $('#sheet').hidden = true; await shareBackup(); if (S.ui.view === 'home') render(); },
+  cloud() {
+    const m = $('#sheet'), on = cloudOn();
+    m.innerHTML = `<div class="sbox cloudbox"><h3>${icon('cloud')}雲端存檔（Google 帳號）</h3>
+      <p class="muted small">資料會存在<b>您自己的 Google 雲端硬碟</b>中，本網站專用、看不到其他檔案的空間；其他應用程式和本網站管理者都看不到。換手機或電腦時，登入同一個帳號就能接著填。上傳的附件不會同步，請另外保存。</p>
+      ${on ? `<div class="cstat"><b>${esc(S.cloud.email || 'Google 帳號')}</b><small>${CLOUD.st === 'ok' ? `已同步（${fmtTime(CLOUD.at || S.meta.lastCloud)}）` : CLOUD.st === 'busy' ? '同步中…' : CLOUD.st === 'auth' ? '需要重新連線（為了安全，每次開啟網頁要點一下連線）' : CLOUD.st === 'err' ? '同步失敗：' + esc(CLOUD.err) : ''}</small></div>
+        <label class="sw"><input type="checkbox" data-cloudseals="1"${S.cloud.seals ? ' checked' : ''}><span class="swt"></span>電子印章也存到雲端</label>
+        <div class="row">${CLOUD.st === 'auth' ? `<button class="btn pri" data-cmd="cloudIn">${icon('cloud')}重新連線</button>` : `<button class="btn pri" data-cmd="cloudNow">${icon('check')}立即同步</button>`}<button class="btn ghost" data-cmd="cloudOut">登出</button></div>`
+      : `<div class="row"><button class="btn pri gbtn" data-cmd="cloudIn"><span class="g">G</span>使用 Google 帳號登入</button></div>`}
+      <div class="row"><button class="btn ghost" data-cmd="sheetClose">關閉</button></div></div>`;
+    m.hidden = false;
+  },
+  cloudIn() { cloudSignIn(); },
+  cloudNow() { cloudSync(true); },
+  cloudOut() { cloudSignOut(); },
+  merge() { mergedPdf(S.ui.scen); },
+  sealOpen() { $('#sheet').hidden = true; sealOpen('lib'); },
+  restore() { $('#sheet').hidden = true; $('#fileIn').click(); },
+  async clear() {
+    $('#sheet').hidden = true; if (!(await ask('確定清除全部填寫內容、印章與上傳的附件？此動作無法復原，建議先備份。'))) return;
+    const large = S.ui.large, cl = S.cloud; S = blankState(); S.ui.large = large; S.cloud = cl;
+    await IDBX.run('files', 'readwrite', st => st.clear()); await IDBX.run('img', 'readwrite', st => st.clear()); SEALC.clear(); FILEC.clear();
+    save(); render(); toast('已清除');
+  },
+  pvOpen() { const list = pvDocs(S.ui.scen).length ? pvDocs(S.ui.scen) : selDocs(S.ui.scen).filter(x => x.kind !== 'attach'); if (list.length) openPreview(list.some(x => x.id === S.ui.pvDoc) ? S.ui.pvDoc : list[0].id); },
+  pvClose() { closePreview(); },
+  toPost() { const sc = S.ui.scen; S.batch = S.batch || {}; S.batch[sc] = { pre: false, post: true }; S.ui.step = 'docs'; save(); render(); window.scrollTo({ top: 0 }); toast('已切換到「② 會後：會議紀錄送件」'); },
+  async ics(t) {
+    const sc = t.dataset.scen, today = isoToday();
+    const list = (sc ? deadlines(sc).map(x => ({ ...x, sc })) : allUpcoming(400)).filter(x => x.when && x.kind !== 'none' && daysBetween(today, x.when) >= 0);
+    if (!list.length) { toast('目前沒有尚未到期的期限', 'err'); return; }
+    const blob = new Blob([makeIcs(list)], { type: 'text/calendar' });
+    await saveFile(`${orgShort()}_會務期限${sc ? '_' + SCEN[sc].title : ''}.ics`, blob);
+  },
 };
+/* ===== 行事曆（.ics） ===== */
+function icsEsc(s) { return String(s).replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\n/g, '\\n'); }
+function icsFold(line) {
+  const enc = new TextEncoder(); const out = []; let cur = '', n = 0;
+  for (const ch of line) { const b = enc.encode(ch).length; if (n + b > 73) { out.push(cur); cur = ' ' + ch; n = 1 + b; } else { cur += ch; n += b; } }
+  out.push(cur); return out.join('\r\n');
+}
+function makeIcs(list) {
+  const ymd = iso => iso.replace(/-/g, ''), stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+/, '');
+  const org = orgFull() || '本會';
+  const L = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//pthg-assoc-forms//ZH-TW', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH', 'X-WR-CALNAME:' + icsEsc(org + ' 會務期限')];
+  list.forEach((x, i) => {
+    const title = x.kind === 'day' ? `${org}：${x.what}` : `【期限】${x.what}`;
+    L.push('BEGIN:VEVENT', `UID:${ymd(x.when)}-${i}-${Math.abs([...x.what].reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 7))}@pthg-assoc-forms`, `DTSTAMP:${stamp}`,
+      `DTSTART;VALUE=DATE:${ymd(x.when)}`, `DTEND;VALUE=DATE:${ymd(addDays(x.when, 1))}`, 'SUMMARY:' + icsEsc(title),
+      'DESCRIPTION:' + icsEsc(`${SCEN[x.sc] ? SCEN[x.sc].title + '\n' : ''}${x.what}\n（由會務文件線上填報產生，期限以主管機關規定為準）`),
+      'BEGIN:VALARM', 'TRIGGER:-P3D', 'ACTION:DISPLAY', 'DESCRIPTION:' + icsEsc('3天後：' + x.what), 'END:VALARM',
+      'BEGIN:VALARM', 'TRIGGER:-PT15H', 'ACTION:DISPLAY', 'DESCRIPTION:' + icsEsc('明天：' + x.what), 'END:VALARM', 'END:VEVENT');
+  });
+  L.push('END:VCALENDAR');
+  return L.map(icsFold).join('\r\n') + '\r\n';
+}
 $('#fileIn').addEventListener('change', async e => {
   const f = e.target.files[0]; if (!f) return;
-  try { const data = JSON.parse(await f.text()); if (!data || !data.basic) throw new Error('格式不符'); S = merge(blankState(), data); save(); renderPage(); toast('已還原資料：' + f.name); }
+  try {
+    const data = JSON.parse(await f.text()); if (!data || !data.org) throw new Error('不是本系統的備份檔');
+    const imgs = data.sealImgs || {}; delete data.sealImgs;
+    S = merge(blankState(), data); if (S.meta) delete S.meta.sample;
+    for (const [id, r] of Object.entries(imgs)) if (r && r.png) await SealDB.put(id, r);
+    S.seals.forEach(s => sealCacheClear(s.id)); save(); render(); toast('已還原：' + f.name + (Object.keys(imgs).length ? `（含 ${Object.keys(imgs).length} 個印章）` : ''));
+  }
   catch (err) { toast('無法讀取這個檔案：' + err.message, 'err'); }
   e.target.value = '';
 });
 
-document.addEventListener('input', onInput);
-document.addEventListener('change', e => { if (e.target.type === 'checkbox' || e.target.tagName === 'SELECT') onInput(e); });
-document.addEventListener('click', async e => {
-  const t = e.target.closest('button, a'); if (!t) return;
-  if (t.dataset.page) { e.preventDefault(); S.ui.page = t.dataset.page; save(); renderPage(); document.body.classList.remove('navopen'); return; }
-  if (t.dataset.reset) { const v = getp(S, t.dataset.reset); setp(S, t.dataset.reset, (v && typeof v === 'object') ? {} : ''); save(); renderPage(); return; }
-  if (t.dataset.act) { listOp(t.dataset.act, t.dataset.list, t.dataset.i); return; }
-  if (t.dataset.fintab) { S.ui.finTab = t.dataset.fintab; save(); renderPage(); return; }
-  if (t.dataset.cmd) { CMDS[t.dataset.cmd](); return; }
-  if (t.dataset.dl) {
-    const id = t.dataset.doc, doc = docFor(id === 'basic' ? 'all' : id);
-    if (!doc.sheets.length) { toast('沒有選擇要輸出的報表', 'err'); return; }
-    const pg = PAGES.find(p => p.id === id);
-    const name = `${orgShort()}_${id === 'all' ? '全部表單' : id === 'finance' ? `${O(Y(), '')}年度財務報表` : pg.t}`;
-    t.disabled = true; await exportDoc(doc, t.dataset.dl, name); t.disabled = false; return;
-  }
-  if (t.id === 'navToggle') document.body.classList.toggle('navopen');
-  if (t.id === 'pvToggle') { document.body.classList.toggle('pvopen'); fitPreview(); }
-});
+/* ===== 局部重繪 ===== */
+function rerenderSection() {
+  if (S.ui.view !== 'scen' || S.ui.step !== 'fill') { render(); return; }
+  const k = S.ui.open, sec = document.getElementById('sec-' + k.replace(/[:.]/g, '-')); if (!sec) { render(); return; }
+  const sb = sec.querySelector('.sb'); if (!sb) { render(); return; }
+  const y = window.scrollY;
+  sb.innerHTML = k.startsWith('m:') ? meetSection(k.slice(2)) : SEC[k]();
+  refreshLive(); renderSide(); window.scrollTo({ top: y });
+}
+function listOp(act, path, i, tpl) {
+  const arr = getp(S, path) || []; i = +i;
+  if (act === 'add') { const item = tpl ? JSON.parse(tpl) : {}; arr.push(item); setp(S, path, arr); OPEN.add(`${path}.${arr.length - 1}`); }
+  if (act === 'del') { arr.splice(i, 1); [...OPEN].forEach(k => { if (k.startsWith(path + '.')) OPEN.delete(k); }); }
+  if (act === 'up' && i > 0) [arr[i - 1], arr[i]] = [arr[i], arr[i - 1]];
+  if (act === 'down' && i < arr.length - 1) [arr[i + 1], arr[i]] = [arr[i], arr[i + 1]];
+  save(); rerenderSection();
+  if (act === 'add') { const el = document.querySelector(`[data-key="${path}.${arr.length - 1}"] input, [data-key="${path}.${arr.length - 1}"] select, [data-key="${path}.${arr.length - 1}"] textarea`); if (el) { el.focus({ preventScroll: true }); el.scrollIntoView({ block: 'center', behavior: 'smooth' }); } else { const rows = $$(`[data-p^="${path}.${arr.length - 1}."]`); if (rows[0]) rows[0].focus(); } }
+}
 
-/* 提示、忙碌、確認 */
+/* ===== 事件 ===== */
+function onInput(e) {
+  const el = e.target;
+  if (el.id === 'pasteBox') { pastePreview($('[data-cmd=pasteDo]').dataset.target); return; }
+  const p = el.dataset && el.dataset.p; if (!p) return;
+  const val = el.type === 'checkbox' ? el.checked : el.value;
+  setp(S, p, val);
+  if (p.startsWith('ui.')) { save(); render(); return; }
+  save();
+  if (el.dataset.rr) { render(); return; }
+  refreshLive(); renderSide();
+}
+document.addEventListener('input', onInput);
+document.addEventListener('change', e => { if (e.target.type === 'checkbox' && e.target.dataset.sel) return; if (e.target.matches('select[data-p], input[type=checkbox][data-p], input[type=date], input[type=time]')) onInput(e); });
+document.addEventListener('change', e => {
+  const t = e.target;
+  if (t.dataset.sel) { const sc = S.ui.scen; S.sel[sc] = S.sel[sc] || {}; S.sel[sc][t.dataset.sel] = t.checked; save(); t.closest('.docrow').classList.toggle('on', t.checked); const n = selDocs(sc).filter(x => x.kind !== 'attach').length; $('#dock .dk-t b').textContent = n; $('#steps').innerHTML = stepsBar(); }
+  if (t.dataset.pvsel) { S.ui.pvDoc = t.value; save(); renderSide(); }
+  if (t.dataset.cloudseals) { S.cloud.seals = t.checked; save({ keepTime: true, noCloud: true }); if (t.checked) cloudPush(); }
+  if (t.dataset.pvopen) { openPreview(t.value); }
+});
+document.addEventListener('toggle', e => { const d = e.target; if (d.dataset && d.dataset.det) { if (d.open) OPEN.add(d.dataset.det); else OPEN.delete(d.dataset.det); } }, true);
+document.addEventListener('click', async e => {
+  const t = e.target.closest('button, a[data-go], [data-go]'); if (!t) return;
+  const ds = t.dataset;
+  if (t.id === 'back') { if ($('#pv').hidden === false) { closePreview(); return; } S.ui.view = 'home'; save(); render(); return; }
+  if (t.id === 'fontBtn') { S.ui.large = !S.ui.large; save(); document.documentElement.classList.toggle('large', S.ui.large); t.setAttribute('aria-pressed', S.ui.large); return; }
+  if (t.id === 'menuBtn') { CMDS.menu(); return; }
+  if (t.id === 'cloudChip') { cloudChipClick(); return; }
+  if (ds.go) { e.preventDefault(); $('#sheet').hidden = true; S.ui.view = ds.go === 'scen' ? 'scen' : ds.go; if (ds.scen) { if (S.ui.scen !== ds.scen) { S.ui.step = 'docs'; S.ui.open = ''; } S.ui.scen = ds.scen; } save(); render(); return; }
+  if (ds.step) { S.ui.step = ds.step; save(); render(); return; }
+  if (ds.batch) { const sc = S.ui.scen, on = batchOn(sc); setBatch(sc, ds.batch, !on[ds.batch]); save(); render(); return; }
+  if (ds.open) {
+    const was = S.ui.open; S.ui.open = was === ds.open && t.classList.contains('sh') ? '' : ds.open; save(); renderFill();
+    const el = document.getElementById('sec-' + ds.open.replace(/[:.]/g, '-')); if (el && S.ui.open) { const top = el.getBoundingClientRect().top + window.scrollY - (document.querySelector('.bar').offsetHeight + document.querySelector('#steps').offsetHeight + 8); window.scrollTo({ top, behavior: 'smooth' }); }
+    return;
+  }
+  if (ds.toggle) { if (OPEN.has(ds.toggle)) OPEN.delete(ds.toggle); else OPEN.add(ds.toggle); rerenderSection(); return; }
+  if (ds.act) { listOp(ds.act, ds.list, ds.i, ds.tpl); return; }
+  if (ds.reset) { const v = getp(S, ds.reset); setp(S, ds.reset, ''); save(); rerenderSection(); return; }
+  if (ds.setp) { setp(S, ds.setp, ds.val); save(); if (ds.rr || ds.setp.startsWith('ui.')) render(); else { t.parentElement.querySelectorAll('button').forEach(b => { b.classList.toggle('on', b === t); b.setAttribute('aria-checked', b === t); }); refreshLive(); renderSide(); } return; }
+  if (ds.chip) { setp(S, ds.target, ds.chip); save(); const inp = document.querySelector(`[data-p="${ds.target}"]`); if (inp) inp.value = ds.chip; refreshLive(); renderSide(); return; }
+  if (ds.fintab) { S.ui.finTab = ds.fintab; save(); rerenderSection(); return; }
+  if (ds.cmd) { await CMDS[ds.cmd](t); return; }
+  if (ds.pv) { openPreview(ds.pv); return; }
+  if (ds.dl) {
+    const sc = S.ui.scen, x = docById(sc, ds.dl); if (!x) return;
+    t.disabled = true; await exportDoc(keyed(sc, x), ds.fmt, `${orgShort()}_${SCEN[sc].title}_${x.name}`); t.disabled = false; return;
+  }
+  if (ds.zip) {
+    const sc = S.ui.scen, items = selDocs(sc).filter(x => x.kind !== 'attach' || upList(sc, x).length).map(x => ({ name: x.name, doc: x.kind === 'attach' ? null : keyed(sc, x), files: upList(sc, x).length ? () => upBlobs(sc, x) : null }));
+    items.push({ name: '送件檢核表', doc: docChecklist(sc) });
+    t.disabled = true; await exportZip(items, ds.zip, `${orgShort()}_${SCEN[sc].title}_${batchLabel(sc)}_${FMT_NAME[ds.zip]}`); t.disabled = false; return;
+  }
+  if (ds.hb) {
+    const sc = S.ui.scen, hb = selDocs(sc).filter(x => x.hb && x.kind !== 'attach');
+    const doc = { title: '會員大會手冊', sheets: hb.flatMap(x => keyed(sc, x).sheets) };
+    t.disabled = true; await exportDoc(doc, ds.hb, `${orgShort()}_${SCEN[sc].title}_大會手冊`); t.disabled = false; return;
+  }
+});
+window.addEventListener('resize', () => { clearTimeout(window.__rz); window.__rz = setTimeout(() => { renderSide(); const p = $('#pv .pages'); if (p && !$('#pv').hidden) fitPages(p); }, 150); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { if (!$('#pv').hidden) closePreview(); else if (!$('#sheet').hidden) $('#sheet').hidden = true; } });
+
+/* ===== 提示、忙碌、確認 ===== */
 function toast(msg, kind) {
-  const el = document.createElement('div'); el.className = 'toast' + (kind === 'err' ? ' err' : ''); el.textContent = msg;
-  $('#toasts').appendChild(el); setTimeout(() => el.classList.add('out'), 3800); setTimeout(() => el.remove(), 4300);
+  const el = document.createElement('div'); el.className = 'toast' + (kind === 'err' ? ' err' : ''); el.textContent = msg; el.setAttribute('role', 'status');
+  $('#toasts').appendChild(el); setTimeout(() => el.classList.add('out'), 4200); setTimeout(() => el.remove(), 4700);
 }
-function showBusy(msg) {
-  const el = $('#busy'); el.querySelector('span').textContent = msg; el.hidden = false;
-  return { set: m => el.querySelector('span').textContent = m, done: () => el.hidden = true };
-}
-function ask(msg) {
+function showBusy(msg) { const el = $('#busy'); el.querySelector('span').textContent = msg; el.hidden = false; return { set: m => el.querySelector('span').textContent = m, done: () => el.hidden = true }; }
+function ask(msg, lab = {}) {
   return new Promise(res => {
     const m = $('#modal'); m.querySelector('p').textContent = msg; m.hidden = false;
-    const done = v => { m.hidden = true; ok.onclick = no.onclick = null; res(v); };
     const ok = m.querySelector('.ok'), no = m.querySelector('.no');
+    ok.textContent = lab.ok || '確定'; no.textContent = lab.no || '取消';
+    const done = v => { m.hidden = true; ok.onclick = no.onclick = null; res(v); };
     ok.onclick = () => done(true); no.onclick = () => done(false);
   });
 }
 
-if (!['basic', ...PAGES.map(p => p.id)].includes(S.ui.page)) S.ui.page = 'basic';
-renderPage();
+/* ===== 啟動 ===== */
+if (!['home', 'scen', 'help'].includes(S.ui.view)) S.ui.view = 'home';
+if (S.ui.view === 'scen' && !SCEN[S.ui.scen]) S.ui.view = 'home';
+render();
 dlNS();
+sealsLoad();
+cloudInit();

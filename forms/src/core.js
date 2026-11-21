@@ -16,19 +16,52 @@ function cn(n) {
 const FW = '　';
 const O = (v, ph = '○○○') => (v === '' || v == null) ? ph : String(v);
 const BL = (v, n = 2) => (v === '' || v == null) ? FW.repeat(n) : String(v);
-const isBlank = v => v == null || (typeof v === 'string' && v.trim() === '');
-function rd(d, n = 2) { d = d || {}; return `${BL(d.y, n)}年${BL(d.m, 1)}月${BL(d.d, 1)}日`; }
-function rdOrBlank(d) { d = d || {}; return (!d.y && !d.m && !d.d) ? '' : rd(d); }
-function rt(t) { t = t || {}; return `${t.ap || FW}午${BL(t.h, 1)}時${BL(t.mi, 1)}分`; }
-function dateEmpty(d) { return !d || (isBlank(d.y) && isBlank(d.m) && isBlank(d.d)); }
-function rocAddYearsMinusDay(d, years) {
-  if (!d || !hasNum(d.y) || !hasNum(d.m) || !hasNum(d.d)) return null;
-  const dt = new Date(num(d.y) + 1911 + num(years), num(d.m) - 1, num(d.d));
-  dt.setDate(dt.getDate() - 1);
-  return { y: String(dt.getFullYear() - 1911), m: String(dt.getMonth() + 1), d: String(dt.getDate()) };
-}
-function todayRoc() { const t = new Date(); return { y: String(t.getFullYear() - 1911), m: String(t.getMonth() + 1), d: String(t.getDate()) }; }
+const isBlank = v => v == null || (typeof v === 'string' && v.trim() === '') || (Array.isArray(v) && !v.length);
+const pad2 = n => String(n).padStart(2, '0');
+const uid = () => Math.random().toString(36).slice(2, 9);
 
+/* ===== 日期（民國） ===== */
+function isoToday() { const t = new Date(); return `${t.getFullYear()}-${pad2(t.getMonth() + 1)}-${pad2(t.getDate())}`; }
+function parseDate(v) {
+  if (!v) return null;
+  if (typeof v === 'object') return (v.y && v.m && v.d) ? v : null;
+  const s = String(v).trim();
+  let m = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(s);
+  if (m) return { y: +m[1] - 1911, m: +m[2], d: +m[3] };
+  m = /^(?:民國)?\s*(\d{2,4})\s*[\/.\-年]\s*(\d{1,2})\s*[\/.\-月]\s*(\d{1,2})\s*日?$/.exec(s);
+  if (!m) m = /^(\d{2,3})(\d{2})(\d{2})$/.exec(s);
+  if (!m) return null;
+  let y = +m[1]; if (y > 1911) y -= 1911;
+  if (+m[2] < 1 || +m[2] > 12 || +m[3] < 1 || +m[3] > 31) return null;
+  return { y, m: +m[2], d: +m[3] };
+}
+function toIso(v) { const d = parseDate(v); return d ? `${d.y + 1911}-${pad2(d.m)}-${pad2(d.d)}` : ''; }
+function addDays(v, n) {
+  const d = parseDate(v); if (!d) return '';
+  const dt = new Date(d.y + 1911, d.m - 1, d.d); dt.setDate(dt.getDate() + n);
+  return `${dt.getFullYear()}-${pad2(dt.getMonth() + 1)}-${pad2(dt.getDate())}`;
+}
+function addYearsMinusDay(v, years) {
+  const d = parseDate(v); if (!d) return '';
+  const dt = new Date(d.y + 1911 + num(years), d.m - 1, d.d); dt.setDate(dt.getDate() - 1);
+  return `${dt.getFullYear()}-${pad2(dt.getMonth() + 1)}-${pad2(dt.getDate())}`;
+}
+/** 115年3月7日；空白時以全形空白留位 */
+function rd(v, blankY = 3) { const d = parseDate(v); return d ? `${d.y}年${d.m}月${d.d}日` : `${FW.repeat(blankY)}年${FW.repeat(2)}月${FW.repeat(2)}日`; }
+function rdOr(v, alt = '') { return parseDate(v) ? rd(v) : alt; }
+function rdDot(v) { const d = parseDate(v); return d ? `${d.y}.${pad2(d.m)}.${pad2(d.d)}` : ''; }
+const WK = '日一二三四五六';
+function weekday(v) { const d = parseDate(v); if (!d) return ''; return '星期' + WK[new Date(d.y + 1911, d.m - 1, d.d).getDay()]; }
+function rocYear(v) { const d = parseDate(v); return d ? d.y : ''; }
+function tm(t) {
+  const m = /^(\d{1,2}):(\d{2})/.exec(t || ''); if (!m) return `${FW}午${FW}時${FW}分`;
+  const h = +m[1], mi = +m[2];
+  const ap = h < 12 ? '上午' : (h === 12 ? '中午' : '下午'); const hh = h > 12 ? h - 12 : (h === 0 ? 12 : h);
+  return `${ap}${hh}時${mi ? mi + '分' : ''}`;
+}
+function daysBetween(a, b) { const x = parseDate(a), y = parseDate(b); if (!x || !y) return null; return Math.round((new Date(y.y + 1911, y.m - 1, y.d) - new Date(x.y + 1911, x.m - 1, x.d)) / 86400000); }
+
+/* ===== 路徑存取 ===== */
 function getp(o, path) { return path.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o); }
 function setp(o, path, v) {
   const ks = path.split('.'); let a = o;
@@ -38,49 +71,44 @@ function setp(o, path, v) {
   }
   a[ks[ks.length - 1]] = v;
 }
-function isEmptyVal(v) {
-  if (v == null) return true;
-  if (typeof v === 'string') return v.trim() === '';
-  if (typeof v === 'object' && !Array.isArray(v)) {
-    if ('y' in v || 'm' in v || 'd' in v) return dateEmpty(v);
-    return Object.keys(v).length === 0;
-  }
-  return false;
-}
 
 /* ===== 狀態 ===== */
-const LS_KEY = 'rt-forms-v1';
-const ROLES = ['理事長', '常務理事', '理事', '候補理事', '常務監事', '監事', '候補監事', '總幹事', '會計', '出納', '會務人員'];
-const DIR_ROLES = ['理事長', '常務理事', '理事'];
+const LS_KEY = 'pt-assoc-forms-v2';
+const ROLES = ['理事長', '副理事長', '常務理事', '理事', '候補理事', '常務監事', '監事', '候補監事', '總幹事', '會計', '出納', '會務人員', '籌備會主任委員', '籌備委員', '發起人'];
+const DIR_ROLES = ['理事長', '副理事長', '常務理事', '理事'];
 const SUP_ROLES = ['常務監事', '監事'];
+const STAFF_ROLES = ['總幹事', '會計', '出納', '會務人員'];
+const PREP_ROLES = ['籌備會主任委員', '籌備委員', '發起人'];
+const MEM_TYPES = ['個人會員', '團體會員', '贊助會員', '停權會員'];
 
 function blankState() {
   return {
-    basic: { county: '屏東縣', town: '', org: '', term: '', year: '', budgetYear: '', termYears: '4',
-      regDate: {}, regWord: '', regNum: '', courtDate: {}, courtNo: '', reelectDate: {},
-      membersGroup: '', membersPerson: '', address: '', phone: '', fax: '', web: '', email: '', fillDate: {} },
-    roster: [],
-    assembly: { term: '', no: '', date: {}, time: {}, place: '', should: '', attend: '', leave: '', absent: '', obs: '',
-      chair: '', rec: '', speech: '', report: '', refTerm: '', refNo: '',
-      fin: { on: true }, plan: { on: true }, bud: { on: true }, props: [], motions: [],
-      hasEl: true, el: { jp: '', fp: '', cp: '', jip: '', dirSeats: '', dirAlt: '', supSeats: '', supAlt: '', dirs: [], sups: [] },
-      end: {} },
-    board: { term: '', no: '', date: {}, time: {}, place: '', dirs: '', sups: '', obs: '', chair: '', rec: '',
-      electTerm: '', stdDir: '', stdSup: '', stdSupVotes: '', chairman: '', chairVotes: '',
-      addr: { on: true }, staff: { on: true }, props: [], motion: '', end: {} },
-    cert: { name: '', birthplace: '', birth: {}, addr: '', phone: '', org: '', term: '', firstDate: {}, tenure: '', note: '' },
-    consent: { loc: '', landNo: '', ping: '', sqm: '', from: {}, to: {}, lender: '', witness: '', chairman: '', date: {} },
-    statute: { boardDate: {}, boardTerm: '', boardNo: '', asmDate: {}, asmTerm: '', asmNo: '', rows: [] },
-    plan: { year: '', rows: [], method: '', refTerm: '', refNo: '' },
-    fin: { names: {}, v: {}, prev: '', cashPrev: '', hideZero: false, prop: [], bs: {}, fund: {}, sel: { bud: true, act: true, prop: true, bs: true, fund: true } },
-    letter: { addr: '', contact: '', phone: '', to: '', date: {}, no: '', speed: '', secret: '', att: '', subject: '', d1: '', d2: '', d3: '', main: '', cc: '', atts: {} },
-    ui: { page: 'basic', finTab: 'acc' }
+    v: 2,
+    org: { county: '屏東縣', town: '', name: '', address: '', place: '', phone: '', mobile: '', fax: '', email: '', web: '', contact: '', contactTitle: '',
+      docWord: '', term: '', termYears: '', regDate: '', regWord: '', regNum: '', courtDate: '', courtNo: '', corp: '',
+      dirSeats: '', supSeats: '', dirAlt: '', supAlt: '', stdDirSeats: '', memberCount: '', groupCount: '' },
+    people: [],
+    members: [],
+    fin: { year: '', budgetYear: '', end: '', names: {}, v: {}, prev: '', cashPrev: '', hideZero: false, prop: [], bs: {}, fund: {} },
+    plan: { rows: [], method: '' },
+    amend: { rows: [] },
+    statute: {},
+    m: {},
+    x: { ledger: { rows: [] }, prepfin: { inc: [], exp: [] }, handover: {}, consent: {}, cert: {}, ballot: {}, proxy: {}, recruit: {}, report: {}, seal: {}, resign: {}, reissue: {}, check: {} },
+    sel: {},
+    batch: {},
+    seals: [],
+    stamp: { on: true, docs: {} },
+    files: {},
+    meta: {},
+    cloud: { on: false },
+    ui: { view: 'home', scen: '', step: 'docs', open: '', large: false, prepVar: 'p1', boardAddr: false, finTab: 'acc', pvDoc: '' }
   };
 }
 function merge(base, add) {
   if (add == null) return base;
   if (Array.isArray(base)) return Array.isArray(add) ? add : base;
-  if (typeof base === 'object') {
+  if (base && typeof base === 'object') {
     const o = { ...base };
     for (const k of Object.keys(add)) o[k] = (k in base && base[k] && typeof base[k] === 'object' && !Array.isArray(base[k])) ? merge(base[k], add[k]) : add[k];
     return o;
@@ -90,180 +118,85 @@ function merge(base, add) {
 let S = blankState();
 try { const raw = localStorage.getItem(LS_KEY); if (raw) S = merge(blankState(), JSON.parse(raw)); } catch (e) { }
 let saveTimer = null;
-function save() {
+/** 只比對填寫內容（不含畫面狀態），內容有變才更新時間並同步雲端 */
+const dataSig = () => { const { ui, meta, cloud, ...d } = S; return JSON.stringify(d); };
+let lastSig = dataSig();
+function save(o = {}) {
+  S.meta = S.meta || {};
+  const sig = dataSig(), changed = sig !== lastSig;
+  if (changed) { lastSig = sig; if (!o.keepTime) S.meta.savedAt = Date.now(); }
   clearTimeout(saveTimer);
-  saveTimer = setTimeout(() => { try { localStorage.setItem(LS_KEY, JSON.stringify(S)); flashSaved(); } catch (e) { } }, 300);
+  saveTimer = setTimeout(() => { try { localStorage.setItem(LS_KEY, JSON.stringify(S)); const el = $('#saved'); if (el) { el.textContent = '已自動儲存'; el.classList.add('on'); clearTimeout(save.t); save.t = setTimeout(() => el.classList.remove('on'), 1600); } } catch (e) { } }, 250);
+  if (changed && !o.noCloud && typeof cloudOnSave === 'function') cloudOnSave();
 }
-function flashSaved() { const el = $('#saved'); if (!el) return; el.textContent = '已自動儲存於此瀏覽器 ' + new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }); }
 
-/* ===== 連動（衍生預設值） ===== */
-const D = {};
-function V(path) { const v = getp(S, path); if (!isEmptyVal(v)) return v; const d = D[path]; if (d) { try { const r = d(); return r == null ? '' : r; } catch (e) { return ''; } } return v ?? ''; }
-
-function rosterSorted() {
-  return S.roster.map((r, i) => ({ ...r, _i: i }))
+/* ===== 人員與會員 ===== */
+function peopleSorted() {
+  return S.people.map((r, i) => ({ ...r, _i: i })).filter(r => !isBlank(r.name) || !isBlank(r.role))
     .sort((a, b) => { const ia = ROLES.indexOf(a.role), ib = ROLES.indexOf(b.role); return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib) || a._i - b._i; });
 }
-function person(role) { return rosterSorted().find(r => r.role === role && !isBlank(r.name)); }
-function pname(role) { const p = person(role); return p ? p.name : ''; }
-function names(roles) { return rosterSorted().filter(r => roles.includes(r.role) && !isBlank(r.name)).map(r => r.name); }
-function orgFull() { return (V('basic.county') || '') + (S.basic.town || '') + (S.basic.org || '○○協會'); }
-function orgShort() { return (S.basic.org || '團體') ; }
-const Y = () => V('basic.year');
-const BY = () => V('basic.budgetYear');
-
-Object.assign(D, {
-  'basic.budgetYear': () => hasNum(S.basic.year) ? String(num(S.basic.year) + 1) : '',
-  'basic.fillDate': () => todayRoc(),
-  'basic.membersTotal': () => '',
-  'assembly.term': () => S.basic.term,
-  'assembly.no': () => '1',
-  'assembly.should': () => (hasNum(S.basic.membersPerson) || hasNum(S.basic.membersGroup)) ? String(num(S.basic.membersPerson) + num(S.basic.membersGroup)) : '',
-  'assembly.absent': () => { const s = V('assembly.should'), a = S.assembly.attend; if (!hasNum(s) || !hasNum(a)) return ''; return String(Math.max(0, num(s) - num(a) - num(S.assembly.leave))); },
-  'assembly.chair': () => pname('理事長'),
-  'assembly.rec': () => pname('總幹事'),
-  'assembly.refTerm': () => S.basic.term,
-  'assembly.fin.reason': () => `請審議${O(Y(), '○')}年度經費收支決算案含財產目錄及資產負債表`,
-  'assembly.fin.desc': () => `${O(Y(), '○')}年度經費收支決算表、財產目錄及資產負債表業經第${O(cn(V('assembly.refTerm')), '○')}屆第${O(cn(S.assembly.refNo), '○')}次理（監）事會審議通過。`,
-  'assembly.fin.method': () => `${O(Y(), '○')}年度經費收支決算書經會員大會審議通過，報請主管機關核備後實施。`,
-  'assembly.plan.reason': () => `請審議${O(BY(), '○')}年度工作計畫案`,
-  'assembly.plan.desc': () => `${O(BY(), '○')}年度工作計畫業經第${O(cn(V('assembly.refTerm')), '○')}屆第${O(cn(S.assembly.refNo), '○')}次理（監）事會審議通過。`,
-  'assembly.plan.method': () => `${O(BY(), '○')}年度工作計畫經會員大會審議通過，報請主管機關核備後實施。`,
-  'assembly.bud.reason': () => `請審議${O(BY(), '○')}年度經費收支預算案`,
-  'assembly.bud.desc': () => `${O(BY(), '○')}年度經費收支預算書業經第${O(cn(V('assembly.refTerm')), '○')}屆第${O(cn(S.assembly.refNo), '○')}次理（監）事會審議通過。`,
-  'assembly.bud.method': () => `${O(BY(), '○')}年度經費收支預算書經會員大會審議通過，報請主管機關核備後實施。`,
-  'assembly.fin.proposer': () => '理事會', 'assembly.plan.proposer': () => '理事會', 'assembly.bud.proposer': () => '理事會',
-  'assembly.fin.res': () => '照案通過。', 'assembly.plan.res': () => '照案通過。', 'assembly.bud.res': () => '照案通過。',
-  'assembly.el.dirSeats': () => { const n = names(DIR_ROLES).length; return n ? String(n) : ''; },
-  'assembly.el.dirAlt': () => { const n = names(['候補理事']).length; return n ? String(n) : ''; },
-  'assembly.el.supSeats': () => { const n = names(SUP_ROLES).length; return n ? String(n) : ''; },
-  'assembly.el.supAlt': () => { const n = names(['候補監事']).length; return n ? String(n) : ''; },
-  'board.term': () => S.basic.term,
-  'board.no': () => '1',
-  'board.date': () => dateEmpty(S.assembly.date) ? null : S.assembly.date,
-  'board.place': () => S.assembly.place,
-  'board.dirs': () => names(DIR_ROLES).join('、'),
-  'board.sups': () => names(SUP_ROLES).join('、'),
-  'board.chair': () => pname('理事長'),
-  'board.rec': () => pname('總幹事'),
-  'board.electTerm': () => S.basic.term,
-  'board.stdDir': () => names(['常務理事']).join('、'),
-  'board.stdSup': () => names(['常務監事']).join('、'),
-  'board.chairman': () => pname('理事長'),
-  'board.addr.reason': () => '決定本會會址處所案。',
-  'board.addr.desc': () => '取得使用權證明（例如租約、使用同意書）。',
-  'board.addr.res': () => S.basic.address ? `本會會址設於${S.basic.address}，照案通過。` : '',
-  'board.staff.reason': () => '聘任本會總幹事等工作人員案。',
-  'board.staff.desc': () => '工作人員不得由選任之職員擔任。',
-  'board.staff.res': () => {
-    const parts = [];
-    for (const role of ['總幹事', '會計', '出納', '會務人員']) { const ns = names([role]); if (ns.length) parts.push(`${ns.join('、')}為${role}`); }
-    return parts.length ? `聘任${parts.join('，')}，照案通過。` : '';
-  },
-  'cert.name': () => pname('理事長'),
-  'cert.birth': () => { const p = person('理事長'); return p && !dateEmpty(p.birth) ? p.birth : null; },
-  'cert.addr': () => (person('理事長') || {}).addr || '',
-  'cert.phone': () => (person('理事長') || {}).phone || '',
-  'cert.org': () => orgFull(),
-  'cert.term': () => S.basic.term,
-  'cert.firstDate': () => { const d = V('board.date'); return dateEmpty(d) ? null : d; },
-  'cert.tenure': () => { const f = V('cert.firstDate'); const t = rocAddYearsMinusDay(f, V('basic.termYears') || 4); return t ? `${rd(f)}起至${rd(t)}止` : ''; },
-  'consent.loc': () => S.basic.address,
-  'consent.sqm': () => hasNum(S.consent.ping) ? (num(S.consent.ping) * 3.305785).toFixed(2) : '',
-  'consent.ping': () => hasNum(S.consent.sqm) ? (num(S.consent.sqm) / 3.305785).toFixed(2) : '',
-  'consent.to': () => rocAddYearsMinusDay(S.consent.from, V('basic.termYears') || 4),
-  'consent.chairman': () => pname('理事長'),
-  'consent.date': () => dateEmpty(S.consent.from) ? V('basic.fillDate') : S.consent.from,
-  'statute.boardTerm': () => S.basic.term,
-  'statute.asmDate': () => dateEmpty(S.assembly.date) ? null : S.assembly.date,
-  'statute.asmTerm': () => V('assembly.term'),
-  'statute.asmNo': () => V('assembly.no'),
-  'plan.year': () => BY(),
-  'plan.method': () => '定期召開會員大會及理、監事會，按計畫進度辦理各項活動，並配合上級政府之政策，達成本會設立宗旨及發展目標。',
-  'plan.refTerm': () => S.basic.term,
-  'plan.refNo': () => S.assembly.refNo,
-  'fin.cashPrev': () => S.fin.prev,
-  'fin.fund.add': () => { const v = accVal(ACC_BY.e12, 'a'); return v ? String(v) : ''; },
-});
-
-/* ===== 會計科目 ===== */
-const ACC = [
-  { k: 'inc', name: '收入總計', kids: [
-    { k: 'i1', name: '入會費' }, { k: 'i2', name: '常年會費' }, { k: 'i3', name: '事業費' }, { k: 'i4', name: '會員捐款' },
-    { k: 'i5', name: '補助收入', kids: [{ k: 'i51', name: '政府補助收入' }, { k: 'i52', name: '其他補助收入' }] },
-    { k: 'i6', name: '委託收益' }, { k: 'i7', name: '會員服務收入' }, { k: 'i8', name: '專案計劃收入' }, { k: 'i9', name: '其他收入' }] },
-  { k: 'exp', name: '支出總計', kids: [
-    { k: 'e1', name: '人事費', kids: ['員工薪給', '兼職人員車馬費', '保險補助費', '年終成績考核獎金', '不休假獎金', '其他人事費'].map((n, i) => ({ k: 'e1_' + (i + 1), name: n })) },
-    { k: 'e2', name: '辦公費', kids: ['文具、書報、雜誌費', '印刷費', '水電燃料費', '旅運費', '郵電費', '大樓管理費', '加班值班費', '租賦費', '修繕維護費', '財產保險費', '公共關係費', '人事查核費', '其他辦公費'].map((n, i) => ({ k: 'e2_' + (i + 1), name: n })) },
-    { k: 'e3', name: '業務費', kids: ['會議費', '聯誼活動費', '業務推展費', '展覽費', '考察觀摩費', '會刊（訊）編印費', '調查統計費', '接受委託業務費', '內部作業組織業務費', '研究發展費', '社會服務費', '其他業務費'].map((n, i) => ({ k: 'e3_' + (i + 1), name: n })) },
-    ...['購置費', '折舊', '繳納上級團體會費', '繳納其他團體會費', '捐助費', '專案計畫支出', '雜費支出', '預備金', '提撥基金'].map((n, i) => ({ k: 'e' + (i + 4), name: n }))] }
-];
-const ACC_FLAT = []; (function walk(list, lvl, parent) { list.forEach((a, i) => { a.lvl = lvl; a.idx = i + 1; a.parent = parent; ACC_FLAT.push(a); if (a.kids) walk(a.kids, lvl + 1, a); }); })(ACC, 0, null);
-const ACC_BY = Object.fromEntries(ACC_FLAT.map(a => [a.k, a]));
-const accName = a => (!isBlank(S.fin.names[a.k]) ? S.fin.names[a.k] : a.name);
-function accVal(a, col) { if (a.kids) return a.kids.reduce((s, c) => s + accVal(c, col), 0); return num((S.fin.v[a.k] || {})[col]); }
-function accZero(a) { return ['b', 'pb', 'a'].every(c => accVal(a, c) === 0); }
-const finSurplus = col => accVal(ACC_BY.inc, col) - accVal(ACC_BY.exp, col);
-
-/* 財產目錄 → 資產負債表 */
-const BS_LEFT = [
-  { k: 'L_cur', name: '流動資產小計', kids: ['庫存現金', '銀行存款', '定期存款', '有價證券', '應收票據', '應收款項', '預付款項'] },
-  { k: 'L_fix', name: '固定資產小計', kids: ['土地', '房屋及建築', '事務器械設備', '儀器設備', '交通運輸設備', '雜項設備'] },
-  { k: 'L_oth', name: '其他資產小計', kids: ['基金', '存出保證金', '雜項資產'] },
-];
-const BS_RIGHT_L = [
-  { k: 'R_cur', name: '流動負債小計', kids: ['短期借款', '應付票據', '應付款項', '代收款項', '預收款項'] },
-  { k: 'R_long', name: '長期負債小計', kids: ['長期借款'] },
-  { k: 'R_oth', name: '其他負債小計', kids: ['存入保證金', '雜項負債'] },
-];
-const BS_RIGHT_E = [
-  { k: 'R_cap', name: '投入資本小計', kids: ['投入資本'] },
-  { k: 'R_fund', name: '基金小計', kids: ['資產基金', '提撥基金'] },
-  { k: 'R_sur', name: '累計餘絀小計', kids: ['本期餘絀', '上期餘絀'] },
-];
-const PROP_CATS = ['土地', '房屋及建築', '事務器械設備', '儀器設備', '交通運輸設備', '雜項設備', '雜項資產'];
-function propSum(cat) { let cur = ''; let s = 0; for (const r of S.fin.prop) { if (!isBlank(r.cat)) cur = r.cat.trim(); if (!cat || cur === cat) s += num(r.amt); } return s; }
-function fundIn() { return num(S.fin.fund.acc) + num(S.fin.fund.int) + (hasNum(S.fin.fund.add) ? num(S.fin.fund.add) : accVal(ACC_BY.e12, 'a')); }
-function fundOut() { return num(S.fin.fund.o1) + num(S.fin.fund.o2) + num(S.fin.fund.o3) + num(S.fin.fund.o4); }
-function bsDerived(name) {
-  if (['土地', '房屋及建築', '事務器械設備', '儀器設備', '交通運輸設備', '雜項設備', '雜項資產'].includes(name)) { const s = propSum(name); return s ? s : null; }
-  if (name === '基金' || name === '提撥基金') { const s = fundIn() - fundOut(); return s ? s : null; }
-  if (name === '本期餘絀') return finSurplus('a');
-  if (name === '上期餘絀') return hasNum(S.fin.prev) ? num(S.fin.prev) : null;
-  if (name === '資產基金') { const s = bsGroupSum(BS_LEFT[1]) + bsVal('雜項資產') + bsVal('存出保證金'); return s ? s : null; }
-  return null;
-}
-function bsVal(name) { const raw = S.fin.bs[name]; if (hasNum(raw)) return num(raw); const d = bsDerived(name); return d == null ? 0 : d; }
-function bsGroupSum(g) { return g.kids.reduce((s, n) => s + bsVal(n), 0); }
-const bsAssets = () => BS_LEFT.reduce((s, g) => s + bsGroupSum(g), 0);
-const bsLiab = () => BS_RIGHT_L.reduce((s, g) => s + bsGroupSum(g), 0);
-const bsEquity = () => BS_RIGHT_E.reduce((s, g) => s + bsGroupSum(g), 0);
-function cashPrev() { return hasNum(S.fin.cashPrev) ? num(S.fin.cashPrev) : num(S.fin.prev); }
-function cashEnd() { return cashPrev() + accVal(ACC_BY.inc, 'a') - accVal(ACC_BY.exp, 'a'); }
-
-/* 選舉結果 */
-function elResult(list, seats, alt) {
-  const c = (list || []).filter(r => !isBlank(r.name)).map((r, i) => ({ ...r, _i: i, v: num(r.votes) })).sort((a, b) => b.v - a.v || a._i - b._i);
-  const s = num(seats), a = num(alt);
-  return { all: c, win: c.slice(0, s), alt: c.slice(s, s + a) };
+function person(role) { return peopleSorted().find(r => r.role === role && !isBlank(r.name)); }
+function pname(role) { const p = person(role); return p ? p.name.trim() : ''; }
+function names(roles) { return peopleSorted().filter(r => roles.includes(r.role) && !isBlank(r.name)).map(r => r.name.trim()); }
+function chairName() { return pname('理事長'); }
+function prepChair() { return pname('籌備會主任委員'); }
+const isVoter = m => !['贊助會員', '停權會員'].includes(m.type || '個人會員');
+function membersNamed() { return S.members.filter(m => !isBlank(m.name)); }
+function voterCount() { return membersNamed().filter(isVoter).length; }
+function memberStats() {
+  const ms = membersNamed(), c = t => ms.filter(m => (m.type || '個人會員') === t).length;
+  return { total: ms.length, person: c('個人會員'), group: c('團體會員'), sponsor: c('贊助會員'), suspended: c('停權會員'), voters: ms.filter(isVoter).length };
 }
 
-/* 檢核 */
-function checks() {
-  const out = [];
-  const bud = finSurplus('b');
-  if (accVal(ACC_BY.inc, 'b') + accVal(ACC_BY.exp, 'b') > 0 && bud !== 0) out.push({ lv: 'warn', page: 'finance', t: `預算表收支未平衡：本期餘絀 ${fmt(bud)}，預算應編列至餘絀為 0。` });
-  const a = bsAssets(), r = bsLiab() + bsEquity();
-  if (a + r > 0 && a !== r) out.push({ lv: 'warn', page: 'finance', t: `資產負債表兩方合計不同：資產 ${fmt(a)}，負債基金暨餘絀 ${fmt(r)}。` });
-  const ps = propSum(''), fo = bsGroupSum(BS_LEFT[1]) + bsVal('雜項資產');
-  if (ps && ps !== fo) out.push({ lv: 'warn', page: 'finance', t: `財產目錄合計 ${fmt(ps)} 與資產負債表固定資產＋雜項資產 ${fmt(fo)} 不一致。` });
-  const cash = bsVal('庫存現金') + bsVal('銀行存款') + bsVal('定期存款');
-  if ((accVal(ACC_BY.inc, 'a') || accVal(ACC_BY.exp, 'a')) && cash && cash !== cashEnd()) out.push({ lv: 'info', page: 'finance', t: `現金出納表本期結存 ${fmt(cashEnd())} 與資產負債表現金＋存款 ${fmt(cash)} 不同，請確認。` });
-  const planSum = S.plan.rows.reduce((s, r) => s + num(r.cost), 0), budExp = accVal(ACC_BY.exp, 'b');
-  if (planSum && budExp && planSum !== budExp) out.push({ lv: 'info', page: 'plan', t: `工作計畫經費預估合計 ${fmt(planSum)}，與預算表支出總計 ${fmt(budExp)} 不同（僅供參考）。` });
-  if (!S.roster.some(r => r.role === '理事長' && !isBlank(r.name))) out.push({ lv: 'info', page: 'roster', t: '一覽表尚未填入理事長，各表單的理事長欄位將無法自動帶入。' });
-  if (S.roster.filter(r => r.role === '理事長').length > 1) out.push({ lv: 'warn', page: 'roster', t: '一覽表有兩位以上理事長，請確認職別。' });
-  return out;
+/* ===== 團體名稱 ===== */
+function orgFull() { const o = S.org; return (o.county || '') + (o.town || '') + (o.name || '○○協會'); }
+function orgShort() { return (S.org.name || '團體').replace(/[\\/:*?"<>|]/g, ''); }
+function docWord() { return S.org.docWord || '屏縣○○'; }
+function docNo(no) { return `${docWord()}字第${no || FW.repeat(5)}號`; }
+
+/* ===== 連動：留白就自動帶入 ===== */
+const DER = [];   // [regex, fn(match, path)]
+function derive(path) {
+  for (const [re, fn] of DER) { const m = re.exec(path); if (m) { try { const v = fn(m, path); return v == null ? '' : v; } catch (e) { return ''; } } }
+  return '';
+}
+function hasDerive(path) { return DER.some(([re]) => re.test(path)); }
+function raw(path) { const v = getp(S, path); return v == null ? '' : v; }
+function V(path) { const v = getp(S, path); if (!isBlank(v) && v !== false) return v; return derive(path); }
+
+DER.push(
+  [/^org\.place$/, () => S.org.address],
+  [/^org\.contact$/, () => pname('總幹事')],
+  [/^org\.contactTitle$/, () => pname('總幹事') && !S.org.contact ? '總幹事' : ''],
+  [/^org\.termYears$/, () => '4'],
+  [/^org\.dirSeats$/, () => { const n = names(DIR_ROLES).length; return n ? String(n) : ''; }],
+  [/^org\.supSeats$/, () => { const n = names(SUP_ROLES).length; return n ? String(n) : ''; }],
+  [/^org\.dirAlt$/, () => { const n = names(['候補理事']).length; return n ? String(n) : ''; }],
+  [/^org\.supAlt$/, () => { const n = names(['候補監事']).length; return n ? String(n) : ''; }],
+  [/^org\.memberCount$/, () => { const s = memberStats(); return s.person ? String(s.person) : ''; }],
+  [/^org\.groupCount$/, () => { const s = memberStats(); return s.group ? String(s.group) : ''; }],
+  [/^fin\.budgetYear$/, () => hasNum(V('fin.year')) ? String(num(V('fin.year')) + 1) : ''],
+  [/^fin\.year$/, () => { const d = scenMainDate(); const y = rocYear(d) || rocYear(isoToday()); return y ? String(y - 1) : ''; }],
+  [/^fin\.cashPrev$/, () => S.fin.prev],
+  [/^fin\.fund\.add$/, () => { const v = accVal(ACC_BY.e12, 'a'); return v ? String(v) : ''; }],
+);
+const Y = () => V('fin.year');
+const BY = () => V('fin.budgetYear');
+/** 目前情境的主要會議日期（推算年度用） */
+function scenMainDate() {
+  const sc = S.ui.scen; if (!sc || typeof SCEN === 'undefined' || !SCEN[sc]) return '';
+  const keys = SCEN[sc].meets(); if (MEET[keys[0]] && MEET[keys[0]].before) keys.push(MEET[keys[0]].before);
+  for (const k of keys) { const d = getp(S, `m.${k}.date`); if (d) return d; }
+  return '';
 }
 
-[...BS_LEFT, ...BS_RIGHT_L, ...BS_RIGHT_E].forEach(g => g.kids.forEach(n => { D['fin.bs.' + n] = () => { const d = bsDerived(n); return d == null ? '' : String(d); }; }));
+/* ===== 驗證 ===== */
+function checkTwId(id) {
+  id = String(id || '').trim().toUpperCase(); if (!id) return true;
+  if (!/^[A-Z][1289A-D]\d{8}$/.test(id)) return false;
+  const L = 'ABCDEFGHJKLMNPQRSTUVXYWZIO', n = L.indexOf(id[0]) + 10;
+  const d2 = /[A-D]/.test(id[1]) ? (id.charCodeAt(1) - 65) % 10 : +id[1];
+  const ds = [Math.floor(n / 10), n % 10, d2, ...id.slice(2).split('').map(Number)];
+  const w = [1, 9, 8, 7, 6, 5, 4, 3, 2, 1, 1];
+  return ds.reduce((s, x, i) => s + x * w[i], 0) % 10 === 0;
+}

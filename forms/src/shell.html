@@ -2,43 +2,36 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>人民團體會務表單線上填報</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<meta name="description" content="屏東縣社團（職業團體）會務文件線上填報：籌備會、成立大會、會員大會改選／常年／解散、理監事會等縣府範本，資料連動，可下載 Word、Excel、PDF。">
+<title>會務文件線上填報｜屏東縣社團（職業團體）</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;600;700&family=Noto+Serif+TC:wght@400;700&display=swap" rel="stylesheet">
 <style>/*CSS*/</style>
 </head>
 <body>
-<div id="app">
-  <header class="top">
-    <button id="navToggle" style="border:1px solid #4d6b67;background:none;color:#fff;border-radius:7px;padding:5px 9px">☰</button>
-    <div class="brand"><div class="seal">會務</div><div><h1>人民團體會務表單線上填報</h1><small id="orgName"></small></div></div>
-    <div class="tools">
-      <span id="saved" class="opt" style="font-size:12px;color:#9fb6b0;align-self:center;margin-right:6px"></span>
-      <button data-cmd="sample" class="opt">載入範例</button>
-      <button data-cmd="backup">備份資料</button>
-      <button data-cmd="restore">還原資料</button>
-      <button data-cmd="clear" class="opt">清除</button>
-      <button id="pvToggle">預覽</button>
-    </div>
-  </header>
-  <div class="body">
-    <nav id="nav"></nav>
-    <main id="formcol">
-      <div class="phead"><h2 id="ptitle"></h2><div class="dlrow" id="pdl"></div></div>
-      <div id="form"></div>
-    </main>
-    <aside id="prevcol">
-      <div class="pvbar"><span class="live"></span><b>即時預覽</b><span id="pvinfo"></span><span style="margin-left:auto">下載的 Word／Excel／PDF 內容與此相同</span></div>
-      <div id="preview"></div>
-    </aside>
-  </div>
-</div>
+<header class="bar">
+  <button class="icon" id="back" aria-label="回首頁" hidden><svg class="ic" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+  <div class="ttl"><b id="hTitle">會務文件線上填報</b><small id="hSub"></small></div>
+  <button id="cloudChip" class="cloudchip" hidden></button>
+  <span id="saved" class="saved" aria-live="polite"></span>
+  <button class="icon" id="fontBtn" aria-label="放大字體" aria-pressed="false" title="放大字體">A＋</button>
+  <button class="icon" id="menuBtn" aria-label="更多功能" title="更多功能"><svg class="ic" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/></svg></button>
+</header>
+<nav id="steps" class="steps" hidden aria-label="步驟"></nav>
+<main id="view" class="view"></main>
+<div id="dock" class="dock" hidden></div>
+<div id="pv" hidden role="dialog" aria-label="文件預覽"></div>
+<div id="seal" hidden role="dialog" aria-label="電子印章"></div>
+<div id="sheet" hidden></div>
 <input type="file" id="fileIn" accept=".json,application/json" hidden>
+<input type="file" id="sealIn" accept="image/*" multiple hidden>
+<input type="file" id="upIn" accept="image/*,application/pdf,.pdf,.doc,.docx,.odt,.xls,.xlsx" multiple hidden>
 <div id="busy" hidden><div><div class="spin"></div><span>處理中…</span></div></div>
-<div id="modal" hidden><div class="box"><p></p><div class="row"><button class="btn ghost no">取消</button><button class="btn ok">確定</button></div></div></div>
-<div id="toasts"></div>
+<div id="modal" hidden role="alertdialog"><div class="box"><p></p><div class="row"><button class="btn ghost no">取消</button><button class="btn ok">確定</button></div></div></div>
+<div id="toasts" aria-live="polite"></div>
 <script>
 /*JS*/
 </script>
