@@ -43,6 +43,10 @@ const CMDS = {
   menu() {
     const m = $('#sheet');
     m.innerHTML = `<div class="sbox menu"><h3>更多</h3>
+      <div class="mset"><span class="msl"><b>${icon(isDesk() ? 'desk' : 'phone')}版面</b><small>目前是${isDesk() ? '電腦版' : '手機版'}${PREFS.layout === 'auto' ? '（依螢幕寬度自動切換）' : ''}</small></span>
+        <span class="seg mseg" role="radiogroup" aria-label="版面">${Object.keys(LAYOUTS).map(k => `<button type="button" role="radio" aria-checked="${PREFS.layout === k}" class="${PREFS.layout === k ? 'on' : ''}" data-cmd="layout" data-v="${k}">${k === 'auto' ? '自動' : LAYOUTS[k]}</button>`).join('')}</span></div>
+      <div class="mset"><span class="msl"><b>${icon('help')}操作提示</b><small>${tipsOn() ? '已開啟：滑鼠移到欄位或按鈕上會顯示說明' : '開啟後，滑鼠移到欄位或按鈕上會顯示說明與提醒'}</small></span>
+        <button type="button" class="tgl" role="switch" aria-checked="${tipsOn()}" data-cmd="tips"><span></span><b>${tipsOn() ? '開' : '關'}</b></button></div>
       <button data-cmd="sample">${icon('doc')}<span><b>載入範例資料</b><small>看看填好的樣子（會覆蓋目前資料）</small></span></button>
       ${cloudReady() ? `<button data-cmd="cloud">${icon('cloud')}<span><b>雲端存檔（Google 帳號）</b><small>${cloudOn() ? `已連線${S.cloud.email ? '：' + esc(S.cloud.email) : ''}` : '登入後自動存到自己的雲端硬碟，換裝置也能接著填'}</small></span></button>` : ''}
       <button data-cmd="backup">${icon('dl')}<span><b>備份資料</b><small>下載 .json 檔，換裝置或交接時使用${(S.meta || {}).lastBackup ? `（上次 ${fmtTime(S.meta.lastBackup)}）` : ''}</small></span></button>
@@ -56,6 +60,9 @@ const CMDS = {
     m.hidden = false;
   },
   sheetClose() { $('#sheet').hidden = true; },
+  layout(t) { $('#sheet').hidden = true; setLayout(t.dataset.v); },
+  tips() { $('#sheet').hidden = true; setTips(!tipsOn()); },
+  tipsOff() { setTips(false); },
   paste(t) { openPaste(t.dataset.target); },
   pasteDo(t) {
     const target = t.dataset.target, rows = parsePaste($('#pasteBox').value, target);
@@ -208,6 +215,8 @@ document.addEventListener('click', async e => {
   if (t.id === 'back') { if ($('#pv').hidden === false) { closePreview(); return; } S.ui.view = 'home'; save(); render(); return; }
   if (t.id === 'fontBtn') { S.ui.large = !S.ui.large; save(); document.documentElement.classList.toggle('large', S.ui.large); t.setAttribute('aria-pressed', S.ui.large); return; }
   if (t.id === 'menuBtn') { CMDS.menu(); return; }
+  if (t.id === 'tipBtn') { setTips(!tipsOn()); return; }
+  if (t.id === 'layBtn') { setLayout(isDesk() ? 'm' : 'd'); return; }
   if (t.id === 'cloudChip') { cloudChipClick(); return; }
   if (ds.go) { e.preventDefault(); $('#sheet').hidden = true; S.ui.view = ds.go === 'scen' ? 'scen' : ds.go; if (ds.scen) { if (S.ui.scen !== ds.scen) { S.ui.step = 'docs'; S.ui.open = ''; } S.ui.scen = ds.scen; } save(); render(); return; }
   if (ds.step) { S.ui.step = ds.step; save(); render(); return; }
@@ -263,6 +272,9 @@ function ask(msg, lab = {}) {
 }
 
 /* ===== 啟動 ===== */
+applyLayout(); applyTips();
+addEventListener('load', () => setTimeout(refitWide, 60));
+addEventListener('pageshow', e => { if (e.persisted) refitWide(); });
 if (!['home', 'scen', 'help'].includes(S.ui.view)) S.ui.view = 'home';
 if (S.ui.view === 'scen' && !SCEN[S.ui.scen]) S.ui.view = 'home';
 render();

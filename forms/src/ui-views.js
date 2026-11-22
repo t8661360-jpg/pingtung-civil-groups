@@ -126,44 +126,49 @@ function refWatch(silent) {
 }
 function refWatchSoon() { clearTimeout(refT); refT = setTimeout(() => refWatch(), 700); }
 
-function render() {
-  refWatch(true);
+function render(o = {}) {
+  refWatch(true); tipHide();
+  if (isDesk() !== deskNow) applyLayout();
   document.documentElement.classList.toggle('large', !!S.ui.large);
   const v = S.ui.view;
   $('#view').className = 'view v-' + v + (v === 'scen' ? ' s-' + S.ui.step : '');
   if (v === 'scen' && SCEN[S.ui.scen]) renderScen(); else if (v === 'help') renderHelp(); else renderHome();
-  window.scrollTo({ top: 0 });
+  if (!o.keep) window.scrollTo({ top: 0 });
 }
 function scenProgress(sc) {
   const secs = sectionsFor(sc); if (!secs.length) return 0;
   const r = secs.map(secDone); const tot = r.reduce((s, x) => s + x.total, 0), ok = r.reduce((s, x) => s + x.ok, 0);
   return tot ? Math.round(ok / tot * 100) : 0;
 }
+/** 電腦版首頁：工具與說明 */
+function homeTools() {
+  const n = (S.seals || []).length;
+  return `<div class="hgrp tools"><h3 class="hg">工具與說明</h3><div class="tiles"><button class="tile tool" data-cmd="sealOpen">${icon('stamp', 'big')}<b>電子印章與簽名</b><small>上傳印章照片自動去背，下載的文件自動核章</small><span class="cnt">${n ? `已上傳 ${n} 顆` : '設定'}</span></button><button class="tile tool" data-go="help">${icon('info', 'big')}<b>會務事項一覽表</b><small>什麼事要報核、報備，期限與法規依據</small><span class="cnt">查詢</span></button></div></div>`;
+}
 function renderHome() {
   setHeader('會務文件線上填報', '屏東縣社團（職業團體）', false);
   $('#steps').hidden = true; $('#dock').hidden = true;
   const last = S.ui.scen && SCEN[S.ui.scen] ? S.ui.scen : '';
-  $('#view').innerHTML = `
-  <section class="hero">
+  const D = isDesk(), hero = `<section class="hero">
     <h1>會務文件，<br>一次填好、處處帶入</h1>
     <p>選擇要辦理的事項，就會列出屏東縣政府社會處範本的所有文件。團體、人員、日期這些共同資料只要填一次，就會自動帶入每一份文件，完成後可下載 Word、Excel 或 PDF。</p>
     ${S.org.name ? `<div class="orgchip">${icon('org')}<span>${esc(orgFull())}</span></div>` : ''}
-  </section>
-  ${last ? `<button class="resume" data-go="scen" data-scen="${last}">${icon(SCEN[last].icon)}<span><small>繼續填寫</small><b>${SCEN[last].title}</b></span><span class="ring" style="--p:${scenProgress(last)}">${scenProgress(last)}%</span></button>` : ''}
-  ${backupReminder()}
-  ${upcomingCard()}
-  <h2 class="h2">我要辦理</h2>
-  ${HOME_GROUPS.map(([g, ks]) => { const flow = ks.length === 2 && SCEN[ks[1]].prev === ks[0]; return `<h3 class="hg">${g}${flow ? '<small>依序辦理</small>' : ''}</h3><div class="tiles${flow ? ' flow' : ''}">${ks.map((k, i) => `<button class="tile" data-go="scen" data-scen="${k}">${flow ? `<span class="stepno">第${i + 1}步</span>` : ''}${icon(SCEN[k].icon, 'big')}<b>${SCEN[k].title}</b><small>${SCEN[k].sub}</small><span class="cnt">${allDocCount(k)} 份文件</span></button>`).join('')}</div>`; }).join('')}
-  <button class="rowlink" data-go="help">${icon('info')}<span><b>會務事項一覽表</b><small>什麼事要報核、報備，期限與法規依據</small></span>${icon('back', 'flip')}</button>
-  <section class="tips">
+  </section>`;
+  const resume = `${last ? `<button class="resume" data-go="scen" data-scen="${last}">${icon(SCEN[last].icon)}<span><small>繼續填寫</small><b>${SCEN[last].title}</b></span><span class="ring" style="--p:${scenProgress(last)}">${scenProgress(last)}%</span></button>` : ''}`, side = `${backupReminder()}${upcomingCard()}`;
+  const groups = `<h2 class="h2">我要辦理</h2><div class="hgroups">${HOME_GROUPS.map(([g, ks]) => { const flow = ks.length === 2 && SCEN[ks[1]].prev === ks[0]; return `<div class="hgrp${ks.length > 2 ? ' wide' : ''}"><h3 class="hg">${g}${flow ? '<small>依序辦理</small>' : ''}</h3><div class="tiles${flow ? ' flow' : ''}">${ks.map((k, i) => `<button class="tile" data-go="scen" data-scen="${k}">${flow ? `<span class="stepno">第${i + 1}步</span>` : ''}${icon(SCEN[k].icon, 'big')}<b>${SCEN[k].title}</b><small>${SCEN[k].sub}</small><span class="cnt">${allDocCount(k)} 份文件</span></button>`).join('')}</div></div>${D && g === '每年常會' ? homeTools() : ''}`; }).join('')}</div>`;
+  const help = `<button class="rowlink" data-go="help">${icon('info')}<span><b>會務事項一覽表</b><small>什麼事要報核、報備，期限與法規依據</small></span>${icon('back', 'flip')}</button>`, tips = `<section class="tips">
     <h3>使用小提醒</h3>
     <ul>
       <li>${cloudReady() ? '資料預設只存在這支手機或這台電腦的瀏覽器裡；登入 Google 帳號，可以自動存到<b>您自己的雲端硬碟</b>，換裝置也能接著填。' : '資料只存在這支手機或這台電腦的瀏覽器裡，不會上傳到任何伺服器。'}</li>
       <li>換裝置或交接給下一任，也可以用右上角「⋯」的<b>備份資料</b>${canShareFiles() ? '或<b>分享備份檔</b>（寄到自己的信箱）' : ''}，再到新裝置<b>還原資料</b>。</li>
       <li>不確定怎麼填？右上角「⋯」可以<b>載入範例資料</b>，看看填好的樣子。</li>
+      <li>不熟悉操作？按右上角的 <b>?</b> 開啟<b>操作提示</b>，滑鼠移到欄位或按鈕上（手機：點欄位）就會顯示說明與提醒。</li>
       <li>本網頁是協助填報的輔助工具，並非政府機關官方網站；送件格式以主管機關規定為準。</li>
     </ul>
   </section>`;
+  $('#view').innerHTML = D
+    ? `${guide('home')}<div class="homegrid"><div class="hmain">${hero}${groups}</div><aside class="haside">${resume}${side}${tips}</aside></div>`
+    : `${guide('home')}${hero}${resume}${side}${groups}${help}${tips}`;
 }
 /** 首頁：各選單已排定會議的近期期限 */
 function allUpcoming(limitDays = 120) {
@@ -194,7 +199,7 @@ function renderScen() {
 }
 function renderDocs() {
   const sc = S.ui.scen, list = scenDocs(sc);
-  let h = '';
+  let h = guide('docs');
   if (sc === 'prep') h += `<div class="card">${H4('本次會議')}${SEG('ui.prepVar', [['p1', '發起人暨第一次籌備會'], ['p2', '第二次籌備會']], { rr: 1 })}</div>`;
   if (sc === 'board') h += `<div class="card">${CK('ui.boardAddr', '本次會議要討論會址變更', { rr: 1 })}<div class="muted small">勾選後會加入「檢送會址變更公文」、會議紀錄改用會址變更範本，並需附會址使用同意書。</div></div>`;
   if (sc === 'dissolve') h += `<details class="card info"><summary>${icon('info')}縣府「團體解散說明」</summary><div class="small">
@@ -230,7 +235,7 @@ function renderDocs() {
     }
     h += '</div>';
   }
-  $('#view').innerHTML = h;
+  $('#view').innerHTML = isDesk() ? `<div class="dgrid"><div class="dmain">${h}</div><aside class="daside">${docsAside(sc)}</aside></div>` : h;
   const n = selDocs(sc).filter(x => x.kind !== 'attach').length;
   dock(`<span class="dk-t">已選 <b>${n}</b> 份文件</span><button class="btn pri" data-step="fill"><span>下一步<span class="xs-hide">：填寫資料</span></span>${icon('back', 'flip')}</button>`);
 }
@@ -242,11 +247,11 @@ function renderFill() {
   const sc = S.ui.scen, secs = sectionsFor(sc);
   if (!selDocs(sc).some(x => x.kind !== 'attach')) return noDocs('fill');
   if (!secs.includes(S.ui.open)) S.ui.open = secs.find(k => !secDone(k).done) || secs[0];
-  let h = `<div class="fill"><div class="secs">`;
+  let h = `${guide('fill')}<div class="fill"><div class="secs">`;
   for (const k of secs) {
     const meta = secMeta(k), dn = secDone(k), open = S.ui.open === k;
     const uses = docsUsing(sc, k);
-    h += `<section class="sec${open ? ' open' : ''}" id="sec-${k.replace(/[:.]/g, '-')}">
+    h += `<section class="sec${open ? ' open' : ''}" id="sec-${k.replace(/[:.]/g, '-')}" data-sec="${k}">
       <button type="button" class="sh" data-open="${k}" aria-expanded="${open}">${icon(meta.i, 'si')}<span class="st"><b>${meta.t}</b><small>${k === 'org' ? '所有文件都會用到' : `用於：${uses.map(x => x.name).slice(0, 4).join('、')}${uses.length > 4 ? ` 等${uses.length}份` : ''}`}</small></span>
       <span class="prog ${dn.done ? 'done' : ''}" data-prog="${k}">${dn.total ? (dn.done ? icon('check') : `${dn.ok}/${dn.total}`) : ''}</span>${icon('down', 'chev')}</button>
       ${open ? `<div class="sb">${k.startsWith('m:') ? meetSection(k.slice(2)) : SEC[k]()}</div>` : ''}
@@ -263,12 +268,13 @@ function renderDl() {
   if (!fill.length) return noDocs('dl');
   const dls = deadlines(sc).filter(x => x.kind !== 'none' || true);
   const today = isoToday();
-  let h = checkSummary(sc) + stampDlCard();
-  h += `<section class="card dlall"><h3>${icon('zip')}全部下載${hasBatch(sc) ? `<span class="tag">${batchLabel(sc)}</span>` : ''}</h3><p class="muted">把已勾選的 ${fill.length} 份文件一次打包成壓縮檔（.zip）。</p>
+  const sum = checkSummary(sc), stamp = stampDlCard();
+  let all = `<section class="card dlall"><h3>${icon('zip')}全部下載${hasBatch(sc) ? `<span class="tag">${batchLabel(sc)}</span>` : ''}</h3><p class="muted">把已勾選的 ${fill.length} 份文件一次打包成壓縮檔（.zip）。</p>
     <div class="fmtrow"><button class="fmt w" data-zip="docx"><i>W</i>Word</button><button class="fmt x" data-zip="xlsx"><i>X</i>Excel</button><button class="fmt p" data-zip="pdf"><i>P</i>PDF</button></div>
     ${hb.length ? `<div class="hbrow"><span>${icon('book')}大會手冊合併成一個檔案</span><span><button class="mini" data-hb="docx">Word</button><button class="mini" data-hb="pdf">PDF</button></span></div>` : ''}
     <div class="hbrow mg"><span class="hbt">${icon('doc')}<span><b>送件合併 PDF</b><small>檢核表＋全部文件＋上傳的附件，依順序合成一份，方便列印或寄送</small></span></span><span><button class="mini p" data-cmd="merge">合併 PDF</button></span></div></section>`;
-  if (dls.length) h += `<section class="card"><h3>${icon('clock')}重要期限${dls.some(x => x.when && daysBetween(today, x.when) >= 0) ? `<button class="mini cal" data-cmd="ics" data-scen="${sc}">${icon('cal')}加入行事曆</button>` : ''}</h3><ol class="tl">${dls.map(x => { const v = x.when ? daysBetween(today, x.when) : null; return `<li class="${v != null && v < 0 ? 'past' : ''}"><span class="d">${x.when ? `${rd(x.when)}<small>${weekday(x.when)}</small>` : '—'}</span><span class="w">${x.bt && hasBatch(sc) ? `<i class="bno">${BATCH[x.bt].n}</i>` : ''}${x.what}${v != null ? (v < 0 ? ' <em class="late">已過</em>' : v <= 7 ? ` <em class="soon">剩 ${v} 天</em>` : '') : ''}</span></li>`; }).join('')}</ol></section>`;
+  const dlsec = dlCard(sc);
+  let h = '';
   h += `<h3 class="grp">逐份下載</h3><div class="dcards">`;
   for (const x of list) {
     if (x.kind === 'attach') { const n = upList(sc, x).length; h += `<div class="dcard att">${icon('clip')}<div class="dt"><b>${x.name}</b><small>${n ? `已上傳 ${n} 個檔案，會一起放進壓縮檔與合併 PDF` : `請另外準備${x.note ? '：' + x.note : '實體文件'}`}</small></div>${x.up ? upHTML(sc, x) : ''}</div>`; continue; }
@@ -279,9 +285,10 @@ function renderDl() {
   }
   h += `<div class="dcard extra">${icon('check')}<div class="dt"><b>送件檢核表</b><small>依您勾選的文件自動列出份數、附件與期限，送件前逐項打勾</small></div>
       <div class="da"><button class="mini pv" data-pv="__check">${icon('eye')}預覽</button><button class="mini w" data-dl="__check" data-fmt="docx">Word</button><button class="mini p" data-dl="__check" data-fmt="pdf">PDF</button></div></div></div>`;
-  const nx = SCEN[sc].next;
-  if (nx) h += `<button class="rowlink next" data-go="scen" data-scen="${nx}">${icon(SCEN[nx].icon)}<span><b>下一步：${SCEN[nx].title}</b><small>這裡審查過的工作計畫、財務報表與會員名冊，會自動帶入大會手冊，不必重填。</small></span>${icon('back', 'flip')}</button>`;
-  if (hasBatch(sc) && !batchOn(sc).post) h += `<button class="rowlink slim" data-cmd="toPost">${icon('info')}<span><b>開完會後，回來準備「② 會後：會議紀錄送件」</b><small>按這裡切換到會後文件，已填的日期、地點、提案都會沿用。</small></span>${icon('back', 'flip')}</button>`;
+  const nx = SCEN[sc].next; let lk = '';
+  if (nx) lk += `<button class="rowlink next" data-go="scen" data-scen="${nx}">${icon(SCEN[nx].icon)}<span><b>下一步：${SCEN[nx].title}</b><small>這裡審查過的工作計畫、財務報表與會員名冊，會自動帶入大會手冊，不必重填。</small></span>${icon('back', 'flip')}</button>`;
+  if (hasBatch(sc) && !batchOn(sc).post) lk += `<button class="rowlink slim" data-cmd="toPost">${icon('info')}<span><b>開完會後，回來準備「② 會後：會議紀錄送件」</b><small>按這裡切換到會後文件，已填的日期、地點、提案都會沿用。</small></span>${icon('back', 'flip')}</button>`;
+  h = isDesk() ? `${guide('dl')}<div class="dgrid dlp"><div class="dmain">${sum}${h}${lk}</div><aside class="daside">${all}${stamp}${dlsec}</aside></div>` : guide('dl') + sum + stamp + all + dlsec + h + lk;
   $('#view').innerHTML = h; upThumbs($('#view'));
   dock(`<button class="btn ghost" data-step="fill">${icon('back')}回到填寫</button><button class="btn pri" data-zip="docx">${icon('dl')}<span>全部下載<span class="xs-hide"> Word</span></span></button>`);
 }

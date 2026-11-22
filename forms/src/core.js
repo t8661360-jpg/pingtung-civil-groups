@@ -74,6 +74,10 @@ function setp(o, path, v) {
 
 /* ===== 狀態 ===== */
 const LS_KEY = 'pt-assoc-forms-v2';
+/* 這台裝置自己的偏好（版面、操作提示），不跟著備份或雲端同步 */
+const PREF_KEY = 'pt-assoc-prefs';
+const PREFS = (() => { const d = { layout: 'auto', tips: false }; try { return Object.assign(d, JSON.parse(localStorage.getItem(PREF_KEY) || '{}')); } catch (e) { return d; } })();
+function setPref(k, v) { PREFS[k] = v; try { localStorage.setItem(PREF_KEY, JSON.stringify(PREFS)); } catch (e) { } }
 const ROLES = ['理事長', '副理事長', '常務理事', '理事', '候補理事', '常務監事', '監事', '候補監事', '總幹事', '會計', '出納', '會務人員', '籌備會主任委員', '籌備委員', '發起人'];
 const DIR_ROLES = ['理事長', '副理事長', '常務理事', '理事'];
 const SUP_ROLES = ['常務監事', '監事'];

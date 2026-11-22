@@ -1,5 +1,8 @@
 /* ===== 圖示（內嵌 SVG） ===== */
 const IC = {
+  help: '<circle cx="12" cy="12" r="9"/><path d="M9.6 9.4a2.5 2.5 0 1 1 3.6 2.3c-.7.4-1.2.9-1.2 1.7v.4M12 17.2v.1"/>',
+  desk: '<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8.5 20h7M12 16v4"/>',
+  phone: '<rect x="7" y="2.5" width="10" height="19" rx="2.2"/><path d="M11 18.5h2"/>',
   seed: '<path d="M12 21v-8m0 0c0-4 3-7 7-7 0 4-3 7-7 7zm0 0C12 9 9 6 5 6c0 4 3 7 7 7z"/>',
   flag: '<path d="M5 21V4m0 0h11l-2 4 2 4H5"/>',
   vote: '<path d="M4 12l3 3 6-7M14 13h6M14 17h6M4 20h16"/>',

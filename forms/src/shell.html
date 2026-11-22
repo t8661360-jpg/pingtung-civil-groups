@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script>/* 手機選「電腦版」：在第一次排版前就改成 1280 像素寬，瀏覽器會自動縮小到整頁可見 */(function(){try{var p=JSON.parse(localStorage.getItem('pt-assoc-prefs')||'{}');if(p.layout==='d'&&Math.min(screen.width,screen.height)<1024&&screen.width<1024)document.querySelector('meta[name=viewport]').setAttribute('content','width=1280, viewport-fit=cover');}catch(e){}})();</script>
 <meta name="theme-color" content="#ffffff">
 <meta name="description" content="屏東縣社團（職業團體）會務文件線上填報：籌備會、成立大會、會員大會改選／常年／解散、理監事會等縣府範本，資料連動，可下載 Word、Excel、PDF。">
 <title>會務文件線上填報｜屏東縣社團（職業團體）</title>
@@ -17,6 +18,8 @@
   <div class="ttl"><b id="hTitle">會務文件線上填報</b><small id="hSub"></small></div>
   <button id="cloudChip" class="cloudchip" hidden></button>
   <span id="saved" class="saved" aria-live="polite"></span>
+  <button class="icon lay" id="layBtn" aria-label="切換手機版或電腦版版面" title="切換手機版或電腦版版面"></button>
+  <button class="icon tipbtn" id="tipBtn" aria-pressed="false" aria-label="操作提示" title="操作提示"></button>
   <button class="icon" id="fontBtn" aria-label="放大字體" aria-pressed="false" title="放大字體">A＋</button>
   <button class="icon" id="menuBtn" aria-label="更多功能" title="更多功能"><svg class="ic" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/></svg></button>
 </header>
