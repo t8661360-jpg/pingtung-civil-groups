@@ -45,7 +45,7 @@ function linkedChip(path) { return hasDerive(path) ? `<span class="auto" title="
 function F(path, label, o = {}) {
   const t = o.type || 'text', v = raw(path), id = 'f_' + path.replace(/\W/g, '_');
   let input;
-  const common = `id="${id}" data-p="${path}"${o.ph ? ` data-ph="${esc(o.ph)}"` : ''}`;
+  const common = `id="${id}" data-p="${path}"${o.ph ? ` data-ph="${esc(o.ph)}"` : ''}${o.attrs || ''}`;
   if (t === 'area') input = `<textarea ${common} rows="${o.rows || 3}">${esc(v)}</textarea>`;
   else if (t === 'sel') input = `<select ${common}>${(o.blank === false ? [] : ['']).concat(o.opts).map(x => { const [val, lab] = Array.isArray(x) ? x : [x, x]; return `<option value="${esc(val)}"${String(v) === String(val) ? ' selected' : ''}>${esc(lab || (val === '' ? (o.blankLabel || '請選擇') : val))}</option>`; }).join('')}</select>`;
   else if (t === 'date') input = `<input type="date" ${common} value="${esc(v)}">`;

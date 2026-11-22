@@ -87,8 +87,8 @@ SEC.org = () => {
   const sc = S.ui.scen, ids = new Set(selDocs(sc).map(x => x.id));
   const needReg = ['roster', 'report', 'seal', 'reissue'].some(i => ids.has(i));
   const needSeats = ['prep', 'found', 'renew'].includes(fam(sc));
-  return GRID(
-    F('org.name', '團體名稱', { req: 1, w: 'full', ph: '例：○○協會、○○學會、○○促進會', hint: '輸入團體本名即可，縣市與鄉鎮會自動加在前面。' }) +
+  return orgFilledCard() + GRID(
+    F('org.name', '團體名稱', { req: 1, w: 'full', ph: '輸入團體名稱、理事長或電話的關鍵字', attrs: ' data-acorg="1" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false"', hint: '輸入關鍵字會列出縣府人民團體名冊裡的團體，選擇後自動帶入會址、電話、理事長、立案字號與屆別，都可以再修改。名冊沒有的團體直接輸入本名即可，縣市與鄉鎮會自動加在前面。' }) +
     F('org.county', '縣市', { w: 'half' }) + F('org.town', '鄉鎮市（可留空）', { w: 'half', ph: '例：屏東市' }) +
     `<div class="f full"><label>文件抬頭會顯示為</label><div class="out">${calc('orgFull')}</div></div>`) +
   H4('聯絡資料') + GRID(

@@ -63,6 +63,7 @@ const CMDS = {
   layout(t) { $('#sheet').hidden = true; setLayout(t.dataset.v); },
   tips() { $('#sheet').hidden = true; setTips(!tipsOn()); },
   tipsOff() { setTips(false); },
+  orgUndo() { orgUndo(); rerenderSection(); refreshLive(); renderSide(); toast('已復原成帶入前的資料'); },
   paste(t) { openPaste(t.dataset.target); },
   pasteDo(t) {
     const target = t.dataset.target, rows = parsePaste($('#pasteBox').value, target);

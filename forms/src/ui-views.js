@@ -152,7 +152,7 @@ function renderHome() {
   const D = isDesk(), hero = `<section class="hero">
     <h1>會務文件，<br>一次填好、處處帶入</h1>
     <p>選擇要辦理的事項，就會列出屏東縣政府社會處範本的所有文件。團體、人員、日期這些共同資料只要填一次，就會自動帶入每一份文件，完成後可下載 Word、Excel 或 PDF。</p>
-    ${S.org.name ? `<div class="orgchip">${icon('org')}<span>${esc(orgFull())}</span></div>` : ''}
+    ${S.org.name ? `<div class="orgchip">${icon('org')}<span>${esc(orgFull())}</span></div>` : `<div class="hsearch"><label for="homeOrg">${icon('org')}先找到您的團體</label><div class="in"><input id="homeOrg" data-acorg="1" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" placeholder="輸入團體名稱、理事長或電話的關鍵字"></div><small>從縣府人民團體名冊自動帶入會址、電話、理事長等資料，之後都可以修改；名冊沒有的團體，到填資料再輸入即可。</small></div>`}
   </section>`;
   const resume = `${last ? `<button class="resume" data-go="scen" data-scen="${last}">${icon(SCEN[last].icon)}<span><small>繼續填寫</small><b>${SCEN[last].title}</b></span><span class="ring" style="--p:${scenProgress(last)}">${scenProgress(last)}%</span></button>` : ''}`, side = `${backupReminder()}${upcomingCard()}`;
   const groups = `<h2 class="h2">我要辦理</h2><div class="hgroups">${HOME_GROUPS.map(([g, ks]) => { const flow = ks.length === 2 && SCEN[ks[1]].prev === ks[0]; return `<div class="hgrp${ks.length > 2 ? ' wide' : ''}"><h3 class="hg">${g}${flow ? '<small>依序辦理</small>' : ''}</h3><div class="tiles${flow ? ' flow' : ''}">${ks.map((k, i) => `<button class="tile" data-go="scen" data-scen="${k}">${flow ? `<span class="stepno">第${i + 1}步</span>` : ''}${icon(SCEN[k].icon, 'big')}<b>${SCEN[k].title}</b><small>${SCEN[k].sub}</small><span class="cnt">${allDocCount(k)} 份文件</span></button>`).join('')}</div></div>${D && g === '每年常會' ? homeTools() : ''}`; }).join('')}</div>`;

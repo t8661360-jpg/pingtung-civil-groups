@@ -635,3 +635,35 @@ html.tips-on .docrow,html.tips-on .tile,html.tips-on .dock .btn{-webkit-touch-ca
 @media (max-width:420px){.menu .mset{flex-direction:column;align-items:stretch}.menu .mseg{align-self:stretch}.menu .mseg button{flex:1}.menu .tgl{align-self:flex-end}}
 /* 手機標題列：「已自動儲存」改成小標籤，不佔標題的寬度 */
 @media (max-width:560px){html:not(.desk) .bar{position:sticky}html:not(.desk) .bar .saved{position:absolute;right:10px;bottom:-10px;z-index:3;background:#fff;border:1px solid #cfe8dc;border-radius:999px;padding:1px 8px;font-size:.66rem;pointer-events:none}}
+/* ===== v7：團體名冊關鍵字帶入 ===== */
+.in.ach{position:relative}
+.acbox{position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:40;background:#fff;border:1px solid #cfe0db;border-radius:12px;box-shadow:0 14px 34px rgba(15,28,26,.16);max-height:min(420px,60vh);overflow:auto;padding:4px}
+.acbox[hidden]{display:none}
+.achd,.acft{font-size:.74rem;color:var(--mute);padding:6px 10px}
+.acft{border-top:1px solid #eef2f1;margin-top:2px}
+.acitem{display:flex;flex-direction:column;gap:2px;padding:9px 10px;border-radius:9px;cursor:pointer}
+.acitem:hover,.acitem[aria-selected=true]{background:#eef7f4}
+.acitem b{font-size:.92rem;font-weight:700;color:var(--ink)}
+.acitem mark{background:#fff1b8;color:inherit;border-radius:3px;padding:0 1px}
+.acitem small{font-size:.78rem;color:var(--mute)}
+.acitem .acm{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
+.acitem .acm i{font-style:normal;font-size:.7rem;color:var(--pri-d);background:var(--pri-l);border-radius:999px;padding:1px 7px}
+.acitem .acm em{font-style:normal;font-size:.7rem;color:#4b5b60;background:#eef2f1;border-radius:999px;padding:1px 7px}
+.acitem .acm em.soon{background:var(--warnl);color:var(--warn)}
+.acitem .acm em.late{background:var(--badl);color:var(--bad)}
+.acmsg{padding:12px;font-size:.84rem;color:var(--mute)}
+.acdone{display:flex;align-items:flex-start;gap:10px;background:var(--okl);border:1px solid #bfe6cc;border-radius:12px;padding:10px 12px;margin:8px 0 12px}
+.acdone>.ic{color:var(--ok);flex:none;margin-top:2px}
+.acdone>div{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.acdone b{font-size:.9rem}
+.acdone small{font-size:.78rem;color:#3f5a4b;line-height:1.55}
+.acdone small.m{color:#8a5a12}
+.acdone small.w{display:flex;gap:5px;color:var(--warn)}
+.acdone small.w .ic{width:14px;height:14px;flex:none;margin-top:3px}
+.acdone .mini{flex:none}
+.hsearch{margin-top:14px;display:flex;flex-direction:column;gap:6px;max-width:560px}
+.hsearch label{display:flex;align-items:center;gap:6px;font-weight:700;color:var(--pri-d);font-size:.92rem}
+.hsearch label .ic{width:18px;height:18px}
+.hsearch input{width:100%;border:1.5px solid #bfe0d8;border-radius:12px;padding:12px 14px;font-size:1rem;background:#fff}
+.hsearch input:focus{outline:none;border-color:var(--pri);box-shadow:0 0 0 3px rgba(15,118,110,.15)}
+.hsearch small{color:var(--mute);font-size:.78rem;line-height:1.5}
