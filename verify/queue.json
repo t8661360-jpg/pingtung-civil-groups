@@ -1,4 +1,61 @@
 [
- {"id":"coop-dissolve-assets","question":"合作社解散後剩餘財產歸誰？","claim":"餘額依出資比例或章程辦理","statutes":[{"law":"合作社法","article":"61"},{"law":"合作社法","article":"62"},{"law":"合作社法","article":"55"}],"mustInclude":[]},
- {"id":"coop-rep-assembly","question":"一般合作社什麼時候可以用社員代表大會？","statutes":[{"law":"合作社法","article":"46"},{"law":"合作社法","article":"69"}]}
+ {
+  "id": "coop-dissolve-assets",
+  "question": "合作社解散後剩餘財產歸誰？",
+  "claim": "剩餘財產的分配比例合作社法沒有寫；公益金解散後不得移作他用；非社員業務收益提列的公積金、公益金不得分配予社員，優先捐贈合作事業發展基金",
+  "statutes": [
+   {
+    "law": "合作社法",
+    "article": "60"
+   },
+   {
+    "law": "合作社法",
+    "article": "61"
+   },
+   {
+    "law": "合作社法",
+    "article": "62"
+   },
+   {
+    "law": "合作社法",
+    "article": "63"
+   },
+   {
+    "law": "合作社法",
+    "article": "65"
+   },
+   {
+    "law": "合作社法",
+    "article": "23"
+   },
+   {
+    "law": "合作社業務提供非社員使用辦法",
+    "article": "8"
+   }
+  ],
+  "mustInclude": []
+ },
+ {
+  "id": "coop-rep-assembly",
+  "question": "一般合作社什麼時候可以用社員代表大會？",
+  "statutes": [
+   {
+    "law": "合作社選舉罷免辦法",
+    "article": "4"
+   },
+   {
+    "law": "合作社選舉罷免辦法",
+    "article": "5"
+   },
+   {
+    "law": "合作社法",
+    "article": "46"
+   },
+   {
+    "law": "合作社法",
+    "article": "69"
+   }
+  ],
+  "claim": "社員超過二百人時，得依章程規定分組選舉社員代表，出席社員代表大會；章程未規定經主管機關核准亦得分組辦理；代表名額以社員人數百分之十為原則，最低五十一人、最高一百九十九人"
+ }
 ]
