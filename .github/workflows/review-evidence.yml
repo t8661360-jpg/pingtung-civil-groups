@@ -1,0 +1,98 @@
+name: Review evidence (no deployment)
+on:
+  push:
+    branches: ['gpt/review-20261113']
+    paths-ignore: ['docs/**', 'verify/review-*.json']
+  pull_request:
+    branches: [main]
+    paths-ignore: ['docs/**', 'verify/review-*.json']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: review-evidence-${{ github.ref }}-${{ github.sha }}-${{ github.event_name }}
+  cancel-in-progress: false
+jobs:
+  evidence:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Record source and statutory evidence
+        run: |
+          mkdir -p review-evidence
+          git rev-parse HEAD > review-evidence/commit.txt
+          python3 - <<'PY'
+          import gzip, json, pathlib, tarfile
+          root = pathlib.Path('.')
+          selected = []
+          for pattern in ('*.js', 'test-*.cjs', 'eval-*.cjs', 'check-syntax.sh', 'scripts/*.cjs', 'scripts/*.mjs', 'verify/*.json', 'verify/*.md', 'data/statutes.json.gz', 'data/knowledge.json.gz', 'data/kb-*.json', 'index.html', 'worker/*.js', 'worker/README.md'):
+              selected.extend(root.glob(pattern))
+          with tarfile.open('review-evidence/source-audit.tar.gz', 'w:gz') as archive:
+              for path in sorted(set(selected)):
+                  if path.is_file():
+                      archive.add(path, arcname=str(path))
+          with gzip.open('data/statutes.json.gz', 'rt', encoding='utf-8') as source:
+              laws = json.load(source)
+          pathlib.Path('review-evidence/statutes-extracted.json').write_text(json.dumps(laws, ensure_ascii=False, indent=2), encoding='utf-8')
+          PY
+      - name: Syntax and all existing regression suites
+        run: |
+          set -o pipefail
+          {
+            bash check-syntax.sh
+            for f in *.js scripts/*.cjs scripts/*.mjs; do node --check "$f" || exit 1; done
+            for t in test-*.cjs; do echo "== $t"; node "$t" || exit 1; done
+            node eval-arbiter.cjs
+            node eval-pipeline.cjs
+          } 2>&1 | tee review-evidence/regression.log
+      - name: Save review evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: review-evidence-${{ github.run_id }}
+          path: review-evidence/
+          retention-days: 7
+  full-smoke:
+    if: github.event_name != 'push'
+    needs: evidence
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser test dependency
+        run: |
+          npm install --no-save playwright@1.56.0
+          npx playwright install --with-deps chromium
+      - name: Full smoke against this checkout, never production
+        env:
+          BASE_URL: http://127.0.0.1:8765/
+        run: |
+          set -o pipefail
+          mkdir -p review-smoke
+          git rev-parse HEAD > review-smoke/commit.txt
+          python3 -m http.server 8765 --bind 127.0.0.1 > review-smoke/http.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:8765/ > /dev/null; then break; fi
+            sleep 1
+          done
+          node scripts/site-smoke.mjs 2>&1 | tee review-smoke/smoke.log
+      - name: Save browser test evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: review-smoke-${{ github.run_id }}
+          path: review-smoke/
+          retention-days: 7
