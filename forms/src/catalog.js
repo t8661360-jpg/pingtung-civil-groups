@@ -214,11 +214,21 @@ function setBatch(sc, k, on) {
 }
 function batchLabel(sc) { const b = batchOn(sc); if (!hasBatch(sc)) return '全部文件'; return b.pre && b.post ? '會前及會後文件' : b.pre ? '開會通知' : '會議紀錄送件'; }
 
+/* 會議資料（附件）：可以線上填寫，也可以上傳自己的檔案；上傳的檔案在各選單共用，並自動檢查 */
+const MAT = { members: '會員名冊', fin: '財務報表', fin5: '財務報表', budget: '預算表', prepfin: '經費收支報告表', plan: '工作計畫', ledger: '收支報告', roster: '理監事名冊', statute: '章程', amend: '修正對照表' };
+const MAT_KIND = { members: 'members', roster: 'roster', fin: 'fin', fin5: 'fin', budget: 'fin', prepfin: 'fin', ledger: 'fin', plan: 'doc', statute: 'doc', amend: 'doc' };
+const docMode = x => (x && x.mat && (S.mode || {})[x.id]) || 'fill';
+const isUp = x => !!(x && x.mat && docMode(x) === 'up');
+/** 開會通知書「重要討論事項、報告事項」提到的附件 */
+const NOTICE_KW = { members: /名冊|會籍/, fin: /決算|預算|財產|資產負債|現金出納|基金收支/, fin5: /財務報表|決算|財產|資產負債/, budget: /預算/, prepfin: /籌備.*(經費|收支)|收支報告/, plan: /工作計畫/, ledger: /收支報(告|表)/, roster: /理監事.*(名冊|一覽)/, statute: /章程/, amend: /章程修正|修改章程|修正章程/ };
+function noticeRefs(mk) { const t = `${MV(mk, 'topics') || ''}\n${MV(mk, 'report') || ''}`; return new Set(Object.keys(NOTICE_KW).filter(k => NOTICE_KW[k].test(t))); }
+function withMat(list) { return list.map(x => x.id && MAT[x.id] ? { ...x, mat: MAT_KIND[x.id], upk: 'mat:' + x.id, up: x.up || '自己的' + MAT[x.id] } : x); }
 /* d(id, 名稱, 選項)：bt 批次、req 必備（該批次鎖定）、def 預設勾選、note 說明、kind:'attach' 只需另附不產生檔案、m 會議、b 產生函式 */
 const G = (g, bt = POST, o = {}) => ({ g, bt, ...o });
 const d = (id, name, o = {}) => ({ id, name, bt: POST, ...o });
 const DAY = '開會當天使用（不必送府，勾選才產生）';
-function scenDocs(sc) {
+function scenDocs(sc) { return withMat(scenDocs0(sc)); }
+function scenDocs0(sc) {
   const pv = S.ui.prepVar || 'p1';
   const F6 = '6項財務報表', d7 = '會議召開前7日送達縣府備查', d15 = '會議召開前15日送達縣府備查', d30 = '會議召開後30日內送達縣府備查';
   const F6N = '預算表、決算表(含現金出納表)、財產目錄、資產負債表、基金收支表';
@@ -227,9 +237,17 @@ function scenDocs(sc) {
   const signUp = (id, name) => d(id, name, { kind: 'attach', def: 1, up: '簽到後的簽到表', note: '可上傳簽名後的簽到表照片或掃描檔，下載時一併附上；也可以另外檢附紙本' });
   /* 會員大會手冊（hb）：會後必備；會前可勾選先印製發給會員 */
   const hbDocs = (bt, list) => list.map(x => ({ ...x, bt, hb: 1, ...(bt === PRE ? { req: 0, def: 0, note: x.preNote || '開會前印製，發給出席會員' } : {}) }));
+  /* 會前：開會通知書寫「如附件」的資料，依通知書內容自動勾選 */
+  const NA = (mk, list) => {
+    const r = noticeRefs(mk), own = S.sel[sc] || {};
+    return [G('開會通知檢附資料（通知書提到「如附件」的資料，可線上填寫或上傳）', PRE), ...list.map(x => ({ ...x, bt: PRE, req: 0, sk: 'pre:' + x.id, nm: mk, def: r.has(x.id) ? 1 : 0,
+      note: r.has(x.id) ? (own['pre:' + x.id] === false ? '開會通知書有提到，建議一併檢附' : '開會通知書有提到，已自動勾選') : (x.preNote || '通知書沒有提到，需要時再勾選') }))];
+  };
+  const hbDay = (HB) => hbDocs(PRE, HB.filter(x => ['cover', 'agenda'].includes(x.id)));
   switch (sc) {
     case 'prep': { const mk = 'prep.' + pv; return [
       G('開會通知', PRE), d('notice', '開會通知書', { bt: PRE, req: 1, note: d7, m: mk, b: () => docNotice(mk) }),
+      ...NA(mk, [d('statute', '組織章程（草案）', { b: docStatuteDraft }), d('members', '會員名冊', { b: () => docMembers('prep') }), d('prepfin', '籌備期間經費收支報告表', { b: docPrepFin })]),
       G(DAY, PRE, { sub: 1 }), signPre('sign', '簽到表', mk, () => docSignPrep(mk)),
       G('公文'), d('letter', '檢送會議紀錄公文', { req: 1, note: d30, m: mk, b: () => docLetter(mk) }),
       G('會議紀錄'), d('min', pv === 'p2' ? '第二次籌備會會議紀錄' : '發起人暨第一次籌備會會議紀錄', { req: 1, m: mk, b: () => docMinutes(mk) }), signUp('signUp', '簽到表（簽到後影本）'),
@@ -241,9 +259,10 @@ function scenDocs(sc) {
         d('budget', '年度經費收支預算表', { req: 1, b: () => docFinance(['bud']) }), d('prepfin', '籌備期間經費收支報告表', { req: 1, b: docPrepFin }), d('statute', '組織章程', { req: 1, b: docStatuteDraft }), d('members', '會員名冊', { req: 1, b: () => docMembers('found') })];
       return [
         G('開會通知', PRE), d('notice', '開會通知書', { bt: PRE, req: 1, note: d15, m: 'found.asm', b: () => docNotice('found.asm') }),
+        ...NA('found.asm', HB.filter(x => ['plan', 'budget', 'prepfin', 'statute', 'members'].includes(x.id))),
         G(DAY, PRE, { sub: 1 }), signPre('asmSign', '大會簽到表', 'found.asm', () => docSignAsm('found.asm')), signPre('brdSign', '理監事會簽到表', 'found.brd', () => docSignBrd('found.brd')),
         d('ballot', '選舉票', { bt: PRE, def: 1, note: '依選舉票格式印製，加蓋團體圖記', b: () => docBallot('found.asm') }), d('proxy', '委託書', { bt: PRE, b: () => docProxy('found.asm'), note: '隨開會通知寄給會員' }),
-        ...hbDocs(PRE, HB),
+        ...hbDay(HB),
         G('公文'), d('letter', '檢送會議紀錄公文（申請立案）', { req: 1, note: d30, m: 'found.asm', b: () => docLetter('found.asm') }),
         G('會議紀錄'), d('asmMin', '第1屆第1次成立會員大會紀錄', { req: 1, note: '選舉理事、監事', m: 'found.asm', b: () => docMinutes('found.asm') }), signUp('asmSignUp', '大會簽到表（簽到後影本）'),
         d('brdMin', '第1屆第1次理監事會紀錄', { req: 1, note: '選舉常務理事、理事長、常務監事', m: 'found.brd', b: () => docMinutes('found.brd') }), signUp('brdSignUp', '理監事會簽到表（簽到後影本）'),
@@ -256,6 +275,7 @@ function scenDocs(sc) {
       const mk = sc === 'renewPre' ? 'renew.pre' : 'annual.pre', rn = sc === 'renewPre', A = rn ? 'renew' : 'annual';
       return [
         G('開會通知', PRE), d('notice', '開會通知書', { bt: PRE, req: 1, note: d7, m: mk, b: () => docNotice(mk) }),
+        ...NA(mk, [d('members', '會員名冊', { b: () => docMembers(A) }), d('fin', F6, { b: () => docFinance(['bud', 'act', 'prop', 'bs', 'fund']) }), d('plan', '年度工作計畫', { b: docPlan }), d('ledger', '經費收支報告', { b: docLedger })]),
         G(DAY, PRE, { sub: 1 }), signPre('sign', '理監事會簽到表', mk, () => docSignBrd(mk)),
         G('公文'), d('letter', '檢送會議紀錄公文', { req: 1, note: d30, m: mk, b: () => docLetter(mk) }),
         G('會議紀錄'), d('min', '理監事會會議紀錄', { req: 1, note: rn ? '會員大會改選會議前15日，召開選前理監事會' : '會員大會召開前15日，開大會前理監事會', m: mk, b: () => docMinutes(mk) }),
@@ -272,9 +292,10 @@ function scenDocs(sc) {
         d('members', '會員名冊', { req: 1, b: () => docMembers('renew') })];
       return [
         G('開會通知', PRE), d('notice', '開會通知書', { bt: PRE, req: 1, note: d15, m: 'renew.asm', b: () => docNotice('renew.asm') }),
+        ...NA('renew.asm', HB.filter(x => ['fin', 'plan', 'ledger', 'members'].includes(x.id))),
         G(DAY, PRE, { sub: 1 }), signPre('asmSign', '大會簽到表', 'renew.asm', () => docSignAsm('renew.asm')), signPre('brdSign', '選後理監事會簽到表', 'renew.brd', () => docSignBrd('renew.brd')),
         d('ballot', '選舉及罷免票', { bt: PRE, def: 1, note: '依選前理監事會議決的格式印製，加蓋團體圖記', b: () => docBallot('renew.asm') }), d('proxy', '委託書', { bt: PRE, b: () => docProxy('renew.asm'), note: '隨開會通知寄給會員' }),
-        ...hbDocs(PRE, HB.filter(x => x.id !== 'ledger')),
+        ...hbDay(HB),
         G('公文'), d('letter', '檢送會議紀錄公文', { req: 1, note: d30, m: 'renew.asm', b: () => docLetter('renew.asm') }),
         G('會議紀錄'), d('asmMin', '會員大會會議紀錄', { req: 1, note: '改選理事、監事', m: 'renew.asm', b: () => docMinutes('renew.asm') }), signUp('asmSignUp', '大會簽到表（簽到後影本）'),
         d('brdMin', '理監事會會議紀錄（選後）', { req: 1, note: '選舉常務理事、理事長、常務監事', m: 'renew.brd', b: () => docMinutes('renew.brd') }), signUp('brdSignUp', '理監事會簽到表（選後，簽到後影本）'),
@@ -290,8 +311,9 @@ function scenDocs(sc) {
         d('roster', '理監事暨會務人員一覽表', { req: 1, b: () => docRoster('annual') }), d('members', '會員名冊', { req: 1, b: () => docMembers('annual') })];
       return [
         G('開會通知', PRE), d('notice', '開會通知書', { bt: PRE, req: 1, note: d15, m: 'annual.asm', b: () => docNotice('annual.asm') }),
+        ...NA('annual.asm', HB.filter(x => ['fin', 'plan', 'ledger', 'roster', 'members'].includes(x.id))),
         G(DAY, PRE, { sub: 1 }), signPre('asmSign', '大會簽到表', 'annual.asm', () => docSignAsm('annual.asm')), d('proxy', '委託書', { bt: PRE, b: () => docProxy('annual.asm'), note: '隨開會通知寄給會員' }),
-        ...hbDocs(PRE, HB.filter(x => !['ledger', 'roster'].includes(x.id))),
+        ...hbDay(HB),
         G('公文'), d('letter', '檢送會議紀錄公文', { req: 1, note: d30, m: 'annual.asm', b: () => docLetter('annual.asm') }),
         G('會議紀錄'), d('asmMin', '會員大會會議紀錄', { req: 1, m: 'annual.asm', b: () => docMinutes('annual.asm') }), signUp('asmSignUp', '大會簽到表（簽到後影本）'),
         G('會員大會手冊'), ...hbDocs(POST, HB), d('charter', '組織章程（現行）', { req: 1, hb: 1, kind: 'attach', note: '請附貴會現行章程', up: '現行章程', upk: 'charter' }),
@@ -300,6 +322,7 @@ function scenDocs(sc) {
     }
     case 'board': { const ad = !!S.ui.boardAddr; return [
       G('開會通知', PRE), d('notice', '開會通知書', { bt: PRE, req: 1, note: d7, m: 'board.brd', b: () => docNotice('board.brd') }),
+      ...NA('board.brd', [d('ledger', '經費收支報告', { b: docLedger }), d('members', '會員名冊（新入會名單）', { b: () => docMembers('board') }), d('plan', '年度工作計畫', { b: docPlan }), d('fin', F6, { b: () => docFinance(['bud', 'act', 'prop', 'bs', 'fund']) })]),
       G(DAY, PRE, { sub: 1 }), signPre('sign', '簽到表', 'board.brd', () => docSignBrd('board.brd')),
       G('公文'), d('letter', '檢送會議紀錄公文', { req: 1, note: d30, m: 'board.brd', b: () => docLetter('board.brd') }),
       ...(ad ? [d('addrLetter', '檢送會址變更公文', { req: 1, note: '理監事會討論會址變更、會議召開後30日內送達縣府備查', b: docAddrLetter })] : []),
@@ -309,6 +332,7 @@ function scenDocs(sc) {
     ]; }
     case 'dissolve': return [
       G('開會通知', PRE), d('notice', '開會通知書', { bt: PRE, req: 1, note: d15, m: 'dissolve.asm', b: () => docNotice('dissolve.asm') }),
+      ...NA('dissolve.asm', [d('fin5', '5項財務報表', { b: () => docFinance(['act', 'prop', 'bs', 'fund']) }), d('members', '會員名冊', { b: () => docMembers('dissolve') }), d('roster', '理監事暨會務人員一覽表', { b: () => docRoster('dissolve') })]),
       G(DAY, PRE, { sub: 1 }), signPre('sign', '大會簽到表', 'dissolve.asm', () => docSignAsm('dissolve.asm')), d('proxy', '委託書', { bt: PRE, b: () => docProxy('dissolve.asm'), note: '隨開會通知寄給會員' }),
       G('公文'), d('letter', '檢送會議紀錄公文', { req: 1, note: d30, m: 'dissolve.asm', b: () => docLetter('dissolve.asm') }),
       G('會議紀錄'), d('min', '會員大會會議紀錄', { req: 1, note: '範例格式及提案請勿刪減', m: 'dissolve.asm', b: () => docMinutes('dissolve.asm') }), signUp('signUp', '大會簽到表（簽到後影本）'),
@@ -326,10 +350,20 @@ function scenDocs(sc) {
 /** 目前批次下的文件（同一份文件若兩批都有，以會後版本為準，排在會後位置） */
 function docsOf(sc) {
   const on = batchOn(sc), m = new Map();
-  for (const x of scenDocs(sc)) if (x.id && on[x.bt]) { m.delete(x.id); m.set(x.id, x); }
+  for (const x of scenDocs(sc)) if (x.id && on[x.bt]) {
+    const prev = m.get(x.id); m.delete(x.id);
+    /* 會前、會後都要的同一份資料：會前會後一起下載時合併成一列，勾選狀態取聯集 */
+    m.set(x.id, prev && prev.sk && prev.sk !== selKey(x) ? { ...x, alt: { sk: prev.sk, def: prev.def } } : x);
+  }
   return [...m.values()];
 }
+/** 勾選狀態的鍵：會前「開會通知檢附資料」與會後檢附資料分開記錄 */
+const selKey = x => x.sk || x.id;
+function selOne(sc, k, def) { const v = (S.sel[sc] || {})[k]; return v == null ? !!def : !!v; }
+function setSel(sc, x, on) { S.sel[sc] = S.sel[sc] || {}; S.sel[sc][selKey(x)] = !!on; if (x.alt) S.sel[sc][x.alt.sk] = !!on; }
+/** 開會通知書要附上的資料（會前批次中勾選的） */
+function noticeAtt(mk, sc = S.ui.scen) { return scenDocs(sc).filter(x => x.nm === mk && x.bt === PRE && isSel(sc, x)); }
 /** 選單中全部（不分批次）的文件數，首頁用 */
 function allDocCount(sc) { return new Set(scenDocs(sc).filter(x => x.id && x.kind !== 'attach').map(x => x.id)).size; }
-function isSel(sc, x) { if (x.req) return true; const v = (S.sel[sc] || {})[x.id]; return v == null ? !!x.def : !!v; }
+function isSel(sc, x) { if (x.req) return true; return selOne(sc, selKey(x), x.def) || (!!x.alt && selOne(sc, x.alt.sk, x.alt.def)); }
 function selDocs(sc) { return docsOf(sc).filter(x => isSel(sc, x)); }

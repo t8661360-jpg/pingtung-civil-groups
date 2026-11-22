@@ -1,7 +1,7 @@
 /* ===== 文件 → 需要填寫的區塊 ===== */
 function docSecs(x) {
   const s = [];
-  if (x.kind === 'attach') return s;
+  if (x.kind === 'attach' || isUp(x)) return s;
   if (x.m) { s.push('people', 'm:' + x.m); if (MEET[x.m].asm && /sign|Sign|notice/.test(x.id)) s.push('members'); }
   const map = { cover: ['m:' + (fam(S.ui.scen) + '.asm')], agenda: [], plan: ['plan'], fin: ['fin'], fin5: ['fin'], budget: ['fin'], ledger: ['ledger'], prepfin: ['prepfin', 'people'], members: ['members'], statute: ['statute'],
     recruit: ['recruit', 'people'], handover: ['handover', 'people'], roster: ['people', 'members'], cert: ['cert', 'people'], consent: ['consent'], proxy: ['proxy'], ballot: ['ballot', 'm:' + fam(S.ui.scen) + '.asm'],
@@ -9,6 +9,11 @@ function docSecs(x) {
   if (S.ui.scen === 'found' && x.id === 'cover') return ['m:found.asm'];
   (map[x.id] || []).forEach(k => s.push(k));
   return s;
+}
+/** 附註欄提示：會自動列出哪些附件 */
+function noticeNoteHint(mk) {
+  const att = noticeAtt(mk).map(x => x.name);
+  return att.length ? `通知書會自動加上「附件：${att.join('、')}」（附註裡寫了「附件」或「檢附」就不另外加）` : '在「選文件」勾選開會通知檢附資料後，通知書附註會自動列出附件';
 }
 const SEC_ORDER = ['org', 'people', 'members', 'm', 'plan', 'fin', 'ledger', 'prepfin', 'statute', 'amend', 'handover', 'cert', 'consent', 'ballot', 'proxy', 'recruit', 'report', 'seal', 'resign', 'reissue'];
 function sectionsFor(sc) {
@@ -20,7 +25,7 @@ function sectionsFor(sc) {
   for (const k of SEC_ORDER) { if (k === 'm') out.push(...meets); else if (set.has(k)) out.push(k); }
   return out;
 }
-function docsUsing(sc, sec) { return selDocs(sc).filter(x => x.kind !== 'attach' && (sec === 'org' || docSecs(x).includes(sec))); }
+function docsUsing(sc, sec) { return selDocs(sc).filter(x => x.kind !== 'attach' && !isUp(x) && (sec === 'org' || docSecs(x).includes(sec))); }
 
 /* ===== 區塊標題、圖示、完成度 ===== */
 function secMeta(k) {
@@ -69,6 +74,7 @@ function reqLabel(p) {
 }
 function secDone(k) { const r = secReq(k); const ok = r.filter(reqOk).length; return { ok, total: r.length, done: ok === r.length, missing: r.filter(p => !reqOk(p)).map(reqLabel) }; }
 function docMissing(sc, x) {
+  if (isUp(x)) return upList(sc, x).length ? [] : ['上傳的檔案'];
   const ks = ['org', ...docSecs(x)];
   const miss = [];
   ks.forEach(k => secDone(k).missing.forEach(l => { const t = `${k.startsWith('m:') ? MEET[k.slice(2)].label.replace(/（.*）/, '') : secMeta(k).t}的${l}`; if (!miss.includes(t)) miss.push(t); }));
@@ -146,7 +152,7 @@ function meetSection(mk) {
   if (!post) {
     h += GRID(F(`m.${mk}.should`, d.asm ? '應出席人數' : '應出席人數（通知書用）', { type: 'num', w: 'half', suf: '人' }));
     if (hasNotice) h += H4('開會通知書') + GRID(F(`m.${mk}.noticeNo`, '發文字號（號碼）', { w: 'half', pre: '第', suf: '號' }) + F(`m.${mk}.noticeDate`, '發文日期', { type: 'date', w: 'half' }) +
-      F(`m.${mk}.report`, '報告事項', { type: 'area', rows: 2, w: 'full' }) + F(`m.${mk}.topics`, '重要討論事項', { type: 'area', rows: 4, w: 'full', hint: '預設依下方「討論提案」自動列出。' }) + F(`m.${mk}.noticeNote`, '附註', { w: 'full', ph: '例：不克出席者請填具委託書' }));
+      F(`m.${mk}.report`, '報告事項', { type: 'area', rows: 2, w: 'full' }) + F(`m.${mk}.topics`, '重要討論事項', { type: 'area', rows: 4, w: 'full', hint: '預設依下方「討論提案」自動列出。提到工作計畫、財務報表、會員名冊等資料時，會自動勾選為「開會通知檢附資料」，附註也會列出附件。' }) + F(`m.${mk}.noticeNote`, '附註', { w: 'full', ph: '例：不克出席者請填具委託書', hint: noticeNoteHint(mk) }));
     h += H4('討論提案（案由）') + NOTE('會前只要列出案由，開會通知書的「重要討論事項」會自動帶入；決議可以會後再填。') +
       LISTC(`m.${mk}.props`, propFields(mk), { summary: (r, i) => PV(mk, i, 'reason').slice(0, 40), numFmt: i => '案' + cn(i + 1), addLabel: '新增提案', emptyLabel: '（新提案）', empty: '目前沒有提案' });
     return h;
@@ -159,7 +165,7 @@ function meetSection(mk) {
     (k === 'foundBrd' ? F(`m.${mk}.attend`, '出席人數', { type: 'num', w: 'third', suf: '人' }) + F(`m.${mk}.attendDir`, '其中理事', { type: 'num', w: 'third', suf: '人' }) + F(`m.${mk}.attendSup`, '其中監事', { type: 'num', w: 'third', suf: '人' }) + F(`m.${mk}.absentNames`, '缺席人員', { w: 'half' }) + F(`m.${mk}.obsNames`, '列席人員', { w: 'half' }) : '') +
     F(`m.${mk}.leaveNames`, '請假人員', { w: 'half' }) + (k === 'postBrd' ? F(`m.${mk}.obs`, '列席人數', { type: 'num', w: 'half', suf: '人' }) : '') + F(`m.${mk}.should`, '應出席人數（通知書用）', { type: 'num', w: 'half', suf: '人' }));
   if (hasNotice) h += H4('開會通知書') + GRID(F(`m.${mk}.noticeNo`, '發文字號（號碼）', { w: 'half', pre: '第', suf: '號' }) + F(`m.${mk}.noticeDate`, '發文日期', { type: 'date', w: 'half' }) +
-    F(`m.${mk}.report`, '報告事項', { type: 'area', rows: 2, w: 'full' }) + F(`m.${mk}.topics`, '重要討論事項', { type: 'area', rows: 4, w: 'full', hint: '預設依下方「討論提案」自動列出。' }) + F(`m.${mk}.noticeNote`, '附註', { w: 'full', ph: '例：不克出席者請填具委託書' }));
+    F(`m.${mk}.report`, '報告事項', { type: 'area', rows: 2, w: 'full' }) + F(`m.${mk}.topics`, '重要討論事項', { type: 'area', rows: 4, w: 'full', hint: '預設依下方「討論提案」自動列出。提到工作計畫、財務報表、會員名冊等資料時，會自動勾選為「開會通知檢附資料」，附註也會列出附件。' }) + F(`m.${mk}.noticeNote`, '附註', { w: 'full', ph: '例：不克出席者請填具委託書', hint: noticeNoteHint(mk) }));
   h += H4('會議內容') + GRID(
     (k === 'prep1' ? F(`m.${mk}.tmpChair`, '臨時主席（發起人代表）', { w: 'half' }) : '') +
     F(`m.${mk}.speech`, '主席致詞（留空＝略）', { type: 'area', rows: 2, w: 'full' }) +

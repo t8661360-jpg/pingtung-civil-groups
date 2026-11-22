@@ -114,7 +114,7 @@ const CMDS = {
     await IDBX.run('files', 'readwrite', st => st.clear()); await IDBX.run('img', 'readwrite', st => st.clear()); SEALC.clear(); FILEC.clear();
     save(); render(); toast('已清除');
   },
-  pvOpen() { const list = pvDocs(S.ui.scen).length ? pvDocs(S.ui.scen) : selDocs(S.ui.scen).filter(x => x.kind !== 'attach'); if (list.length) openPreview(list.some(x => x.id === S.ui.pvDoc) ? S.ui.pvDoc : list[0].id); },
+  pvOpen() { const list = pvDocs(S.ui.scen).length ? pvDocs(S.ui.scen) : selDocs(S.ui.scen).filter(x => x.kind !== 'attach' && !isUp(x)); if (list.length) openPreview(list.some(x => x.id === S.ui.pvDoc) ? S.ui.pvDoc : list[0].id); },
   pvClose() { closePreview(); },
   toPost() { const sc = S.ui.scen; S.batch = S.batch || {}; S.batch[sc] = { pre: false, post: true }; S.ui.step = 'docs'; save(); render(); window.scrollTo({ top: 0 }); toast('已切換到「② 會後：會議紀錄送件」'); },
   async ics(t) {
@@ -188,6 +188,7 @@ function onInput(e) {
   setp(S, p, val);
   if (p.startsWith('ui.')) { save(); render(); return; }
   save();
+  if (/^m\./.test(p)) refWatchSoon();
   if (el.dataset.rr) { render(); return; }
   refreshLive(); renderSide();
 }
@@ -195,7 +196,7 @@ document.addEventListener('input', onInput);
 document.addEventListener('change', e => { if (e.target.type === 'checkbox' && e.target.dataset.sel) return; if (e.target.matches('select[data-p], input[type=checkbox][data-p], input[type=date], input[type=time]')) onInput(e); });
 document.addEventListener('change', e => {
   const t = e.target;
-  if (t.dataset.sel) { const sc = S.ui.scen; S.sel[sc] = S.sel[sc] || {}; S.sel[sc][t.dataset.sel] = t.checked; save(); t.closest('.docrow').classList.toggle('on', t.checked); const n = selDocs(sc).filter(x => x.kind !== 'attach').length; $('#dock .dk-t b').textContent = n; $('#steps').innerHTML = stepsBar(); }
+  if (t.dataset.sel) { const sc = S.ui.scen; setSel(sc, docsOf(sc).find(d => d.id === t.dataset.sel) || { id: t.dataset.sel }, t.checked); save(); t.closest('.docrow').classList.toggle('on', t.checked); const n = selDocs(sc).filter(x => x.kind !== 'attach').length; $('#dock .dk-t b').textContent = n; $('#steps').innerHTML = stepsBar(); }
   if (t.dataset.pvsel) { S.ui.pvDoc = t.value; save(); renderSide(); }
   if (t.dataset.cloudseals) { S.cloud.seals = t.checked; save({ keepTime: true, noCloud: true }); if (t.checked) cloudPush(); }
   if (t.dataset.pvopen) { openPreview(t.value); }
@@ -210,6 +211,7 @@ document.addEventListener('click', async e => {
   if (t.id === 'cloudChip') { cloudChipClick(); return; }
   if (ds.go) { e.preventDefault(); $('#sheet').hidden = true; S.ui.view = ds.go === 'scen' ? 'scen' : ds.go; if (ds.scen) { if (S.ui.scen !== ds.scen) { S.ui.step = 'docs'; S.ui.open = ''; } S.ui.scen = ds.scen; } save(); render(); return; }
   if (ds.step) { S.ui.step = ds.step; save(); render(); return; }
+  if (ds.mode) { e.preventDefault(); S.mode = S.mode || {}; S.mode[ds.id] = ds.mode; const sc = S.ui.scen; if (ds.mode === 'up') setSel(sc, docsOf(sc).find(d => d.id === ds.id) || { id: ds.id }, true); save(); render(); toast(ds.mode === 'up' ? '改為上傳檔案：可上傳 Excel、PDF、Word 或照片，系統會自動檢查（各選單共用）' : '改為線上填寫'); return; }
   if (ds.batch) { const sc = S.ui.scen, on = batchOn(sc); setBatch(sc, ds.batch, !on[ds.batch]); save(); render(); return; }
   if (ds.open) {
     const was = S.ui.open; S.ui.open = was === ds.open && t.classList.contains('sh') ? '' : ds.open; save(); renderFill();
@@ -229,12 +231,14 @@ document.addEventListener('click', async e => {
     t.disabled = true; await exportDoc(keyed(sc, x), ds.fmt, `${orgShort()}_${SCEN[sc].title}_${x.name}`); t.disabled = false; return;
   }
   if (ds.zip) {
-    const sc = S.ui.scen, items = selDocs(sc).filter(x => x.kind !== 'attach' || upList(sc, x).length).map(x => ({ name: x.name, doc: x.kind === 'attach' ? null : keyed(sc, x), files: upList(sc, x).length ? () => upBlobs(sc, x) : null }));
+    const sc = S.ui.scen, items = selDocs(sc).filter(x => (x.kind !== 'attach' && !isUp(x)) || upList(sc, x).length).map(x => ({ name: x.name, doc: x.kind === 'attach' || isUp(x) ? null : keyed(sc, x), files: upList(sc, x).length ? () => upBlobs(sc, x) : null }));
     items.push({ name: '送件檢核表', doc: docChecklist(sc) });
     t.disabled = true; await exportZip(items, ds.zip, `${orgShort()}_${SCEN[sc].title}_${batchLabel(sc)}_${FMT_NAME[ds.zip]}`); t.disabled = false; return;
   }
   if (ds.hb) {
-    const sc = S.ui.scen, hb = selDocs(sc).filter(x => x.hb && x.kind !== 'attach');
+    const sc = S.ui.scen, hbAll = selDocs(sc).filter(x => x.hb && (x.kind !== 'attach' || upList(sc, x).length)), hb = hbAll.filter(x => x.kind !== 'attach' && !isUp(x));
+    if (ds.hb === 'pdf' && hbAll.some(x => upList(sc, x).length)) { t.disabled = true; await mergedPdf(sc, hbAll, `${orgShort()}_${SCEN[sc].title}_大會手冊.pdf`); t.disabled = false; return; }
+    if (hbAll.length > hb.length) toast(`Word 版手冊不含上傳的檔案（${hbAll.filter(x => !hb.includes(x)).map(x => x.name).join('、')}），需要時請下載 PDF 版`);
     const doc = { title: '會員大會手冊', sheets: hb.flatMap(x => keyed(sc, x).sheets) };
     t.disabled = true; await exportDoc(doc, ds.hb, `${orgShort()}_${SCEN[sc].title}_大會手冊`); t.disabled = false; return;
   }

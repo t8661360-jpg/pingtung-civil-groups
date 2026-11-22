@@ -501,3 +501,37 @@ input.num{text-align:right;font-variant-numeric:tabular-nums}
 .hbrow.mg .hbt{display:flex;gap:8px;align-items:flex-start;flex:1;min-width:0}
 .hbrow.mg .hbt>span{display:flex;flex-direction:column;font-weight:600}
 .hbrow.mg .hbt b{font-weight:600}
+/* ===== v5：線上填寫／上傳、自動檢查 ===== */
+.modes{display:inline-flex;align-self:flex-start;margin-top:6px;border:1px solid #cfdcd9;border-radius:9px;overflow:hidden;position:relative;z-index:1;background:#fff}
+.modes button{border:0;background:#fff;padding:5px 10px;font-size:.78rem;font-weight:700;color:var(--mute)}
+.modes button+button{border-left:1px solid #cfdcd9}
+.modes button.on{background:var(--pri);color:#fff}
+.dn .upbtn{margin-right:6px}
+.ck{display:inline-flex;align-items:center;gap:4px;font-size:.74rem;font-weight:700;border-radius:999px;padding:2px 8px;white-space:nowrap;align-self:flex-start;margin-top:6px}
+.ck .ic{width:14px;height:14px}
+.ck.err{color:var(--bad);background:var(--badl)}
+.ck.warn{color:var(--warn);background:var(--warnl)}
+.cklist{margin:4px 0 0;padding-left:18px;font-size:.78rem;line-height:1.5}
+.cklist li.err{color:var(--bad)}
+.cklist li.warn{color:#8a5a06}
+.cklist li.info{color:var(--mute)}
+.cklist li.ok{color:var(--ok)}
+.ckall{display:flex;gap:10px;align-items:flex-start}
+.ckall>.ic{width:24px;height:24px;margin-top:2px}
+.ckall>div{display:flex;flex-direction:column;gap:3px;min-width:0;flex:1}
+.ckall small{color:var(--mute);font-size:.8rem}
+.ckall.ok{background:var(--okl);border-color:#bfe6cc}.ckall.ok>.ic{color:var(--ok)}
+.ckall.warn{background:var(--warnl);border-color:#f2d6a6}.ckall.warn>.ic{color:var(--warn)}
+.ckall.err{background:var(--badl);border-color:#f3c9c9}.ckall.err>.ic{color:var(--bad)}
+.ckall summary{cursor:pointer;font-size:.82rem;color:var(--pri-d);font-weight:700;margin-top:2px}
+.ckdoc{margin-top:8px}.ckdoc b{font-size:.86rem}
+.dcard .ck{margin-top:0}
+.dcard.upm{background:#f6fbfa;border-color:#cfe6e0}
+.dcard.upm>.ic{color:var(--pri)}
+.upf.err{border-color:#f3c9c9;background:#fffafa}
+.upf.warn{border-color:#f2d6a6;background:#fffdf7}
+.upf .cl.ok,.upf .cl{color:var(--ok);font-weight:700}
+.upf .cl.err{color:var(--bad)}.upf .cl.warn{color:var(--warn)}
+.ckd{flex-basis:100%;font-size:.82rem;margin-top:2px}
+.ckd summary{cursor:pointer;color:var(--pri-d);font-weight:700}
+.ckf{margin-top:6px}.ckf b{font-size:.8rem}

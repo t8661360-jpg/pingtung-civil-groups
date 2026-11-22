@@ -50,10 +50,17 @@ function docNotice(mk) {
     { h: 54, cells: [{ v: '議\n\n程', rs: 2, al: 'c' }, { v: '報告事項', al: 'c' }, { v: MV(mk, 'report'), cs: 3 }] },
     { h: 80, cells: [{ v: '重　要\n討論事項', al: 'c' }, { v: MV(mk, 'topics'), cs: 3 }] },
     { cells: [{ v: '申請事項', cs: 2, al: 'c' }, { v: '敬請主管機關派員列席指導。', cs: 3 }] },
-    { h: 28, cells: [{ v: '附　　註', cs: 2, al: 'c' }, { v: m.noticeNote || '', cs: 3 }] },
+    { h: 28, cells: [{ v: '附　　註', cs: 2, al: 'c' }, { v: noticeNoteText(mk), cs: 3 }] },
     { cells: [{ v: `此致\n${signerLine(mk)}\n${recipLines(mk)}`, cs: 5 }] },
   ];
   return { title: '開會通知書', sheets: [{ name: '開會通知書', cols: [5, 7, 30, 10, 30], size: 12, ls: 1.35, blocks: [T(rows, { size: 12, pad: 4 })] }] };
+}
+
+/** 附註：使用者填的附註＋自動列出勾選的開會通知檢附資料 */
+function noticeNoteText(mk) {
+  const note = (M(mk).noticeNote || '').trim(), att = noticeAtt(mk).map(x => x.name);
+  if (!att.length || /附件|檢附/.test(note)) return note;
+  return [note, `附件：${att.join('、')}`].filter(Boolean).join('\n');
 }
 
 /* ---------- 檢送會議紀錄公文（函） ---------- */

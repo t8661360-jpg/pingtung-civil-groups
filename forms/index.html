@@ -512,6 +512,40 @@ input.num{text-align:right;font-variant-numeric:tabular-nums}
 .hbrow.mg .hbt{display:flex;gap:8px;align-items:flex-start;flex:1;min-width:0}
 .hbrow.mg .hbt>span{display:flex;flex-direction:column;font-weight:600}
 .hbrow.mg .hbt b{font-weight:600}
+/* ===== v5：線上填寫／上傳、自動檢查 ===== */
+.modes{display:inline-flex;align-self:flex-start;margin-top:6px;border:1px solid #cfdcd9;border-radius:9px;overflow:hidden;position:relative;z-index:1;background:#fff}
+.modes button{border:0;background:#fff;padding:5px 10px;font-size:.78rem;font-weight:700;color:var(--mute)}
+.modes button+button{border-left:1px solid #cfdcd9}
+.modes button.on{background:var(--pri);color:#fff}
+.dn .upbtn{margin-right:6px}
+.ck{display:inline-flex;align-items:center;gap:4px;font-size:.74rem;font-weight:700;border-radius:999px;padding:2px 8px;white-space:nowrap;align-self:flex-start;margin-top:6px}
+.ck .ic{width:14px;height:14px}
+.ck.err{color:var(--bad);background:var(--badl)}
+.ck.warn{color:var(--warn);background:var(--warnl)}
+.cklist{margin:4px 0 0;padding-left:18px;font-size:.78rem;line-height:1.5}
+.cklist li.err{color:var(--bad)}
+.cklist li.warn{color:#8a5a06}
+.cklist li.info{color:var(--mute)}
+.cklist li.ok{color:var(--ok)}
+.ckall{display:flex;gap:10px;align-items:flex-start}
+.ckall>.ic{width:24px;height:24px;margin-top:2px}
+.ckall>div{display:flex;flex-direction:column;gap:3px;min-width:0;flex:1}
+.ckall small{color:var(--mute);font-size:.8rem}
+.ckall.ok{background:var(--okl);border-color:#bfe6cc}.ckall.ok>.ic{color:var(--ok)}
+.ckall.warn{background:var(--warnl);border-color:#f2d6a6}.ckall.warn>.ic{color:var(--warn)}
+.ckall.err{background:var(--badl);border-color:#f3c9c9}.ckall.err>.ic{color:var(--bad)}
+.ckall summary{cursor:pointer;font-size:.82rem;color:var(--pri-d);font-weight:700;margin-top:2px}
+.ckdoc{margin-top:8px}.ckdoc b{font-size:.86rem}
+.dcard .ck{margin-top:0}
+.dcard.upm{background:#f6fbfa;border-color:#cfe6e0}
+.dcard.upm>.ic{color:var(--pri)}
+.upf.err{border-color:#f3c9c9;background:#fffafa}
+.upf.warn{border-color:#f2d6a6;background:#fffdf7}
+.upf .cl.ok,.upf .cl{color:var(--ok);font-weight:700}
+.upf .cl.err{color:var(--bad)}.upf .cl.warn{color:var(--warn)}
+.ckd{flex-basis:100%;font-size:.82rem;margin-top:2px}
+.ckd summary{cursor:pointer;color:var(--pri-d);font-weight:700}
+.ckf{margin-top:6px}.ckf b{font-size:.8rem}
 </style>
 </head>
 <body>
@@ -635,6 +669,7 @@ function blankState() {
     x: { ledger: { rows: [] }, prepfin: { inc: [], exp: [] }, handover: {}, consent: {}, cert: {}, ballot: {}, proxy: {}, recruit: {}, report: {}, seal: {}, resign: {}, reissue: {}, check: {} },
     sel: {},
     batch: {},
+    mode: {},
     seals: [],
     stamp: { on: true, docs: {} },
     files: {},
@@ -1550,11 +1585,21 @@ function setBatch(sc, k, on) {
 }
 function batchLabel(sc) { const b = batchOn(sc); if (!hasBatch(sc)) return '全部文件'; return b.pre && b.post ? '會前及會後文件' : b.pre ? '開會通知' : '會議紀錄送件'; }
 
+/* 會議資料（附件）：可以線上填寫，也可以上傳自己的檔案；上傳的檔案在各選單共用，並自動檢查 */
+const MAT = { members: '會員名冊', fin: '財務報表', fin5: '財務報表', budget: '預算表', prepfin: '經費收支報告表', plan: '工作計畫', ledger: '收支報告', roster: '理監事名冊', statute: '章程', amend: '修正對照表' };
+const MAT_KIND = { members: 'members', roster: 'roster', fin: 'fin', fin5: 'fin', budget: 'fin', prepfin: 'fin', ledger: 'fin', plan: 'doc', statute: 'doc', amend: 'doc' };
+const docMode = x => (x && x.mat && (S.mode || {})[x.id]) || 'fill';
+const isUp = x => !!(x && x.mat && docMode(x) === 'up');
+/** 開會通知書「重要討論事項、報告事項」提到的附件 */
+const NOTICE_KW = { members: /名冊|會籍/, fin: /決算|預算|財產|資產負債|現金出納|基金收支/, fin5: /財務報表|決算|財產|資產負債/, budget: /預算/, prepfin: /籌備.*(經費|收支)|收支報告/, plan: /工作計畫/, ledger: /收支報(告|表)/, roster: /理監事.*(名冊|一覽)/, statute: /章程/, amend: /章程修正|修改章程|修正章程/ };
+function noticeRefs(mk) { const t = `${MV(mk, 'topics') || ''}\n${MV(mk, 'report') || ''}`; return new Set(Object.keys(NOTICE_KW).filter(k => NOTICE_KW[k].test(t))); }
+function withMat(list) { return list.map(x => x.id && MAT[x.id] ? { ...x, mat: MAT_KIND[x.id], upk: 'mat:' + x.id, up: x.up || '自己的' + MAT[x.id] } : x); }
 /* d(id, 名稱, 選項)：bt 批次、req 必備（該批次鎖定）、def 預設勾選、note 說明、kind:'attach' 只需另附不產生檔案、m 會議、b 產生函式 */
 const G = (g, bt = POST, o = {}) => ({ g, bt, ...o });
 const d = (id, name, o = {}) => ({ id, name, bt: POST, ...o });
 const DAY = '開會當天使用（不必送府，勾選才產生）';
-function scenDocs(sc) {
+function scenDocs(sc) { return withMat(scenDocs0(sc)); }
+function scenDocs0(sc) {
   const pv = S.ui.prepVar || 'p1';
   const F6 = '6項財務報表', d7 = '會議召開前7日送達縣府備查', d15 = '會議召開前15日送達縣府備查', d30 = '會議召開後30日內送達縣府備查';
   const F6N = '預算表、決算表(含現金出納表)、財產目錄、資產負債表、基金收支表';
@@ -1563,9 +1608,17 @@ function scenDocs(sc) {
   const signUp = (id, name) => d(id, name, { kind: 'attach', def: 1, up: '簽到後的簽到表', note: '可上傳簽名後的簽到表照片或掃描檔，下載時一併附上；也可以另外檢附紙本' });
   /* 會員大會手冊（hb）：會後必備；會前可勾選先印製發給會員 */
   const hbDocs = (bt, list) => list.map(x => ({ ...x, bt, hb: 1, ...(bt === PRE ? { req: 0, def: 0, note: x.preNote || '開會前印製，發給出席會員' } : {}) }));
+  /* 會前：開會通知書寫「如附件」的資料，依通知書內容自動勾選 */
+  const NA = (mk, list) => {
+    const r = noticeRefs(mk), own = S.sel[sc] || {};
+    return [G('開會通知檢附資料（通知書提到「如附件」的資料，可線上填寫或上傳）', PRE), ...list.map(x => ({ ...x, bt: PRE, req: 0, sk: 'pre:' + x.id, nm: mk, def: r.has(x.id) ? 1 : 0,
+      note: r.has(x.id) ? (own['pre:' + x.id] === false ? '開會通知書有提到，建議一併檢附' : '開會通知書有提到，已自動勾選') : (x.preNote || '通知書沒有提到，需要時再勾選') }))];
+  };
+  const hbDay = (HB) => hbDocs(PRE, HB.filter(x => ['cover', 'agenda'].includes(x.id)));
   switch (sc) {
     case 'prep': { const mk = 'prep.' + pv; return [
       G('開會通知', PRE), d('notice', '開會通知書', { bt: PRE, req: 1, note: d7, m: mk, b: () => docNotice(mk) }),
+      ...NA(mk, [d('statute', '組織章程（草案）', { b: docStatuteDraft }), d('members', '會員名冊', { b: () => docMembers('prep') }), d('prepfin', '籌備期間經費收支報告表', { b: docPrepFin })]),
       G(DAY, PRE, { sub: 1 }), signPre('sign', '簽到表', mk, () => docSignPrep(mk)),
       G('公文'), d('letter', '檢送會議紀錄公文', { req: 1, note: d30, m: mk, b: () => docLetter(mk) }),
       G('會議紀錄'), d('min', pv === 'p2' ? '第二次籌備會會議紀錄' : '發起人暨第一次籌備會會議紀錄', { req: 1, m: mk, b: () => docMinutes(mk) }), signUp('signUp', '簽到表（簽到後影本）'),
@@ -1577,9 +1630,10 @@ function scenDocs(sc) {
         d('budget', '年度經費收支預算表', { req: 1, b: () => docFinance(['bud']) }), d('prepfin', '籌備期間經費收支報告表', { req: 1, b: docPrepFin }), d('statute', '組織章程', { req: 1, b: docStatuteDraft }), d('members', '會員名冊', { req: 1, b: () => docMembers('found') })];
       return [
         G('開會通知', PRE), d('notice', '開會通知書', { bt: PRE, req: 1, note: d15, m: 'found.asm', b: () => docNotice('found.asm') }),
+        ...NA('found.asm', HB.filter(x => ['plan', 'budget', 'prepfin', 'statute', 'members'].includes(x.id))),
         G(DAY, PRE, { sub: 1 }), signPre('asmSign', '大會簽到表', 'found.asm', () => docSignAsm('found.asm')), signPre('brdSign', '理監事會簽到表', 'found.brd', () => docSignBrd('found.brd')),
         d('ballot', '選舉票', { bt: PRE, def: 1, note: '依選舉票格式印製，加蓋團體圖記', b: () => docBallot('found.asm') }), d('proxy', '委託書', { bt: PRE, b: () => docProxy('found.asm'), note: '隨開會通知寄給會員' }),
-        ...hbDocs(PRE, HB),
+        ...hbDay(HB),
         G('公文'), d('letter', '檢送會議紀錄公文（申請立案）', { req: 1, note: d30, m: 'found.asm', b: () => docLetter('found.asm') }),
         G('會議紀錄'), d('asmMin', '第1屆第1次成立會員大會紀錄', { req: 1, note: '選舉理事、監事', m: 'found.asm', b: () => docMinutes('found.asm') }), signUp('asmSignUp', '大會簽到表（簽到後影本）'),
         d('brdMin', '第1屆第1次理監事會紀錄', { req: 1, note: '選舉常務理事、理事長、常務監事', m: 'found.brd', b: () => docMinutes('found.brd') }), signUp('brdSignUp', '理監事會簽到表（簽到後影本）'),
@@ -1592,6 +1646,7 @@ function scenDocs(sc) {
       const mk = sc === 'renewPre' ? 'renew.pre' : 'annual.pre', rn = sc === 'renewPre', A = rn ? 'renew' : 'annual';
       return [
         G('開會通知', PRE), d('notice', '開會通知書', { bt: PRE, req: 1, note: d7, m: mk, b: () => docNotice(mk) }),
+        ...NA(mk, [d('members', '會員名冊', { b: () => docMembers(A) }), d('fin', F6, { b: () => docFinance(['bud', 'act', 'prop', 'bs', 'fund']) }), d('plan', '年度工作計畫', { b: docPlan }), d('ledger', '經費收支報告', { b: docLedger })]),
         G(DAY, PRE, { sub: 1 }), signPre('sign', '理監事會簽到表', mk, () => docSignBrd(mk)),
         G('公文'), d('letter', '檢送會議紀錄公文', { req: 1, note: d30, m: mk, b: () => docLetter(mk) }),
         G('會議紀錄'), d('min', '理監事會會議紀錄', { req: 1, note: rn ? '會員大會改選會議前15日，召開選前理監事會' : '會員大會召開前15日，開大會前理監事會', m: mk, b: () => docMinutes(mk) }),
@@ -1608,9 +1663,10 @@ function scenDocs(sc) {
         d('members', '會員名冊', { req: 1, b: () => docMembers('renew') })];
       return [
         G('開會通知', PRE), d('notice', '開會通知書', { bt: PRE, req: 1, note: d15, m: 'renew.asm', b: () => docNotice('renew.asm') }),
+        ...NA('renew.asm', HB.filter(x => ['fin', 'plan', 'ledger', 'members'].includes(x.id))),
         G(DAY, PRE, { sub: 1 }), signPre('asmSign', '大會簽到表', 'renew.asm', () => docSignAsm('renew.asm')), signPre('brdSign', '選後理監事會簽到表', 'renew.brd', () => docSignBrd('renew.brd')),
         d('ballot', '選舉及罷免票', { bt: PRE, def: 1, note: '依選前理監事會議決的格式印製，加蓋團體圖記', b: () => docBallot('renew.asm') }), d('proxy', '委託書', { bt: PRE, b: () => docProxy('renew.asm'), note: '隨開會通知寄給會員' }),
-        ...hbDocs(PRE, HB.filter(x => x.id !== 'ledger')),
+        ...hbDay(HB),
         G('公文'), d('letter', '檢送會議紀錄公文', { req: 1, note: d30, m: 'renew.asm', b: () => docLetter('renew.asm') }),
         G('會議紀錄'), d('asmMin', '會員大會會議紀錄', { req: 1, note: '改選理事、監事', m: 'renew.asm', b: () => docMinutes('renew.asm') }), signUp('asmSignUp', '大會簽到表（簽到後影本）'),
         d('brdMin', '理監事會會議紀錄（選後）', { req: 1, note: '選舉常務理事、理事長、常務監事', m: 'renew.brd', b: () => docMinutes('renew.brd') }), signUp('brdSignUp', '理監事會簽到表（選後，簽到後影本）'),
@@ -1626,8 +1682,9 @@ function scenDocs(sc) {
         d('roster', '理監事暨會務人員一覽表', { req: 1, b: () => docRoster('annual') }), d('members', '會員名冊', { req: 1, b: () => docMembers('annual') })];
       return [
         G('開會通知', PRE), d('notice', '開會通知書', { bt: PRE, req: 1, note: d15, m: 'annual.asm', b: () => docNotice('annual.asm') }),
+        ...NA('annual.asm', HB.filter(x => ['fin', 'plan', 'ledger', 'roster', 'members'].includes(x.id))),
         G(DAY, PRE, { sub: 1 }), signPre('asmSign', '大會簽到表', 'annual.asm', () => docSignAsm('annual.asm')), d('proxy', '委託書', { bt: PRE, b: () => docProxy('annual.asm'), note: '隨開會通知寄給會員' }),
-        ...hbDocs(PRE, HB.filter(x => !['ledger', 'roster'].includes(x.id))),
+        ...hbDay(HB),
         G('公文'), d('letter', '檢送會議紀錄公文', { req: 1, note: d30, m: 'annual.asm', b: () => docLetter('annual.asm') }),
         G('會議紀錄'), d('asmMin', '會員大會會議紀錄', { req: 1, m: 'annual.asm', b: () => docMinutes('annual.asm') }), signUp('asmSignUp', '大會簽到表（簽到後影本）'),
         G('會員大會手冊'), ...hbDocs(POST, HB), d('charter', '組織章程（現行）', { req: 1, hb: 1, kind: 'attach', note: '請附貴會現行章程', up: '現行章程', upk: 'charter' }),
@@ -1636,6 +1693,7 @@ function scenDocs(sc) {
     }
     case 'board': { const ad = !!S.ui.boardAddr; return [
       G('開會通知', PRE), d('notice', '開會通知書', { bt: PRE, req: 1, note: d7, m: 'board.brd', b: () => docNotice('board.brd') }),
+      ...NA('board.brd', [d('ledger', '經費收支報告', { b: docLedger }), d('members', '會員名冊（新入會名單）', { b: () => docMembers('board') }), d('plan', '年度工作計畫', { b: docPlan }), d('fin', F6, { b: () => docFinance(['bud', 'act', 'prop', 'bs', 'fund']) })]),
       G(DAY, PRE, { sub: 1 }), signPre('sign', '簽到表', 'board.brd', () => docSignBrd('board.brd')),
       G('公文'), d('letter', '檢送會議紀錄公文', { req: 1, note: d30, m: 'board.brd', b: () => docLetter('board.brd') }),
       ...(ad ? [d('addrLetter', '檢送會址變更公文', { req: 1, note: '理監事會討論會址變更、會議召開後30日內送達縣府備查', b: docAddrLetter })] : []),
@@ -1645,6 +1703,7 @@ function scenDocs(sc) {
     ]; }
     case 'dissolve': return [
       G('開會通知', PRE), d('notice', '開會通知書', { bt: PRE, req: 1, note: d15, m: 'dissolve.asm', b: () => docNotice('dissolve.asm') }),
+      ...NA('dissolve.asm', [d('fin5', '5項財務報表', { b: () => docFinance(['act', 'prop', 'bs', 'fund']) }), d('members', '會員名冊', { b: () => docMembers('dissolve') }), d('roster', '理監事暨會務人員一覽表', { b: () => docRoster('dissolve') })]),
       G(DAY, PRE, { sub: 1 }), signPre('sign', '大會簽到表', 'dissolve.asm', () => docSignAsm('dissolve.asm')), d('proxy', '委託書', { bt: PRE, b: () => docProxy('dissolve.asm'), note: '隨開會通知寄給會員' }),
       G('公文'), d('letter', '檢送會議紀錄公文', { req: 1, note: d30, m: 'dissolve.asm', b: () => docLetter('dissolve.asm') }),
       G('會議紀錄'), d('min', '會員大會會議紀錄', { req: 1, note: '範例格式及提案請勿刪減', m: 'dissolve.asm', b: () => docMinutes('dissolve.asm') }), signUp('signUp', '大會簽到表（簽到後影本）'),
@@ -1662,12 +1721,22 @@ function scenDocs(sc) {
 /** 目前批次下的文件（同一份文件若兩批都有，以會後版本為準，排在會後位置） */
 function docsOf(sc) {
   const on = batchOn(sc), m = new Map();
-  for (const x of scenDocs(sc)) if (x.id && on[x.bt]) { m.delete(x.id); m.set(x.id, x); }
+  for (const x of scenDocs(sc)) if (x.id && on[x.bt]) {
+    const prev = m.get(x.id); m.delete(x.id);
+    /* 會前、會後都要的同一份資料：會前會後一起下載時合併成一列，勾選狀態取聯集 */
+    m.set(x.id, prev && prev.sk && prev.sk !== selKey(x) ? { ...x, alt: { sk: prev.sk, def: prev.def } } : x);
+  }
   return [...m.values()];
 }
+/** 勾選狀態的鍵：會前「開會通知檢附資料」與會後檢附資料分開記錄 */
+const selKey = x => x.sk || x.id;
+function selOne(sc, k, def) { const v = (S.sel[sc] || {})[k]; return v == null ? !!def : !!v; }
+function setSel(sc, x, on) { S.sel[sc] = S.sel[sc] || {}; S.sel[sc][selKey(x)] = !!on; if (x.alt) S.sel[sc][x.alt.sk] = !!on; }
+/** 開會通知書要附上的資料（會前批次中勾選的） */
+function noticeAtt(mk, sc = S.ui.scen) { return scenDocs(sc).filter(x => x.nm === mk && x.bt === PRE && isSel(sc, x)); }
 /** 選單中全部（不分批次）的文件數，首頁用 */
 function allDocCount(sc) { return new Set(scenDocs(sc).filter(x => x.id && x.kind !== 'attach').map(x => x.id)).size; }
-function isSel(sc, x) { if (x.req) return true; const v = (S.sel[sc] || {})[x.id]; return v == null ? !!x.def : !!v; }
+function isSel(sc, x) { if (x.req) return true; return selOne(sc, selKey(x), x.def) || (!!x.alt && selOne(sc, x.alt.sk, x.alt.def)); }
 function selDocs(sc) { return docsOf(sc).filter(x => isSel(sc, x)); }
 
 /* ===== 會議相關文件 ===== */
@@ -1722,10 +1791,17 @@ function docNotice(mk) {
     { h: 54, cells: [{ v: '議\n\n程', rs: 2, al: 'c' }, { v: '報告事項', al: 'c' }, { v: MV(mk, 'report'), cs: 3 }] },
     { h: 80, cells: [{ v: '重　要\n討論事項', al: 'c' }, { v: MV(mk, 'topics'), cs: 3 }] },
     { cells: [{ v: '申請事項', cs: 2, al: 'c' }, { v: '敬請主管機關派員列席指導。', cs: 3 }] },
-    { h: 28, cells: [{ v: '附　　註', cs: 2, al: 'c' }, { v: m.noticeNote || '', cs: 3 }] },
+    { h: 28, cells: [{ v: '附　　註', cs: 2, al: 'c' }, { v: noticeNoteText(mk), cs: 3 }] },
     { cells: [{ v: `此致\n${signerLine(mk)}\n${recipLines(mk)}`, cs: 5 }] },
   ];
   return { title: '開會通知書', sheets: [{ name: '開會通知書', cols: [5, 7, 30, 10, 30], size: 12, ls: 1.35, blocks: [T(rows, { size: 12, pad: 4 })] }] };
+}
+
+/** 附註：使用者填的附註＋自動列出勾選的開會通知檢附資料 */
+function noticeNoteText(mk) {
+  const note = (M(mk).noticeNote || '').trim(), att = noticeAtt(mk).map(x => x.name);
+  if (!att.length || /附件|檢附/.test(note)) return note;
+  return [note, `附件：${att.join('、')}`].filter(Boolean).join('\n');
 }
 
 /* ---------- 檢送會議紀錄公文（函） ---------- */
@@ -2768,7 +2844,7 @@ function LISTT(path, cols, o = {}) {
 /* ===== 文件 → 需要填寫的區塊 ===== */
 function docSecs(x) {
   const s = [];
-  if (x.kind === 'attach') return s;
+  if (x.kind === 'attach' || isUp(x)) return s;
   if (x.m) { s.push('people', 'm:' + x.m); if (MEET[x.m].asm && /sign|Sign|notice/.test(x.id)) s.push('members'); }
   const map = { cover: ['m:' + (fam(S.ui.scen) + '.asm')], agenda: [], plan: ['plan'], fin: ['fin'], fin5: ['fin'], budget: ['fin'], ledger: ['ledger'], prepfin: ['prepfin', 'people'], members: ['members'], statute: ['statute'],
     recruit: ['recruit', 'people'], handover: ['handover', 'people'], roster: ['people', 'members'], cert: ['cert', 'people'], consent: ['consent'], proxy: ['proxy'], ballot: ['ballot', 'm:' + fam(S.ui.scen) + '.asm'],
@@ -2776,6 +2852,11 @@ function docSecs(x) {
   if (S.ui.scen === 'found' && x.id === 'cover') return ['m:found.asm'];
   (map[x.id] || []).forEach(k => s.push(k));
   return s;
+}
+/** 附註欄提示：會自動列出哪些附件 */
+function noticeNoteHint(mk) {
+  const att = noticeAtt(mk).map(x => x.name);
+  return att.length ? `通知書會自動加上「附件：${att.join('、')}」（附註裡寫了「附件」或「檢附」就不另外加）` : '在「選文件」勾選開會通知檢附資料後，通知書附註會自動列出附件';
 }
 const SEC_ORDER = ['org', 'people', 'members', 'm', 'plan', 'fin', 'ledger', 'prepfin', 'statute', 'amend', 'handover', 'cert', 'consent', 'ballot', 'proxy', 'recruit', 'report', 'seal', 'resign', 'reissue'];
 function sectionsFor(sc) {
@@ -2787,7 +2868,7 @@ function sectionsFor(sc) {
   for (const k of SEC_ORDER) { if (k === 'm') out.push(...meets); else if (set.has(k)) out.push(k); }
   return out;
 }
-function docsUsing(sc, sec) { return selDocs(sc).filter(x => x.kind !== 'attach' && (sec === 'org' || docSecs(x).includes(sec))); }
+function docsUsing(sc, sec) { return selDocs(sc).filter(x => x.kind !== 'attach' && !isUp(x) && (sec === 'org' || docSecs(x).includes(sec))); }
 
 /* ===== 區塊標題、圖示、完成度 ===== */
 function secMeta(k) {
@@ -2836,6 +2917,7 @@ function reqLabel(p) {
 }
 function secDone(k) { const r = secReq(k); const ok = r.filter(reqOk).length; return { ok, total: r.length, done: ok === r.length, missing: r.filter(p => !reqOk(p)).map(reqLabel) }; }
 function docMissing(sc, x) {
+  if (isUp(x)) return upList(sc, x).length ? [] : ['上傳的檔案'];
   const ks = ['org', ...docSecs(x)];
   const miss = [];
   ks.forEach(k => secDone(k).missing.forEach(l => { const t = `${k.startsWith('m:') ? MEET[k.slice(2)].label.replace(/（.*）/, '') : secMeta(k).t}的${l}`; if (!miss.includes(t)) miss.push(t); }));
@@ -2913,7 +2995,7 @@ function meetSection(mk) {
   if (!post) {
     h += GRID(F(`m.${mk}.should`, d.asm ? '應出席人數' : '應出席人數（通知書用）', { type: 'num', w: 'half', suf: '人' }));
     if (hasNotice) h += H4('開會通知書') + GRID(F(`m.${mk}.noticeNo`, '發文字號（號碼）', { w: 'half', pre: '第', suf: '號' }) + F(`m.${mk}.noticeDate`, '發文日期', { type: 'date', w: 'half' }) +
-      F(`m.${mk}.report`, '報告事項', { type: 'area', rows: 2, w: 'full' }) + F(`m.${mk}.topics`, '重要討論事項', { type: 'area', rows: 4, w: 'full', hint: '預設依下方「討論提案」自動列出。' }) + F(`m.${mk}.noticeNote`, '附註', { w: 'full', ph: '例：不克出席者請填具委託書' }));
+      F(`m.${mk}.report`, '報告事項', { type: 'area', rows: 2, w: 'full' }) + F(`m.${mk}.topics`, '重要討論事項', { type: 'area', rows: 4, w: 'full', hint: '預設依下方「討論提案」自動列出。提到工作計畫、財務報表、會員名冊等資料時，會自動勾選為「開會通知檢附資料」，附註也會列出附件。' }) + F(`m.${mk}.noticeNote`, '附註', { w: 'full', ph: '例：不克出席者請填具委託書', hint: noticeNoteHint(mk) }));
     h += H4('討論提案（案由）') + NOTE('會前只要列出案由，開會通知書的「重要討論事項」會自動帶入；決議可以會後再填。') +
       LISTC(`m.${mk}.props`, propFields(mk), { summary: (r, i) => PV(mk, i, 'reason').slice(0, 40), numFmt: i => '案' + cn(i + 1), addLabel: '新增提案', emptyLabel: '（新提案）', empty: '目前沒有提案' });
     return h;
@@ -2926,7 +3008,7 @@ function meetSection(mk) {
     (k === 'foundBrd' ? F(`m.${mk}.attend`, '出席人數', { type: 'num', w: 'third', suf: '人' }) + F(`m.${mk}.attendDir`, '其中理事', { type: 'num', w: 'third', suf: '人' }) + F(`m.${mk}.attendSup`, '其中監事', { type: 'num', w: 'third', suf: '人' }) + F(`m.${mk}.absentNames`, '缺席人員', { w: 'half' }) + F(`m.${mk}.obsNames`, '列席人員', { w: 'half' }) : '') +
     F(`m.${mk}.leaveNames`, '請假人員', { w: 'half' }) + (k === 'postBrd' ? F(`m.${mk}.obs`, '列席人數', { type: 'num', w: 'half', suf: '人' }) : '') + F(`m.${mk}.should`, '應出席人數（通知書用）', { type: 'num', w: 'half', suf: '人' }));
   if (hasNotice) h += H4('開會通知書') + GRID(F(`m.${mk}.noticeNo`, '發文字號（號碼）', { w: 'half', pre: '第', suf: '號' }) + F(`m.${mk}.noticeDate`, '發文日期', { type: 'date', w: 'half' }) +
-    F(`m.${mk}.report`, '報告事項', { type: 'area', rows: 2, w: 'full' }) + F(`m.${mk}.topics`, '重要討論事項', { type: 'area', rows: 4, w: 'full', hint: '預設依下方「討論提案」自動列出。' }) + F(`m.${mk}.noticeNote`, '附註', { w: 'full', ph: '例：不克出席者請填具委託書' }));
+    F(`m.${mk}.report`, '報告事項', { type: 'area', rows: 2, w: 'full' }) + F(`m.${mk}.topics`, '重要討論事項', { type: 'area', rows: 4, w: 'full', hint: '預設依下方「討論提案」自動列出。提到工作計畫、財務報表、會員名冊等資料時，會自動勾選為「開會通知檢附資料」，附註也會列出附件。' }) + F(`m.${mk}.noticeNote`, '附註', { w: 'full', ph: '例：不克出席者請填具委託書', hint: noticeNoteHint(mk) }));
   h += H4('會議內容') + GRID(
     (k === 'prep1' ? F(`m.${mk}.tmpChair`, '臨時主席（發起人代表）', { w: 'half' }) : '') +
     F(`m.${mk}.speech`, '主席致詞（留空＝略）', { type: 'area', rows: 2, w: 'full' }) +
@@ -3116,7 +3198,27 @@ function setHeader(title, sub, back) {
   $('#hTitle').textContent = title; $('#hSub').textContent = sub || '';
   $('#back').hidden = !back;
 }
+/* 開會通知書的報告／討論事項提到「工作計畫、財務報表、會員名冊…」時，自動勾選為開會通知檢附資料並提示 */
+const REFW = {}; let refT = 0;
+function refWatch(silent) {
+  const sc = S.ui.scen; if (!sc || !SCEN[sc]) return;
+  const na = scenDocs(sc).filter(x => x.nm), byMk = {};
+  na.forEach(x => (byMk[x.nm] = byMk[x.nm] || []).push(x));
+  const add = [], drop = [];
+  for (const mk in byMk) {
+    const now = noticeRefs(mk), key = sc + '|' + mk, was = REFW[key];
+    if (silent) { if (!was) REFW[key] = now; continue; }
+    REFW[key] = now; if (!was) continue;
+    byMk[mk].forEach(x => { if ((S.sel[sc] || {})[x.sk] != null) return; if (now.has(x.id) && !was.has(x.id)) add.push(x.name); if (!now.has(x.id) && was.has(x.id)) drop.push(x.name); });
+  }
+  const msg = [add.length ? `開會通知書提到「${add.join('、')}」，已自動勾選為開會通知檢附資料（可線上填寫或上傳）` : '', drop.length ? `通知書不再提到「${drop.join('、')}」，已取消自動勾選` : ''].filter(Boolean).join('；');
+  if (msg) toast(msg);
+  if (add.length || drop.length) { const n = selDocs(sc).filter(x => x.kind !== 'attach').length, b = $('#dock .dk-t b'); if (b) b.textContent = n; }
+}
+function refWatchSoon() { clearTimeout(refT); refT = setTimeout(() => refWatch(), 700); }
+
 function render() {
+  refWatch(true);
   document.documentElement.classList.toggle('large', !!S.ui.large);
   const v = S.ui.view;
   $('#view').className = 'view v-' + v + (v === 'scen' ? ' s-' + S.ui.step : '');
@@ -3214,7 +3316,7 @@ function renderDocs() {
       h += `<label class="docrow${x.req ? ' req' : ''}${att ? ' att' : ''}${sel ? ' on' : ''}">
       <input type="checkbox" data-sel="${x.id}"${sel ? ' checked' : ''}${x.req ? ' disabled' : ''}>
       <span class="box">${x.req ? icon('lock') : icon('check')}</span>
-      <span class="dn"><b>${x.name}</b>${x.note ? `<small>${x.note}</small>` : ''}${x.up ? `<button type="button" class="upbtn${upList(sc, x).length ? ' has' : ''}" data-up="${x.id}">${icon('clip')}${upList(sc, x).length ? `已上傳 ${upList(sc, x).length} 個檔案・再上傳` : `上傳${typeof x.up === 'string' ? x.up : '檔案'}`}</button>` : ''}</span>
+      <span class="dn"><b>${x.name}</b>${x.note ? `<small>${x.note}</small>` : ''}${x.mat ? `<span class="modes" role="group" aria-label="${esc(x.name)}的準備方式"><button type="button" class="${isUp(x) ? '' : 'on'}" data-mode="fill" data-id="${x.id}">線上填寫</button><button type="button" class="${isUp(x) ? 'on' : ''}" data-mode="up" data-id="${x.id}">上傳檔案</button></span>` : ''}${x.up && (!x.mat || isUp(x)) ? `<button type="button" class="upbtn${upList(sc, x).length ? ' has' : ''}" data-up="${x.id}">${icon('clip')}${upList(sc, x).length ? `已上傳 ${upList(sc, x).length} 個檔案・再上傳` : `上傳${typeof x.up === 'string' ? x.up : '檔案'}`}</button>${chkBadge(docCheckState(sc, x))}` : ''}</span>
       <span class="badge ${x.req ? 'b-req' : att ? 'b-att' : 'b-opt'}">${att ? '另附' : x.req ? '必備' : '選填'}</span></label>`;
     }
     h += '</div>';
@@ -3252,7 +3354,7 @@ function renderDl() {
   if (!fill.length) return noDocs('dl');
   const dls = deadlines(sc).filter(x => x.kind !== 'none' || true);
   const today = isoToday();
-  let h = stampDlCard();
+  let h = checkSummary(sc) + stampDlCard();
   h += `<section class="card dlall"><h3>${icon('zip')}全部下載${hasBatch(sc) ? `<span class="tag">${batchLabel(sc)}</span>` : ''}</h3><p class="muted">把已勾選的 ${fill.length} 份文件一次打包成壓縮檔（.zip）。</p>
     <div class="fmtrow"><button class="fmt w" data-zip="docx"><i>W</i>Word</button><button class="fmt x" data-zip="xlsx"><i>X</i>Excel</button><button class="fmt p" data-zip="pdf"><i>P</i>PDF</button></div>
     ${hb.length ? `<div class="hbrow"><span>${icon('book')}大會手冊合併成一個檔案</span><span><button class="mini" data-hb="docx">Word</button><button class="mini" data-hb="pdf">PDF</button></span></div>` : ''}
@@ -3261,8 +3363,9 @@ function renderDl() {
   h += `<h3 class="grp">逐份下載</h3><div class="dcards">`;
   for (const x of list) {
     if (x.kind === 'attach') { const n = upList(sc, x).length; h += `<div class="dcard att">${icon('clip')}<div class="dt"><b>${x.name}</b><small>${n ? `已上傳 ${n} 個檔案，會一起放進壓縮檔與合併 PDF` : `請另外準備${x.note ? '：' + x.note : '實體文件'}`}</small></div>${x.up ? upHTML(sc, x) : ''}</div>`; continue; }
-    const miss = docMissing(sc, x);
-    h += `<div class="dcard">${icon('doc')}<div class="dt"><b>${x.name}</b>${miss.length ? `<small class="miss">尚缺：${esc(miss.slice(0, 3).join('、'))}${miss.length > 3 ? '…' : ''}</small>` : '<small class="okc">資料已齊</small>'}</div>
+    const miss = docMissing(sc, x), cs = docCheckState(sc, x);
+    if (isUp(x)) { h += `<div class="dcard upm">${icon('clip')}<div class="dt"><b>${x.name}</b><small>${upList(sc, x).length ? '使用上傳的檔案，會放進壓縮檔與合併 PDF' : '已選擇上傳檔案，請上傳'}</small></div>${chkBadge(cs)}<div class="da">${x.mat === 'doc' ? `<button class="mini w" data-dl="${x.id}" data-fmt="docx" title="下載 Word 範本，填好後再上傳">Word 範本</button>` : `<button class="mini x" data-dl="${x.id}" data-fmt="xlsx" title="下載 Excel 範本（含已填資料），填好後再上傳，系統會自動檢查">Excel 範本</button>`}<button class="mini" data-mode="fill" data-id="${x.id}">改用線上填寫</button></div>${upHTML(sc, x)}</div>`; continue; }
+    h += `<div class="dcard">${icon('doc')}<div class="dt"><b>${x.name}</b>${miss.length ? `<small class="miss">尚缺：${esc(miss.slice(0, 3).join('、'))}${miss.length > 3 ? '…' : ''}</small>` : '<small class="okc">資料已齊</small>'}${cs.items.length ? chkList(cs.items) : ''}</div>${chkBadge(cs)}
       <div class="da"><button class="mini pv" data-pv="${x.id}">${icon('eye')}預覽</button><button class="mini w" data-dl="${x.id}" data-fmt="docx">Word</button><button class="mini x" data-dl="${x.id}" data-fmt="xlsx">Excel</button><button class="mini p" data-dl="${x.id}" data-fmt="pdf">PDF</button></div>${x.up ? upHTML(sc, x) : ''}</div>`;
   }
   h += `<div class="dcard extra">${icon('check')}<div class="dt"><b>送件檢核表</b><small>依您勾選的文件自動列出份數、附件與期限，送件前逐項打勾</small></div>
@@ -3329,7 +3432,7 @@ function renderSide() {
   clearTimeout(sideTimer);
   sideTimer = setTimeout(() => {
     const side = $('#side'); if (!side || getComputedStyle(side).display === 'none') return;
-    const sc = S.ui.scen, list = pvDocs(sc).length ? pvDocs(sc) : selDocs(sc).filter(x => x.kind !== 'attach');
+    const sc = S.ui.scen, list = pvDocs(sc).length ? pvDocs(sc) : selDocs(sc).filter(x => x.kind !== 'attach' && !isUp(x));
     if (!list.length) { side.innerHTML = ''; return; }
     let id = S.ui.pvDoc; if (!list.some(x => x.id === id)) id = list[0].id;
     const x = docById(sc, id), doc = x && x.b ? keyed(sc, x) : null;
@@ -3341,7 +3444,7 @@ function fitPages(box) { if (!box) return; const w = box.clientWidth - 16; $$('.
 function openPreview(id) {
   const sc = S.ui.scen, x = docById(sc, id); if (!x) return;
   const doc = keyed(sc, x), pv = $('#pv');
-  const list = selDocs(sc).filter(d => d.kind !== 'attach');
+  const list = selDocs(sc).filter(d => d.kind !== 'attach' && !isUp(d));
   pv.innerHTML = `<div class="pvbar"><button class="icon" data-cmd="pvClose" aria-label="關閉">${icon('x')}</button><select data-pvopen="1" aria-label="切換文件">${list.map(d => `<option value="${d.id}"${d.id === id ? ' selected' : ''}>${esc(d.name)}</option>`).join('')}${id === '__check' ? '<option value="__check" selected>送件檢核表</option>' : ''}</select></div>
     ${stampBar(`${sc}:${id}`)}
     <div class="pages">${doc.sheets.map(sheetHTML).join('')}</div>
@@ -4157,15 +4260,20 @@ async function upAdd(sc, x, files) {
         try { blob = (await shrinkImage(f)).blob; type = 'image/jpeg'; name = name.replace(/\.\w+$/, '') + '.jpg'; }
         catch (e) { toast(`無法讀取「${f.name}」，請改用 JPG、PNG 或 PDF（iPhone 可在相機設定選「最相容」）`, 'err'); continue; }
       }
-      const fid = 'f' + uid() + uid();
+      const fid = 'f' + uid() + uid(), meta = { fid, name, type, size: blob.size, at: Date.now() };
       await FileDB.put(fid, blob);
-      S.files = S.files || {}; const k = upKey(sc, x); (S.files[k] = S.files[k] || []).push({ fid, name, type, size: blob.size, at: Date.now() });
+      busy.set(`正在檢查「${name}」…`);
+      try { meta.chk = await fileCheck(x.mat || (/Sign/i.test(x.id) ? 'sign' : 'any'), meta, blob, sc); } catch (e) { }
+      S.files = S.files || {}; const k = upKey(sc, x); (S.files[k] = S.files[k] || []).push(meta);
       n++;
     }
-    if (n && !x.req) { S.sel[sc] = S.sel[sc] || {}; S.sel[sc][x.id] = true; }
+    if (n && !x.req) setSel(sc, docsOf(sc).find(d => d.id === x.id) || x, true);
     save();
   } finally { busy.done(); }
-  if (n) toast(`已加入 ${n} 個檔案${IDBX.persistent() ? '' : '（這個瀏覽器無法長期保存，請在離開前下載）'}`);
+  if (n) {
+    const L = upList(sc, x).slice(-n), e = L.filter(f => f.chk && f.chk.lv === 'err').length, w = L.filter(f => f.chk && f.chk.lv === 'warn').length;
+    toast(`已加入 ${n} 個檔案${e ? `，檢查發現 ${e} 個檔案有錯誤` : w ? `，有 ${w} 個檔案需要確認` : '，自動檢查沒有發現問題'}${IDBX.persistent() ? '' : '（這個瀏覽器無法長期保存，請在離開前下載）'}`, e ? 'err' : '');
+  }
   render();
 }
 async function upDel(sc, id, fid) {
@@ -4179,7 +4287,9 @@ async function upDel(sc, id, fid) {
 /** 下載頁：已上傳的檔案清單 */
 function upHTML(sc, x) {
   const L = upList(sc, x);
-  return `<div class="ups">${L.map(f => `<span class="upf">${/^image\//.test(f.type) ? `<img data-fid="${f.fid}" alt="">` : `<i class="ext">${esc((f.name.split('.').pop() || '').slice(0, 4).toUpperCase())}</i>`}<span class="un">${esc(f.name)}<small>${fsize(f.size)}</small></span><button class="x" data-updel="${x.id}" data-fid="${f.fid}" aria-label="移除 ${esc(f.name)}">${icon('x')}</button></span>`).join('')}
+  const st = f => f.chk ? f.chk.lv : '', lab = f => !f.chk ? '' : f.chk.lv === 'err' ? '有錯誤' : f.chk.lv === 'warn' ? '需確認' : '檢查通過';
+  return `<div class="ups">${L.map(f => `<span class="upf ${st(f)}">${/^image\//.test(f.type) ? `<img data-fid="${f.fid}" alt="">` : `<i class="ext">${esc((f.name.split('.').pop() || '').slice(0, 4).toUpperCase())}</i>`}<span class="un">${esc(f.name)}<small>${fsize(f.size)}${f.chk && f.chk.info ? '・' + esc(f.chk.info) : ''}${lab(f) ? `・<b class="cl ${st(f)}">${lab(f)}</b>` : ''}</small></span><button class="x" data-updel="${x.id}" data-fid="${f.fid}" aria-label="移除 ${esc(f.name)}">${icon('x')}</button></span>`).join('')}
+    ${L.some(f => f.chk && f.chk.items.some(i => i.lv !== 'ok')) ? `<details class="ckd"${L.some(f => f.chk && f.chk.lv === 'err') ? ' open' : ''}><summary>自動檢查結果</summary>${L.map(f => f.chk && f.chk.items.length ? `<div class="ckf"><b>${esc(f.name)}</b><ul class="cklist">${f.chk.items.map(i => `<li class="${i.lv}">${esc(i.msg)}</li>`).join('')}</ul></div>` : '').join('')}</details>` : ''}
     <button class="mini up" data-up="${x.id}">${icon('clip')}${L.length ? '再上傳' : `上傳${typeof x.up === 'string' ? x.up : '檔案'}`}</button></div>`;
 }
 async function upThumbs(root = document) {
@@ -4208,7 +4318,7 @@ async function imagesToPdf(blobs) {
   return pdf.output('blob');
 }
 /** 合併成一份送件 PDF：送件檢核表、各文件、上傳的附件，依清單順序 */
-async function mergedPdf(sc) {
+async function mergedPdf(sc, only, fname) {
   const busy = showBusy('正在準備合併 PDF…');
   try {
     const PL = await loadLib('pdflib'), out = await PL.PDFDocument.create(), skipped = [];
@@ -4218,11 +4328,11 @@ async function mergedPdf(sc) {
       const land = img.width > img.height, W = land ? 841.89 : 595.28, H = land ? 595.28 : 841.89, m = 22, k = Math.min((W - 2 * m) / img.width, (H - 2 * m) / img.height);
       out.addPage([W, H]).drawImage(img, { x: (W - img.width * k) / 2, y: (H - img.height * k) / 2, width: img.width * k, height: img.height * k });
     };
-    const list = selDocs(sc);
-    busy.set('正在產生送件檢核表…'); await addPdf(await makeBlob(docChecklist(sc), 'pdf'));
+    const list = only || selDocs(sc);
+    if (!only) { busy.set('正在產生送件檢核表…'); await addPdf(await makeBlob(docChecklist(sc), 'pdf')); }
     for (let i = 0; i < list.length; i++) {
       const x = list[i];
-      if (x.kind !== 'attach') { busy.set(`正在產生第 ${i + 1}/${list.length} 份：${x.name}`); await addPdf(await makeBlob(keyed(sc, x), 'pdf')); }
+      if (x.kind !== 'attach' && !isUp(x)) { busy.set(`正在產生第 ${i + 1}/${list.length} 份：${x.name}`); await addPdf(await makeBlob(keyed(sc, x), 'pdf')); }
       for (const f of upList(sc, x)) {
         const b = await FileDB.get(f.fid); if (!b) continue;
         try { if (/^image\/(jpeg|png)$/.test(f.type)) await addImg(b); else if (f.type === 'application/pdf' || /\.pdf$/i.test(f.name)) await addPdf(b); else skipped.push(f.name); }
@@ -4232,7 +4342,7 @@ async function mergedPdf(sc) {
     busy.set('正在合併…');
     const blob = new Blob([await out.save()], { type: 'application/pdf' });
     busy.done();
-    await saveFile(`${orgShort()}_${SCEN[sc].title}_${batchLabel(sc)}_送件合併.pdf`, blob);
+    await saveFile(fname || `${orgShort()}_${SCEN[sc].title}_${batchLabel(sc)}_送件合併.pdf`, blob);
     if (skipped.length) toast(`下列檔案不是 PDF 或圖片，未放入合併檔（壓縮檔裡有）：${skipped.join('、')}`, 'err');
   } catch (e) { busy.done(); console.error(e); toast('合併失敗：' + (e.message || e), 'err'); }
 }
@@ -4265,6 +4375,276 @@ document.addEventListener('change', async e => {
   try { const txt = await importTable(f); const box = $('#pasteBox'); box.value = txt; pastePreview(t.dataset.import); toast(`已讀取「${f.name}」，請確認下方辨識結果後按「加入」`); }
   catch (err) { toast('無法讀取這個檔案：' + err.message, 'err'); }
 });
+
+/* ===== 自動檢查：上傳檔案與線上填寫的資料 =====
+ 結果：{ lv: 'ok'|'info'|'warn'|'err', items: [{ lv, msg }], info: '摘要' } */
+const LV = { ok: 0, info: 1, warn: 2, err: 3 };
+const worst = items => items.reduce((w, i) => LV[i.lv] > LV[w] ? i.lv : w, 'ok');
+const colName = c => { let s = ''; c++; while (c) { const m = (c - 1) % 26; s = String.fromCharCode(65 + m) + s; c = Math.floor((c - 1) / 26); } return s; };
+const n0 = v => Math.round(v).toLocaleString('en-US');
+
+/* ---------- 讀取試算表：{ name, rows: [[{v, f, r, e}]] } ---------- */
+async function readSheets(blob, name) {
+  const ext = (name.split('.').pop() || '').toLowerCase();
+  if (ext === 'csv' || ext === 'txt') {
+    const buf = new Uint8Array(await blob.arrayBuffer()); let t;
+    try { t = new TextDecoder('utf-8', { fatal: true }).decode(buf); } catch (e) { t = new TextDecoder('big5').decode(buf); }
+    const rows = t.replace(/^﻿/, '').split(/\r?\n/).map(l => csvLine(l).map(c => { const s = c.trim(), n = s !== '' && /^-?[\d,]+(\.\d+)?$/.test(s) ? Number(s.replace(/,/g, '')) : null; return { v: n != null ? n : (s || null) }; }));
+    return [{ name: name, rows }];
+  }
+  const X = await loadLib('exceljs'), wb = new X.Workbook();
+  await wb.xlsx.load(await blob.arrayBuffer());
+  return wb.worksheets.map(ws => {
+    const rows = [];
+    ws.eachRow({ includeEmpty: true }, (row, ri) => {
+      const r = [];
+      row.eachCell({ includeEmpty: true }, (c, ci) => {
+        if (c.isMerged && c.master && c.master.address !== c.address) { r[ci - 1] = { v: null }; return; }
+        const val = c.value; let o = { v: null };
+        if (val == null) o = { v: null };
+        else if (typeof val === 'number') o = { v: val };
+        else if (typeof val === 'string') o = { v: val.trim() || null };
+        else if (val instanceof Date) o = { v: val };
+        else if (typeof val === 'object') {
+          if (val.error) o = { v: null, e: val.error };
+          else if ('formula' in val || 'sharedFormula' in val) { const res = val.result; o = { v: res && typeof res === 'object' && res.error ? null : res ?? null, f: val.formula || '@shared', e: res && typeof res === 'object' && res.error ? res.error : null, nr: res === undefined }; }
+          else if (val.richText) o = { v: val.richText.map(t => t.text).join('').trim() || null };
+          else if ('text' in val) o = { v: String(val.text || '').trim() || null };
+        }
+        r[ci - 1] = o;
+      });
+      rows[ri - 1] = r;
+    });
+    for (let i = 0; i < rows.length; i++) rows[i] = rows[i] || [];
+    return { name: ws.name, rows };
+  });
+}
+const isNum = c => c && typeof c.v === 'number' && isFinite(c.v);
+const txt = c => c && typeof c.v === 'string' ? c.v.replace(/\s|　/g, '') : '';
+const rowText = r => r.map(txt).join('');
+
+/* ---------- 簡易公式計算（+ - * / 括號、儲存格、SUM、ROUND） ---------- */
+function evalFormula(f, rows) {
+  const ref = s => { const m = /^\$?([A-Z]{1,3})\$?(\d+)$/.exec(s); if (!m) return null; let c = 0; for (const ch of m[1]) c = c * 26 + ch.charCodeAt(0) - 64; return [Number(m[2]) - 1, c - 1]; };
+  const valAt = ([r, c]) => { const x = (rows[r] || [])[c]; if (!x || x.v == null || x.v === '') return 0; if (typeof x.v === 'number') return x.v; throw new Error('text'); };
+  const range = s => { const [a, b] = s.split(':').map(ref); if (!a || !b) throw new Error('ref'); const out = []; for (let r = Math.min(a[0], b[0]); r <= Math.max(a[0], b[0]); r++) for (let c = Math.min(a[1], b[1]); c <= Math.max(a[1], b[1]); c++) { const x = (rows[r] || [])[c]; if (x && typeof x.v === 'number') out.push(x.v); } return out; };
+  const toks = String(f).replace(/^=/, '').toUpperCase().match(/\$?[A-Z]{1,3}\$?\d+(?::\$?[A-Z]{1,3}\$?\d+)?|\d+(?:\.\d+)?|SUM|ROUND|[-+*/(),]/g);
+  if (!toks || toks.join('') !== String(f).replace(/^=/, '').toUpperCase().replace(/\s/g, '')) throw new Error('unsupported');
+  let i = 0;
+  const peek = () => toks[i], take = () => toks[i++];
+  const expr = () => { let v = term(); while (peek() === '+' || peek() === '-') { const op = take(), w = term(); v = op === '+' ? v + w : v - w; } return v; };
+  const term = () => { let v = fac(); while (peek() === '*' || peek() === '/') { const op = take(), w = fac(); v = op === '*' ? v * w : v / w; } return v; };
+  const args = () => { const out = []; take(); if (peek() !== ')') { do { if (peek() === ',') take(); const t = peek(); if (/:/.test(t || '')) { take(); out.push(...range(t)); } else out.push(expr()); } while (peek() === ','); } if (take() !== ')') throw new Error('paren'); return out; };
+  const fac = () => {
+    const t = take();
+    if (t === '-') return -fac(); if (t === '+') return fac();
+    if (t === '(') { const v = expr(); if (take() !== ')') throw new Error('paren'); return v; }
+    if (t === 'SUM') { if (peek() !== '(') throw new Error('sum'); return args().reduce((a, b) => a + b, 0); }
+    if (t === 'ROUND') { if (peek() !== '(') throw new Error('round'); const a = args(); const k = Math.pow(10, a[1] || 0); return Math.round(a[0] * k) / k; }
+    if (/^\d/.test(t)) return Number(t);
+    const r = ref(t); if (r) return valAt(r);
+    throw new Error('tok');
+  };
+  const v = expr(); if (i !== toks.length) throw new Error('trail'); return v;
+}
+/** 找出某個標籤列的第一個數字（例如「資產合計」那一列） */
+function findVal(rows, re, exclude) {
+  for (let r = 0; r < rows.length; r++) {
+    const row = rows[r] || [];
+    for (let c = 0; c < row.length; c++) {
+      const t = txt(row[c]); if (!t || !re.test(t) || (exclude && exclude.test(t))) continue;
+      for (let k = c + 1; k < row.length; k++) if (isNum(row[k])) return { v: row[k].v, r, c: k, label: t };
+    }
+  }
+  return null;
+}
+function sheetChecks(sh, kind, items) {
+  const rows = sh.rows, P = s => `「${sh.name}」${s}`;
+  let errs = 0, fchk = 0, fbad = 0, nr = 0;
+  rows.forEach((row, r) => row.forEach((c, k) => {
+    if (!c) return;
+    if (c.e && errs < 5) { items.push({ lv: 'err', msg: P(`${colName(k)}${r + 1} 出現錯誤值 ${c.e}，請在 Excel 修正公式`) }); errs++; }
+    if (c.f && !c.e && c.f !== '@shared') {
+      try {
+        const v = evalFormula(c.f, rows);
+        if (c.nr) { if (Math.abs(v) > 0.5) nr++; else fchk++; return; }   /* 沒存結果通常代表 0 */
+        fchk++;
+        if (typeof c.v === 'number' && Math.abs(v - c.v) > 0.5) { fbad++; if (fbad <= 5) items.push({ lv: 'err', msg: P(`${colName(k)}${r + 1} 的公式（=${c.f}）顯示 ${n0(c.v)}，但重新計算是 ${n0(v)}，請在 Excel 重新計算後再存檔上傳`) }); }
+      } catch (e) { if (c.nr) nr++; }
+    }
+  }));
+  if (nr) items.push({ lv: 'info', msg: P(`有 ${nr} 個公式沒有存下計算結果，無法核對；建議用 Excel 開啟、存檔後再上傳`) });
+  /* 手打（沒有公式）的合計：以同一列左邊最近的文字當標籤，逐欄比對上方加總 */
+  const TOT = /(合計|總計|小計|共計|總額)/, startCol = {};
+  let warned = 0;
+  for (let r = 0; r < rows.length; r++) {
+    const row = rows[r] || [];
+    row.forEach((c, k) => {
+      if (!isNum(c)) return;
+      let lab = ''; for (let q = k - 1; q >= 0; q--) { const t = txt(row[q]); if (t) { lab = t; break; } if (isNum(row[q])) break; }
+      if (!TOT.test(lab)) return;
+      const st = startCol[k] || 0; startCol[k] = r + 1;
+      if (c.f || warned >= 4) return;
+      let sum = 0, n = 0, prev = 0;
+      for (let q = st; q < r; q++) { const x = (rows[q] || [])[k]; if (isNum(x)) { sum += x.v; n++; prev = x.v; } }
+      if (n < 2) return;
+      const ok = [sum, sum / 2].some(v => Math.abs(v - c.v) <= 0.5) || Math.abs(prev - c.v) <= 0.5;
+      if (!ok) { warned++; items.push({ lv: 'warn', msg: P(`第 ${r + 1} 列 ${colName(k)} 欄「${lab}」是 ${n0(c.v)}，上方各列加總是 ${n0(sum)}，請確認合計是否正確`) }); }
+    });
+  }
+  if (kind === 'fin') {
+    const all = rows.map(rowText).join('');
+    const A = findVal(rows, /^資產(合計|總計)|資產總額/), B = findVal(rows, /負債.*(合計|總計)|負債.*淨值|負債.*權益/, /^負債(合計|總計)$/);
+    if (A && B && Math.abs(A.v - B.v) > 0.5) items.push({ lv: 'err', msg: P(`資產負債表兩方不相等：資產 ${n0(A.v)}，負債、基金及餘絀 ${n0(B.v)}（差 ${n0(A.v - B.v)}）`) });
+    const I = findVal(rows, /^收入(合計|總計)|收入總額/), E = findVal(rows, /^支出(合計|總計)|支出總額/), R = findVal(rows, /^本期(餘絀|結餘|賸餘|短絀)|收支餘絀|^本期餘額/);
+    if (I && E && R && Math.abs(I.v - E.v - R.v) > 0.5) items.push({ lv: 'err', msg: P(`收入 ${n0(I.v)} 減支出 ${n0(E.v)} 應等於本期餘絀，但表上是 ${n0(R.v)}`) });
+    if (I && E && !R && /預算/.test(sh.name + all) && Math.abs(I.v - E.v) > 0.5) items.push({ lv: 'warn', msg: P(`預算收入 ${n0(I.v)} 與支出 ${n0(E.v)} 不平衡，預算應本收支平衡原則編列`) });
+    const p0 = findVal(rows, /上(期|年度)結存|期初餘額/), pi = findVal(rows, /^本期收入/), po = findVal(rows, /^本期支出/), pe = findVal(rows, /本期結存|期末(結存|餘額)/);
+    if (p0 && pi && po && pe && Math.abs(p0.v + pi.v - po.v - pe.v) > 0.5) items.push({ lv: 'err', msg: P(`現金出納：上期結存＋本期收入－本期支出應為 ${n0(p0.v + pi.v - po.v)}，表上本期結存是 ${n0(pe.v)}`) });
+    if (pe && pe.v < 0) items.push({ lv: 'warn', msg: P(`本期結存為負數（${n0(pe.v)}），請確認`) });
+  }
+  return { fchk, fbad };
+}
+/* 名冊：身分證字號、重複、日期、人數 */
+function listChecks(sheets, kind, items, sc) {
+  let hdr = null, sh = null;
+  for (const re of [/姓名/, /^(會員)?名稱$/]) { for (const s of sheets) { for (let r = 0; r < Math.min(12, s.rows.length); r++) if ((s.rows[r] || []).some(c => re.test(txt(c)))) { hdr = r; sh = s; break; } if (sh) break; } if (sh) break; }
+  if (!sh) { items.push({ lv: 'warn', msg: '找不到「姓名」欄位，請確認上傳的是名冊，且第一列是欄位名稱' }); return; }
+  const H = (sh.rows[hdr] || []).map(txt), col = re => H.findIndex(h => re.test(h));
+  const cN = H.findIndex(h => /姓名/.test(h)) >= 0 ? H.findIndex(h => /姓名/.test(h)) : col(/名稱/), cI = col(/身分證|身份證|統一編號|統編/), cB = col(/出生|生日/), cR = col(/職稱|職別|職務/), cT = col(/類別|會員別|身分別/);
+  const filled = r => (r || []).filter(c => c && c.v != null && c.v !== '');
+  const NOTE_RE = /^(註|備註|說明|填表|製表|合計|總計|共計|注意|本表|以上)/;
+  const data = sh.rows.slice(hdr + 1).filter(r => { const f = filled(r); return f.length > 1 && !NOTE_RE.test(txt(f.find(c => txt(c))) || ''); });
+  const names = [], bad = [], ids = new Map(), dates = [];
+  data.forEach((r, i) => {
+    const line = hdr + 2 + i, nm = cN >= 0 && r[cN] ? String(r[cN].v ?? '').trim() : '';
+    if (!nm) { if (r.some(c => c && c.v != null)) dates.push(`第 ${line} 列沒有姓名`); return; }
+    if (/(合計|總計|共計)/.test(nm)) return;
+    names.push(nm);
+    if (cI >= 0 && r[cI] && r[cI].v) { const id = String(r[cI].v).trim().toUpperCase(); if (/^[A-Z]/.test(id)) { if (!checkTwId(id)) bad.push(`第 ${line} 列 ${nm}（${id}）`); if (ids.has(id)) bad.push(`第 ${line} 列 ${nm} 與 ${ids.get(id)} 的身分證字號重複`); ids.set(id, nm); } }
+    if (cB >= 0 && r[cB] && r[cB].v != null && !(r[cB].v instanceof Date) && !parseDate(String(r[cB].v))) dates.push(`第 ${line} 列 ${nm} 的出生日期「${r[cB].v}」看不懂`);
+  });
+  if (bad.length) items.push({ lv: 'err', msg: `身分證字號格式或檢查碼不正確：${bad.slice(0, 5).join('、')}${bad.length > 5 ? ` 等 ${bad.length} 筆` : ''}` });
+  const dup = [...new Set(names.filter((n, i) => names.indexOf(n) !== i))];
+  if (kind === 'members' && dup.length) items.push({ lv: 'warn', msg: `姓名重複：${dup.slice(0, 5).join('、')}，請確認是否重複登記` });
+  if (dates.length) items.push({ lv: 'warn', msg: dates.slice(0, 4).join('；') + (dates.length > 4 ? ` 等 ${dates.length} 筆` : '') });
+  if (kind === 'roster' && cR >= 0 && !data.some(r => r[cR] && /理事長/.test(String(r[cR].v || '')))) items.push({ lv: 'warn', msg: '名冊中沒有職稱為「理事長」的人' });
+  let msg = `名冊共 ${names.length} 人`;
+  if (kind === 'members' && cT >= 0) { const g = {}; data.forEach(r => { const t = r[cT] && r[cT].v ? String(r[cT].v).trim() : ''; if (t) g[t] = (g[t] || 0) + 1; }); const ks = Object.keys(g); if (ks.length) msg += `（${ks.map(k => `${k} ${g[k]}`).join('、')}）`; }
+  items.push({ lv: 'info', msg });
+  if (kind === 'members' && sc) {
+    const mk = SCEN[sc] && SCEN[sc].meets().find(m => MEET[m] && MEET[m].asm), should = mk ? num(MV(mk, 'should')) : 0;
+    const rows2 = data.filter(r => cN >= 0 && r[cN] && String(r[cN].v ?? '').trim());
+    const nonVote = rows2.filter(r => /贊助|停權/.test(rowText(r))).length, formal = names.length - nonVote;
+    if (should && names.length && should !== formal && should !== names.length) items.push({ lv: 'warn', msg: `名冊有表決權的會員 ${formal} 人（共 ${names.length} 人），與開會通知書的應出席人數 ${should} 人不同，請確認` });
+  }
+}
+/** 檢查一個上傳的檔案 */
+async function fileCheck(kind, f, blob, sc) {
+  const items = [], name = f.name || '', ext = (name.split('.').pop() || '').toLowerCase(), type = f.type || '';
+  let info = '';
+  try {
+    if (/^image\//.test(type)) {
+      const im = await decodeImage(blob), w = im.naturalWidth || im.width, h = im.naturalHeight || im.height;
+      info = `圖片 ${w}×${h}`;
+      if (Math.max(w, h) < 1200) items.push({ lv: 'warn', msg: `解析度偏低（${w}×${h}），列印可能模糊；建議用 300dpi 掃描，或拍攝時讓文件佔滿畫面` });
+      if (kind === 'fin' || kind === 'members' || kind === 'roster') items.push({ lv: 'info', msg: '照片無法自動核對數字與身分證字號，送件前請自行確認；上傳 Excel 檔可以自動檢查' });
+    } else if (type === 'application/pdf' || ext === 'pdf') {
+      const PL = await loadLib('pdflib');
+      let doc; try { doc = await PL.PDFDocument.load(await blob.arrayBuffer(), { ignoreEncryption: true }); } catch (e) { return { lv: 'err', items: [{ lv: 'err', msg: '無法開啟這個 PDF，檔案可能損毀，請重新匯出或掃描' }], info: 'PDF' }; }
+      const n = doc.getPageCount(); info = `PDF ${n} 頁`;
+      if (!n) items.push({ lv: 'err', msg: 'PDF 沒有任何頁面' });
+      if (doc.isEncrypted) items.push({ lv: 'warn', msg: 'PDF 有加密保護，合併送件檔時可能無法放入' });
+      const odd = doc.getPages().filter(p => { const { width: a, height: b } = p.getSize(), L = Math.max(a, b), Sh = Math.min(a, b); return Math.abs(L - 842) > 30 || Math.abs(Sh - 595) > 30; }).length;
+      if (odd) items.push({ lv: 'info', msg: `有 ${odd} 頁不是 A4 大小，列印時可能會縮放` });
+      if (kind === 'fin' || kind === 'members' || kind === 'roster') items.push({ lv: 'info', msg: 'PDF 無法自動核對數字與身分證字號，送件前請自行確認；上傳 Excel 檔可以自動檢查' });
+    } else if (ext === 'xlsx' || ext === 'csv' || ext === 'txt') {
+      let sheets; try { sheets = await readSheets(blob, name); } catch (e) { return { lv: 'err', items: [{ lv: 'err', msg: '無法開啟這個 Excel 檔，檔案可能損毀或有密碼保護' }], info: 'Excel' }; }
+      const used = sheets.filter(s => s.rows.some(r => (r || []).some(c => c && c.v != null)));
+      info = ext === 'xlsx' ? `Excel ${used.length} 個工作表` : 'CSV';
+      if (!used.length) items.push({ lv: 'err', msg: '檔案是空的' });
+      let fchk = 0, fbad = 0;
+      for (const sh of used) { const r = sheetChecks(sh, kind, items); fchk += r.fchk; fbad += r.fbad; }
+      if (kind === 'members' || kind === 'roster') listChecks(used, kind, items, sc);
+      if (fchk && !fbad) items.push({ lv: 'ok', msg: `已重新計算 ${fchk} 個公式，結果都正確` });
+    } else if (ext === 'docx') {
+      const JZ = await loadLib('jszip'); let xml;
+      try { const z = await JZ.loadAsync(await blob.arrayBuffer()); xml = await z.file('word/document.xml').async('string'); } catch (e) { return { lv: 'err', items: [{ lv: 'err', msg: '無法開啟這個 Word 檔，檔案可能損毀' }], info: 'Word' }; }
+      const t = xml.replace(/<w:tab\/>/g, ' ').replace(/<\/w:p>/g, '\n').replace(/<[^>]+>/g, '');
+      info = `Word 約 ${t.replace(/\s/g, '').length} 字`;
+      const blanks = (t.match(/○{2,}|＿{3,}|_{4,}|（請填寫）|XXX/g) || []).length;
+      if (blanks) items.push({ lv: 'warn', msg: `文件中還有 ${blanks} 處未填寫的空白（○○○、＿＿＿），請確認` });
+      if (kind === 'fin' || kind === 'members' || kind === 'roster') items.push({ lv: 'info', msg: 'Word 檔無法自動核對計算，建議上傳 Excel 檔或改用線上填寫' });
+    } else if (['xls', 'doc', 'odt', 'ods'].includes(ext)) {
+      info = ext.toUpperCase(); items.push({ lv: 'info', msg: '這種格式無法自動檢查內容，建議另存為 .xlsx、.docx 或 PDF 再上傳' });
+    } else items.push({ lv: 'err', msg: '不支援的檔案格式，請上傳 PDF、JPG、PNG、Excel（.xlsx）或 Word（.docx）' });
+  } catch (e) { items.push({ lv: 'info', msg: '無法自動檢查這個檔案：' + (e.message || e) }); }
+  return { lv: worst(items), items, info };
+}
+
+/* ---------- 線上填寫資料的檢查 ---------- */
+function docChecks(sc, x) {
+  const out = [], P = (lv, msg) => out.push({ lv, msg });
+  if (isUp(x)) return out;
+  const id = x.id, mk = x.m;
+  if (id === 'members' || id === 'roster') {
+    const L = id === 'members' ? S.members : S.people;
+    const bad = L.filter(p => p.idno && !checkTwId(p.idno)).map(p => p.name || '（未填姓名）');
+    if (bad.length) P('err', `身分證字號格式或檢查碼不正確：${bad.slice(0, 5).join('、')}${bad.length > 5 ? ` 等 ${bad.length} 人` : ''}`);
+    const nm = L.map(p => (p.name || '').trim()).filter(Boolean), dup = [...new Set(nm.filter((n, i) => nm.indexOf(n) !== i))];
+    if (id === 'members' && dup.length) P('warn', `姓名重複：${dup.slice(0, 5).join('、')}`);
+    const bd = L.filter(p => p.birth && !parseDate(p.birth)).map(p => p.name); if (bd.length) P('warn', `出生日期看不懂：${bd.slice(0, 5).join('、')}`);
+    if (id === 'roster' && !chairName()) P('err', '還沒有設定理事長');
+  }
+  if (['fin', 'fin5', 'budget'].includes(id)) {
+    if (id !== 'fin5' && finSurplus('b') !== 0) P('warn', `預算收支不平衡（本期餘絀 ${fmt(finSurplus('b'))}），預算應本收支平衡原則編列`);
+    if (id !== 'budget') { const a = bsAssets(), r = bsLiab() + bsEquity(); if (a !== r) P('err', `資產負債表兩方不相等：資產 ${fmt(a)}，負債、基金暨餘絀 ${fmt(r)}（差 ${fmt(a - r)}）`); }
+    if (id !== 'budget' && cashEnd() < 0) P('warn', `現金出納表本期結存為負數（${fmt(cashEnd())}），請確認收支或上期結存`);
+    if (id !== 'budget') ['土地', '房屋及建築', '事務器械設備', '儀器設備', '交通運輸設備', '雜項設備'].forEach(n => { const raw = S.fin.bs[n], ps = propSum(n); if (hasNum(raw) && ps && num(raw) !== ps) P('warn', `資產負債表「${n}」${fmt(num(raw))} 與財產目錄 ${fmt(ps)} 不同`); });
+  }
+  if (id === 'prepfin') { const inc = (S.x.prepfin.inc || []).reduce((s, r) => s + num(r.amt), 0), exp = (S.x.prepfin.exp || []).reduce((s, r) => s + num(r.amt), 0); if (exp > inc) P('err', `籌備期間支出 ${fmt(exp)} 大於收入 ${fmt(inc)}，收支不得負債`); }
+  if (id === 'ledger') {
+    let bal = hasNum(S.x.ledger.open) ? num(S.x.ledger.open) : 0, neg = '';
+    for (const r of S.x.ledger.rows || []) { bal += num(r.inc) - num(r.exp); if (bal < 0 && !neg) neg = r.item || rdDot(r.date) || '某筆'; }
+    if (neg) P('warn', `收支報告餘額在「${neg}」之後變成負數，請確認上期結存或收支金額`);
+    const from = parseDate(S.x.ledger.from) && toIso(S.x.ledger.from), to = parseDate(S.x.ledger.to) && toIso(S.x.ledger.to);
+    if (from && to) { const outR = (S.x.ledger.rows || []).filter(r => r.date && (toIso(r.date) < from || toIso(r.date) > to)).length; if (outR) P('warn', `有 ${outR} 筆收支日期不在報告期間內`); }
+  }
+  if (/notice/i.test(id) && mk) {
+    const d = MV(mk, 'date'), nd = MV(mk, 'noticeDate'), days = MEET[mk].days;
+    if (d && nd) { const left = daysBetween(nd, d); if (left != null && left < days) P('warn', `開會通知書發文日期距開會只有 ${left} 天，依規定應於會議前 ${days} 日送達縣府`); }
+    const refs = noticeRefs(mk), miss = scenDocs(sc).filter(a => a.nm === mk && refs.has(a.id) && !isSel(sc, a)).map(a => a.name);
+    if (miss.length) P('warn', `通知書的報告或討論事項提到「${miss.join('、')}」，但開會通知檢附資料沒有勾選，送件時請一併附上`);
+  }
+  if (/letter/i.test(id) && mk) {
+    const d = MV(mk, 'date'), ld = MV(mk, 'letterDate'), typed = !isBlank(getp(S, `m.${mk}.letterDate`)), held = d && daysBetween(d, isoToday()) >= 0;
+    if (d && ld && (typed || held)) { const gap = daysBetween(d, ld); if (gap != null && gap > 30) P('warn', `檢送公文日期在會後 ${gap} 天，應於會議後 30 日內送達縣府`); if (gap != null && gap < 0) P('err', '檢送會議紀錄公文的發文日期早於開會日期'); }
+  }
+  if (/Min$|^min$/.test(id) && mk && MEET[mk].asm) {
+    const a = num(MV(mk, 'attend')), s = num(MV(mk, 'should'));
+    if (a && s && a * 2 <= s) P('err', `出席 ${a} 人未過應出席 ${s} 人的半數，會議不足法定人數`);
+  }
+  return out;
+}
+/** 一份文件的檢查摘要（線上填寫或上傳） */
+function docCheckState(sc, x) {
+  if (isUp(x) || (x.kind === 'attach' && upList(sc, x).length)) {
+    const L = upList(sc, x); if (!L.length) return { lv: isUp(x) ? 'warn' : 'ok', items: isUp(x) ? [{ lv: 'warn', msg: '已選擇上傳，但還沒有上傳檔案' }] : [] };
+    const items = L.flatMap(f => (f.chk && f.chk.items || []).filter(i => i.lv !== 'ok' && i.lv !== 'info' || i.lv === 'err').map(i => ({ ...i, msg: `${f.name}：${i.msg}` })));
+    return { lv: worst(L.map(f => ({ lv: f.chk ? f.chk.lv : 'ok' }))), items };
+  }
+  const items = docChecks(sc, x); return { lv: worst(items), items };
+}
+function chkBadge(st) { return st.lv === 'err' ? `<span class="ck err">${icon('x')}${st.items.filter(i => i.lv === 'err').length} 個錯誤</span>` : st.lv === 'warn' ? `<span class="ck warn">${icon('warn')}${st.items.filter(i => i.lv === 'warn').length} 個提醒</span>` : ''; }
+function chkList(items) { const L = items.filter(i => i.lv === 'err' || i.lv === 'warn'); return L.length ? `<ul class="cklist">${L.map(i => `<li class="${i.lv}">${esc(i.msg)}</li>`).join('')}</ul>` : ''; }
+/** 下載頁：送件前自動檢查 */
+function checkSummary(sc) {
+  const list = selDocs(sc), res = list.map(x => ({ x, st: docCheckState(sc, x) })).filter(r => r.st.items.some(i => i.lv === 'err' || i.lv === 'warn'));
+  const ne = res.reduce((s, r) => s + r.st.items.filter(i => i.lv === 'err').length, 0), nw = res.reduce((s, r) => s + r.st.items.filter(i => i.lv === 'warn').length, 0);
+  if (!res.length) return `<section class="card ckall ok">${icon('check')}<div><b>送件前自動檢查：沒有發現格式或計算錯誤</b><small>已核對財務報表平衡、身分證字號、出席人數、發文期限與上傳檔案。</small></div></section>`;
+  return `<section class="card ckall ${ne ? 'err' : 'warn'}">${icon(ne ? 'x' : 'warn')}<div><b>送件前自動檢查：${ne ? `${ne} 個錯誤` : ''}${ne && nw ? '、' : ''}${nw ? `${nw} 個提醒` : ''}</b>
+    <details${ne ? ' open' : ''}><summary>查看內容</summary>${res.map(r => `<div class="ckdoc"><b>${esc(r.x.name)}</b>${chkList(r.st.items)}</div>`).join('')}</details></div></section>`;
+}
 
 /* ===== 雲端存檔：Google 帳號 =====
  資料存在使用者「自己的」Google 雲端硬碟應用程式專用空間（drive.appdata，非敏感權限），
@@ -4605,7 +4985,7 @@ const CMDS = {
     await IDBX.run('files', 'readwrite', st => st.clear()); await IDBX.run('img', 'readwrite', st => st.clear()); SEALC.clear(); FILEC.clear();
     save(); render(); toast('已清除');
   },
-  pvOpen() { const list = pvDocs(S.ui.scen).length ? pvDocs(S.ui.scen) : selDocs(S.ui.scen).filter(x => x.kind !== 'attach'); if (list.length) openPreview(list.some(x => x.id === S.ui.pvDoc) ? S.ui.pvDoc : list[0].id); },
+  pvOpen() { const list = pvDocs(S.ui.scen).length ? pvDocs(S.ui.scen) : selDocs(S.ui.scen).filter(x => x.kind !== 'attach' && !isUp(x)); if (list.length) openPreview(list.some(x => x.id === S.ui.pvDoc) ? S.ui.pvDoc : list[0].id); },
   pvClose() { closePreview(); },
   toPost() { const sc = S.ui.scen; S.batch = S.batch || {}; S.batch[sc] = { pre: false, post: true }; S.ui.step = 'docs'; save(); render(); window.scrollTo({ top: 0 }); toast('已切換到「② 會後：會議紀錄送件」'); },
   async ics(t) {
@@ -4679,6 +5059,7 @@ function onInput(e) {
   setp(S, p, val);
   if (p.startsWith('ui.')) { save(); render(); return; }
   save();
+  if (/^m\./.test(p)) refWatchSoon();
   if (el.dataset.rr) { render(); return; }
   refreshLive(); renderSide();
 }
@@ -4686,7 +5067,7 @@ document.addEventListener('input', onInput);
 document.addEventListener('change', e => { if (e.target.type === 'checkbox' && e.target.dataset.sel) return; if (e.target.matches('select[data-p], input[type=checkbox][data-p], input[type=date], input[type=time]')) onInput(e); });
 document.addEventListener('change', e => {
   const t = e.target;
-  if (t.dataset.sel) { const sc = S.ui.scen; S.sel[sc] = S.sel[sc] || {}; S.sel[sc][t.dataset.sel] = t.checked; save(); t.closest('.docrow').classList.toggle('on', t.checked); const n = selDocs(sc).filter(x => x.kind !== 'attach').length; $('#dock .dk-t b').textContent = n; $('#steps').innerHTML = stepsBar(); }
+  if (t.dataset.sel) { const sc = S.ui.scen; setSel(sc, docsOf(sc).find(d => d.id === t.dataset.sel) || { id: t.dataset.sel }, t.checked); save(); t.closest('.docrow').classList.toggle('on', t.checked); const n = selDocs(sc).filter(x => x.kind !== 'attach').length; $('#dock .dk-t b').textContent = n; $('#steps').innerHTML = stepsBar(); }
   if (t.dataset.pvsel) { S.ui.pvDoc = t.value; save(); renderSide(); }
   if (t.dataset.cloudseals) { S.cloud.seals = t.checked; save({ keepTime: true, noCloud: true }); if (t.checked) cloudPush(); }
   if (t.dataset.pvopen) { openPreview(t.value); }
@@ -4701,6 +5082,7 @@ document.addEventListener('click', async e => {
   if (t.id === 'cloudChip') { cloudChipClick(); return; }
   if (ds.go) { e.preventDefault(); $('#sheet').hidden = true; S.ui.view = ds.go === 'scen' ? 'scen' : ds.go; if (ds.scen) { if (S.ui.scen !== ds.scen) { S.ui.step = 'docs'; S.ui.open = ''; } S.ui.scen = ds.scen; } save(); render(); return; }
   if (ds.step) { S.ui.step = ds.step; save(); render(); return; }
+  if (ds.mode) { e.preventDefault(); S.mode = S.mode || {}; S.mode[ds.id] = ds.mode; const sc = S.ui.scen; if (ds.mode === 'up') setSel(sc, docsOf(sc).find(d => d.id === ds.id) || { id: ds.id }, true); save(); render(); toast(ds.mode === 'up' ? '改為上傳檔案：可上傳 Excel、PDF、Word 或照片，系統會自動檢查（各選單共用）' : '改為線上填寫'); return; }
   if (ds.batch) { const sc = S.ui.scen, on = batchOn(sc); setBatch(sc, ds.batch, !on[ds.batch]); save(); render(); return; }
   if (ds.open) {
     const was = S.ui.open; S.ui.open = was === ds.open && t.classList.contains('sh') ? '' : ds.open; save(); renderFill();
@@ -4720,12 +5102,14 @@ document.addEventListener('click', async e => {
     t.disabled = true; await exportDoc(keyed(sc, x), ds.fmt, `${orgShort()}_${SCEN[sc].title}_${x.name}`); t.disabled = false; return;
   }
   if (ds.zip) {
-    const sc = S.ui.scen, items = selDocs(sc).filter(x => x.kind !== 'attach' || upList(sc, x).length).map(x => ({ name: x.name, doc: x.kind === 'attach' ? null : keyed(sc, x), files: upList(sc, x).length ? () => upBlobs(sc, x) : null }));
+    const sc = S.ui.scen, items = selDocs(sc).filter(x => (x.kind !== 'attach' && !isUp(x)) || upList(sc, x).length).map(x => ({ name: x.name, doc: x.kind === 'attach' || isUp(x) ? null : keyed(sc, x), files: upList(sc, x).length ? () => upBlobs(sc, x) : null }));
     items.push({ name: '送件檢核表', doc: docChecklist(sc) });
     t.disabled = true; await exportZip(items, ds.zip, `${orgShort()}_${SCEN[sc].title}_${batchLabel(sc)}_${FMT_NAME[ds.zip]}`); t.disabled = false; return;
   }
   if (ds.hb) {
-    const sc = S.ui.scen, hb = selDocs(sc).filter(x => x.hb && x.kind !== 'attach');
+    const sc = S.ui.scen, hbAll = selDocs(sc).filter(x => x.hb && (x.kind !== 'attach' || upList(sc, x).length)), hb = hbAll.filter(x => x.kind !== 'attach' && !isUp(x));
+    if (ds.hb === 'pdf' && hbAll.some(x => upList(sc, x).length)) { t.disabled = true; await mergedPdf(sc, hbAll, `${orgShort()}_${SCEN[sc].title}_大會手冊.pdf`); t.disabled = false; return; }
+    if (hbAll.length > hb.length) toast(`Word 版手冊不含上傳的檔案（${hbAll.filter(x => !hb.includes(x)).map(x => x.name).join('、')}），需要時請下載 PDF 版`);
     const doc = { title: '會員大會手冊', sheets: hb.flatMap(x => keyed(sc, x).sheets) };
     t.disabled = true; await exportDoc(doc, ds.hb, `${orgShort()}_${SCEN[sc].title}_大會手冊`); t.disabled = false; return;
   }

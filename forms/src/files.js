@@ -35,15 +35,20 @@ async function upAdd(sc, x, files) {
         try { blob = (await shrinkImage(f)).blob; type = 'image/jpeg'; name = name.replace(/\.\w+$/, '') + '.jpg'; }
         catch (e) { toast(`無法讀取「${f.name}」，請改用 JPG、PNG 或 PDF（iPhone 可在相機設定選「最相容」）`, 'err'); continue; }
       }
-      const fid = 'f' + uid() + uid();
+      const fid = 'f' + uid() + uid(), meta = { fid, name, type, size: blob.size, at: Date.now() };
       await FileDB.put(fid, blob);
-      S.files = S.files || {}; const k = upKey(sc, x); (S.files[k] = S.files[k] || []).push({ fid, name, type, size: blob.size, at: Date.now() });
+      busy.set(`正在檢查「${name}」…`);
+      try { meta.chk = await fileCheck(x.mat || (/Sign/i.test(x.id) ? 'sign' : 'any'), meta, blob, sc); } catch (e) { }
+      S.files = S.files || {}; const k = upKey(sc, x); (S.files[k] = S.files[k] || []).push(meta);
       n++;
     }
-    if (n && !x.req) { S.sel[sc] = S.sel[sc] || {}; S.sel[sc][x.id] = true; }
+    if (n && !x.req) setSel(sc, docsOf(sc).find(d => d.id === x.id) || x, true);
     save();
   } finally { busy.done(); }
-  if (n) toast(`已加入 ${n} 個檔案${IDBX.persistent() ? '' : '（這個瀏覽器無法長期保存，請在離開前下載）'}`);
+  if (n) {
+    const L = upList(sc, x).slice(-n), e = L.filter(f => f.chk && f.chk.lv === 'err').length, w = L.filter(f => f.chk && f.chk.lv === 'warn').length;
+    toast(`已加入 ${n} 個檔案${e ? `，檢查發現 ${e} 個檔案有錯誤` : w ? `，有 ${w} 個檔案需要確認` : '，自動檢查沒有發現問題'}${IDBX.persistent() ? '' : '（這個瀏覽器無法長期保存，請在離開前下載）'}`, e ? 'err' : '');
+  }
   render();
 }
 async function upDel(sc, id, fid) {
@@ -57,7 +62,9 @@ async function upDel(sc, id, fid) {
 /** 下載頁：已上傳的檔案清單 */
 function upHTML(sc, x) {
   const L = upList(sc, x);
-  return `<div class="ups">${L.map(f => `<span class="upf">${/^image\//.test(f.type) ? `<img data-fid="${f.fid}" alt="">` : `<i class="ext">${esc((f.name.split('.').pop() || '').slice(0, 4).toUpperCase())}</i>`}<span class="un">${esc(f.name)}<small>${fsize(f.size)}</small></span><button class="x" data-updel="${x.id}" data-fid="${f.fid}" aria-label="移除 ${esc(f.name)}">${icon('x')}</button></span>`).join('')}
+  const st = f => f.chk ? f.chk.lv : '', lab = f => !f.chk ? '' : f.chk.lv === 'err' ? '有錯誤' : f.chk.lv === 'warn' ? '需確認' : '檢查通過';
+  return `<div class="ups">${L.map(f => `<span class="upf ${st(f)}">${/^image\//.test(f.type) ? `<img data-fid="${f.fid}" alt="">` : `<i class="ext">${esc((f.name.split('.').pop() || '').slice(0, 4).toUpperCase())}</i>`}<span class="un">${esc(f.name)}<small>${fsize(f.size)}${f.chk && f.chk.info ? '・' + esc(f.chk.info) : ''}${lab(f) ? `・<b class="cl ${st(f)}">${lab(f)}</b>` : ''}</small></span><button class="x" data-updel="${x.id}" data-fid="${f.fid}" aria-label="移除 ${esc(f.name)}">${icon('x')}</button></span>`).join('')}
+    ${L.some(f => f.chk && f.chk.items.some(i => i.lv !== 'ok')) ? `<details class="ckd"${L.some(f => f.chk && f.chk.lv === 'err') ? ' open' : ''}><summary>自動檢查結果</summary>${L.map(f => f.chk && f.chk.items.length ? `<div class="ckf"><b>${esc(f.name)}</b><ul class="cklist">${f.chk.items.map(i => `<li class="${i.lv}">${esc(i.msg)}</li>`).join('')}</ul></div>` : '').join('')}</details>` : ''}
     <button class="mini up" data-up="${x.id}">${icon('clip')}${L.length ? '再上傳' : `上傳${typeof x.up === 'string' ? x.up : '檔案'}`}</button></div>`;
 }
 async function upThumbs(root = document) {
@@ -86,7 +93,7 @@ async function imagesToPdf(blobs) {
   return pdf.output('blob');
 }
 /** 合併成一份送件 PDF：送件檢核表、各文件、上傳的附件，依清單順序 */
-async function mergedPdf(sc) {
+async function mergedPdf(sc, only, fname) {
   const busy = showBusy('正在準備合併 PDF…');
   try {
     const PL = await loadLib('pdflib'), out = await PL.PDFDocument.create(), skipped = [];
@@ -96,11 +103,11 @@ async function mergedPdf(sc) {
       const land = img.width > img.height, W = land ? 841.89 : 595.28, H = land ? 595.28 : 841.89, m = 22, k = Math.min((W - 2 * m) / img.width, (H - 2 * m) / img.height);
       out.addPage([W, H]).drawImage(img, { x: (W - img.width * k) / 2, y: (H - img.height * k) / 2, width: img.width * k, height: img.height * k });
     };
-    const list = selDocs(sc);
-    busy.set('正在產生送件檢核表…'); await addPdf(await makeBlob(docChecklist(sc), 'pdf'));
+    const list = only || selDocs(sc);
+    if (!only) { busy.set('正在產生送件檢核表…'); await addPdf(await makeBlob(docChecklist(sc), 'pdf')); }
     for (let i = 0; i < list.length; i++) {
       const x = list[i];
-      if (x.kind !== 'attach') { busy.set(`正在產生第 ${i + 1}/${list.length} 份：${x.name}`); await addPdf(await makeBlob(keyed(sc, x), 'pdf')); }
+      if (x.kind !== 'attach' && !isUp(x)) { busy.set(`正在產生第 ${i + 1}/${list.length} 份：${x.name}`); await addPdf(await makeBlob(keyed(sc, x), 'pdf')); }
       for (const f of upList(sc, x)) {
         const b = await FileDB.get(f.fid); if (!b) continue;
         try { if (/^image\/(jpeg|png)$/.test(f.type)) await addImg(b); else if (f.type === 'application/pdf' || /\.pdf$/i.test(f.name)) await addPdf(b); else skipped.push(f.name); }
@@ -110,7 +117,7 @@ async function mergedPdf(sc) {
     busy.set('正在合併…');
     const blob = new Blob([await out.save()], { type: 'application/pdf' });
     busy.done();
-    await saveFile(`${orgShort()}_${SCEN[sc].title}_${batchLabel(sc)}_送件合併.pdf`, blob);
+    await saveFile(fname || `${orgShort()}_${SCEN[sc].title}_${batchLabel(sc)}_送件合併.pdf`, blob);
     if (skipped.length) toast(`下列檔案不是 PDF 或圖片，未放入合併檔（壓縮檔裡有）：${skipped.join('、')}`, 'err');
   } catch (e) { busy.done(); console.error(e); toast('合併失敗：' + (e.message || e), 'err'); }
 }

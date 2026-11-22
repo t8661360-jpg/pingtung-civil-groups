@@ -97,6 +97,7 @@ function blankState() {
     x: { ledger: { rows: [] }, prepfin: { inc: [], exp: [] }, handover: {}, consent: {}, cert: {}, ballot: {}, proxy: {}, recruit: {}, report: {}, seal: {}, resign: {}, reissue: {}, check: {} },
     sel: {},
     batch: {},
+    mode: {},
     seals: [],
     stamp: { on: true, docs: {} },
     files: {},

@@ -107,7 +107,27 @@ function setHeader(title, sub, back) {
   $('#hTitle').textContent = title; $('#hSub').textContent = sub || '';
   $('#back').hidden = !back;
 }
+/* 開會通知書的報告／討論事項提到「工作計畫、財務報表、會員名冊…」時，自動勾選為開會通知檢附資料並提示 */
+const REFW = {}; let refT = 0;
+function refWatch(silent) {
+  const sc = S.ui.scen; if (!sc || !SCEN[sc]) return;
+  const na = scenDocs(sc).filter(x => x.nm), byMk = {};
+  na.forEach(x => (byMk[x.nm] = byMk[x.nm] || []).push(x));
+  const add = [], drop = [];
+  for (const mk in byMk) {
+    const now = noticeRefs(mk), key = sc + '|' + mk, was = REFW[key];
+    if (silent) { if (!was) REFW[key] = now; continue; }
+    REFW[key] = now; if (!was) continue;
+    byMk[mk].forEach(x => { if ((S.sel[sc] || {})[x.sk] != null) return; if (now.has(x.id) && !was.has(x.id)) add.push(x.name); if (!now.has(x.id) && was.has(x.id)) drop.push(x.name); });
+  }
+  const msg = [add.length ? `開會通知書提到「${add.join('、')}」，已自動勾選為開會通知檢附資料（可線上填寫或上傳）` : '', drop.length ? `通知書不再提到「${drop.join('、')}」，已取消自動勾選` : ''].filter(Boolean).join('；');
+  if (msg) toast(msg);
+  if (add.length || drop.length) { const n = selDocs(sc).filter(x => x.kind !== 'attach').length, b = $('#dock .dk-t b'); if (b) b.textContent = n; }
+}
+function refWatchSoon() { clearTimeout(refT); refT = setTimeout(() => refWatch(), 700); }
+
 function render() {
+  refWatch(true);
   document.documentElement.classList.toggle('large', !!S.ui.large);
   const v = S.ui.view;
   $('#view').className = 'view v-' + v + (v === 'scen' ? ' s-' + S.ui.step : '');
@@ -205,7 +225,7 @@ function renderDocs() {
       h += `<label class="docrow${x.req ? ' req' : ''}${att ? ' att' : ''}${sel ? ' on' : ''}">
       <input type="checkbox" data-sel="${x.id}"${sel ? ' checked' : ''}${x.req ? ' disabled' : ''}>
       <span class="box">${x.req ? icon('lock') : icon('check')}</span>
-      <span class="dn"><b>${x.name}</b>${x.note ? `<small>${x.note}</small>` : ''}${x.up ? `<button type="button" class="upbtn${upList(sc, x).length ? ' has' : ''}" data-up="${x.id}">${icon('clip')}${upList(sc, x).length ? `已上傳 ${upList(sc, x).length} 個檔案・再上傳` : `上傳${typeof x.up === 'string' ? x.up : '檔案'}`}</button>` : ''}</span>
+      <span class="dn"><b>${x.name}</b>${x.note ? `<small>${x.note}</small>` : ''}${x.mat ? `<span class="modes" role="group" aria-label="${esc(x.name)}的準備方式"><button type="button" class="${isUp(x) ? '' : 'on'}" data-mode="fill" data-id="${x.id}">線上填寫</button><button type="button" class="${isUp(x) ? 'on' : ''}" data-mode="up" data-id="${x.id}">上傳檔案</button></span>` : ''}${x.up && (!x.mat || isUp(x)) ? `<button type="button" class="upbtn${upList(sc, x).length ? ' has' : ''}" data-up="${x.id}">${icon('clip')}${upList(sc, x).length ? `已上傳 ${upList(sc, x).length} 個檔案・再上傳` : `上傳${typeof x.up === 'string' ? x.up : '檔案'}`}</button>${chkBadge(docCheckState(sc, x))}` : ''}</span>
       <span class="badge ${x.req ? 'b-req' : att ? 'b-att' : 'b-opt'}">${att ? '另附' : x.req ? '必備' : '選填'}</span></label>`;
     }
     h += '</div>';
@@ -243,7 +263,7 @@ function renderDl() {
   if (!fill.length) return noDocs('dl');
   const dls = deadlines(sc).filter(x => x.kind !== 'none' || true);
   const today = isoToday();
-  let h = stampDlCard();
+  let h = checkSummary(sc) + stampDlCard();
   h += `<section class="card dlall"><h3>${icon('zip')}全部下載${hasBatch(sc) ? `<span class="tag">${batchLabel(sc)}</span>` : ''}</h3><p class="muted">把已勾選的 ${fill.length} 份文件一次打包成壓縮檔（.zip）。</p>
     <div class="fmtrow"><button class="fmt w" data-zip="docx"><i>W</i>Word</button><button class="fmt x" data-zip="xlsx"><i>X</i>Excel</button><button class="fmt p" data-zip="pdf"><i>P</i>PDF</button></div>
     ${hb.length ? `<div class="hbrow"><span>${icon('book')}大會手冊合併成一個檔案</span><span><button class="mini" data-hb="docx">Word</button><button class="mini" data-hb="pdf">PDF</button></span></div>` : ''}
@@ -252,8 +272,9 @@ function renderDl() {
   h += `<h3 class="grp">逐份下載</h3><div class="dcards">`;
   for (const x of list) {
     if (x.kind === 'attach') { const n = upList(sc, x).length; h += `<div class="dcard att">${icon('clip')}<div class="dt"><b>${x.name}</b><small>${n ? `已上傳 ${n} 個檔案，會一起放進壓縮檔與合併 PDF` : `請另外準備${x.note ? '：' + x.note : '實體文件'}`}</small></div>${x.up ? upHTML(sc, x) : ''}</div>`; continue; }
-    const miss = docMissing(sc, x);
-    h += `<div class="dcard">${icon('doc')}<div class="dt"><b>${x.name}</b>${miss.length ? `<small class="miss">尚缺：${esc(miss.slice(0, 3).join('、'))}${miss.length > 3 ? '…' : ''}</small>` : '<small class="okc">資料已齊</small>'}</div>
+    const miss = docMissing(sc, x), cs = docCheckState(sc, x);
+    if (isUp(x)) { h += `<div class="dcard upm">${icon('clip')}<div class="dt"><b>${x.name}</b><small>${upList(sc, x).length ? '使用上傳的檔案，會放進壓縮檔與合併 PDF' : '已選擇上傳檔案，請上傳'}</small></div>${chkBadge(cs)}<div class="da">${x.mat === 'doc' ? `<button class="mini w" data-dl="${x.id}" data-fmt="docx" title="下載 Word 範本，填好後再上傳">Word 範本</button>` : `<button class="mini x" data-dl="${x.id}" data-fmt="xlsx" title="下載 Excel 範本（含已填資料），填好後再上傳，系統會自動檢查">Excel 範本</button>`}<button class="mini" data-mode="fill" data-id="${x.id}">改用線上填寫</button></div>${upHTML(sc, x)}</div>`; continue; }
+    h += `<div class="dcard">${icon('doc')}<div class="dt"><b>${x.name}</b>${miss.length ? `<small class="miss">尚缺：${esc(miss.slice(0, 3).join('、'))}${miss.length > 3 ? '…' : ''}</small>` : '<small class="okc">資料已齊</small>'}${cs.items.length ? chkList(cs.items) : ''}</div>${chkBadge(cs)}
       <div class="da"><button class="mini pv" data-pv="${x.id}">${icon('eye')}預覽</button><button class="mini w" data-dl="${x.id}" data-fmt="docx">Word</button><button class="mini x" data-dl="${x.id}" data-fmt="xlsx">Excel</button><button class="mini p" data-dl="${x.id}" data-fmt="pdf">PDF</button></div>${x.up ? upHTML(sc, x) : ''}</div>`;
   }
   h += `<div class="dcard extra">${icon('check')}<div class="dt"><b>送件檢核表</b><small>依您勾選的文件自動列出份數、附件與期限，送件前逐項打勾</small></div>
@@ -320,7 +341,7 @@ function renderSide() {
   clearTimeout(sideTimer);
   sideTimer = setTimeout(() => {
     const side = $('#side'); if (!side || getComputedStyle(side).display === 'none') return;
-    const sc = S.ui.scen, list = pvDocs(sc).length ? pvDocs(sc) : selDocs(sc).filter(x => x.kind !== 'attach');
+    const sc = S.ui.scen, list = pvDocs(sc).length ? pvDocs(sc) : selDocs(sc).filter(x => x.kind !== 'attach' && !isUp(x));
     if (!list.length) { side.innerHTML = ''; return; }
     let id = S.ui.pvDoc; if (!list.some(x => x.id === id)) id = list[0].id;
     const x = docById(sc, id), doc = x && x.b ? keyed(sc, x) : null;
@@ -332,7 +353,7 @@ function fitPages(box) { if (!box) return; const w = box.clientWidth - 16; $$('.
 function openPreview(id) {
   const sc = S.ui.scen, x = docById(sc, id); if (!x) return;
   const doc = keyed(sc, x), pv = $('#pv');
-  const list = selDocs(sc).filter(d => d.kind !== 'attach');
+  const list = selDocs(sc).filter(d => d.kind !== 'attach' && !isUp(d));
   pv.innerHTML = `<div class="pvbar"><button class="icon" data-cmd="pvClose" aria-label="關閉">${icon('x')}</button><select data-pvopen="1" aria-label="切換文件">${list.map(d => `<option value="${d.id}"${d.id === id ? ' selected' : ''}>${esc(d.name)}</option>`).join('')}${id === '__check' ? '<option value="__check" selected>送件檢核表</option>' : ''}</select></div>
     ${stampBar(`${sc}:${id}`)}
     <div class="pages">${doc.sheets.map(sheetHTML).join('')}</div>
