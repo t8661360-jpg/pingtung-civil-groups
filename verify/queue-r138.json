@@ -1,0 +1,6 @@
+[
+ {"id":"r138-supplement-term","question":"理事出缺後由候補理事遞補或補選的人，任期是補到原任期屆滿，還是重新計算四年？","statutes":[{"law":"人民團體法","article":"20"},{"law":"人民團體法","article":"23"},{"law":"人民團體選舉罷免辦法","article":"17"}]},
+ {"id":"r138-admission-reject-reason","question":"一般社會團體（協會）拒絕某人入會時，法律有沒有規定一定要說明理由？","claim":"拒絕入會時法律規定協會必須書面說明理由","statutes":[{"law":"人民團體法","article":"12"},{"law":"人民團體法","article":"37"}]},
+ {"id":"r138-coop-passive-member","question":"合作社社員可以只入股、不參加社務嗎？","statutes":[{"law":"合作社法","article":"11"},{"law":"合作社法","article":"26"},{"law":"合作社法","article":"28"},{"law":"合作社法","article":"49"}]},
+ {"id":"r138-coop-donation","question":"合作社可以接受別人的捐款嗎？","statutes":[{"law":"合作社法","article":"1"},{"law":"合作社法","article":"3-1"},{"law":"合作社法","article":"23"},{"law":"合作社財務報表及經費處理準則","article":"2"}]}
+]
