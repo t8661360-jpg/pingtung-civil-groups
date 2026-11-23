@@ -10,22 +10,44 @@ function signFooter(a, b) { return P(`${a[0]}　${a[1] || FW.repeat(4)}${STAMP(f
 const scenOf = mk => MEET[mk].scen;
 const yesNo = (on, t) => (on ? '■' : '□') + t;
 
+/* ---------- 理監事會：聯席／理事會／監事會（單獨） ---------- */
+const brdType = mk => { const v = (M(mk) || {}).brdType; return v === '理事會' || v === '監事會' ? v : '聯席'; };
+const brdName = mk => ({ 聯席: '理監事聯席會議', 理事會: '理事會議', 監事會: '監事會議' })[brdType(mk)];
 /* ---------- 開會通知書 ---------- */
 function noticeOptions(mk) {
   const k = MEET[mk].kind, t = O(cn(mTerm(mk)), '○'), n = O(cn(mNo(mk)), '○');
   if (k === 'prep1' || k === 'prep2') return `${yesNo(k === 'prep1', '發起人暨第一次籌備會')}　${yesNo(k === 'prep2', '第二次籌備會')}（請打ˇ或■填寫）`;
   if (k === 'foundAsm') return '■第一屆第一次成立會員大會';
-  if (k === 'pre' || k === 'brd') return `□第○屆第○次會員大會　□第○屆第○次□理□監事會議（單獨）\n■第${t}屆第${n}次理監事聯席會議（請打ˇ或■填寫）`;
+  if (k === 'pre' || k === 'brd') { const bt = brdType(mk), solo = bt !== '聯席'; return `□第○屆第○次會員大會　${solo ? `■第${t}屆第${n}次${yesNo(bt === '理事會', '理')}${yesNo(bt === '監事會', '監')}事會議（單獨）` : '□第○屆第○次□理□監事會議（單獨）'}\n${solo ? '□第○屆第○次' : `■第${t}屆第${n}次`}理監事聯席會議（請打ˇ或■填寫）`; }
   if (k === 'asm' && scenOf(mk) === 'renew') return `■第${t}屆第一次會員大會　□第○屆第○次理監事會議（改選前）\n□第${t}屆第一次理監事聯席會議（請打ˇ或■填寫）`;
   return `■第${t}屆第${n}次會員大會（請打ˇ或■填寫）`;
 }
+/* ---------- 通知書「此致」：署名身分、姓名與受文者（可在填資料修改） ---------- */
+const SIGN_ROLES = { 理事長: '理事長', 籌備主委: '籌備會主任委員', 發起人代表: '發起人' };
+function signRoleOpts(mk) { const sc = scenOf(mk); return sc === 'prep' ? ['籌備主委', '發起人代表'] : sc === 'found' ? ['籌備主委', '理事長'] : ['理事長', '籌備主委', '發起人代表']; }
+function signRoleDef(mk) { const sc = scenOf(mk), k = MEET[mk].kind; return sc === 'prep' ? (k === 'prep1' ? '發起人代表' : '籌備主委') : sc === 'found' ? '籌備主委' : '理事長'; }
+const signRole = mk => { const v = M(mk).signRole; return signRoleOpts(mk).includes(v) ? v : signRoleDef(mk); };
+function signNameDef(mk, role = signRole(mk)) { return role === '理事長' ? chairName() : role === '籌備主委' ? prepChair() : (names(['發起人'])[0] || prepChair()); }
+const RECIPS = [['gov', null], ['prepCom', '本會籌備委員'], ['founders', '本會發起人'], ['board', '本會理監事'], ['members', '本會會員']];
+function recipOpts(mk) { const sc = scenOf(mk); return sc === 'prep' ? ['gov', 'prepCom', 'founders'] : sc === 'found' ? ['gov', 'members', 'prepCom', 'founders'] : ['gov', 'board', 'members']; }
+function recipDef(mk, k) { const sc = scenOf(mk), kd = MEET[mk].kind; if (k === 'gov') return true; if (sc === 'prep') return k === (kd === 'prep1' ? 'founders' : 'prepCom'); if (sc === 'found') return k === 'members'; return k === (MEET[mk].asm ? 'members' : 'board'); }
+function recipOn(mk, k) { const v = (M(mk).to || {})[k]; return v == null ? recipDef(mk, k) : !!v; }
+const recipLabel = k => k === 'gov' ? `${S.org.county || '屏東縣'}政府` : RECIPS.find(r => r[0] === k)[1];
 function signerLine(mk) {
+  const opts = signRoleOpts(mk), role = signRole(mk), who = MV(mk, 'signName');
+  return `${opts.map(r => yesNo(r === role, r)).join(' ')}：${O(who)}${STAMP(slotOf(SIGN_ROLES[role], who), '（蓋章）')}`;
+}
+function signerLine0(mk) {
   const sc = scenOf(mk), k = MEET[mk].kind;
   if (sc === 'prep') { const who = k === 'prep1' ? (names(['發起人'])[0] || prepChair()) : prepChair(); return `${yesNo(k === 'prep2', '籌備主委')} ${yesNo(k === 'prep1', '發起人代表')}：${O(who)}${STAMP(slotOf(k === 'prep2' || who === prepChair() ? '籌備會主任委員' : '', who), '（蓋章）')}`; }
   if (sc === 'found') return `籌備主委　${O(prepChair())}${STAMP(slotOf('籌備會主任委員', prepChair()), '（蓋章）')}`;
   return `■理事長 □籌備主委 □發起人代表：${O(chairName())}${STAMP(slotOf('理事長', chairName()), '（蓋章）')}`;
 }
 function recipLines(mk) {
+  const ks = recipOpts(mk), first = ks.slice(0, 1).map(k => yesNo(recipOn(mk, k), recipLabel(k))), rest = ks.slice(1).map(k => yesNo(recipOn(mk, k), recipLabel(k)));
+  return `${first.join('')}\n${rest.join('　')}`;
+}
+function recipLines0(mk) {
   const sc = scenOf(mk), k = MEET[mk].kind, gov = `■${S.org.county || '屏東縣'}政府`;
   if (sc === 'prep') return `${gov}\n${yesNo(k === 'prep2', '本會籌備委員')}　${yesNo(k === 'prep1', '本會發起人')}`;
   if (sc === 'found') return `${gov}\n■本會會員　□本會籌備委員　□本會發起人`;
@@ -92,8 +114,8 @@ function letterSubject(mk) {
   const k = MEET[mk].kind, sc = scenOf(mk), t = O(cn(mTerm(mk)), '○'), n = O(cn(mNo(mk)), '○');
   if (k === 'prep1' || k === 'prep2') return `檢送本會第${k === 'prep1' ? '一' : '二'}次籌備會會議紀錄及相關附件各一式二份，敬請鈞府准予備查見復，請鑒核。`;
   if (sc === 'found') return '檢送本會成立相關資料，敬請鈞府准予立案，發給立案證書及理事長當選證明書。';
-  if (k === 'pre') return `檢送本會第${t}屆第${n}次理監事聯席會議${sc === 'renew' ? '（選前）' : ''}會議紀錄一式二份，敬請鈞府准予備查見復，請　鑒核。`;
-  if (k === 'brd') return `檢送本會第${t}屆第${n}次理監事聯席會議會議紀錄一份，敬請鈞府准予備查見復，請鑒核。`;
+  if (k === 'pre') return `檢送本會第${t}屆第${n}次${brdName(mk)}${sc === 'renew' ? '（選前）' : ''}會議紀錄一式二份，敬請鈞府准予備查見復，請　鑒核。`;
+  if (k === 'brd') return `檢送本會第${t}屆第${n}次${brdName(mk)}會議紀錄一份，敬請鈞府准予備查見復，請鑒核。`;
   if (sc === 'renew') return `檢送本會第${t}屆第一次會員大會暨理監事會會議紀錄及相關附件各一式二份，敬請鈞府准予備查見復，請　鑒核。`;
   return `檢送本會第${t}屆第${n}次會員大會會議紀錄及相關附件各一式二份，敬請鈞府准予備查見復，請　鑒核。`;
 }
@@ -152,7 +174,7 @@ function docLetter(mk) {
 function docAddrLetter() {
   const mk = 'board.brd', x = S.x.consent, t = O(cn(mTerm(mk)), '○'), n = O(cn(mNo(mk)), '○');
   const B = govLetter({ no: x.letterNo, date: x.letterDate || isoToday(), subject: `本會會址變更至「${newAddr() || '屏東縣○○鄉○○村○○路○○號'}」，檢附相關資料各一式二份，敬請主管機關准予備查見復，如說明，請鑒核。`,
-    items: [`旨揭案由業經本會第${t}屆第${n}次理監事聯席會議議決通過在案。`, '隨函檢附上開會議紀錄及旨揭會址之使用同意書呈請備查。'], signer: `理事長　${O(chairName())}` });
+    items: [`旨揭案由業經本會第${t}屆第${n}次${brdName(mk)}議決通過在案。`, '隨函檢附上開會議紀錄及旨揭會址之使用同意書呈請備查。'], signer: `理事長　${O(chairName())}` });
   return { title: '檢送會址變更公文', sheets: [{ name: '檢送會址變更公文', cols: [1], size: 14, ls: 1.5, blocks: B }] };
 }
 
@@ -294,7 +316,7 @@ function minFoundBrd(mk) {
   return B;
 }
 function minPre(mk) {
-  const m = M(mk), d = MV(mk, 'date'), B = [TITLE(`${orgFull()}第${O(cn(mTerm(mk)), '○')}屆第${O(cn(mNo(mk)), '○')}次理監事會議紀錄`)];
+  const m = M(mk), d = MV(mk, 'date'), B = [TITLE(`${orgFull()}第${O(cn(mTerm(mk)), '○')}屆第${O(cn(mNo(mk)), '○')}次${brdType(mk) === '聯席' ? '理監事' : brdType(mk).slice(0, 1) + '事'}會議紀錄`)];
   B.push(P(`時間：民國${rd(d)}${d ? `（${weekday(d)}）` : ''}${tm(MV(mk, 'time'))}`), P(`地點：${MV(mk, 'place')}`));
   B.push(P(`主席：理事長　${MV(mk, 'chair')}${FW.repeat(6)}記錄：${MV(mk, 'rec')}`));
   B.push(P(`出席人員：應到理事${BL(names(DIR_ROLES).length || '')}人，應到監事${BL(names(SUP_ROLES).length || '')}人（附簽到表影本）`));
@@ -367,7 +389,7 @@ function minPostBrd(mk) {
   return B;
 }
 function minBrd(mk) {
-  const m = M(mk), d = MV(mk, 'date'), B = [TITLE(`${orgFull()}第${O(cn(mTerm(mk)), '○')}屆第${O(cn(mNo(mk)), '○')}次理監事會議紀錄`)];
+  const m = M(mk), d = MV(mk, 'date'), B = [TITLE(`${orgFull()}第${O(cn(mTerm(mk)), '○')}屆第${O(cn(mNo(mk)), '○')}次${brdType(mk) === '聯席' ? '理監事' : brdType(mk).slice(0, 1) + '事'}會議紀錄`)];
   B.push(P(`時間：民國${rd(d)}${d ? `（${weekday(d)}）` : ''}${tm(MV(mk, 'time'))}`), P(`地點：${MV(mk, 'place')}`));
   B.push(P(`主席：理事長　${MV(mk, 'chair')}${FW.repeat(6)}記錄：${MV(mk, 'rec')}`));
   B.push(P(`出席人員：應到理事${BL(names(DIR_ROLES).length || '')}人，應到監事${BL(names(SUP_ROLES).length || '')}人（附簽到表影本）`));

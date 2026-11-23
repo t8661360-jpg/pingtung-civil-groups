@@ -667,3 +667,5 @@ html.tips-on .docrow,html.tips-on .tile,html.tips-on .dock .btn{-webkit-touch-ca
 .hsearch input{width:100%;border:1.5px solid #bfe0d8;border-radius:12px;padding:12px 14px;font-size:1rem;background:#fff}
 .hsearch input:focus{outline:none;border-color:var(--pri);box-shadow:0 0 0 3px rgba(15,118,110,.15)}
 .hsearch small{color:var(--mute);font-size:.78rem;line-height:1.5}
+.ckrow{display:flex;flex-wrap:wrap;gap:8px 16px}
+.in .seg button{white-space:nowrap}

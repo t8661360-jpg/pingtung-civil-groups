@@ -33,6 +33,7 @@ function boardCount() { return names([...DIR_ROLES, ...SUP_ROLES]).length; }
 const mStats = () => memberStats();
 
 DER.push(
+  [/^m\.([\w]+\.[\w]+)\.signName$/, m => signNameDef(m[1])],
   [/^m\.([\w]+\.[\w]+)\.term$/, m => { const mk = m[1]; if (MEET[mk].scen === 'found') return '1'; if (isNewTerm(mk)) return hasNum(S.org.term) ? String(num(S.org.term) + 1) : ''; return S.org.term; }],
   [/^m\.([\w]+\.[\w]+)\.no$/, m => { const mk = m[1]; if (MEET[mk].scen === 'found' || isNewTerm(mk)) return '1'; return ''; }],
   [/^m\.([\w]+\.[\w]+)\.kind2$/, () => '定期會'],
