@@ -1823,11 +1823,11 @@ function subsidyDetails(t){
  if(!/補助/.test(t)&&!(/申請/.test(t)&&/(縣府|機關|單位|處室)/.test(t)&&/(活動|計畫|案)/.test(t)&&/(兩個|二個|重複|同時)/.test(t)))return null;
  if(/合作社|社員|魅力|好讚|勸募|社造/.test(t))return null;
  const tail='\n\n以上是「屏東縣政府對民間團體補助經費作業要點」（111年2月16日修正）的規定；個別的補助計畫可能另有標準，實際能不能補助，以您這一案的核定函為準。';
- if(/(設備|電腦|音響|桌椅|冷氣|投影機|機器|器材|財產|買東西|購置|添購)/.test(t))
+ if(/(設備|電腦|音響|桌椅|冷氣|投影機|機器|器材|財產|買東西|購置|添購|汽車|機車|買車|貨車|買的(東西|設備|物品)|算誰的|歸誰|誰的財產|產權|所有權)/.test(t))
   return{direct:true,category:'補助經費',title:'補助可以買設備嗎：部分可以，但要先經核准，買了要列入協會財產',
   summary:'部分可以，但不是所有設備都能補助，也不能自己先買了再來申請核銷。\n\n縣府明定不予補助的設備有三種（作業要點第5點）：\n• 職業團體（公會）的設備。\n• 私立社會福利機構的設備（不含財團法人）。\n• 其他經縣府認定超出使用效益的設備。\n另外，汽車、機車也不補助。\n\n其他的設備，要寫進補助計畫、說明為什麼需要，經縣府審查核准後才能買。核銷時除了核准補助文件影本、領款收據、實際支用明細表和各項單據，還要再附上「納入團體財產」的證明文件（作業要點第8點），也就是要登記在協會的財產目錄裡。'+tail,
   statutes:[PT_GRANT(5),PT_GRANT(8)],notes:[],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
- if(/(人事費|薪水|薪資|工資|津貼|工作人員|專職|請人|鐘點費|講師費)/.test(t))
+ if(/(人事費|薪水|薪資|工資|津貼|工作人員|專職|請人|鐘點費|講師費|講師|老師|加班|總幹事|職員|員工)/.test(t))
   return{direct:true,category:'補助經費',title:'補助可以付人事費嗎：工作津貼不補助；研習活動的講師鐘點費可以申請',
   summary:'協會工作人員的固定薪水，不能拿縣府這項補助來付。作業要點把「工作津貼」列為不予補助的項目（第5點），獎金和國外旅費也是。\n\n可以申請的，是和協會宗旨有關的研習、參訪、觀摩活動所需的費用，例如講師的鐘點費、撰稿費、場地費、印刷費、交通費、評審費和保險費（第5點）。這些以外的費用，要經縣府核准才算。\n\n所以要分清楚：請外面的講師來上課，鐘點費可以列；但不能把協會自己工作人員的薪水，改名叫「講師費」或「工作費」來核銷。'+tail,
   statutes:[PT_GRANT(5)],notes:['有些專案計畫（例如中央補助的方案）另外有人事費的規定，要看那個計畫自己的規範。'],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
@@ -5205,7 +5205,7 @@ function patrol60(t){
   const x=subsidyDetails(t+'重複同時兩個');if(x)return x;
  }
  // 買禮品、餐點、日常用品
- if(/(禮品|紀念品|伴手禮|便當|餐點|餐費|點心|飲料|日常用品|辦公用品|文具|雜支|雜項|生活用品|消耗品|買東西)/.test(t)&&!(/(志工|志願服務|義工)/.test(t)&&!/核銷/.test(t))&&!/(設備|電腦|音響|桌椅|冷氣|投影機|機器|器材|財產|添購|購置)/.test(t)&&!/(魅力|好讚)/.test(t))
+ if(/(禮品|紀念品|伴手禮|便當|吃飯|吃的|請吃|請客|聚餐|飯錢|茶水|午餐|晚餐|餐飲|餐點|餐費|點心|飲料|日常用品|辦公用品|文具|雜支|雜項|生活用品|消耗品|買東西)/.test(t)&&!(/(志工|志願服務|義工)/.test(t)&&!/核銷/.test(t))&&!/(設備|電腦|音響|桌椅|冷氣|投影機|機器|器材|財產|添購|購置)/.test(t)&&!/(魅力|好讚)/.test(t))
   return A('補助款能不能買禮品、餐點或日常用品：要點沒有列為可補助項目，要先經縣府核准','不要自己決定。縣府補助要點列出的可補助項目，是和協會宗旨有關的研習、參訪、觀摩活動的講師鐘點費、撰稿費、場地費、印刷費、交通費、評審費和保險費（'+src+'第5點）。這個清單裡沒有禮品、紀念品、餐點和日常辦公用品。\n\n另外，旅遊性質的交通費、餐費、住宿費，以及會員大會、理監事會議和例行會議，明定不予補助（第5點）。\n\n清單以外的費用，要寫進計畫、經縣府核准才能列；核銷時以核定的項目為準。沒有先核准就買，可能被認為沒有依用途使用，要追繳，還可能停止補助1年到5年（第10點）。',[PT_GRANT(5),PT_GRANT(10)],['以上是縣府一般補助要點；個別補助計畫另有規定的，依該案核定函。']);
  // 理事長、理監事車馬費、出席費
  if(/(理事長|理事|監事|理監事|幹部|會長|總幹事).{0,6}(車馬費|出席費|交通費|津貼|酬勞|薪水|薪資|獎金)/.test(t)||/(車馬費|出席費).{0,8}(理事長|理事|監事|理監事|幹部|會長)/.test(t))
@@ -5772,7 +5772,7 @@ function patrol73(t){
  if(/(發票|收據|單據|憑證)/.test(t)&&/(遺失|弄丟|丟了|丟掉|不見|掉了|漏)/.test(t)&&/(核銷|報帳|結報|補)/.test(t)){const x=via('補助沒有發票核銷');if(x)return x;}
  if(/(照片|相片|簽到|成果)/.test(t)&&/核銷/.test(t)&&/(附|要不要|需要|嗎|一定)/.test(t)){const x=via('補助成果報告要附什麼');if(x)return x;}
  if(/(用錯|花錯|用到別|用在別|用途不對|用途不符|拿去.{0,4}(別|其他|另)|挪)/.test(t)&&/(補助|款|經費)/.test(t)&&/(怎麼辦|會怎樣|怎麼處理|後果|嗎)/.test(t)){const x=via('補助沒照用途使用會怎樣');if(x)return x;}
- if(/(誤餐|便當|餐費|飲料|零食|點心)/.test(t)&&!(/(志工|志願服務|義工)/.test(t)&&!/核銷/.test(t))&&/(核銷|補助|能不能|可以)/.test(t)){const x=patrol60('補助款可以買便當嗎');if(x)return x;}
+ if(/(誤餐|便當|吃飯|吃的|請吃|請客|聚餐|飯錢|茶水|午餐|晚餐|餐飲|餐費|飲料|零食|點心)/.test(t)&&!(/(志工|志願服務|義工)/.test(t)&&!/核銷/.test(t))&&/(核銷|補助|能不能|可以)/.test(t)){const x=patrol60('補助款可以買便當嗎');if(x)return x;}
  // 核銷被退件
  if(/核銷/.test(t)&&/(退件|被退|退回|駁回|不通過|沒通過|補件|補正)/.test(t))
   return Object.assign({},base,{title:'補助核銷被退件：依通知補正，核銷期限和超過當年度會註銷的規定不變',
@@ -5784,12 +5784,12 @@ function patrol73(t){
   summary:'講師鐘點費是縣府補助可以支應的項目之一（補助作業要點第5點）。核銷時要附核准補助文件的影本、領款收據、實際支用明細表，以及各項支用的單據（第8點）。\n\n至於講師費的領據格式、要不要扣繳所得稅或二代健保補充保費，本站查不到補助要點有統一規定；稅的部分請洽國稅局，單據格式請洽補助承辦人員。'+tel,
   statutes:[GR(5),GR(8)]});
  // 用印
- if(/核銷/.test(t)&&/(蓋章|用印|簽名|簽章|蓋什麼章|誰簽|誰蓋|大小章)/.test(t))
+ if(/核銷/.test(t)&&/(蓋章|用印|簽名|簽章|蓋什麼章|誰簽|誰蓋|大小章|印章|印鑑|哪個章|哪一個章|蓋理事長|蓋會計)/.test(t))
   return Object.assign({},base,{title:'核銷要誰蓋章：補助作業要點沒有規定，請依承辦人員通知',
   summary:'補助作業要點只規定核銷要附四樣資料：核准補助文件影本、領款收據、實際支用明細表和各項支用的單據（第8點），沒有寫要由誰簽章、蓋哪一種章。\n\n建議核銷前先向承辦人員確認用印方式，避免被退件。'+tel,
   statutes:[GR(8)]});
  // 補助款入帳記帳
- if(/(入帳|記帳|列帳|記到帳|記在帳|帳上|做帳|收入)/.test(t)&&/補助/.test(t)&&!/(利息|孳息)/.test(t))
+ if(/(入帳|記帳|列帳|記到帳|記在帳|帳上|做帳|收入|帳要|的帳|帳怎麼|帳該|怎麼記|怎麼入|科目)/.test(t)&&/補助/.test(t)&&!/(利息|孳息)/.test(t))
   return Object.assign({},base,{category:'人民團體財務',title:'補助款入帳要不要記到協會帳上：要，是協會的收入，要存進協會帳戶並照實處理收支',
   summary:'要。補助款是協會的財務收入，要存入銀行、農會、漁會、信用合作社或郵局，不得存放個人，並以隨收隨存為原則（社會團體財務處理辦法第16條）。收支要照實處理，不得匿報或虛報，並要定期公告（第20條）。\n\n補助款要用在核准的計畫上，核銷時還要附實際支用明細表（補助作業要點第8點）。'+tel,
   statutes:[F(16),F(20),GR(8)]});
@@ -8264,6 +8264,113 @@ function patrol130(t){
 }
 /* 第133輪：社區發展協會（成立第一步、一定要辦某事業嗎、名稱用字、送禮品／紅包給居民、辦敬老餐會、向居民收費、理事長資格、名冊送公所、年度計畫要不要寫）
    依據：人民團體法§8、§10、§12、§17、§20、§33、§54；社會團體財務處理辦法§11、§17；社區發展工作要點§3、§4、§17（沿用既有答案）。皆已對照 statutes.json.gz 原文。 */
+/* 第134輪：補助款（縣府補助作業要點與財務辦法）——既有補助規則只認特定字眼，其餘問法（何時申請、查帳、基金、公所差異、收據、現金、委外等）落到通用答案；本函式補入口，內容只用已核對的要點第2、4、5、6、8、8之1、10、11點與社會團體財務處理辦法§11、15、16、17、20、21、22 */
+function patrol134(t){
+ if(!/補助|補捐助/.test(t))return null;
+ if(/(合作社|社員|股金|魅力|好讚|社造|勸募|募款|政黨|寺廟|宗教|基金會|志工|志願|低收|身障|育兒|學費|農民|租金補助(?!款|經費)|房租補助(?!款|經費)|老人津貼|長照)/.test(t))return null;
+ const tel='\n\n細節請洽縣府總機 08-7320415 請總機轉接補助的承辦單位。';
+ const GR=n=>PT_GRANT(n);
+ const mk=(title,summary,statutes,notes)=>({direct:true,category:'補助經費',title,summary:summary+tel,statutes,notes:notes||[],actions:[{label:'聯絡承辦',view:'contact',sub:''}]});
+ /* 0 補助款付工作人員加班費、薪水：交給既有人事費答案（工作津貼不補助） */
+ if(/(加班|總幹事|員工|工作人員|職員|行政人員|助理)/.test(t)&&/補助(款|經費)?.{0,8}(可以|能|可不可以|能不能|拿來|用來|用在|付|支|發)/.test(t)){const x=subsidyDetails(t);if(x)return x;}
+ /* 1 補助款放進基金 */
+ if(/(基金|準備金)/.test(t)&&/(放|轉|存|提|列|撥|納|挪|可以|能)/.test(t))
+  return mk('政府補助款可以放進基金嗎：不行直接轉，補助款要照核定用途用，剩餘的要繳回',
+  '不可以直接轉進基金。補助款要用在核准的計畫和用途上，有剩餘要繳回（屏東縣政府對民間團體補助經費作業要點第8點之1），沒有照用途使用的，會被追繳，還可能停止補助1年到5年（第10點）。\n\n協會自己的準備基金，是協會依社會團體財務處理辦法第15條自己提列的：每年提列的數額在收入總額的20%以下，要專戶存儲，非經理事會通過不得動支。補助款能不能算進提列的基礎，法規沒有寫，請洽承辦人員確認，不要自己先轉。',
+  [GR('8之1'),GR(10),F(15)]);
+ /* 2 辦會員大會、理監事會議 */
+ if(/補助(款|經費)?.{0,6}(可以|能|可不可以|能不能|拿來|用來|用在|付|支)/.test(t)&&/(辦|辦理|舉辦|召開|開).{0,4}(會員大會|會員代表大會|大會|理事會|監事會|理監事會|例行會議)/.test(t)&&!/(餐|吃|便當|沒|未|先|決議|申請資格)/.test(t))
+  return mk('補助款可以辦會員大會、理監事會議嗎：不行，這幾種會議明定不予補助',
+  '不行。縣府補助作業要點第5點把「會員大會、理監事會議和例行會議」列為不予補助的項目。這類開會所需的場地、文具、資料等費用，請用協會自己的經費支應，並列入年度預算。\n\n可以申請的，是和協會宗旨有關的研習、參訪、觀摩活動，例如講師的鐘點費、撰稿費、場地費、印刷費、交通費、評審費和保險費（第5點），且要經審查。',
+  [GR(5)]);
+ /* 3 租金、場地費 */
+ if(/(租金|房租|場租|場地費|場地租|租場地|租會址|租辦公|辦公室租|會址租)/.test(t)&&/補助(款|經費)?.{0,8}(可以|能|可不可以|能不能|拿來|用來|用在|付|支|列)|(可以|能|拿來|用來|用在|付|支|列).{0,8}補助/.test(t))
+  return mk('補助款可以付租金嗎：辦活動的場地費可以申請，協會平常辦公室的房租清單上沒有',
+  '要分兩種：\n1. 辦研習、參訪、觀摩活動租場地的場地費：屬於可以申請的項目（屏東縣政府對民間團體補助經費作業要點第5點），但仍要經審查，實際以核准的計畫為準。\n2. 協會長期的辦公室、會址房租：第5點列出的可補助項目裡沒有這一項，不要自己決定，要寫進計畫、經縣府核准才能列；沒有先核准就支付，可能被認為沒有依用途使用，要追繳（第10點）。\n\n另外，會員大會、理監事會議和例行會議的費用不予補助（第5點）。',
+  [GR(5),GR(10)]);
+ /* 4 立案、資格 */
+ if(/(立案證書|立案證|已立案|有立案|沒立案|未立案|還沒立案|立案了|立案後|立案才)/.test(t)&&/(申請|可以|能|需要|要先|一定)/.test(t)&&!/(未滿|半年|幾個月|一年)/.test(t))
+  return mk('申請補助要先立案嗎：要，補助對象是經主管機關立案的團體；立案未滿一年不予補助',
+  '要。可以申請縣府補助的「民間團體」，是指經主管機關立案的團體、非營利組織、社會福利機構和財團法人；政治團體不在補助之列（屏東縣政府對民間團體補助經費作業要點第2點）。\n\n立案之後還要滿一年才能申請：立案未滿一年的，不予補助（第5點）。另外，一年沒開會員（代表）大會或董事會、任期屆滿沒改選、被限期整理、財務資料沒有依規定陳報，也不予補助（第5點）。',
+  [GR(2),GR(5)]);
+ /* 5 會務不正常、剛立案、每個協會都能嗎 */
+ if(/(任期|屆滿|到期|逾期).{0,6}(沒|未|不)(有)?(改選)|(沒|未)(有)?改選|(沒|未|不)(有)?(開|召開|辦)(過)?(會員)?(代表)?大會|限期整理|(剛|才|新)(立案|成立)|(立案|成立)(半年|幾個月|不到一年|未滿|才)|(每個|所有|全部|人人).{0,4}(協會|團體|社團)|都(能|可以|有)(領|拿|申請)|有沒有資格|符不符合|符合.{0,3}(資格|條件)/.test(t)&&!/(核銷|旅遊|設備|人事)/.test(t)){
+  const x=subsidyBasics(t.replace(/補助(款)?/,'補助')+'資格');if(x)return x;}
+ /* 6 申請時間、哪裡看、送哪個單位 */
+ if(/(什麼時候|何時|幾月|哪個月|受理|截止|期限|隨時).{0,6}(申請|送|收件|受理)|申請.{0,6}(什麼時候|何時|幾月|受理|截止|期限|時間)|(受理|收件|申請)(期間|日期|時間)|(哪裡|哪邊|去哪|在哪|怎麼|如何).{0,6}(找|看|查|知道|得知|取得|搜尋).{0,6}補助|補助.{0,6}(資訊|公告|消息|訊息)|補助.{0,8}(送|交|遞|提出|申請|找).{0,3}(去)?(哪個|哪裡|哪一個|哪).{0,3}(單位|處|機關|地方)/.test(t)&&!/(核銷|結案|逾期)/.test(t))
+  return mk('縣府補助什麼時候、向哪裡申請：沒有統一受理時間，依活動性質找主管的處室，看當年度公告',
+  '縣府補助作業要點沒有訂一個統一的受理時間。各處室的專案補助，各有自己的受理期間和表件，以當年度的公告為準。\n\n要向哪個單位申請，依活動的性質，向縣府主管那項業務的處室提出；經由鄉（鎮、市）公所陳報的，依公所的程序辦理（作業要點第6點）。同一年度的同一個補助案，只能向縣府的一個機關或單位申請，不能重複（第11點）。\n\n不確定該找哪一個處室時，請打縣府總機請總機轉接，不要同時向兩個單位送。',
+  [GR(6),GR(11)]);
+ /* 7 多久有結果、追加 */
+ if(/(多久|幾天|多長|什麼時候|何時).{0,6}(結果|審查|核定|通知|核准|批|下來)/.test(t)&&!/(撥|核銷)/.test(t))
+  return mk('補助申請多久會有結果：要點沒有訂審查期限，結果依核定通知',
+  '縣府補助作業要點沒有訂統一的審查期限，本站也查不到各處室的審查天數。申請之後，核准或不核准都依縣府的通知；核定的金額、項目和執行期間，以核定函為準。\n\n想知道進度，請洽您送件的處室承辦人員。核准之後，計畫執行完畢要在20日內核銷（作業要點第8點）。',
+  [GR(8)]);
+ if(/(追加|加碼|增加|再多|加錢|不夠用|不足|超支|多花)/.test(t)&&/補助/.test(t)&&!/(核銷|退|繳回)/.test(t))
+  return mk('補助款不夠用可以追加嗎：補助以核定的金額和項目為準，要變更要先向補助單位提出',
+  '補助款以核定的金額和項目為準。縣府補助作業要點沒有寫追加補助的程序；要變更計畫內容、經費項目或金額的，請在執行前先向補助單位提出，取得同意後再辦，不要先花了再來核銷。\n\n沒有依核准的用途使用，縣府會追繳，還可能停止補助1年到5年（第10點）。超過核定金額的部分，能不能由協會自己的經費支應，請先洽承辦人員確認。',
+  [GR(10),GR(8)]);
+ /* 8 領款收據、核銷用印（要點無統一規定） */
+ if(/(收據)/.test(t)&&/(誰|給誰|開|簽|蓋)/.test(t)&&!/(會費|捐款|沒有|丟|遺失|哪個|差別|統編|統一編號|抬頭|發票|核銷)/.test(t))
+  return mk('補助款的收據：核銷要附領款收據，格式和由誰簽章要點沒有規定，請依承辦通知',
+  '補助作業要點規定，核銷時要附領款收據，和核准補助文件的影本、實際支用明細表、各項支用的單據（第8點）。領款收據是協會領補助款時出具的，要用什麼格式、由誰簽章、抬頭怎麼寫，要點沒有規定。\n\n建議領款或核銷之前，先向承辦人員確認，避免被退件。協會自己向會員收會費、捐款，另外要開正式收據（社會團體財務處理辦法第17條），那是另一回事。',
+  [GR(8),F(17)]);
+ /* 9 誰經手、領款、現金匯款 */
+ if(/(經手|保管|代領|領款|提領|提款|領出來|領現|誰.{0,2}(領|管|保管))/.test(t)&&!/(憑證|核銷)/.test(t)||/(現金|匯款|轉帳|刷卡|支票|付款方式)/.test(t))
+  return mk('補助款誰可以領、怎麼付款：存協會帳戶，提款由負責人、總幹事和財務人員共同蓋章',
+  '補助款是協會的收入，要存入銀行、農會、漁會、信用合作社或郵局，不得存放個人（社會團體財務處理辦法第16條）。提用存款時，要由團體負責人、秘書長或總幹事和財務人員，在領款憑證上共同蓋章（第17條），不是理事長一個人可以決定。監事會也會依規定查核財務（第22條）。\n\n至於付款要用現金、匯款或轉帳，補助作業要點和財務辦法都沒有訂一定的方式或金額門檻；核銷時以各項支用的單據為準（作業要點第8點）。個別補助案有規定的，依核定函。',
+  [F(16),F(17),F(22),GR(8)]);
+ /* 10 向會員公開、大會報告 */
+ if(/(公開|公告|讓會員知道|向會員|大會報告|報告.{0,3}大會|在大會|會員知道|徵信|透明|通知會員)/.test(t)&&/補助/.test(t)&&!/(申請|核銷|結案|成果|不予|資格|辦理|召開|開會)/.test(t))
+  return mk('補助款要讓會員知道嗎：要，收入要照實入帳、定期公告，年度會計報告要提會員大會通過',
+  '要。補助款是協會的收入，社會團體處理財務收支，不得匿報或虛報，並要定期公告（社會團體財務處理辦法第20條）。\n\n年度結束後，理事會要編造工作報告和會計報告，提經會員（會員代表）大會通過，再報縣府備查（第11條）；財務查核由監事會負責（第22條）。補助款怎麼花，也會在這些報告裡看到。',
+  [F(20),F(11),F(22)]);
+ /* 11 查帳、抽查、督導 */
+ if(/(查帳|查核|稽核|抽查|考核|督導|被查|被抽|檢查|來查|會查|要查)/.test(t))
+  return mk('補助款會被查嗎：縣府可以定期或不定期督導考核，要備齊核銷資料和會計憑證',
+  '會。縣府可以定期或不定期督導考核補助經費的使用；發現沒有依用途支用、虛報、浮報或成效不佳，要追繳，還可以停止補助1年到5年（屏東縣政府對民間團體補助經費作業要點第10點）。要點沒有訂多久會查一次。\n\n要準備的是：核准補助文件、領款收據、實際支用明細表、各項支用的單據，和活動的成果資料（第8點）。協會的會計憑證，要在年度決算辦理終了後至少保存十年（社會團體財務處理辦法第21條）；主管機關也可以依需要抽查社會團體的財務（第22條）。',
+  [GR(10),GR(8),F(21),F(22)]);
+ /* 12 缺件、聲明書 */
+ if(/(聲明書|沒附|漏附|缺件|少附|沒帶|少了|缺了|少一份|漏了|漏掉|沒有附)/.test(t)&&/申請/.test(t)&&!/核銷/.test(t))
+  return mk('申請補助少了文件：要檢附四樣，缺件怎麼補要點沒寫，依承辦通知補正',
+  '申請補助要檢附四樣東西（屏東縣政府對民間團體補助經費作業要點第6點）：詳實的實施計畫、經費概算明細表、申請函，和申請單位聲明書。\n\n文件不齊時怎麼處理，要點沒有寫；通常會由承辦人員通知補正，請依通知補齊。沒有補齊的話，可能會被退件，退件的原因請看通知（第5點列了不予補助的情形）。',
+  [GR(6),GR(5)]);
+ /* 12b 活動前要不要通知縣府 */
+ if(/(先|事前|活動前|辦之前|辦前).{0,4}(通知|報備|報告|函報|報縣府|知會|告知)/.test(t)&&!/(核銷|變更|改)/.test(t))
+  return mk('補助的活動要先通知縣府嗎：要點沒有寫活動前要另外報備，要變更才要先提出，其餘依核定函',
+  '縣府補助作業要點沒有寫活動辦理之前要另外通知縣府，本站也查不到這項規定；請依您這一案的核定函，或問承辦人員。\n\n確定要規定的是：要變更日期、地點、內容、經費項目或金額時，要在執行前先向補助單位提出，取得同意再辦；活動辦完20日內要核銷（第8點）。',
+  [GR(8),GR(10)]);
+ /* 13 被停止補助 */
+ if(/(被|已|遭|目前).{0,2}停止補助|停止補助.{0,6}(怎麼辦|多久|幾年|期間|何時|什麼時候|可以|能不能|恢復|還能|申訴|不服)/.test(t))
+  return mk('被停止補助：停止期間依情節是1年到5年，期間內縣府不補助，恢復的條件要問承辦',
+  '縣府發現補助款沒有依用途支用、虛報、浮報或其他違規時，可以對團體停止補助1年到5年（屏東縣政府對民間團體補助經費作業要點第10點）。停止期間內，縣府不補助這個團體。\n\n停止多久、從哪一天算起，依縣府的通知；期滿後怎麼申請，要點沒有另外規定。請先請承辦人員說明被停止的原因，並把該補正的補正。對處分不服怎麼辦，可以問「縣府處分不服要向誰訴願」。',
+  [GR(10)]);
+ /* 14 代寫計畫、委外廠商 */
+ if(/(代寫|代為撰寫|幫忙寫|請人寫|找人寫|顧問公司|代辦|代為申請)/.test(t)&&/(計畫|申請|補助)/.test(t))
+  return mk('補助計畫可以請人代寫嗎：要點沒有禁止，但計畫和申請是協會的責任',
+  '縣府補助作業要點沒有規定計畫要由誰撰寫，本站也查不到禁止請人協助。不過申請函、實施計畫和申請單位聲明書，都是以協會名義提出（第6點），內容要由協會負責；核銷也要附各項支用的單據（第8點）。\n\n如果請人寫計畫要付費，這筆錢能不能列在經費裡，要點沒有寫，請先向承辦人員確認，不要先付了再來核銷。',
+  [GR(6),GR(8)]);
+ if(/(廠商|外包|委外|包給|承包|公司辦|交給.{0,4}公司|業者)/.test(t))
+  return mk('補助款可以給外面的廠商辦活動嗎：要點沒有禁止，但要先問承辦，核銷要有單據',
+  '縣府補助作業要點沒有寫補助的活動可不可以委託廠商辦理，本站也查不到禁止的規定。補助款要照核定的計畫和用途使用（第10點），核銷要附實際支用明細表和各項支用的單據（第8點），所以委託的費用要有對方開立的單據。\n\n補助的是協會辦的活動，委外的做法請先向承辦人員說明；沒有先確認就委外，可能被認為沒有依用途使用，要追繳。',
+  [GR(10),GR(8)]);
+ /* 15 比價、採購 */
+ if(/(比價|議價|三家|招標|採購|估價)/.test(t))
+  return mk('補助款買東西要比價嗎：補助要點沒有寫，要看核定函，請先問承辦',
+  '縣府補助作業要點沒有寫補助款買東西或請人服務要不要比價、議價，本站也查不到統一的規定。要不要比價、要幾家，請看您這一案的核定函，或先問承辦人員。\n\n不論要不要比價，核銷時都要附實際支用明細表和各項支用的單據（作業要點第8點）；買的設備要列入協會的財產。',
+  [GR(8)]);
+ /* 16 電子發票 */
+ if(/(電子發票|載具|統一發票|雲端發票)/.test(t))
+  return mk('補助款可以用電子發票核銷嗎：要點只寫要附各項支用單據，沒有細分，先問承辦',
+  '縣府補助作業要點只規定核銷要附各項支用的單據（第8點），沒有細分是紙本發票、電子發票還是收據，本站也查不到另外的規定。\n\n建議先向承辦人員確認：電子發票要不要列印、要不要註明協會的抬頭和統一編號，避免核銷時被退件。',
+  [GR(8)]);
+ /* 17 公所補助與縣府是否一樣 */
+ if(/(公所|鄉公所|鎮公所|市公所|區公所)/.test(t)&&/(一樣|差別|不同|同樣|相同|同一套)/.test(t))
+  return mk('向公所申請補助和縣府一樣嗎：不一定，各補助單位有自己的作業要點，看當年度公告',
+  '不一定。縣府的「屏東縣政府對民間團體補助經費作業要點」只管縣府的補助。公所的補助，項目、金額、受理期間和表件，要看公所當年度公告的補助作業要點，本站沒有收錄各鄉鎮市公所的規定。\n\n請直接洽所在地公所社會課。同一個活動向不同單位申請時，計畫書和經費表要如實寫出各單位補助的項目和金額，核銷也要列明（縣府要點第8點）。',
+  [GR(8)]);
+ return null;
+}
 function patrol133(t){
  if(!/社區/.test(t)||!/(協會|理事|理監事|監事)/.test(t))return null;
  if(/(合作社|社員|股金|魅力社區|好讚|社造|社區大學|大樓|管委會|管理委員會|政黨|寺廟|宗教|基金會)/.test(t))return null;
@@ -8321,7 +8428,7 @@ function verifiedRoundAnswer(q,ctx){
   const guildCharter=charterAmendment(t);
   if(guildCharter)return guildCharter;
  }
- return patrol133(t)||appeal133(t)||patrol132(t)||patrol131(t)||patrol130(t)||patrol129(t)||patrol128(t)||patrol127(t)||patrol126(t)||patrol125(t)||patrol124(t)||patrol123(t)||patrol122(t)||patrol121(t)||patrol120(t)||patrol119(t)||patrol118(t)||patrol117(t)||patrol116(t)||patrol115(t)||patrol114(t)||patrol113(t)||patrol112(t)||patrol111(t)||patrol110(t)||patrol109(t)||patrol108(t)||patrol107(t)||patrol106b(t)||patrol106(t)||patrol105(t)||patrol104(t)||patrol103(t)||patrol102(t)||patrol101(t)||patrol100(t)||patrol99(t)||patrol98(t)||patrol97(t)||patrol96(t)||patrol95(t)||patrol94(t)||patrol93(t)||patrol92(t)||patrol91(t)||patrol90(t)||patrol89(t)||patrol88(t)||patrol87(t)||patrol86(t)||guild86(t)||patrol85(t)||charterRound84(t)||taxFiling81(t)||memberRound83(t)||patrol84(t)||patrol83(t)||patrol82(t)||patrol81(t)||patrol80(t)||patrol79(t)||patrol78(t)||patrol77(t)||patrol76(t)||patrol75(t)||patrol74(t)||patrol73(t)||patrol72(t)||patrol71(t)||patrol70(t)||patrol69(t)||patrol68(t)||patrol67(t)||patrol66(t)||patrol65(t)||patrol64(t)||patrol63(t)||patrol62(t)||patrol61(t)||patrol60(t)||patrol59(t)||patrol58(t)||patrol57(t)||patrol56(t)||patrol55(t)||patrol54(t)||patrol53(t)||patrol52(t)||patrol51(t)||patrol50(t)||patrol49(t)||patrol48(t)||chairTermGeneral(t)||patrol47(t)||patrol46(t)||patrol45(t)||patrol44(t)||patrol43(t)||patrol42(t)||patrol41(t)||patrol40(t)||patrol39(t)||patrol38(t)||patrol37(t)||patrol36(t)||patrol35(t)||patrol34(t)||patrol33(t)||patrol32(t)||patrol31(t)||patrol30(t)||patrol29(t)||patrol28(t)||patrol27(t)||patrol26(t)||patrol25(t)||patrol24(t)||patrol23(t)||patrol22(t)||patrol21(t)||patrol20(t)||patrol19(t)||patrol18(t)||patrol17(t)||patrol15(t)||patrol16(t)||patrol14(t)||intlGroupElection(t)||patrol13(t)||patrol11(t)||patrol10(t)||patrol9(t)||patrol8(t)||patrol7(t)||memberStaffPatrol6(t)||communityPatrol(t)||dissolveCharterPatrol(t)||financePatrol(t)||membershipPatrol(t)||formTemplates(t,ctx&&ctx.catalog)||(/^(協會|社區發展協會|我們協會|本會)?的?(理事|監事|理監事)(和監事|跟監事)?(要)?(怎麼選|怎麼產生|如何產生|誰選)/.test(t)?electionHowTo(t):null)||attendanceFeeCan(t)||joinManyGroups(t)||chairReplaceMidTerm(t)||charterItemChange(t)||resolutionOverturn(t)||staffInsurance(t)||intlGroupWho(t)||moneyMisuse(t)||supervisorNoMeeting(t)||rosterView(t)||whoManagesMoney(t)||donationDeduct(t)||annualAccountsHowTo(t)||boardMeetingHowTo(t)||memberQuitHowTo(t)||viceChair(t)||motionSecond(t)||assocLoan(t)||yearEndBonus(t)||entertainmentExpense(t)||englishName(t)||minorOfficer(t)||assocInvest(t)||candidateDeposit(t)||chairAndRecorder(t)||facebookGroup(t)||rulingRules(t)||byElection(t)||receiptsBasic(t)||memberRepThreshold(t)||officerResignHow(t)||finalAccountsWho(t)||publicServantOfficer(t)||relativesAsOfficers(t)||mergeGroups(t)||govCommission(t)||conveneAndPetition(t)||assemblyPrepAndSignIn(t)||whatNeedsAssembly(t)||feeAndMemberStatus(t)||directorMustBeMember(t)||auditAndYear(t)||reorganization(t)||staffResignReport(t)||videoElection(t)||subsidyDetails(t)||subsidyBasics(t)||taxWithholding(t)||commercialGuild(t)||memberSuspension(t)||meetingProcedure(t)||solicitationAfter(t)||coopMore(t)||communityMore(t)||outOfScope(t)||whichAuthority(t)||volunteerMore(t)||submitWhere(t)||timeDeposit(t)||nonCompliance(t)||memberEligibilityOutside(t)||annualMeetings(t)||chairTermLimit(t)||assemblyQuorum(t)||urgentMeetingNotice(t)||directorVacancy(t)||recallOfficer(t)||boardResolution(t)||annualFinanceFiling(t)||receiptAndWithdraw(t)||charterContents(t)||dissolveVote(t)||sealMake(t)||memberOnlyFundraising(t)||communityBasics(t)||countyPhone(t)||advisorAppoint(t)||sealKeeper(t)||assocTravel(t)||activityReport(t)||assocFund(t)||officerAsFinanceStaff(t)||electionShowOfHands(t)||directorProxyVote(t)||memberAdmissionWho(t)||memberRosterReport(t)||attendanceFeeAmount(t)||auditByCPA(t)||financeAnnounce(t)||coopBasics(t)||foundingCost(t)||prepMeetingCount(t)||assemblyShortOfQuorum(t)||twoCommunityAssociations(t)||villageChiefAsChair(t)||intlTermStart(t)||charmCommunityContact(t)||groupTypeDifference(t)||directorAbsence(t)||chairElectionMethod(t)||officerNumbers(t)||meetingNoticeChannel(t)||budgetHowTo(t)||renameGroup(t)||certificateLost(t)||dormantGroup(t)||lookupRegistered(t)||coopWithdraw(t)||termLengthLimit(t)||assemblyAgenda(t)||teacherAssocSetup(t)||commercialGroupSetup(t)||alumniSetup(t)||boardAgenda(t)||assetScrap(t)||taxMissed(t)||officeAtHome(t)||communityAreaSplit(t)||officeMove(t)||crossCountyEvent(t)||dissolvedAssets(t)||groupNameDuplicate(t)||standingDirectorCount(t)||memberViewAccounts(t)||howToReportGroup(t)||groupReported(t)||anonymousDonation(t)||chairRelativeStaff(t)||minorJoinAssoc(t)||volunteerTopics(t)||volunteerTeam(t)||memberCourseFee(t)||staffMustBeMember(t)||chairFundraising(t)||boardBelowHalf(t)||assocMayNotMeet(t)||assocNurseryCenter(t)||assocCareStation(t)||assocDonateGoods(t)||assocGovTender(t)||subsidySettlement(t)||corpRegistration(t)||assocBoardPay(t)||financeStaffConcurrent(t)||staffHiring(t)||coopVsAssocAccountingForms(t)||coopBalanceSheetReport(t)||delegateQuotaCalculation(t)||delegateConcurrentRole(t)||onlineVoting(t)||mailVoting(t)||assemblyVotingMethod(t)||boardVotingMethodDetail(t)||delegateElectionProcess(t)||delegateAssemblyRules(t)||coopMemberRemoval(t)||coopAdvertisingTaxability(t)||coopLoanToMemberTax(t)||coopBankLoanProcedure(t)||coopBankLoan(t)||branchAccountingPractice(t)||memberDelegateElection(t)||branchOrgSetup(t)||delegateProposalProcess(t)||annualMeetingVsAssembly(t)||vacancyQuorum(t)||supervisorConvenerNoMeeting(t)||supervisorMinimumMembers(t)||supervisorChairmanElection(t)||supervisorAuditPowers(t)||branchOrgAccounting(t)||runClassesPermit(t)||residentialCarePermit(t)||chairConvicted(t)||chairDismissStaff(t)||chairDissolve(t)||homeAsOfficeTax(t)||nonprofitTaxThreshold(t)||sameAddressGroups(t)||chairStaffConflict(t)||orgDisposeProperty(t)||orgAcquireEquipment(t)||sellGoodsAllowed(t)||staffActingChair(t)||p2MembershipFee(t)||p2BoardNotice(t)||p2RecordRetention(t)||p2CharterAmend(t)||p2SupervisorAudit(t)||p2CoopShares(t)||p2FoundingMeeting(t)||p2ElectionPrep(t)||p2MinutesContent(t)||p2DelegateSystem(t)||chairAbandonsOffice(t)||chairOtherGroupPosition(t)||chairSpendWithoutBoard(t)||supervisorSpend(t)||supervisorActingChair(t)||candidateSeatCount(t)||ballotRetention(t)||officerResignation(t)||invalidBallotReason(t)||delegateQualification(t)||substitutionOrder(t)||byElectionThreshold(t)||coopChairReelection(t)||chairmanReelectionLimit(t)||chairmanAbsence(t)||recordRetentionPeriod(t)||advertisingIncome(t)||staffBankAccountSetup(t)||meetingSigninDuration(t)||meetingVotingMethod(t)||preElectionBoardMeeting(t)||electionEffectiveDate(t)||politicalDonation(t)||communityReportingRequirements(t)||communityYearlyPlanDeadline(t)||communityVsAssociationDifferences(t)||supervisorAsDirector(t)||newChairTodo(t)||postElectionAccountingDeadline(t)||electionReportDeadline(t)||checkSignature(t)||feePeriods(t)||feeDeferral(t)||threeMonthsWording(t)||electionCandidates(t)||electionObjection(t)||minutesDeadline(t)||coopBoardQuorum(t)||coopTax(t)||communityRename(t)||communityReportTownship(t)||addressCertificate(t)||bankChairChange(t)||eventFee(t)||communityChairTerm(t)||invalidBallot(t)||feeAmount(t)||personalAccount(t)||delegateAssembly(t)||noSupervisor(t)||foundingDocs(t)||investStocks(t)||membershipRefused(t)||coopCapital(t)||receiveDonation(t)||hireEmployee(t)||lendToChair(t)||branchOrg(t)||supervisorMeeting(t)||noAnnualMeeting(t)||chairSpendingAuth(t)||communityVsGeneral(t)||coopDissolutionProperty(t)||charterAmendment(t)||coopSupervisorAudit(t)||patrol112late(t)||publicSolicitation(t)||decisionRevoked(t)||chairResign(t)||memberExpulsion(t)||sealChange(t)||noHandover(t)||communityDissolutionProperty(t)||boardFinanceAgenda(t)||boardQuorumGeneral(t)||delegated(t)||chairNoMeeting(t)||feeAnswer(t)||coopAssemblyQuorum(t)||proxyCount(t)||concurrent(t)||financeQuestioned(t)||financeDeadline(t)||meetingFrequency(t)||videoMeeting(t)||coopMinimum(t)||financeForms(t)||formsDownload(t,ctx&&ctx.catalog)||dissolutionHowTo(t)||patrol95late(t)||null||chairChangeTodo(t)||electionHowTo(t)||meetingHowTo(t);
+ return patrol134(t)||patrol133(t)||appeal133(t)||patrol132(t)||patrol131(t)||patrol130(t)||patrol129(t)||patrol128(t)||patrol127(t)||patrol126(t)||patrol125(t)||patrol124(t)||patrol123(t)||patrol122(t)||patrol121(t)||patrol120(t)||patrol119(t)||patrol118(t)||patrol117(t)||patrol116(t)||patrol115(t)||patrol114(t)||patrol113(t)||patrol112(t)||patrol111(t)||patrol110(t)||patrol109(t)||patrol108(t)||patrol107(t)||patrol106b(t)||patrol106(t)||patrol105(t)||patrol104(t)||patrol103(t)||patrol102(t)||patrol101(t)||patrol100(t)||patrol99(t)||patrol98(t)||patrol97(t)||patrol96(t)||patrol95(t)||patrol94(t)||patrol93(t)||patrol92(t)||patrol91(t)||patrol90(t)||patrol89(t)||patrol88(t)||patrol87(t)||patrol86(t)||guild86(t)||patrol85(t)||charterRound84(t)||taxFiling81(t)||memberRound83(t)||patrol84(t)||patrol83(t)||patrol82(t)||patrol81(t)||patrol80(t)||patrol79(t)||patrol78(t)||patrol77(t)||patrol76(t)||patrol75(t)||patrol74(t)||patrol73(t)||patrol72(t)||patrol71(t)||patrol70(t)||patrol69(t)||patrol68(t)||patrol67(t)||patrol66(t)||patrol65(t)||patrol64(t)||patrol63(t)||patrol62(t)||patrol61(t)||patrol60(t)||patrol59(t)||patrol58(t)||patrol57(t)||patrol56(t)||patrol55(t)||patrol54(t)||patrol53(t)||patrol52(t)||patrol51(t)||patrol50(t)||patrol49(t)||patrol48(t)||chairTermGeneral(t)||patrol47(t)||patrol46(t)||patrol45(t)||patrol44(t)||patrol43(t)||patrol42(t)||patrol41(t)||patrol40(t)||patrol39(t)||patrol38(t)||patrol37(t)||patrol36(t)||patrol35(t)||patrol34(t)||patrol33(t)||patrol32(t)||patrol31(t)||patrol30(t)||patrol29(t)||patrol28(t)||patrol27(t)||patrol26(t)||patrol25(t)||patrol24(t)||patrol23(t)||patrol22(t)||patrol21(t)||patrol20(t)||patrol19(t)||patrol18(t)||patrol17(t)||patrol15(t)||patrol16(t)||patrol14(t)||intlGroupElection(t)||patrol13(t)||patrol11(t)||patrol10(t)||patrol9(t)||patrol8(t)||patrol7(t)||memberStaffPatrol6(t)||communityPatrol(t)||dissolveCharterPatrol(t)||financePatrol(t)||membershipPatrol(t)||formTemplates(t,ctx&&ctx.catalog)||(/^(協會|社區發展協會|我們協會|本會)?的?(理事|監事|理監事)(和監事|跟監事)?(要)?(怎麼選|怎麼產生|如何產生|誰選)/.test(t)?electionHowTo(t):null)||attendanceFeeCan(t)||joinManyGroups(t)||chairReplaceMidTerm(t)||charterItemChange(t)||resolutionOverturn(t)||staffInsurance(t)||intlGroupWho(t)||moneyMisuse(t)||supervisorNoMeeting(t)||rosterView(t)||whoManagesMoney(t)||donationDeduct(t)||annualAccountsHowTo(t)||boardMeetingHowTo(t)||memberQuitHowTo(t)||viceChair(t)||motionSecond(t)||assocLoan(t)||yearEndBonus(t)||entertainmentExpense(t)||englishName(t)||minorOfficer(t)||assocInvest(t)||candidateDeposit(t)||chairAndRecorder(t)||facebookGroup(t)||rulingRules(t)||byElection(t)||receiptsBasic(t)||memberRepThreshold(t)||officerResignHow(t)||finalAccountsWho(t)||publicServantOfficer(t)||relativesAsOfficers(t)||mergeGroups(t)||govCommission(t)||conveneAndPetition(t)||assemblyPrepAndSignIn(t)||whatNeedsAssembly(t)||feeAndMemberStatus(t)||directorMustBeMember(t)||auditAndYear(t)||reorganization(t)||staffResignReport(t)||videoElection(t)||subsidyDetails(t)||subsidyBasics(t)||taxWithholding(t)||commercialGuild(t)||memberSuspension(t)||meetingProcedure(t)||solicitationAfter(t)||coopMore(t)||communityMore(t)||outOfScope(t)||whichAuthority(t)||volunteerMore(t)||submitWhere(t)||timeDeposit(t)||nonCompliance(t)||memberEligibilityOutside(t)||annualMeetings(t)||chairTermLimit(t)||assemblyQuorum(t)||urgentMeetingNotice(t)||directorVacancy(t)||recallOfficer(t)||boardResolution(t)||annualFinanceFiling(t)||receiptAndWithdraw(t)||charterContents(t)||dissolveVote(t)||sealMake(t)||memberOnlyFundraising(t)||communityBasics(t)||countyPhone(t)||advisorAppoint(t)||sealKeeper(t)||assocTravel(t)||activityReport(t)||assocFund(t)||officerAsFinanceStaff(t)||electionShowOfHands(t)||directorProxyVote(t)||memberAdmissionWho(t)||memberRosterReport(t)||attendanceFeeAmount(t)||auditByCPA(t)||financeAnnounce(t)||coopBasics(t)||foundingCost(t)||prepMeetingCount(t)||assemblyShortOfQuorum(t)||twoCommunityAssociations(t)||villageChiefAsChair(t)||intlTermStart(t)||charmCommunityContact(t)||groupTypeDifference(t)||directorAbsence(t)||chairElectionMethod(t)||officerNumbers(t)||meetingNoticeChannel(t)||budgetHowTo(t)||renameGroup(t)||certificateLost(t)||dormantGroup(t)||lookupRegistered(t)||coopWithdraw(t)||termLengthLimit(t)||assemblyAgenda(t)||teacherAssocSetup(t)||commercialGroupSetup(t)||alumniSetup(t)||boardAgenda(t)||assetScrap(t)||taxMissed(t)||officeAtHome(t)||communityAreaSplit(t)||officeMove(t)||crossCountyEvent(t)||dissolvedAssets(t)||groupNameDuplicate(t)||standingDirectorCount(t)||memberViewAccounts(t)||howToReportGroup(t)||groupReported(t)||anonymousDonation(t)||chairRelativeStaff(t)||minorJoinAssoc(t)||volunteerTopics(t)||volunteerTeam(t)||memberCourseFee(t)||staffMustBeMember(t)||chairFundraising(t)||boardBelowHalf(t)||assocMayNotMeet(t)||assocNurseryCenter(t)||assocCareStation(t)||assocDonateGoods(t)||assocGovTender(t)||subsidySettlement(t)||corpRegistration(t)||assocBoardPay(t)||financeStaffConcurrent(t)||staffHiring(t)||coopVsAssocAccountingForms(t)||coopBalanceSheetReport(t)||delegateQuotaCalculation(t)||delegateConcurrentRole(t)||onlineVoting(t)||mailVoting(t)||assemblyVotingMethod(t)||boardVotingMethodDetail(t)||delegateElectionProcess(t)||delegateAssemblyRules(t)||coopMemberRemoval(t)||coopAdvertisingTaxability(t)||coopLoanToMemberTax(t)||coopBankLoanProcedure(t)||coopBankLoan(t)||branchAccountingPractice(t)||memberDelegateElection(t)||branchOrgSetup(t)||delegateProposalProcess(t)||annualMeetingVsAssembly(t)||vacancyQuorum(t)||supervisorConvenerNoMeeting(t)||supervisorMinimumMembers(t)||supervisorChairmanElection(t)||supervisorAuditPowers(t)||branchOrgAccounting(t)||runClassesPermit(t)||residentialCarePermit(t)||chairConvicted(t)||chairDismissStaff(t)||chairDissolve(t)||homeAsOfficeTax(t)||nonprofitTaxThreshold(t)||sameAddressGroups(t)||chairStaffConflict(t)||orgDisposeProperty(t)||orgAcquireEquipment(t)||sellGoodsAllowed(t)||staffActingChair(t)||p2MembershipFee(t)||p2BoardNotice(t)||p2RecordRetention(t)||p2CharterAmend(t)||p2SupervisorAudit(t)||p2CoopShares(t)||p2FoundingMeeting(t)||p2ElectionPrep(t)||p2MinutesContent(t)||p2DelegateSystem(t)||chairAbandonsOffice(t)||chairOtherGroupPosition(t)||chairSpendWithoutBoard(t)||supervisorSpend(t)||supervisorActingChair(t)||candidateSeatCount(t)||ballotRetention(t)||officerResignation(t)||invalidBallotReason(t)||delegateQualification(t)||substitutionOrder(t)||byElectionThreshold(t)||coopChairReelection(t)||chairmanReelectionLimit(t)||chairmanAbsence(t)||recordRetentionPeriod(t)||advertisingIncome(t)||staffBankAccountSetup(t)||meetingSigninDuration(t)||meetingVotingMethod(t)||preElectionBoardMeeting(t)||electionEffectiveDate(t)||politicalDonation(t)||communityReportingRequirements(t)||communityYearlyPlanDeadline(t)||communityVsAssociationDifferences(t)||supervisorAsDirector(t)||newChairTodo(t)||postElectionAccountingDeadline(t)||electionReportDeadline(t)||checkSignature(t)||feePeriods(t)||feeDeferral(t)||threeMonthsWording(t)||electionCandidates(t)||electionObjection(t)||minutesDeadline(t)||coopBoardQuorum(t)||coopTax(t)||communityRename(t)||communityReportTownship(t)||addressCertificate(t)||bankChairChange(t)||eventFee(t)||communityChairTerm(t)||invalidBallot(t)||feeAmount(t)||personalAccount(t)||delegateAssembly(t)||noSupervisor(t)||foundingDocs(t)||investStocks(t)||membershipRefused(t)||coopCapital(t)||receiveDonation(t)||hireEmployee(t)||lendToChair(t)||branchOrg(t)||supervisorMeeting(t)||noAnnualMeeting(t)||chairSpendingAuth(t)||communityVsGeneral(t)||coopDissolutionProperty(t)||charterAmendment(t)||coopSupervisorAudit(t)||patrol112late(t)||publicSolicitation(t)||decisionRevoked(t)||chairResign(t)||memberExpulsion(t)||sealChange(t)||noHandover(t)||communityDissolutionProperty(t)||boardFinanceAgenda(t)||boardQuorumGeneral(t)||delegated(t)||chairNoMeeting(t)||feeAnswer(t)||coopAssemblyQuorum(t)||proxyCount(t)||concurrent(t)||financeQuestioned(t)||financeDeadline(t)||meetingFrequency(t)||videoMeeting(t)||coopMinimum(t)||financeForms(t)||formsDownload(t,ctx&&ctx.catalog)||dissolutionHowTo(t)||patrol95late(t)||null||chairChangeTodo(t)||electionHowTo(t)||meetingHowTo(t);
 }
 const api={normalizeQuestion,withContext,verifiedRoundAnswer};
 if(typeof module!=='undefined'&&module.exports)module.exports=api;
