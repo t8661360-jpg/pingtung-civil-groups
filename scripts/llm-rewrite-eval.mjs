@@ -16,7 +16,7 @@ const src = fs.readFileSync('scripts/site-smoke.mjs', 'utf8');
 const block = src.slice(src.indexOf('const CHECKS = ['), src.indexOf('\n];', src.indexOf('const CHECKS = [')) + 3);
 const CHECKS = Function(block.replace('const CHECKS =', 'return'))();
 // 固定亂數抽樣，讓每次結果可比較
-let seed = Number(process.env.SEED || 20261123);
+let seed = Number(process.env.SEED || new Date().toISOString().slice(0, 10).replace(/-/g, '')); // 每天換一批題目
 const rnd = () => (seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648;
 const pool = CHECKS.filter(([q, w]) => q.length >= 5 && w.length >= 2);
 const sample = [];
@@ -83,11 +83,16 @@ console.log('使用模型：', model, '｜題數：', sample.length);
 const browser = await chromium.launch();
 const ask = await makeAsker(browser);
 const rows = [];
+const T0 = Date.now(), BUDGET = Number(process.env.TIME_MIN || 45) * 60000;
+let skips = 0;
 for (const [q, want] of sample) {
+  if (Date.now() - T0 > BUDGET) { console.log('已達時間上限，先停在這裡'); break; }
+  if (skips >= 3) { console.log('連續 3 題拿不到 AI 回覆，可能今日免費額度已用完，先停在這裡'); break; }
   const para = await gen(model, PARA, q, 0.9);
   const rq = await gen(model, REWRITE, q, 0);
   const rp = para ? await gen(model, REWRITE, para, 0) : null;
-  if (!para || !rq || !rp) { console.log('略過（AI 沒有回覆）：', q); continue; }
+  if (!para || !rq || !rp) { skips++; console.log('略過（AI 沒有回覆）：', q); continue; }
+  skips = 0;
   const a1 = await ask(q), a2 = await ask(para), a3 = await ask(rq), a4 = await ask(rp);
   const row = { q, want, para, rq, rp, orig: a1.text.includes(want), paraRaw: a2.text.includes(want), origRew: a3.text.includes(want), paraRew: a4.text.includes(want), tParaRaw: a2.title, tParaRew: a4.title };
   rows.push(row);

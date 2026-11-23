@@ -1,6 +1,9 @@
 name: AI 改寫問句實測（手動）
 
 on:
+  schedule:
+    # 每天台灣時間 17:17（Google 免費額度於台灣時間 16:00 重置）抽測 15 題
+    - cron: '17 9 * * *'
   workflow_dispatch:
     inputs:
       n:
@@ -33,8 +36,8 @@ jobs:
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           BASE_URL: http://localhost:8765/
-          N: ${{ inputs.n }}
-          MODEL: ${{ inputs.model }}
+          N: ${{ inputs.n || '15' }}
+          MODEL: ${{ inputs.model || 'models/gemini-flash-latest' }}
         run: |
           python3 -m http.server 8765 >/dev/null 2>&1 &
           sleep 2
