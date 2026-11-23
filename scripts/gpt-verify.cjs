@@ -14,21 +14,24 @@ const CNN=/(?:百分之)?[一二三四五六七八九十]+(?:分之[一二三四
 const artNo=a=>String(a).normalize('NFKC').replace(/^第/,'').replace(/條$/,'').replace(/之/,'-').trim();
 function artText(law,art){const L=byName[law];if(!L)return null;const a=L.articles[artNo(art)];return a==null?null:String(a);}
 const PROVIDER=(process.env.PROVIDER||(process.env.GEMINI_API_KEY&&!process.env.OPENAI_API_KEY?'gemini':'openai')).toLowerCase();
-const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));let GEM_MODELS=null;
 /* Gemini：金鑰只從環境變數 GEMINI_API_KEY 讀取（GitHub Actions secret，由使用者自行設定）；503／429／逾時自動重試並換備用模型 */
 async function askGemini(sys,user){
  const key=process.env.GEMINI_API_KEY;if(!key)throw new Error('未設定 GEMINI_API_KEY');
  const API='https://generativelanguage.googleapis.com/v1beta';
- const models=[process.env.GEMINI_MODEL||'models/gemini-2.5-flash','models/gemini-flash-latest','models/gemini-2.5-pro'].filter((m,i,a)=>m&&a.indexOf(m)===i);
- let last='';
+ if(!GEM_MODELS){let listed=[];try{const r=await fetch(`${API}/models?pageSize=200`,{headers:{'x-goog-api-key':key}});const j=await r.json();listed=(j.models||[]).filter(m=>(m.supportedGenerationMethods||[]).includes('generateContent')).map(m=>m.name);}catch(e){}
+  const flash=listed.filter(n=>/flash/.test(n)&&!/lite|image|tts|audio|live|exp/.test(n)).sort().reverse();
+  GEM_MODELS=[process.env.GEMINI_MODEL,'models/gemini-flash-latest',...flash.slice(0,3)].filter((m,i,a)=>m&&a.indexOf(m)===i);
+  console.log('Gemini 候選模型：',GEM_MODELS.join(', '));}
+ const models=GEM_MODELS;const errs=[];let last='';
  for(const m of models){for(let t=0;t<4;t++){
   let r,j;try{r=await fetch(`${API}/${m}:generateContent`,{method:'POST',headers:{'content-type':'application/json','x-goog-api-key':key},signal:AbortSignal.timeout(120000),body:JSON.stringify({systemInstruction:{parts:[{text:sys}]},contents:[{role:'user',parts:[{text:user}]}],generationConfig:{temperature:0,responseMimeType:'application/json',maxOutputTokens:4096}})});j=await r.json();}catch(e){last=m+' 連線失敗：'+e.message;await sleep(10000);continue;}
-  if(r.status===429||r.status>=500){last=m+' '+r.status;await sleep(20000);continue;}
-  if(!r.ok){last=m+' '+r.status+' '+JSON.stringify(j).slice(0,200);break;}
+  if(r.status===429||r.status>=500){last=m+' '+r.status;errs.push(last);await sleep(20000);continue;}
+  if(!r.ok){last=m+' '+r.status+' '+JSON.stringify(j).slice(0,160);errs.push(last);break;}
   const text=(j.candidates?.[0]?.content?.parts||[]).filter(p=>!p.thought).map(p=>p.text||'').join('').trim().replace(/^```(?:json)?|```$/g,'').trim();
   try{const o=JSON.parse(text);o._model=m;return o;}catch(e){last=m+' 回覆不是 JSON';continue;}
  }}
- throw new Error('Gemini 無法取得回覆（'+last+'）');
+ throw new Error('Gemini 無法取得回覆（'+[...new Set(errs.concat(last))].join('；')+'）');
 }
 async function ask(item,ctx){
  if(process.env.GPT_MOCK){const m=JSON.parse(fs.readFileSync(process.env.GPT_MOCK));return m[item.id]||null;}
