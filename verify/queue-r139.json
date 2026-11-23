@@ -1,0 +1,6 @@
+[
+ {"id":"r139-supplement-term","question":"理事出缺後由候補理事遞補或補選的人，任期是補到原任期屆滿，還是重新計算四年？","statutes":[{"law":"人民團體法","article":"20"},{"law":"人民團體法","article":"23"},{"law":"人民團體選舉罷免辦法","article":"17"}]},
+ {"id":"r139-coop-passive-member","question":"合作社社員可以只入股、不參加社務嗎？","statutes":[{"law":"合作社法","article":"11"},{"law":"合作社法","article":"26"},{"law":"合作社法","article":"28"},{"law":"合作社法","article":"49"}]},
+ {"id":"r139-volunteer-minor","question":"未成年人可以擔任志工嗎？志願服務法有沒有年齡限制？","claim":"志願服務法沒有訂志工年齡限制","statutes":[{"law":"志願服務法","article":"3"},{"law":"志願服務法","article":"7"},{"law":"志願服務法","article":"9"},{"law":"志願服務法","article":"10"}]},
+ {"id":"r139-solicit-balance","question":"勸募活動所得有賸餘時，賸餘款項可以再用在哪些用途、期限多久？","claim":"賸餘要在計畫執行完竣後三個月內擬同類目的使用計畫書，經主管機關同意後動支，再執行期限不得超過三年","statutes":[{"law":"公益勸募條例","article":"19"},{"law":"公益勸募條例","article":"22"}]}
+]
