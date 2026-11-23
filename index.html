@@ -831,7 +831,7 @@ async function saveChunked(coll,rows,metaExtra){
 async function loadAll(force){
   if(loadPromise&&!force)return loadPromise;
   loadPromise=(async()=>{
-    const base=document.baseURI.replace(/[^/]*$/,"")+"data/";const DV="?v=20261123-143";
+    const base=document.baseURI.replace(/[^/]*$/,"")+"data/";const DV="?v=20261123-144";
     const jf=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);return r.json()};
     const jgz=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);const b=new Uint8Array(await r.arrayBuffer());if(b[0]!==31||b[1]!==139)return JSON.parse(new TextDecoder().decode(b));if(typeof DecompressionStream==="undefined")throw new Error("gzip unsupported");const text=await new Response(new Blob([b]).stream().pipeThrough(new DecompressionStream("gzip"))).text();return JSON.parse(text)};
     const [d,s,k,f]=await Promise.allSettled([jf(base+"directory.json"+DV),jf(base+"staff.json"+DV),jgz(base+"knowledge.json.gz"+DV).catch(()=>jf(base+"knowledge.json"+DV)),jf(base+"forms-catalog.json?v=20261105-5")]);
@@ -1318,7 +1318,7 @@ function renderAnswer(q,a){
 }
 let KB_LAST_SCORE=0;
 const KB_GENERIC=/^(準備哪些|要準備|需要什麼文件|申請文件|怎麼申請|多久|資格|下載|聯絡|電話|分機|承辦|承辦人|找誰|窗口|開會|大會|通知|出席|決議|期限|名稱|名字|線上|網路|書表|範本|表格|法規|法令|條文|報表|登記|法人|好的|了解)$/;
-function matchKB(q){let best=null,score=0;const qn=norm(q);for(const e of KB){if(e.title==='怎麼成立社區發展協會'&&!/成立|籌組|籌備|設立|立案|發起|怎麼開始|如何開始/.test(q))continue;let s=0;for(const k of e.k){const w=KB_GENERIC.test(k)?1:k.length*2;if(q.includes(k))s+=w;else if(qn.includes(norm(k)))s+=Math.ceil(w/2)}if(s>score){score=s;best=e}}KB_LAST_SCORE=score;return score>=2?best:null}
+function matchKB(q){let best=null,score=0;const qn=norm(q);for(const e of KB){if(e.title==='合作社怎麼設立'&&!/成立|設立|籌組|籌備|發起|創立|立案|申請登記|怎麼開始|如何開始|怎麼辦理|要準備|流程/.test(q))continue;if(e.title==='怎麼成立社區發展協會'&&!/成立|籌組|籌備|設立|立案|發起|怎麼開始|如何開始/.test(q))continue;let s=0;for(const k of e.k){const w=KB_GENERIC.test(k)?1:k.length*2;if(q.includes(k))s+=w;else if(qn.includes(norm(k)))s+=Math.ceil(w/2)}if(s>score){score=s;best=e}}KB_LAST_SCORE=score;return score>=2?best:null}
 function kbAnswer(e){const it=e.ref?ALLITEMS[e.ref]:null;return{category:e.cat,title:e.title,summary:e.summary,steps:e.steps||(it?it.steps:[]),docs:e.docs||(it?it.docs:[]),laws:e.laws||(it?it.laws:[])||[],notes:e.notes||[],where:e.where||[],guide:e.guide||[],actions:(e.act||[]).filter(x=>x[1]!=="home").map(x=>({label:x[0],view:x[1],sub:x[2]}))}}
 function staffFor(type,c){const s=staffForCat(c||"",type);return s?[s]:[]}
 function contactLine(list){return list.length?`${list[0].unit||""}${list[0].name}（${list[0].tel||"08-7320415"}${list[0].ext?" 轉 "+list[0].ext:""}）`:"縣府總機 08-7320415 轉社會處承辦人"}
@@ -1866,13 +1866,13 @@ touch();
   route();
 })();
 </script>
-<script src="feedback-collector.js?v=20261123-143"></script>
-<script src="round-fixes.js?v=20261123-143"></script>
-<script src="answer-arbiter.js?v=20261123-143"></script>
-<script src="question-understanding.js?v=20261123-143"></script>
-<script src="counter-upgrade.js?v=20261123-143"></script>
-<script src="ai-assist.js?v=20261123-143"></script>
-<script src="festive.js?v=20261123-143" defer></script>
+<script src="feedback-collector.js?v=20261123-144"></script>
+<script src="round-fixes.js?v=20261123-144"></script>
+<script src="answer-arbiter.js?v=20261123-144"></script>
+<script src="question-understanding.js?v=20261123-144"></script>
+<script src="counter-upgrade.js?v=20261123-144"></script>
+<script src="ai-assist.js?v=20261123-144"></script>
+<script src="festive.js?v=20261123-144" defer></script>
 </body>
 </html>
 
