@@ -1,0 +1,6 @@
+[
+ {"id":"r140-donate-before-dissolve","question":"協會在決議解散之前，把現有的錢或財產捐給其他團體，算不算人民團體法第27條第4款的「財產之處分」，要經會員大會出席人數三分之二以上同意？","statutes":[{"law":"人民團體法","article":"27"},{"law":"民法","article":"44"},{"law":"教育文化公益慈善機關或團體免納所得稅適用標準","article":"2"}]},
+ {"id":"r140-liquidator-resign","question":"沒有辦法人登記的協會，清算人做到一半可不可以辭任？","statutes":[{"law":"人民團體會務輔導辦法","article":"27"},{"law":"民法","article":"37"},{"law":"民法","article":"38"},{"law":"民法","article":"39"},{"law":"民法","article":"40"}]},
+ {"id":"r140-member-debt","question":"協會欠債還不出來時，會員要不要用自己的財產替協會還債？","statutes":[{"law":"民法","article":"26"},{"law":"民法","article":"35"},{"law":"民法","article":"55"},{"law":"人民團體法","article":"59"}]},
+ {"id":"r140-unpaid-fee","question":"協會解散時，有會員積欠會費，清算人要不要向他收取？","claim":"清算人的職務包括了結現務、收取債權、清償債務，並把賸餘財產移交給應得的人","statutes":[{"law":"民法","article":"40"},{"law":"人民團體會務輔導辦法","article":"27"},{"law":"社會團體財務處理辦法","article":"14"}]}
+]
