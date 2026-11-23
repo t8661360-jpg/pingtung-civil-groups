@@ -1,0 +1,38 @@
+name: gemini-verify
+# 手動觸發（巡檢排程用 gh api 觸發）：把 verify/ 底下的待確認題目交給 Gemini 初審，再由 gpt-verify.cjs 自動核對（法條存在、引文逐字、數字一致）。
+# 結果只存在工作記錄與 artifact，不會改網站；是否採用由 Claude 巡檢再逐條對 statutes.json.gz 原文核對。
+on:
+  workflow_dispatch:
+    inputs:
+      queue:
+        description: '題目檔路徑'
+        default: 'verify/queue.json'
+      model:
+        description: 'Gemini 模型（留空用 models/gemini-2.5-flash，失敗自動換備用）'
+        default: ''
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: 檢查金鑰是否已設定
+        run: test -n "$GEMINI_API_KEY" || { echo "尚未在 repo Secrets 設定 GEMINI_API_KEY"; exit 1; }
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      - name: Gemini 初審＋自動核對
+        run: node scripts/gpt-verify.cjs "${{ inputs.queue }}" verify/gemini-report.json
+        env:
+          PROVIDER: gemini
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: ${{ inputs.model }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: gemini-verify-report
+          path: verify/gemini-report.json

@@ -13,8 +13,27 @@ const cn={零:0,〇:0,一:1,二:2,三:3,四:4,五:5,六:6,七:7,八:8,九:9};
 const CNN=/(?:百分之)?[一二三四五六七八九十]+(?:分之[一二三四五六七八九十]+)?|\d+/g;
 const artNo=a=>String(a).normalize('NFKC').replace(/^第/,'').replace(/條$/,'').replace(/之/,'-').trim();
 function artText(law,art){const L=byName[law];if(!L)return null;const a=L.articles[artNo(art)];return a==null?null:String(a);}
+const PROVIDER=(process.env.PROVIDER||(process.env.GEMINI_API_KEY&&!process.env.OPENAI_API_KEY?'gemini':'openai')).toLowerCase();
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+/* Gemini：金鑰只從環境變數 GEMINI_API_KEY 讀取（GitHub Actions secret，由使用者自行設定）；503／429／逾時自動重試並換備用模型 */
+async function askGemini(sys,user){
+ const key=process.env.GEMINI_API_KEY;if(!key)throw new Error('未設定 GEMINI_API_KEY');
+ const API='https://generativelanguage.googleapis.com/v1beta';
+ const models=[process.env.GEMINI_MODEL||'models/gemini-2.5-flash','models/gemini-flash-latest','models/gemini-2.5-pro'].filter((m,i,a)=>m&&a.indexOf(m)===i);
+ let last='';
+ for(const m of models){for(let t=0;t<4;t++){
+  let r,j;try{r=await fetch(`${API}/${m}:generateContent`,{method:'POST',headers:{'content-type':'application/json','x-goog-api-key':key},signal:AbortSignal.timeout(120000),body:JSON.stringify({systemInstruction:{parts:[{text:sys}]},contents:[{role:'user',parts:[{text:user}]}],generationConfig:{temperature:0,responseMimeType:'application/json',maxOutputTokens:4096}})});j=await r.json();}catch(e){last=m+' 連線失敗：'+e.message;await sleep(10000);continue;}
+  if(r.status===429||r.status>=500){last=m+' '+r.status;await sleep(20000);continue;}
+  if(!r.ok){last=m+' '+r.status+' '+JSON.stringify(j).slice(0,200);break;}
+  const text=(j.candidates?.[0]?.content?.parts||[]).filter(p=>!p.thought).map(p=>p.text||'').join('').trim().replace(/^```(?:json)?|```$/g,'').trim();
+  try{const o=JSON.parse(text);o._model=m;return o;}catch(e){last=m+' 回覆不是 JSON';continue;}
+ }}
+ throw new Error('Gemini 無法取得回覆（'+last+'）');
+}
 async function ask(item,ctx){
  if(process.env.GPT_MOCK){const m=JSON.parse(fs.readFileSync(process.env.GPT_MOCK));return m[item.id]||null;}
+ const sysG='你是台灣人民團體法規審查助手。只能依「提供的法條原文」回答，原文沒有寫的就說「法規無明文」，不得臆測，不得引用函釋、新聞或你記得的其他資料，也不得代替縣府、國稅局等機關表示意見。回覆必須是 JSON：{"conclusion":"一至三句結論","cites":[{"law":"法規全名","article":"條號","quote":"自原文逐字摘錄的一段"}],"confidence":"high|medium|low","gaps":"原文不足之處或需承辦確認的事"}。';
+ if(PROVIDER==='gemini')return askGemini(sysG,'問題：'+item.question+(item.claim?'\n待驗證的現行說法：'+item.claim:'')+'\n\n可用法條原文：\n'+ctx);
  const key=process.env.OPENAI_API_KEY;if(!key)throw new Error('未設定 OPENAI_API_KEY');
  const model=process.env.OPENAI_MODEL||'gpt-4o';
  const sys='你是台灣人民團體法規審查助手。只能依「提供的法條原文」回答，原文沒有寫的就說「法規無明文」，不得臆測。回覆必須是 JSON：{"conclusion":"一至三句結論","cites":[{"law":"法規全名","article":"條號","quote":"自原文逐字摘錄的一段"}],"confidence":"high|medium|low","gaps":"原文不足之處或需承辦確認的事"}。';
@@ -58,5 +77,6 @@ function check(item,reply){
   console.log(`[${v.status}] ${it.id} ${it.question}${v.problems.length?'\n   - '+v.problems.join('\n   - '):''}`);
  }
  fs.writeFileSync(outFile,JSON.stringify(report,null,1));
- console.log('\n報告已寫入',outFile);
+ console.log('\n報告已寫入',outFile,'（提供者：'+PROVIDER+'）');
+ console.log('REPORT_JSON_BEGIN');console.log(JSON.stringify(report));console.log('REPORT_JSON_END');
 })();
