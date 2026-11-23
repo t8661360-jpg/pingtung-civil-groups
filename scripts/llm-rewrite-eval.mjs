@@ -35,20 +35,31 @@ async function pickModel() {
   return cand[0];
 }
 const sleep = ms => new Promise(r => setTimeout(r, ms));
+const FALLBACK = (process.env.FALLBACK || 'models/gemini-2.5-flash,models/gemini-3-flash-preview').split(',').filter(Boolean);
+let active = null;
 async function gen(model, system, user, temperature) {
-  for (let t = 0; t < 6; t++) {
-    await sleep(GAP);
-    const r = await fetch(`${API}/${model}:generateContent`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json', 'x-goog-api-key': KEY },
-      body: JSON.stringify({ systemInstruction: { parts: [{ text: system }] }, contents: [{ role: 'user', parts: [{ text: user }] }], generationConfig: { temperature, maxOutputTokens: 1024 } })
-    });
-    if (r.status === 429 || r.status >= 500) { console.log(`  （${r.status}，稍候重試）`); await sleep(30000); continue; }
-    const j = await r.json();
-    const text = (j.candidates?.[0]?.content?.parts || []).map(p => p.text || '').join('').trim();
-    if (!r.ok) throw new Error(`Gemini ${r.status}: ${JSON.stringify(j).slice(0, 300)}`);
-    return text.split('\n').map(s => s.trim()).filter(Boolean)[0] || '';
+  const models = [active || model, ...FALLBACK.filter(m => m !== (active || model))];
+  for (const m of models) {
+    for (let t = 0; t < 4; t++) {
+      await sleep(GAP);
+      let r, j;
+      try {
+        r = await fetch(`${API}/${m}:generateContent`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json', 'x-goog-api-key': KEY }, signal: AbortSignal.timeout(90000),
+          body: JSON.stringify({ systemInstruction: { parts: [{ text: system }] }, contents: [{ role: 'user', parts: [{ text: user }] }], generationConfig: { temperature, maxOutputTokens: 2048 } })
+        });
+        j = await r.json();
+      } catch (e) { console.log(`  （${m} 連線逾時，重試）`); continue; }
+      if (r.status === 429 || r.status >= 500) { console.log(`  （${m} ${r.status}，稍候重試）`); await sleep(20000); continue; }
+      if (!r.ok) { console.log(`  （${m} ${r.status}：${JSON.stringify(j).slice(0, 200)}）`); break; }
+      const text = (j.candidates?.[0]?.content?.parts || []).filter(p => !p.thought).map(p => p.text || '').join('').trim();
+      const line = text.split('\n').map(s => s.trim()).filter(Boolean)[0] || '';
+      if (!line) { console.log(`  （${m} 空白回覆，重試）`); continue; }
+      if (active !== m) { active = m; console.log('  改用模型：', m); }
+      return line;
+    }
   }
-  throw new Error('Gemini 一直回 429／5xx，可能已達免費額度');
+  return null;
 }
 const PARA = '你在幫忙測試一個政府服務櫃檯。請把使用者給的問題，改用一般民眾很口語、跟原句用詞明顯不同的說法再問一次，意思必須完全相同。原句提到的對象（例如協會、合作社、社區發展協會、理事長）要保留同一種對象，但可以換成口語說法。只輸出一句問題，不要回答，不要加任何說明。';
 const REWRITE = '你是屏東縣政府社會處人民團體數位櫃檯的前置助手，只負責「把民眾的問題改寫成清楚、標準的一句問題」，交給後端已核對過的答案庫查詢。業務範圍：一般協會（社會團體）、職業團體、社區發展協會、合作社的籌組、立案、會議、改選、任期、會員、財務、解散等。規則：1. 保留原意，不新增事實、不回答問題。2. 口語詞改成常用正式說法，例如「會長」→「理事長」、「社團」→「協會」。3. 沒寫主體但用詞明顯屬於合作社（股息、社股、社員、結餘分配）時補上「合作社」；屬於社區發展協會時補上「社區發展協會」；其他情況不要自行猜主體。4. 問「可不可以」就保留「可以…嗎」的問法。只輸出改寫後的一句問題。';
@@ -75,7 +86,8 @@ const rows = [];
 for (const [q, want] of sample) {
   const para = await gen(model, PARA, q, 0.9);
   const rq = await gen(model, REWRITE, q, 0);
-  const rp = await gen(model, REWRITE, para, 0);
+  const rp = para ? await gen(model, REWRITE, para, 0) : null;
+  if (!para || !rq || !rp) { console.log('略過（AI 沒有回覆）：', q); continue; }
   const a1 = await ask(q), a2 = await ask(para), a3 = await ask(rq), a4 = await ask(rp);
   const row = { q, want, para, rq, rp, orig: a1.text.includes(want), paraRaw: a2.text.includes(want), origRew: a3.text.includes(want), paraRew: a4.text.includes(want), tParaRaw: a2.title, tParaRew: a4.title };
   rows.push(row);
