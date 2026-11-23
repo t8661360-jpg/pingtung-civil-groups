@@ -1,0 +1,46 @@
+name: AI 改寫問句實測（手動）
+
+on:
+  workflow_dispatch:
+    inputs:
+      n:
+        description: '抽測題數'
+        default: '40'
+      model:
+        description: '指定模型（空白＝自動挑最新 Flash）'
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  eval:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: 快取瀏覽器
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: pw-1.56.0-ubuntu-24.04
+      - name: 安裝檢查工具
+        run: npm install --no-save playwright@1.56.0 && npx playwright install --with-deps chromium
+      - name: 實測（只用固定測試題，不含民眾提問）
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          BASE_URL: http://localhost:8765/
+          N: ${{ inputs.n }}
+          MODEL: ${{ inputs.model }}
+        run: |
+          python3 -m http.server 8765 >/dev/null 2>&1 &
+          sleep 2
+          node scripts/llm-rewrite-eval.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: llm-eval-result
+          path: llm-eval-result.*
