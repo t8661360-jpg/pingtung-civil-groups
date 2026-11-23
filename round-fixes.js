@@ -10,7 +10,12 @@ const SIMP='册冊劝勸协協会會员員长長补補办辦县縣么麼请請�
 const SIMPRE=new RegExp('['+SIMP.split('').filter((c,i)=>i%2===0).join('')+']');
 function simp2trad(s){if(!SIMPRE.test(s))return s;let o='';for(const c of s){const i=SIMP.indexOf(c);o+=(i>=0&&i%2===0)?SIMP[i+1]:c}return o}
 function normalizeQuestion(q){
- return normalizeQuestion130(normalizeQuestion127(normalizeQuestion123(normalizeQuestion119(normalizeQuestion116(normalizeQuestion114(normalizeQuestion113(normalizeQuestion112(normalizeQuestion111(normalizeQuestion110(normalizeQuestion0(q)))))))))));
+ return normalizeQuestion131(normalizeQuestion130(normalizeQuestion127(normalizeQuestion123(normalizeQuestion119(normalizeQuestion116(normalizeQuestion114(normalizeQuestion113(normalizeQuestion112(normalizeQuestion111(normalizeQuestion110(normalizeQuestion0(q))))))))))));
+}
+/* 第131輪：口語同義詞（根源）——「賸餘／剩餘的錢」＝結餘用語（既有結餘規則只認「剩下的錢」） */
+function normalizeQuestion131(s){
+ s=String(s||'');
+ return s.replace(/(賸|剩)餘(的)?(錢|款|經費)/g,'剩下的$3').replace(/(預算|經費|款項?|錢|費)(用不完|沒用完|沒有用完|沒花完|沒有花完|花不完|用剩|還有剩)/g,(m,a)=>/(補助|核銷|獎助|勸募|募款|捐款)/.test(s)?m:a+'結餘');
 }
 /* 第130輪：口語同義詞（根源）——「志工會不會…、志工會領薪水嗎」的「會」是助動詞，不是「工會」；在中間斷開，避免被所有含「工會」排除詞的規則誤判成工會 */
 function normalizeQuestion130(s){
@@ -690,7 +695,7 @@ function supervisorAuditPowers(t){
 // 13-7 分支機構帳務
 function branchOrgAccounting(t){
  if(/分支|支部|分會/.test(t)&&/(帳|報表|決算|帳務|帳目|分開|分?.{0,2}帳)/.test(t))
-  return{title:'分支機構帳務：應分開設帳記錄',summary:'分支機構所屬的帳務應分開設帳，以便與母會帳務清楚分別。分支機構收支定期彙報母會，由母會統籌決算。',statutes:[P(19),F(5)]};
+  return branchAcct131();
  return null;
 }
 
@@ -778,9 +783,15 @@ function coopBankLoan(t){
 }
 
 // 14-11 分支機構帳務操作
+/* 第131輪：分支機構／辦事處／委員會／小組的帳——舊答案寫「單獨設帳、月季報、母會保留帳簿」，引用的財務處理辦法第5、19條與人民團體法第19條都不支持（第5條是會計事項登載、第19條是理監事無給職、人團法第19條是上下級團體代表），依辦法第18條改寫 */
+function branchAcct131(){
+ return{direct:true,category:'社會團體財務報表',title:'協會下設辦事處、委員會、小組的帳：年度終了時要編製合併報表',
+  summary:'社會團體常設的辦事處、委員會、小組或其他內部作業組織，它們的財務，要由協會在會計年度終了時編製合併報表（社會團體財務處理辦法第18條）。\n\n也就是這些內部組織的收支不是各自獨立報決算，而是併入協會一份決算，經監事會審核、大會通過後報縣府備查（辦法第11條；人民團體法第34條）。\n\n辦法沒有規定這些內部組織平時要不要單獨設帳、多久向協會彙報一次，也沒有規定合併報表的格式；如果是設在外地、有自己會員的「分會」或分支機構，是否同樣適用，辦法沒有明說。這些請洽縣府社會處承辦人員確認，縣府總機 08-7320415。',
+  statutes:[F(18),F(11),P(34)],notes:[],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
+}
 function branchAccountingPractice(t){
  if(/(分支機構|分支|支部)/.test(t)&&/(帳|帳務|會計|帳簿)/.test(t)&&/(分開|帳分|單獨|操作|記)/.test(t))
-  return{title:'分支機構帳務操作：分開設帳、定期彙報、年終併報',summary:'分支機構帳務應單獨設帳，記錄分支的收支情形。月度或季度向母會彙報分支帳況，年度決算時分支帳應併入母會決算，由母會統籌報備。母會保留分支帳帳簿供檢查（財務處理辦法第5、19條）。',statutes:[F(5),F(19),P(19)]};
+  return branchAcct131();
  return null;
 }
 
@@ -1607,7 +1618,7 @@ function annualFinanceFiling(t){
 function receiptAndWithdraw(t){
  if(/(領錢|提款|領款|提領|領出來|取款)/.test(t)&&/(章|蓋|簽|誰)/.test(t)&&!/合作社|社員/.test(t))
   return{direct:true,category:'人民團體財務',title:'協會領錢要蓋三個章：理事長、總幹事（秘書長）、財務人員',
-  summary:'提用存款時，要由團體負責人（理事長）、秘書長或總幹事、財務人員，三個人在領款憑證上共同蓋章（社會團體財務處理辦法第17條）。\n\n所以開戶的時候，銀行的印鑑通常就是留這三個章，再加上協會的圖記。少一個章就領不出來，這是為了避免錢由一個人說了算。\n\n沒有聘總幹事或專任財務人員的協會，財務人員可以由其他工作人員兼辦（同條），但不能由理事、監事來當（社會團體工作人員管理辦法第4條）。',
+  summary:'提用存款時，要由團體負責人（理事長）、秘書長或總幹事、財務人員，三個人在領款憑證上共同蓋章（社會團體財務處理辦法第17條）。\n\n銀行開戶要留哪些印鑑、怎麼約定，依銀行的規定，辦法沒有統一指定。\n\n沒有聘總幹事或專任財務人員的協會，財務人員可以由其他工作人員兼辦（同條），但不能由理事、監事來當（社會團體工作人員管理辦法第4條）。',
   statutes:[F(17),SW(4)],notes:[]};
  if(/收據/.test(t)&&/(自己印|自行印|印製|格式|去哪買|哪裡買|怎麼印|可以印|統一格式|要編號)/.test(t)&&!/合作社|社員|勸募/.test(t))
   return{direct:true,category:'人民團體財務',title:'協會的收據可以自己印：法規沒有統一格式，但要是正式收據並留存根',
@@ -2269,7 +2280,7 @@ const RULING_RULES=[
  [/流會.{0,14}(解職|解除|解任|撤換|換掉|處分|怎麼辦|會怎樣)|(一直|連續|好幾次|兩次|2次|二次).{0,6}流會/,/合作社|社員|大會|會員大會/,'理事會因為人數不夠而流會，理事長不會因此被解職；故意不召開才會','不會因此被解職。人民團體法第30條規定的是：理事長或監事會召集人「無正當理由不召開」理事會或監事會超過2個會次，由主管機關解除職務。內政部的函釋說明：這是指有召集權的人故意不召集；有依規定召集，只是出席人數不夠而流會2次以上，還不能直接認定符合第30條。\n\n不過會一直開不成，會務會停擺。請先了解理事不來的原因，改約大家方便的時間；理事連續2次無故缺席，依法視同辭職，由候補理事遞補（第31條）。',()=>[P(30),P(31),MOI('102年9月5日','台內團字第1020287241號',256698)]],
  [/(捐|贈|送).{0,8}(土地|房子|房屋|不動產|建物|會館).{0,6}給.{0,6}(協會|本會|我們|團體)|(受贈|接受捐贈).{0,6}(土地|房子|房屋|不動產)/,/合作社|社員|協會.{0,4}(捐|贈|送)給|捐給(政府|縣府|公所|學校)/,'有人捐土地或房子給協會：單純受贈不一定要先開會員大會，有附帶負擔才要','單純接受捐贈，不一定要先經會員大會通過。內政部的函釋說明：單純受贈不動產，不是處分協會原有的財產，也不是購置、出售、轉讓或設定他項權利，和人民團體法第27條第4款、社會團體財務處理辦法第13條規定的情形不同；純粹得到利益的，不以會員大會通過為必要。\n\n但是請注意：\n• 受贈的財產如果附帶負擔（例如有貸款、有使用條件），會影響協會其他的權利義務，還是要依章程和法令的程序提會討論。\n• 不動產要登記在協會名下，通常協會要先辦好法人登記，請先問地政事務所。\n• 受贈後請列入財產目錄，並建議在理事會、會員大會提出報告。',()=>[P(27),F(13),MOI('104年1月27日','台內團字第1040000870號',256709)]],
  [/(主動|自己|自動).{0,6}(捐|贈)|(沒有|沒|不).{0,4}(對外)?(募款|勸募).{0,10}(捐|收)|被動.{0,4}(捐|受贈)/,/合作社|社員|匿名|扣繳|抵稅|收據怎麼開/,'別人主動捐款給協會可以收：沒有對外公開募款，就算「其他收入」','可以收。內政部的函釋說明：已立案的社會團體，被動接受社會大眾（不是會員）的捐款，屬於人民團體法第33條經費來源裡的「其他收入」，依法沒有不許。\n\n但是如果協會有對外公開募款、發起勸募活動，就要適用公益勸募條例，先向主管機關申請勸募許可。\n\n收到捐款請開收據、入協會的帳戶，並列入年度的收支決算。',()=>[P(33),MOI('107年2月9日','台內團字第1071400341號',256737)]],
- [/決算.{0,10}(退回|核退|不通過|不同意|不簽|有意見)|監事會.{0,8}(退回|核退|不通過|不簽).{0,6}決算/,/合作社|社員/,'決算被監事會退回：把監事會的意見一起提到會員大會，大會通過仍然有效','可以連同監事會的意見一起提會員大會。年度決算要先送監事會審核，監事會造具審核意見書後，一併提報會員大會（人民團體法第34條）。內政部的函釋說明：決算雖然被監事會核退，只要提報大會時把監事會的核退意見一併提出，大會通過的決議於法沒有不合，不能認為無效。\n\n建議先請監事會把退回的理由寫清楚，理事會能補正的先補正；補不了的，就在大會上如實報告，由會員決定。',()=>[P(34),MOI('86年3月3日','台內社字第8605587號',220166)]],
+ [/決算.{0,10}(退回|核退|不通過|不同意|不簽|有意見)|監事會.{0,8}(退回|核退|不通過|不簽).{0,6}決算/,/合作社|社員|縣府|縣政府|社會處|主管機關|承辦|公所|補件|補正/,'決算被監事會退回：把監事會的意見一起提到會員大會，大會通過仍然有效','可以連同監事會的意見一起提會員大會。年度決算要先送監事會審核，監事會造具審核意見書後，一併提報會員大會（人民團體法第34條）。內政部的函釋說明：決算雖然被監事會核退，只要提報大會時把監事會的核退意見一併提出，大會通過的決議於法沒有不合，不能認為無效。\n\n建議先請監事會把退回的理由寫清楚，理事會能補正的先補正；補不了的，就在大會上如實報告，由會員決定。',()=>[P(34),MOI('86年3月3日','台內社字第8605587號',220166)]],
  [/理事長.{0,6}(請長假|長期請假|請假.{0,4}(一年|兩年|半年|很久|多久|最長)|出國.{0,4}(一年|兩年|半年|很久))/,/合作社|社員/,'理事長不應該長期請假：請假期間要有人代理，太久應該辭職改選','不應該。內政部的函釋說明：理事長受全體會員付託，對內綜理會務、對外代表協會，責任重大，不應長期請假，以免影響會務進行。\n\n短期請假時，由誰代理請看章程（通常是由理事長指定常務理事一人代理，沒有指定時由常務理事互推）。如果確定很長一段時間都不能執行職務，建議書面提出辭職，經理事會決議後，在一個月內補選理事長（人民團體選舉罷免辦法第27條、第17條）。',()=>[ER(27),ER(17),MOI('74年8月19日','(74)台內社字第339064號',220217)]],
 ];
 function rulingRules(t){
@@ -2605,7 +2616,7 @@ function financePatrol(t){
   return Object.assign({},base,{title:'預算由理事會編造，要提會員大會通過，再報縣府備查',
   summary:'年度工作計畫和收支預算表，由理事會在會計年度開始前編造，提經會員（會員代表）大會通過後，報請主管機關備查（社會團體財務處理辦法第11條；人民團體法第34條）。\n所以預算不是理事長一個人決定，也不是理事會通過就算數，要經過會員大會。',
   statutes:[F(11),P(34)]});
- if(/預算/.test(t)&&/(沒通過|沒有通過|未通過|不通過|還沒通過|還沒有通過|沒過|還沒過)/.test(t)&&/(花|支出|用錢|動用|動支|開銷)/.test(t))
+ if(/預算/.test(t)&&/(沒通過|沒有通過|未通過|不通過|還沒通過|還沒有通過|沒過|還沒過|沒(有)?經過(大會|會員)|未經(過)?(大會|會員)|沒經(過)?(大會|會員)|沒(有)?(提|送)(到|去|給)?(大會|會員))/.test(t)&&/(花|支出|用錢|動用|動支|開銷)/.test(t))
   return Object.assign({},base,{title:'預算還沒經大會通過能不能花錢：辦法沒有明文，來不及開大會可先由理事會和監事會通過再追認',
   summary:'社會團體財務處理辦法沒有明文規定「預算還沒通過前能不能支出」。辦法規定的是：預算要在會計年度開始前由理事會編造，提會員（會員代表）大會通過後報主管機關備查（第11條）。\n如果因故沒辦法如期開大會，辦法允許先經理事會及監事會，或理監事聯席會議通過，事後再提報大會追認，之後再報主管機關備查（第11條後段）。\n建議您先走這個程序，不要在沒有任何機關通過的情況下直接動用經費。個案是否可行，請洽承辦人員確認。',
   statutes:[F(11)]});
@@ -2903,7 +2914,7 @@ function patrol18(t){
   summary:'社會團體財務處理辦法把原始憑證分成外來憑證、對外憑證和內部憑證三種（第8條），沒有規定「一定要統一發票」才能入帳。向外面買東西取得的單據，屬於外來憑證。\n但各種單據能不能報帳，要看用途：如果是領政府補助款要核銷，依核定函和補助要點的要求；如果涉及稅務，請洽國稅局。其他單據怎麼認列，辦法沒有逐項規定，'+call,
   statutes:[FIN(8)]});
  /* 結餘 */
- if(/(結餘|剩餘款|賸餘|剩下的錢|剩的錢|餘額|盈餘)/.test(t)&&/(下年度|明年|隔年|滾|留著|留下|結轉|怎麼處理|怎麼辦|要不要繳|上繳|歸|如何)/.test(t)&&/(活動|年度|年底|今年|當年|收支|決算|協會|社團|會費)/.test(t)&&!/(補助|核銷|勸募|募款)/.test(t))
+ if(/(結餘|剩餘款|賸餘|剩下的錢|剩的錢|餘額|盈餘)/.test(t)&&/(下年度|明年|隔年|滾|留著|留下|結轉|怎麼處理|怎麼辦|要不要繳|上繳|歸|如何)/.test(t)&&/(活動|年度|年底|今年|當年|收支|決算|預算|協會|社團|會費)/.test(t)&&!/(補助|核銷|勸募|募款)/.test(t))
   return Object.assign({},base,{title:'年度或活動結餘怎麼處理：辦法沒有規定要上繳，可以提列準備基金',
   summary:'社會團體財務處理辦法沒有規定年度結餘或活動結餘要上繳或不能留，每年的收支結果會記在決算表和資產負債表裡（第12條）。\n若想把錢留作日後使用，可以逐年提列準備基金，每年提列數額為收入總額的20%以下；基金和孳息要專戶存儲，沒經過理事會通過不能動用（第15條）。\n如果結餘是政府補助款，沒用完的部分依補助核定函處理，請洽補助承辦單位。',
   statutes:[FIN(12),FIN(15)]});
@@ -4957,7 +4968,7 @@ function patrol32(t){
   summary:'監事會監察時發現經費收支有不當的情形，要提出糾正意見，送請理事會處理；理事會如果不處理，監事會可以把這件事提報會員（會員代表）大會審議（人民團體會務輔導辦法第17條）。\n\n理事、監事執行職務有違反法令、章程或大會決議的，會員大會可以通過罷免（人民團體法第22條）。如果懷疑有挪用、侵占等刑事問題，請依司法程序處理。'+tail,
   statutes:[G(17),P(22)]});
  /* 會計一定要專業嗎 */
- if(/(會計|出納|財務人員|管帳)/.test(t)&&/(專業|證照|執照|資格|會計師|一定要請|一定要聘|一定要找)/.test(t)&&!/(報表|簽證.{0,3}怎麼)/.test(t))
+ if(/(會計|出納|財務人員|管帳)/.test(t)&&/(專業|證照|執照|資格|會計師|一定要請|一定要聘|一定要找)/.test(t)&&!/(報表|簽證|決算|預算|查核|查帳|金額|一千五百萬|1500萬)/.test(t))
   return Object.assign({},base,{title:'會計一定要請專業的嗎：法規只要求財務人員專任，沒有規定要有會計證照',
   summary:'社會團體財務處理辦法第17條規定，辦理會計、出納和財物管理的財務人員應為專任；團體編制不足時，可以由其他工作人員兼辦。辦法沒有規定一定要有會計師或會計專業證照。\n\n另外，年度決算金額在新臺幣一千五百萬元以上的，可以委請會計師簽證（第11條第2項），這是「可以」，不是一定要。'+tail,
   statutes:[F(17),F(11)]});
@@ -7971,7 +7982,7 @@ function patrol125(t){
  if(MEM.test(t)&&trade.test(t)&&!/(借|貸款|股票|投資|兼任|聘僱|聘用|薪|工作人員|總幹事可以當|助理|補助款?申請|政黨|選舉|競選|公職|參選)/.test(t.replace(/利益衝突|利益輸送|利益迴避/g,'')))
   return R('理事、監事可以跟協會做交易嗎（承包活動、賣東西、租場地）：法規沒有明文禁止，但要公開透明、價格公平','本站查到的人民團體法、社會團體財務處理辦法和人民團體會務輔導辦法，沒有明文規定理事、監事不得與協會交易，也沒有一般性的「利益迴避」條文。\n\n但有幾件事要注意：\n• 協會如果要適用所得稅免稅，條件之一是與董事、監事之間「無業務上或財務上不正常關係」，也不能以任何方式對與捐贈人有關係的人給予變相盈餘分配（免納所得稅適用標準第2條第1項第2款、第7款）。價格如果明顯高於行情，就可能被認為不正常。\n• 經費收支每次理事會都要提出審議並送監事會監察（人民團體會務輔導辦法第17條）；理事、監事執行職務違反法令或章程，可以被罷免（人民團體法第22條）。\n• 一般的建議做法（不是法規明文）：事先在理事會報告關係並請當事人離席不表決、比價或公開徵求、完整留下紀錄，章程也可以另訂迴避規定。\n• 如果這位理事同時是公職人員（例如公務員），他和他的關係人與其服務或監督的機關團體交易，另受公職人員利益衝突迴避法限制（第14條）；個案請洽服務機關的政風單位。',[EX,G(17),P(22),PGV]);
  /* 六、決算、工作報告要先給誰審 */
- if(/(工作報告|決算|決算報告|預決算|預算決算|會計報告|年度報告|年度工作)/.test(t)&&/(監事|審|核|查|先給誰|先送|誰來|哪些程序|什麼程序|流程|順序|要經過|怎麼報|不一樣|差別)/.test(t)&&!/(什麼時候|何時|期限|多久|幾月|幾號|超過|逾期|來不及|不通過|沒通過|否決|能不能花|可以花|補助|核銷|社區|格式|表格|範本|怎麼寫|怎麼編|怎麼做|幾張|哪些表|報表)/.test(t))
+ if(/(工作報告|決算|決算報告|預決算|預算決算|會計報告|年度報告|年度工作)/.test(t)&&/(監事|審|核|查|先給誰|先送|誰來|哪些程序|什麼程序|流程|順序|要經過|怎麼報|不一樣|差別)/.test(t)&&!/(會計師|簽證|什麼時候|何時|期限|多久|幾月|幾號|超過|逾期|來不及|不通過|沒通過|否決|能不能花|可以花|補助|核銷|社區|格式|表格|範本|怎麼寫|怎麼編|怎麼做|幾張|哪些表|報表)/.test(t))
   return R('工作報告、決算要先給誰審：理事會編好，決算先送監事會審核，再提會員大會通過，報縣府備查','先講順序：\n1. 理事會編造：會計年度終了後三個月內，由理事會編好上年度的工作報告、會計報告（社會團體財務處理辦法第11條）。\n2. 決算先送監事會審核：決算報告要先送監事會審核，把審核結果一併提報會員大會（人民團體法第34條）。條文只明定「決算報告」要先經監事會審核；工作報告有沒有也要先給監事會看，法規沒有明文，一般做法是一併送監事會。\n3. 會員大會通過：連同當年度工作計畫、收支預算表，提經會員（會員代表）大會通過（同辦法第11條）。\n4. 報縣府備查：大會通過後，報請主管機關備查（同上）。\n\n來不及如期開大會的，可以先經理事會及監事會或理監事聯席會議通過，事後提報大會追認，再報縣府備查（同辦法第11條）。\n\n工作報告是報告一年做了什麼事；決算是報告一年的錢怎麼收、怎麼花，會計報告要包含收支決算表、資產負債表、財產目錄、基金收支表（同辦法第12條）。',[P(34),F(11),F(12)]);
  return null;
 }
@@ -8121,6 +8132,77 @@ function patrol129(t){
 }
 /* 第130輪：志工（能不能投票、沒有計畫能不能用、離職、志工做壞事、代表協會對外）與章程修改（誰核准、縣府同意、舊章程效力）
    依據：志願服務法§6、7、15、22；人民團體法§12、16、27、54、58；民法§53 */
+/* 第131輪：預算、決算與財務報表（三百萬門檻、預算與決算差別、預決算附什麼、各表怎麼填、預算流用、沒編預算、決算有問題誰負責、決算被大會否決） */
+function patrol131(t){
+ if(/(合作社|社員|股金|政黨|寺廟|宗教|(?<![志義])工會|公會|職業團體|商業團體|工業團體|農會|漁會|基金會|補助|核銷|勸募|募款)/.test(t))return null;
+ const tel='\n\n其他細節請洽縣府社會處承辦人員，縣府總機 08-7320415。';
+ const mk=(title,summary,statutes,notes)=>({direct:true,category:'社會團體財務報表',title,summary:summary+tel,statutes,notes:notes||[],actions:[{label:'下載財務書表',view:'forms',sub:''},{label:'聯絡承辦',view:'contact',sub:''}]});
+ const hasBD=/(預算|決算)/.test(t);
+ if((/(300萬|三百萬|3百萬)/.test(t)&&/(預算|決算|收入|記帳|憑證|帳簿|簡化|簡單|小額|格式|傳票)/.test(t))||/(決算|預算|收入).{0,6}(多少|幾萬|多大|多高).{0,6}(小額|簡化|簡單|可以用簡)/.test(t))
+  return mk('三百萬元的分界：帳簿、記帳憑證和會計報告格式，三處可以簡化',
+   '社會團體財務處理辦法裡有三處以新臺幣300萬元為界，看的金額不一樣：\n\n• 帳簿（第4條）：年度「預算」金額逾300萬元的，除了日記簿，還要另備總分類帳簿和明細分類帳簿；300萬元以下的，備日記簿就可以（有財產的另置財產登記簿）。\n• 記帳憑證（第7條）：年度「預算」金額在300萬元以下的，可以直接用原始憑證（收據、發票等）當記帳的根據，不必另外做收入、支出、轉帳傳票。\n• 會計報告格式（第12條）：年度「決算總收入」在300萬元以下的，會計報告格式可以用附件二（簡化格式），其他用附件一。\n\n要注意：前兩項看的是年度預算金額，第三項看的是決算總收入，不要混在一起算。',
+   [F(4),F(7),F(12)]);
+ if(hasBD&&/(差別|差在|不同|不一樣|分別|區別|哪裡不一樣|是什麼意思|什麼意思|是什麼)/.test(t)&&!/(收據|補助|活動|報名)/.test(t)&&(/預算.{0,4}(跟|和|與|及|還是|或).{0,2}決算|決算.{0,4}(跟|和|與|及|還是|或).{0,2}預算/.test(t)||/^(協會的?)?(預算|決算)(是|指)?(什麼|甚麼)/.test(t)))
+  return mk('預算和決算差在哪：預算是年度開始前編的計畫，決算是年度結束後交的成績單',
+   '預算：會計年度開始前，由理事會編好年度工作計畫和收支預算表，說明這一年打算辦什麼、收多少錢、花多少錢（社會團體財務處理辦法第11條）。\n\n決算：會計年度結束後三個月內，由理事會編好上年度的工作報告和會計報告，說明這一年實際做了什麼、實際收支多少（第11條）。會計報告包含收支決算表、資產負債表、財產目錄、基金收支表（第12條）。\n\n共通的程序：兩者都要提會員（會員代表）大會通過，再報縣府備查；其中決算要先送監事會審核，並把審核結果一併提大會（人民團體法第34條）。',
+   [F(11),F(12),P(34)]);
+ if(hasBD&&/(要附|沒附|不附|漏附|少附|沒有附|附什麼|附哪些|要有什麼|包含|包括|有哪些|哪些表|什麼表|要什麼表|內容有|裡面要|寫什麼|要放什麼|要準備什麼)/.test(t)&&!/(解散|清算|章程|開會通知|通知書|議程|選舉|改選|議案|提案)/.test(t)&&!/(誰|何時|什麼時候|多久|幾月)/.test(t))
+  return mk('預算書、決算書要有什麼：預算是工作計畫和收支預算表，決算是工作報告和四張會計表冊',
+   '預算：年度工作計畫＋收支預算表（社會團體財務處理辦法第11條）。\n\n決算：上年度工作報告＋會計報告。會計報告要包含四張表冊：收支決算表、資產負債表、財產目錄、基金收支表（第11、12條）。提大會時，決算還要附上監事會的審核結果（人民團體法第34條）。\n\n縣府社會處提供的「6項財務報表」範本（收支預算表、收支決算表、現金出納表、財產目錄、資產負債表、基金收支表）可以在本站書表下載取得，送件實際要附幾份、要不要加附其他文件，請洽承辦人員確認。',
+   [F(11),F(12),P(34)]);
+ if(/(收支報告|收支表|收支決算表|收支預算表|資產負債表|基金收支表|現金出納表|財產目錄)/.test(t)&&/(怎麼填|如何填|怎麼寫|要怎麼寫|填寫|怎麼做|怎麼編|怎麼製作)/.test(t)&&!/(不平|不相等|蓋章|核章|簽名|折舊|報廢|解散|清算)/.test(t))
+  return mk('財務報表怎麼填：照縣府「6項財務報表」範本的填寫說明，表內有檢核公式',
+   '社會團體的會計報告包含收支決算表、資產負債表、財產目錄、基金收支表（社會團體財務處理辦法第12條）；辦法沒有逐格教怎麼填，格式依辦法附件，決算總收入300萬元以下可用簡化格式（附件二）。\n\n縣府社會處提供「6項財務報表」Excel範本，內有填寫說明和表內檢核公式（例如資產負債表左右兩邊合計不相等時會提示更正），請到本站書表下載取用，照範本的說明填。\n\n「收支報告表」、「收支表」一般指的是其中的收支決算表（年度結束後）或收支預算表（年度開始前）。',
+   [F(12)],['沒有基金時，基金收支表仍要核章後送府（依縣府範本填寫說明）。']);
+ if(/(預算|科目|項目)/.test(t)&&/(流用|挪去|挪到|挪給|互相(用|調|挪)|科目之間|項目之間|勻支|調整科目|跨項目|換科目|科目.{0,3}(調|換|改)|項目.{0,3}(調|換|改).{0,3}(用|支)|(這個|那個|某個)項目的錢)/.test(t)&&!/(私人|個人|借|墊)/.test(t))
+  return mk('預算項目之間可以互相流用嗎：法規沒有規定，先提理事會審議，細節看章程或洽承辦',
+   '社會團體財務處理辦法只規定預算的編造與通過程序（第11條），沒有明文規定預算項目（科目）之間可不可以流用，也沒有規定流用的上限。\n\n可以確定的是：協會的經費收支情形，每次理事會都要提出審議，並送監事會監察（人民團體會務輔導辦法第17條），所以流用不要由理事長或總幹事自己決定，建議先提理事會討論並留下紀錄；是否還要提大會追認，要看章程有沒有規定，章程沒寫的話請洽承辦人員確認。',
+   [F(11),G(17)]);
+ if(/預算|決算/.test(t)&&/(沒編|不編|沒有編|不做|沒做|沒有做|沒報|不報|沒有報|不交|沒交|沒有交)/.test(t)&&/(會怎樣|會怎麼樣|罰|處分|後果|會被|有影響|嚴重嗎|有什麼問題|違法嗎)/.test(t))
+  return mk('沒編預算或決算會怎樣：辦法要求每年都要編，沒有訂罰則，但縣府可依人民團體法第58條處理',
+   '預算和決算每年都要編，提會員（會員代表）大會通過後報縣府備查（人民團體法第34條、社會團體財務處理辦法第11條）。\n\n社會團體財務處理辦法沒有訂罰則。不過人民團體有違反法令的情事，縣府可以警告、撤銷決議、停止業務的一部或全部，並限期令其改善；屆期未改善或情節重大的，還可以撤免職員、限期整理、廢止許可或解散（人民團體法第58條）。實際會不會處分、怎麼處分，由縣府依個案認定。\n\n已經漏掉的，建議盡快補編，先經理事會、監事會通過，再提大會追認後報縣府（辦法第11條後段），並先電洽承辦人員說明。',
+   [P(34),F(11),P(58)]);
+ if(/(決算|預算|報表|財報|會計報告)/.test(t)&&/(有問題|有錯|錯誤|不實|造假|做假|有誤|灌水|虛報|匿報)/.test(t)&&/(誰負責|誰要負責|誰的責任|誰來負責|負什麼責|責任|誰要賠)/.test(t))
+  return mk('決算有問題誰負責：法規沒有指定由誰個人負責，但決算由理事會編、監事會審，不得匿報虛報',
+   '社會團體財務處理辦法規定：決算由理事會編造（第11條）；決算要先送監事會審核（人民團體法第34條）；財務查核由監事會執行，縣府也可以抽查（辦法第22條）；財務收支不得匿報或虛報（辦法第20條）。\n\n至於決算有錯誤或不實時由誰負什麼責任，法規沒有統一指定。理事、監事執行職務違反法令、章程或大會決議的，會員大會可以通過罷免（人民團體法第22條）；如果懷疑有挪用、侵占等刑事問題，請向警察機關報案或洽律師，這裡不替個案判斷。',
+   [F(11),P(34),F(22),F(20),P(22)]);
+ if(/(決算|預算)/.test(t)&&/(否決|不通過|沒通過|沒有通過|未通過|被打回|被退回|被駁回|沒過)/.test(t)&&/(大會|會員)/.test(t)&&/(怎麼辦|怎麼處理|會怎樣|如何|要怎麼)/.test(t)&&!/(花|支出|用錢|動用|動支)/.test(t))
+  return mk('決算或預算在大會沒有通過怎麼辦：法規沒有規定，但要大會通過才能報縣府備查',
+   '人民團體法和社會團體財務處理辦法都沒有規定預算或決算在大會沒通過時要怎麼辦。\n\n可以確定的程序是：預算、決算要提會員（會員代表）大會通過後，才報縣府備查（財務處理辦法第11條）；決算還要先經監事會審核（人民團體法第34條）。所以沒通過就還沒完成程序，不能直接當作已通過送縣府。\n\n實務上建議依大會提出的意見，由理事會（決算先給監事會）修正後再提大會，或另開臨時大會處理；具體做法請洽縣府社會處承辦人員確認。',
+   [F(11),P(34)]);
+
+ if(/(預算|決算)/.test(t)&&/(沒(有)?經過?(大會|會員)|未經(過)?(大會|會員)|不經(過)?(大會|會員)|不用(經過?)?(大會|會員)|免(經過?)?(大會|會員)|不必(經過?)?(大會|會員)|直接通過|直接報縣府|理事會.{0,3}(就|直接)?(通過|決定))/.test(t)&&/(可以|可不可以|能不能|行不行|嗎|怎麼|為什麼|怎麼沒)/.test(t)&&!/(花|支出|用錢|動用|動支|開銷)/.test(t))
+  return mk('預算、決算原則上要經會員大會通過；來不及開大會，可先由理事會和監事會通過，事後提大會追認',
+   '預算和決算要提會員（會員代表）大會通過後，才報縣府備查（社會團體財務處理辦法第11條；人民團體法第34條）。所以不能只由理事會通過就當作完成。\n\n唯一的變通是：因故沒辦法如期召開大會時，可以先經理事會和監事會（或理監事聯席會議）通過，事後再提大會追認，之後再報縣府備查（辦法第11條後段）。決算還要先經監事會審核（人民團體法第34條）。',
+   [F(11),P(34)]);
+ if(/(三個月|3個月)/.test(t)&&/(幾號|幾月|哪天|哪一天|什麼時候|截止|最晚|期限|幾日)/.test(t)&&/(決算|年度終了|年度結束|會計年度|年底|工作報告|會計報告)/.test(t)||/(決算|預算).{0,6}(提|開|召開).{0,3}(大會).{0,6}(幾月前|幾月以前|什麼時候前|哪天前|期限|最晚)/.test(t)||/(決算|預算).{0,10}(幾月前|幾月以前|什麼時候前|哪天前|最晚).{0,4}(開|提|召開|通過)/.test(t))
+  return mk('決算的期限：會計年度（1至12月）結束後三個月內，也就是次年3月31日前由理事會編好',
+   '協會的會計年度是每年1月1日到12月31日（社會團體財務處理辦法第10條）。上年度的工作報告和會計報告（決算），要在年度終了後三個月內由理事會編造，也就是次年3月31日以前（第11條）。\n\n辦法只規定「編造」的期限，沒有明定會員大會要在哪一天前開完、報縣府的截止日；大會通過後再報縣府備查。因故來不及如期開大會的，可以先經理事會和監事會通過，事後提大會追認（第11條後段）。報縣府的實際期限請洽承辦人員確認。',
+   [F(10),F(11)]);
+ if(/(縣府|縣政府|社會處|主管機關|承辦|公所)/.test(t)&&/(決算|預算|財務報表|財報|報表|會計報告)/.test(t)&&/(退回|退件|補件|補正|被退|要我們改|要修改|要更正|要補)/.test(t))
+  return mk('縣府要求決算、預算或財務報表補件、補正：法規沒有寫補正程序，照承辦通知辦理',
+   '預算、決算依辦法是報縣府「備查」（社會團體財務處理辦法第11條），辦法沒有規定縣府退回或要求補件時的補正程序和期限。\n\n建議先弄清楚縣府要補什麼：只是缺表、缺核章或數字要更正的，照承辦人員通知補正；如果要修改的是已經大會通過的內容，改完是否要重新提理事會、監事會或大會，請先洽承辦人員確認，不要自行決定。\n\n縣府範本的表內有檢核公式（例如資產負債表左右合計要相同），送件前可以先用範本檢查一遍。',
+   [F(11)]);
+ if(/(決算|年底|年度|今年|去年|收支)/.test(t)&&/(賠錢|虧損|虧錢|虧空|短絀|赤字|入不敷出|收入不夠|支出比收入多|花得比收的多)/.test(t)&&/(怎麼辦|怎麼處理|要怎麼|如何|會怎樣|可以嗎)/.test(t))
+  return mk('年度決算出現短絀（支出比收入多）：辦法沒有規定處理方式，要如實列入決算提大會',
+   '社會團體財務處理辦法有「餘絀」這個用語（第5條），但沒有規定年度短絀（支出多於收入）要怎麼處理或由誰補足。\n\n可以確定的是：決算要如實編造，先送監事會審核，再提會員大會通過並報縣府備查（人民團體法第34條、辦法第11條），不得匿報或虛報（第20條）。協會如有提列準備基金，動支要經理事會通過（第15條）。短絀怎麼彌補、下年度怎麼編預算，建議提理事會討論，必要時洽承辦人員。',
+   [F(5),F(11),F(15),F(20),P(34)]);
+ if(/(外幣|美金|美元|日幣|日圓|歐元|人民幣|港幣|外匯)/.test(t)&&/(記帳|入帳|做帳|列帳|帳|折合|匯率|換算|捐款|收)/.test(t)&&!/(出國|旅費|匯款手續)/.test(t))
+  return mk('收到外幣怎麼記帳：記帳單位是新臺幣，外幣要折合新臺幣',
+   '社會團體財務會計的記帳單位是新臺幣元，如果是外幣，要折合成新臺幣記帳（社會團體財務處理辦法第6條）。\n\n辦法沒有規定要用哪一天的哪種匯率折算，建議用收到當天銀行的牌告匯率或入帳憑證上的新臺幣金額，並把外幣金額、匯率留在憑證上備查。收到外幣捐款也一樣要開正式收據、如實入帳（第17條、第20條）。',
+   [F(6),F(17),F(20)]);
+ if(/(現金收付制|現金收付|現金制|權責發生制|權責制|權責發生)/.test(t)&&/(可以|可不可以|能不能|行嗎|行不行|要不要|要記|要用|一定|必須|怎麼記|嗎)/.test(t))
+  return mk('會計基礎是權責發生制；平時用現金收付制記帳也可以，但決算時要調整成權責發生制',
+   '社會團體的會計基礎採權責發生制；平時採用現金收付制記帳的，到決算時，要照權責發生制調整（社會團體財務處理辦法第3條）。\n\n意思是：平常可以用簡單的現金收付方式記，但編決算時，已經發生、還沒收付的收入和費用（例如應收會費、應付款項）要調整進去。規模小的協會常見做法是平時記日記簿，年底再調整；調整的方式請洽承辦人員或熟悉會計的人協助。',
+   [F(3),F(4)]);
+ if(/(收入|收到的錢|收的錢|現金|會費|款項)/.test(t)&&/(先拿去付|先拿去花|先付|直接付|直接拿去|坐抵|抵銷|互抵|互相抵|抵掉|收支相抵|扣掉|先扣|不存|沒存|先花)/.test(t)&&/(可以|可不可以|能不能|行嗎|行不行|嗎|怎麼)/.test(t)&&!/(解散|清算|補助|核銷)/.test(t))
+  return mk('收入不可以直接拿去付支出：要隨收隨存，收支不能坐抵',
+   '不可以。社會團體的財務收入，要存入銀行、農會、漁會、信用合作社或郵局，不得存放在其他公私企業或個人，並以隨收隨存為原則，不得收支坐抵（社會團體財務處理辦法第16條）。\n\n也就是收到的錢先存進協會的帳戶、開正式收據（第17條）；要付錢時再依規定提款支付，提用存款要由團體負責人、秘書長或總幹事及財務人員在領款憑證上共同蓋章。收入和支出要各自入帳，不能先互相抵掉再記一個差額。',
+   [F(16),F(17)]);
+ if(/(辦事處|委員會|小組|內部作業組織|分支機構|分支|支部|分會|工作站|服務處)/.test(t)&&/(帳|財務|報表|決算|收支)/.test(t)&&/(合併|併|分開|各自|分別|獨立|一起)/.test(t)&&!/(社區發展|解散)/.test(t))
+  return branchAcct131();
+ return null;
+}
 function patrol130(t){
  if(/(合作社|社員|股金|政黨|寺廟|宗教|(?<![志義])工會|公會|職業團體|商業團體|工業團體|農會|漁會|基金會)/.test(t))return null;
  const tel='\n\n其他細節請洽縣府社會處承辦人員，縣府總機 08-7320415。';
@@ -8155,7 +8237,7 @@ function verifiedRoundAnswer(q,ctx){
   const guildCharter=charterAmendment(t);
   if(guildCharter)return guildCharter;
  }
- return patrol130(t)||patrol129(t)||patrol128(t)||patrol127(t)||patrol126(t)||patrol125(t)||patrol124(t)||patrol123(t)||patrol122(t)||patrol121(t)||patrol120(t)||patrol119(t)||patrol118(t)||patrol117(t)||patrol116(t)||patrol115(t)||patrol114(t)||patrol113(t)||patrol112(t)||patrol111(t)||patrol110(t)||patrol109(t)||patrol108(t)||patrol107(t)||patrol106b(t)||patrol106(t)||patrol105(t)||patrol104(t)||patrol103(t)||patrol102(t)||patrol101(t)||patrol100(t)||patrol99(t)||patrol98(t)||patrol97(t)||patrol96(t)||patrol95(t)||patrol94(t)||patrol93(t)||patrol92(t)||patrol91(t)||patrol90(t)||patrol89(t)||patrol88(t)||patrol87(t)||patrol86(t)||guild86(t)||patrol85(t)||charterRound84(t)||taxFiling81(t)||memberRound83(t)||patrol84(t)||patrol83(t)||patrol82(t)||patrol81(t)||patrol80(t)||patrol79(t)||patrol78(t)||patrol77(t)||patrol76(t)||patrol75(t)||patrol74(t)||patrol73(t)||patrol72(t)||patrol71(t)||patrol70(t)||patrol69(t)||patrol68(t)||patrol67(t)||patrol66(t)||patrol65(t)||patrol64(t)||patrol63(t)||patrol62(t)||patrol61(t)||patrol60(t)||patrol59(t)||patrol58(t)||patrol57(t)||patrol56(t)||patrol55(t)||patrol54(t)||patrol53(t)||patrol52(t)||patrol51(t)||patrol50(t)||patrol49(t)||patrol48(t)||chairTermGeneral(t)||patrol47(t)||patrol46(t)||patrol45(t)||patrol44(t)||patrol43(t)||patrol42(t)||patrol41(t)||patrol40(t)||patrol39(t)||patrol38(t)||patrol37(t)||patrol36(t)||patrol35(t)||patrol34(t)||patrol33(t)||patrol32(t)||patrol31(t)||patrol30(t)||patrol29(t)||patrol28(t)||patrol27(t)||patrol26(t)||patrol25(t)||patrol24(t)||patrol23(t)||patrol22(t)||patrol21(t)||patrol20(t)||patrol19(t)||patrol18(t)||patrol17(t)||patrol15(t)||patrol16(t)||patrol14(t)||intlGroupElection(t)||patrol13(t)||patrol11(t)||patrol10(t)||patrol9(t)||patrol8(t)||patrol7(t)||memberStaffPatrol6(t)||communityPatrol(t)||dissolveCharterPatrol(t)||financePatrol(t)||membershipPatrol(t)||formTemplates(t,ctx&&ctx.catalog)||(/^(協會|社區發展協會|我們協會|本會)?的?(理事|監事|理監事)(和監事|跟監事)?(要)?(怎麼選|怎麼產生|如何產生|誰選)/.test(t)?electionHowTo(t):null)||attendanceFeeCan(t)||joinManyGroups(t)||chairReplaceMidTerm(t)||charterItemChange(t)||resolutionOverturn(t)||staffInsurance(t)||intlGroupWho(t)||moneyMisuse(t)||supervisorNoMeeting(t)||rosterView(t)||whoManagesMoney(t)||donationDeduct(t)||annualAccountsHowTo(t)||boardMeetingHowTo(t)||memberQuitHowTo(t)||viceChair(t)||motionSecond(t)||assocLoan(t)||yearEndBonus(t)||entertainmentExpense(t)||englishName(t)||minorOfficer(t)||assocInvest(t)||candidateDeposit(t)||chairAndRecorder(t)||facebookGroup(t)||rulingRules(t)||byElection(t)||receiptsBasic(t)||memberRepThreshold(t)||officerResignHow(t)||finalAccountsWho(t)||publicServantOfficer(t)||relativesAsOfficers(t)||mergeGroups(t)||govCommission(t)||conveneAndPetition(t)||assemblyPrepAndSignIn(t)||whatNeedsAssembly(t)||feeAndMemberStatus(t)||directorMustBeMember(t)||auditAndYear(t)||reorganization(t)||staffResignReport(t)||videoElection(t)||subsidyDetails(t)||subsidyBasics(t)||taxWithholding(t)||commercialGuild(t)||memberSuspension(t)||meetingProcedure(t)||solicitationAfter(t)||coopMore(t)||communityMore(t)||outOfScope(t)||whichAuthority(t)||volunteerMore(t)||submitWhere(t)||timeDeposit(t)||nonCompliance(t)||memberEligibilityOutside(t)||annualMeetings(t)||chairTermLimit(t)||assemblyQuorum(t)||urgentMeetingNotice(t)||directorVacancy(t)||recallOfficer(t)||boardResolution(t)||annualFinanceFiling(t)||receiptAndWithdraw(t)||charterContents(t)||dissolveVote(t)||sealMake(t)||memberOnlyFundraising(t)||communityBasics(t)||countyPhone(t)||advisorAppoint(t)||sealKeeper(t)||assocTravel(t)||activityReport(t)||assocFund(t)||officerAsFinanceStaff(t)||electionShowOfHands(t)||directorProxyVote(t)||memberAdmissionWho(t)||memberRosterReport(t)||attendanceFeeAmount(t)||auditByCPA(t)||financeAnnounce(t)||coopBasics(t)||foundingCost(t)||prepMeetingCount(t)||assemblyShortOfQuorum(t)||twoCommunityAssociations(t)||villageChiefAsChair(t)||intlTermStart(t)||charmCommunityContact(t)||groupTypeDifference(t)||directorAbsence(t)||chairElectionMethod(t)||officerNumbers(t)||meetingNoticeChannel(t)||budgetHowTo(t)||renameGroup(t)||certificateLost(t)||dormantGroup(t)||lookupRegistered(t)||coopWithdraw(t)||termLengthLimit(t)||assemblyAgenda(t)||teacherAssocSetup(t)||commercialGroupSetup(t)||alumniSetup(t)||boardAgenda(t)||assetScrap(t)||taxMissed(t)||officeAtHome(t)||communityAreaSplit(t)||officeMove(t)||crossCountyEvent(t)||dissolvedAssets(t)||groupNameDuplicate(t)||standingDirectorCount(t)||memberViewAccounts(t)||howToReportGroup(t)||groupReported(t)||anonymousDonation(t)||chairRelativeStaff(t)||minorJoinAssoc(t)||volunteerTopics(t)||volunteerTeam(t)||memberCourseFee(t)||staffMustBeMember(t)||chairFundraising(t)||boardBelowHalf(t)||assocMayNotMeet(t)||assocNurseryCenter(t)||assocCareStation(t)||assocDonateGoods(t)||assocGovTender(t)||subsidySettlement(t)||corpRegistration(t)||assocBoardPay(t)||financeStaffConcurrent(t)||staffHiring(t)||coopVsAssocAccountingForms(t)||coopBalanceSheetReport(t)||delegateQuotaCalculation(t)||delegateConcurrentRole(t)||onlineVoting(t)||mailVoting(t)||assemblyVotingMethod(t)||boardVotingMethodDetail(t)||delegateElectionProcess(t)||delegateAssemblyRules(t)||coopMemberRemoval(t)||coopAdvertisingTaxability(t)||coopLoanToMemberTax(t)||coopBankLoanProcedure(t)||coopBankLoan(t)||branchAccountingPractice(t)||memberDelegateElection(t)||branchOrgSetup(t)||delegateProposalProcess(t)||annualMeetingVsAssembly(t)||vacancyQuorum(t)||supervisorConvenerNoMeeting(t)||supervisorMinimumMembers(t)||supervisorChairmanElection(t)||supervisorAuditPowers(t)||branchOrgAccounting(t)||runClassesPermit(t)||residentialCarePermit(t)||chairConvicted(t)||chairDismissStaff(t)||chairDissolve(t)||homeAsOfficeTax(t)||nonprofitTaxThreshold(t)||sameAddressGroups(t)||chairStaffConflict(t)||orgDisposeProperty(t)||orgAcquireEquipment(t)||sellGoodsAllowed(t)||staffActingChair(t)||p2MembershipFee(t)||p2BoardNotice(t)||p2RecordRetention(t)||p2CharterAmend(t)||p2SupervisorAudit(t)||p2CoopShares(t)||p2FoundingMeeting(t)||p2ElectionPrep(t)||p2MinutesContent(t)||p2DelegateSystem(t)||chairAbandonsOffice(t)||chairOtherGroupPosition(t)||chairSpendWithoutBoard(t)||supervisorSpend(t)||supervisorActingChair(t)||candidateSeatCount(t)||ballotRetention(t)||officerResignation(t)||invalidBallotReason(t)||delegateQualification(t)||substitutionOrder(t)||byElectionThreshold(t)||coopChairReelection(t)||chairmanReelectionLimit(t)||chairmanAbsence(t)||recordRetentionPeriod(t)||advertisingIncome(t)||staffBankAccountSetup(t)||meetingSigninDuration(t)||meetingVotingMethod(t)||preElectionBoardMeeting(t)||electionEffectiveDate(t)||politicalDonation(t)||communityReportingRequirements(t)||communityYearlyPlanDeadline(t)||communityVsAssociationDifferences(t)||supervisorAsDirector(t)||newChairTodo(t)||postElectionAccountingDeadline(t)||electionReportDeadline(t)||checkSignature(t)||feePeriods(t)||feeDeferral(t)||threeMonthsWording(t)||electionCandidates(t)||electionObjection(t)||minutesDeadline(t)||coopBoardQuorum(t)||coopTax(t)||communityRename(t)||communityReportTownship(t)||addressCertificate(t)||bankChairChange(t)||eventFee(t)||communityChairTerm(t)||invalidBallot(t)||feeAmount(t)||personalAccount(t)||delegateAssembly(t)||noSupervisor(t)||foundingDocs(t)||investStocks(t)||membershipRefused(t)||coopCapital(t)||receiveDonation(t)||hireEmployee(t)||lendToChair(t)||branchOrg(t)||supervisorMeeting(t)||noAnnualMeeting(t)||chairSpendingAuth(t)||communityVsGeneral(t)||coopDissolutionProperty(t)||charterAmendment(t)||coopSupervisorAudit(t)||patrol112late(t)||publicSolicitation(t)||decisionRevoked(t)||chairResign(t)||memberExpulsion(t)||sealChange(t)||noHandover(t)||communityDissolutionProperty(t)||boardFinanceAgenda(t)||boardQuorumGeneral(t)||delegated(t)||chairNoMeeting(t)||feeAnswer(t)||coopAssemblyQuorum(t)||proxyCount(t)||concurrent(t)||financeQuestioned(t)||financeDeadline(t)||meetingFrequency(t)||videoMeeting(t)||coopMinimum(t)||financeForms(t)||formsDownload(t,ctx&&ctx.catalog)||dissolutionHowTo(t)||patrol95late(t)||null||chairChangeTodo(t)||electionHowTo(t)||meetingHowTo(t);
+ return patrol131(t)||patrol130(t)||patrol129(t)||patrol128(t)||patrol127(t)||patrol126(t)||patrol125(t)||patrol124(t)||patrol123(t)||patrol122(t)||patrol121(t)||patrol120(t)||patrol119(t)||patrol118(t)||patrol117(t)||patrol116(t)||patrol115(t)||patrol114(t)||patrol113(t)||patrol112(t)||patrol111(t)||patrol110(t)||patrol109(t)||patrol108(t)||patrol107(t)||patrol106b(t)||patrol106(t)||patrol105(t)||patrol104(t)||patrol103(t)||patrol102(t)||patrol101(t)||patrol100(t)||patrol99(t)||patrol98(t)||patrol97(t)||patrol96(t)||patrol95(t)||patrol94(t)||patrol93(t)||patrol92(t)||patrol91(t)||patrol90(t)||patrol89(t)||patrol88(t)||patrol87(t)||patrol86(t)||guild86(t)||patrol85(t)||charterRound84(t)||taxFiling81(t)||memberRound83(t)||patrol84(t)||patrol83(t)||patrol82(t)||patrol81(t)||patrol80(t)||patrol79(t)||patrol78(t)||patrol77(t)||patrol76(t)||patrol75(t)||patrol74(t)||patrol73(t)||patrol72(t)||patrol71(t)||patrol70(t)||patrol69(t)||patrol68(t)||patrol67(t)||patrol66(t)||patrol65(t)||patrol64(t)||patrol63(t)||patrol62(t)||patrol61(t)||patrol60(t)||patrol59(t)||patrol58(t)||patrol57(t)||patrol56(t)||patrol55(t)||patrol54(t)||patrol53(t)||patrol52(t)||patrol51(t)||patrol50(t)||patrol49(t)||patrol48(t)||chairTermGeneral(t)||patrol47(t)||patrol46(t)||patrol45(t)||patrol44(t)||patrol43(t)||patrol42(t)||patrol41(t)||patrol40(t)||patrol39(t)||patrol38(t)||patrol37(t)||patrol36(t)||patrol35(t)||patrol34(t)||patrol33(t)||patrol32(t)||patrol31(t)||patrol30(t)||patrol29(t)||patrol28(t)||patrol27(t)||patrol26(t)||patrol25(t)||patrol24(t)||patrol23(t)||patrol22(t)||patrol21(t)||patrol20(t)||patrol19(t)||patrol18(t)||patrol17(t)||patrol15(t)||patrol16(t)||patrol14(t)||intlGroupElection(t)||patrol13(t)||patrol11(t)||patrol10(t)||patrol9(t)||patrol8(t)||patrol7(t)||memberStaffPatrol6(t)||communityPatrol(t)||dissolveCharterPatrol(t)||financePatrol(t)||membershipPatrol(t)||formTemplates(t,ctx&&ctx.catalog)||(/^(協會|社區發展協會|我們協會|本會)?的?(理事|監事|理監事)(和監事|跟監事)?(要)?(怎麼選|怎麼產生|如何產生|誰選)/.test(t)?electionHowTo(t):null)||attendanceFeeCan(t)||joinManyGroups(t)||chairReplaceMidTerm(t)||charterItemChange(t)||resolutionOverturn(t)||staffInsurance(t)||intlGroupWho(t)||moneyMisuse(t)||supervisorNoMeeting(t)||rosterView(t)||whoManagesMoney(t)||donationDeduct(t)||annualAccountsHowTo(t)||boardMeetingHowTo(t)||memberQuitHowTo(t)||viceChair(t)||motionSecond(t)||assocLoan(t)||yearEndBonus(t)||entertainmentExpense(t)||englishName(t)||minorOfficer(t)||assocInvest(t)||candidateDeposit(t)||chairAndRecorder(t)||facebookGroup(t)||rulingRules(t)||byElection(t)||receiptsBasic(t)||memberRepThreshold(t)||officerResignHow(t)||finalAccountsWho(t)||publicServantOfficer(t)||relativesAsOfficers(t)||mergeGroups(t)||govCommission(t)||conveneAndPetition(t)||assemblyPrepAndSignIn(t)||whatNeedsAssembly(t)||feeAndMemberStatus(t)||directorMustBeMember(t)||auditAndYear(t)||reorganization(t)||staffResignReport(t)||videoElection(t)||subsidyDetails(t)||subsidyBasics(t)||taxWithholding(t)||commercialGuild(t)||memberSuspension(t)||meetingProcedure(t)||solicitationAfter(t)||coopMore(t)||communityMore(t)||outOfScope(t)||whichAuthority(t)||volunteerMore(t)||submitWhere(t)||timeDeposit(t)||nonCompliance(t)||memberEligibilityOutside(t)||annualMeetings(t)||chairTermLimit(t)||assemblyQuorum(t)||urgentMeetingNotice(t)||directorVacancy(t)||recallOfficer(t)||boardResolution(t)||annualFinanceFiling(t)||receiptAndWithdraw(t)||charterContents(t)||dissolveVote(t)||sealMake(t)||memberOnlyFundraising(t)||communityBasics(t)||countyPhone(t)||advisorAppoint(t)||sealKeeper(t)||assocTravel(t)||activityReport(t)||assocFund(t)||officerAsFinanceStaff(t)||electionShowOfHands(t)||directorProxyVote(t)||memberAdmissionWho(t)||memberRosterReport(t)||attendanceFeeAmount(t)||auditByCPA(t)||financeAnnounce(t)||coopBasics(t)||foundingCost(t)||prepMeetingCount(t)||assemblyShortOfQuorum(t)||twoCommunityAssociations(t)||villageChiefAsChair(t)||intlTermStart(t)||charmCommunityContact(t)||groupTypeDifference(t)||directorAbsence(t)||chairElectionMethod(t)||officerNumbers(t)||meetingNoticeChannel(t)||budgetHowTo(t)||renameGroup(t)||certificateLost(t)||dormantGroup(t)||lookupRegistered(t)||coopWithdraw(t)||termLengthLimit(t)||assemblyAgenda(t)||teacherAssocSetup(t)||commercialGroupSetup(t)||alumniSetup(t)||boardAgenda(t)||assetScrap(t)||taxMissed(t)||officeAtHome(t)||communityAreaSplit(t)||officeMove(t)||crossCountyEvent(t)||dissolvedAssets(t)||groupNameDuplicate(t)||standingDirectorCount(t)||memberViewAccounts(t)||howToReportGroup(t)||groupReported(t)||anonymousDonation(t)||chairRelativeStaff(t)||minorJoinAssoc(t)||volunteerTopics(t)||volunteerTeam(t)||memberCourseFee(t)||staffMustBeMember(t)||chairFundraising(t)||boardBelowHalf(t)||assocMayNotMeet(t)||assocNurseryCenter(t)||assocCareStation(t)||assocDonateGoods(t)||assocGovTender(t)||subsidySettlement(t)||corpRegistration(t)||assocBoardPay(t)||financeStaffConcurrent(t)||staffHiring(t)||coopVsAssocAccountingForms(t)||coopBalanceSheetReport(t)||delegateQuotaCalculation(t)||delegateConcurrentRole(t)||onlineVoting(t)||mailVoting(t)||assemblyVotingMethod(t)||boardVotingMethodDetail(t)||delegateElectionProcess(t)||delegateAssemblyRules(t)||coopMemberRemoval(t)||coopAdvertisingTaxability(t)||coopLoanToMemberTax(t)||coopBankLoanProcedure(t)||coopBankLoan(t)||branchAccountingPractice(t)||memberDelegateElection(t)||branchOrgSetup(t)||delegateProposalProcess(t)||annualMeetingVsAssembly(t)||vacancyQuorum(t)||supervisorConvenerNoMeeting(t)||supervisorMinimumMembers(t)||supervisorChairmanElection(t)||supervisorAuditPowers(t)||branchOrgAccounting(t)||runClassesPermit(t)||residentialCarePermit(t)||chairConvicted(t)||chairDismissStaff(t)||chairDissolve(t)||homeAsOfficeTax(t)||nonprofitTaxThreshold(t)||sameAddressGroups(t)||chairStaffConflict(t)||orgDisposeProperty(t)||orgAcquireEquipment(t)||sellGoodsAllowed(t)||staffActingChair(t)||p2MembershipFee(t)||p2BoardNotice(t)||p2RecordRetention(t)||p2CharterAmend(t)||p2SupervisorAudit(t)||p2CoopShares(t)||p2FoundingMeeting(t)||p2ElectionPrep(t)||p2MinutesContent(t)||p2DelegateSystem(t)||chairAbandonsOffice(t)||chairOtherGroupPosition(t)||chairSpendWithoutBoard(t)||supervisorSpend(t)||supervisorActingChair(t)||candidateSeatCount(t)||ballotRetention(t)||officerResignation(t)||invalidBallotReason(t)||delegateQualification(t)||substitutionOrder(t)||byElectionThreshold(t)||coopChairReelection(t)||chairmanReelectionLimit(t)||chairmanAbsence(t)||recordRetentionPeriod(t)||advertisingIncome(t)||staffBankAccountSetup(t)||meetingSigninDuration(t)||meetingVotingMethod(t)||preElectionBoardMeeting(t)||electionEffectiveDate(t)||politicalDonation(t)||communityReportingRequirements(t)||communityYearlyPlanDeadline(t)||communityVsAssociationDifferences(t)||supervisorAsDirector(t)||newChairTodo(t)||postElectionAccountingDeadline(t)||electionReportDeadline(t)||checkSignature(t)||feePeriods(t)||feeDeferral(t)||threeMonthsWording(t)||electionCandidates(t)||electionObjection(t)||minutesDeadline(t)||coopBoardQuorum(t)||coopTax(t)||communityRename(t)||communityReportTownship(t)||addressCertificate(t)||bankChairChange(t)||eventFee(t)||communityChairTerm(t)||invalidBallot(t)||feeAmount(t)||personalAccount(t)||delegateAssembly(t)||noSupervisor(t)||foundingDocs(t)||investStocks(t)||membershipRefused(t)||coopCapital(t)||receiveDonation(t)||hireEmployee(t)||lendToChair(t)||branchOrg(t)||supervisorMeeting(t)||noAnnualMeeting(t)||chairSpendingAuth(t)||communityVsGeneral(t)||coopDissolutionProperty(t)||charterAmendment(t)||coopSupervisorAudit(t)||patrol112late(t)||publicSolicitation(t)||decisionRevoked(t)||chairResign(t)||memberExpulsion(t)||sealChange(t)||noHandover(t)||communityDissolutionProperty(t)||boardFinanceAgenda(t)||boardQuorumGeneral(t)||delegated(t)||chairNoMeeting(t)||feeAnswer(t)||coopAssemblyQuorum(t)||proxyCount(t)||concurrent(t)||financeQuestioned(t)||financeDeadline(t)||meetingFrequency(t)||videoMeeting(t)||coopMinimum(t)||financeForms(t)||formsDownload(t,ctx&&ctx.catalog)||dissolutionHowTo(t)||patrol95late(t)||null||chairChangeTodo(t)||electionHowTo(t)||meetingHowTo(t);
 }
 const api={normalizeQuestion,withContext,verifiedRoundAnswer};
 if(typeof module!=='undefined'&&module.exports)module.exports=api;
