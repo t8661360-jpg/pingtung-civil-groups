@@ -608,11 +608,11 @@ const KB=[
   notes:["近年銀行開戶審查比較嚴格，可能會詢問協會的資金用途和會員組成，照實說明即可。","理事長改選後，記得到銀行辦理負責人和印鑑變更。"],
   act:[["看統編申請","home",""]]},
  {k:["房子","土地","車子","不動產","過戶","登記到協會","財產登記","汽車","機車","房屋","名下"],cat:"業務辦理",title:"房子、土地、車子怎麼登記到協會",
-  summary:"要把房子或土地登記在協會名下，前提是協會已經辦好法人登記；沒有法人資格的協會，不能當不動產的所有權人。車子要依監理機關規定辦理，一般須提供立案證書、統一編號等文件。另外，協會取得財產要經理事會或會員大會決議；處分財產（賣掉、轉讓）依法要經會員大會出席三分之二以上同意。",
-  steps:["確認協會已完成法人登記（不動產一定要）。","開會決議：取得財產先經理事會或會員大會通過；處分財產要會員大會出席三分之二以上同意。","簽訂買賣契約或贈與契約。","申報繳納相關稅費（例如契稅、土地增值稅、贈與稅，依情形而定）。","不動產到所在地的地政事務所辦理所有權移轉登記；車輛到監理站辦理過戶。","登記完成後，記得列入財產目錄和資產負債表。"],
+  summary:"要把房子或土地登記在協會名下，申請人是法人的，要提出法人登記證明文件和代表人的資格證明（土地登記規則第42條）；協會沒有辦法人登記時能不能當所有權人，條文沒有明寫，請先洽地政事務所確認。車子要依監理機關規定辦理，一般須提供立案證書、統一編號等文件。另外，協會取得財產要經理事會或會員大會決議；處分財產（賣掉、轉讓）依法要經會員大會出席三分之二以上同意。",
+  steps:["確認協會有沒有辦法人登記：申請人是法人，要提出法人登記證明文件（土地登記規則第42條）；沒有法人登記的協會，請先洽地政事務所確認能不能登記。","開會決議：取得財產先經理事會或會員大會通過；處分財產要會員大會出席三分之二以上同意。","簽訂買賣契約或贈與契約。","申報繳納相關稅費（例如契稅、土地增值稅、贈與稅，依情形而定）。","不動產到所在地的地政事務所辦理所有權移轉登記；車輛到監理站辦理過戶。","登記完成後，記得列入財產目錄和資產負債表。"],
   docs:["土地登記申請書（不動產）","買賣或贈與契約","法人登記證書影本","理事長身分證及代表人資格證明","協會及理事長印鑑","統一編號證明","同意取得財產的會議紀錄","原所有權狀","稅費繳納證明"],
   where:["不動產：土地或房屋所在地的地政事務所。","契稅、土地增值稅：屏東縣政府財稅局；贈與稅：國稅局（0800-000-321）。","車輛：就近的監理站（交通部公路局所屬）。"],
-  laws:["pg27","pg11"],notes:["別人捐房地給協會時，稅務處理比較複雜，建議先洽地政士或稅務機關。","不要把協會財產登記在理事長個人名下，日後交接容易產生糾紛。"],
+  laws:["pg27","pg11"],notes:["別人捐房地給協會時，稅務處理比較複雜，建議先洽地政士或稅務機關。依條文：贈與稅是贈與人要繳的稅（遺產及贈與稅法第3條）；贈與契稅由受贈人申報（契稅條例第7條），受贈的私有土地免徵土地增值稅（土地稅法第28條）。","不要把協會財產登記在理事長個人名下，日後交接容易產生糾紛。"],
   act:[["看法人登記","home",""],["聯絡承辦","contact",""]]},
  {k:["免稅","免納所得稅","所得稅","房屋稅","地價稅","減免","繳稅","報稅","捐款收據"],cat:"業務辦理",title:"協會可以申請免稅嗎",
   summary:"可以，但不是自動免稅。協會的收入要免納所得稅，必須符合「教育文化公益慈善機關或團體免納所得稅適用標準」，而且每年都要向國稅局辦理結算申報。主要條件包括：依法立案、非以營利為目的、章程明定解散後剩餘財產歸屬政府或公益團體、用在協會宗旨活動的支出達到規定比率、帳務完整等。協會自有並供公益使用的房屋、土地，也可以向屏東縣政府財稅局申請房屋稅、地價稅減免。",
@@ -831,7 +831,7 @@ async function saveChunked(coll,rows,metaExtra){
 async function loadAll(force){
   if(loadPromise&&!force)return loadPromise;
   loadPromise=(async()=>{
-    const base=document.baseURI.replace(/[^/]*$/,"")+"data/";const DV="?v=20261123-133";
+    const base=document.baseURI.replace(/[^/]*$/,"")+"data/";const DV="?v=20261123-134";
     const jf=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);return r.json()};
     const jgz=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);const b=new Uint8Array(await r.arrayBuffer());if(b[0]!==31||b[1]!==139)return JSON.parse(new TextDecoder().decode(b));if(typeof DecompressionStream==="undefined")throw new Error("gzip unsupported");const text=await new Response(new Blob([b]).stream().pipeThrough(new DecompressionStream("gzip"))).text();return JSON.parse(text)};
     const [d,s,k,f]=await Promise.allSettled([jf(base+"directory.json"+DV),jf(base+"staff.json"+DV),jgz(base+"knowledge.json.gz"+DV).catch(()=>jf(base+"knowledge.json"+DV)),jf(base+"forms-catalog.json?v=20261105-5")]);
@@ -907,7 +907,7 @@ function revCov(title,q){const tb=bigrams(title);if(!tb.length)return 0;const qn
 const KN_OTHER_LAW=/商業團體法|工業團體法|同業公會|商業會|工業會|適用對象：商業/;
 const KN_ASK_OTHER_TYPE=/商業|工業|同業|公會|職業|商會|工會|工廠/;
 /* 專案型條目（魅力社區、好讚、公益勸募、社造、社區生產建設基金）只在問句提到該專案時才出現 */
-const KN_SCOPES=[[/怎麼成立社區發展協會/,/成立|籌組|籌備|設立|立案|發起|申請設立|怎麼開始|從哪|如何開始/],[/國際年會在國外/,/國外|海外|境外|出國|年會/],[/魅力社區|好讚/,/魅力|好讚/],[/勸募/,/勸募|募款|募捐|募集|募資|捐款|捐贈/],[/社造點|文化處/,/社造|文化處/],[/生產建設基金/,/生產建設|基金/],[/社區活動中心/,/活動中心/],[/國際總會|國際性|國際年會/,/國際/],[/「總會」|叫總會/,/總會/],[/臉書|ETF|保證金|酬勞金|車馬費|法律顧問/,/臉書|facebook|fb|ETF|etf|保證金|酬勞|獎金|車馬費|顧問/i],[/國外|海外|境外|出國/,/國外|海外|境外|出國|國際|大陸|港澳/],[/Zoom|zoom/,/zoom|視訊|線上|遠距|海外/i],[/承辦人?(沒有|未)到場/,/到場|列席|派員|承辦/],[/家長會|校友會|同鄉會|宗親會|獅子會|扶輪|同濟/,/家長會|校友會|同鄉會|宗親會|獅子會|扶輪|同濟/]];
+const KN_SCOPES=[[/村里長|里長|村長/,/村里長|里長|村長|鄰長/],[/怎麼成立社區發展協會/,/成立|籌組|籌備|設立|立案|發起|申請設立|怎麼開始|從哪|如何開始/],[/國際年會在國外/,/國外|海外|境外|出國|年會/],[/魅力社區|好讚/,/魅力|好讚/],[/勸募/,/勸募|募款|募捐|募集|募資|捐款|捐贈/],[/社造點|文化處/,/社造|文化處/],[/生產建設基金/,/生產建設|基金/],[/社區活動中心/,/活動中心/],[/國際總會|國際性|國際年會/,/國際/],[/「總會」|叫總會/,/總會/],[/臉書|ETF|保證金|酬勞金|車馬費|法律顧問/,/臉書|facebook|fb|ETF|etf|保證金|酬勞|獎金|車馬費|顧問/i],[/國外|海外|境外|出國/,/國外|海外|境外|出國|國際|大陸|港澳/],[/Zoom|zoom/,/zoom|視訊|線上|遠距|海外/i],[/承辦人?(沒有|未)到場/,/到場|列席|派員|承辦/],[/家長會|校友會|同鄉會|宗親會|獅子會|扶輪|同濟/,/家長會|校友會|同鄉會|宗親會|獅子會|扶輪|同濟/]];
 const KN_TOWN_RE=new RegExp((Array.isArray(TOWNS)?TOWNS:String(TOWNS).split(/\s+/)).filter(Boolean).map(x=>x.replace(/[鄉鎮市]$/,'')).filter(x=>x.length>=2&&x!=='屏東').join('|'));
 function knScopeOK(q,r){const t=r.title+"｜"+(r.alias||"");const m=r.title.match(KN_TOWN_RE);if(m&&!q.includes(m[0]))return false;return KN_SCOPES.every(([row,ask])=>!row.test(t)||ask.test(q))}
 function searchKn(q,limit,legacy){
@@ -1866,13 +1866,13 @@ touch();
   route();
 })();
 </script>
-<script src="feedback-collector.js?v=20261123-133"></script>
-<script src="round-fixes.js?v=20261123-133"></script>
-<script src="answer-arbiter.js?v=20261123-133"></script>
-<script src="question-understanding.js?v=20261123-133"></script>
-<script src="counter-upgrade.js?v=20261123-133"></script>
-<script src="ai-assist.js?v=20261123-133"></script>
-<script src="festive.js?v=20261123-133" defer></script>
+<script src="feedback-collector.js?v=20261123-134"></script>
+<script src="round-fixes.js?v=20261123-134"></script>
+<script src="answer-arbiter.js?v=20261123-134"></script>
+<script src="question-understanding.js?v=20261123-134"></script>
+<script src="counter-upgrade.js?v=20261123-134"></script>
+<script src="ai-assist.js?v=20261123-134"></script>
+<script src="festive.js?v=20261123-134" defer></script>
 </body>
 </html>
 
