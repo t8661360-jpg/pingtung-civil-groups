@@ -831,7 +831,7 @@ async function saveChunked(coll,rows,metaExtra){
 async function loadAll(force){
   if(loadPromise&&!force)return loadPromise;
   loadPromise=(async()=>{
-    const base=document.baseURI.replace(/[^/]*$/,"")+"data/";const DV="?v=20261124-183";
+    const base=document.baseURI.replace(/[^/]*$/,"")+"data/";const DV="?v=20261124-184";
     const jf=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);return r.json()};
     const jgz=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);const b=new Uint8Array(await r.arrayBuffer());if(b[0]!==31||b[1]!==139)return JSON.parse(new TextDecoder().decode(b));if(typeof DecompressionStream==="undefined")throw new Error("gzip unsupported");const text=await new Response(new Blob([b]).stream().pipeThrough(new DecompressionStream("gzip"))).text();return JSON.parse(text)};
     const [d,s,k,f]=await Promise.allSettled([jf(base+"directory.json"+DV),jf(base+"staff.json"+DV),jgz(base+"knowledge.json.gz"+DV).catch(()=>jf(base+"knowledge.json"+DV)),jf(base+"forms-catalog.json?v=20261105-5")]);
@@ -984,6 +984,8 @@ function dirQueryFrom(q,intent){
     kw=kw.replace(/[「」『』]/g,"").replace(/[嗎呢吧了啊的有？?！!，,。\s]+$/g,"").replace(/^[的在有]+/,"");
     if((c||t||d)&&kw.length<=2)kw="";
     if(/^(協會|學會|公會|社區|團體|會|的|有|的團體|的協會|的社區)?$/.test(kw))kw="";
+    /* 第166輪：「社區發展協會的公告要貼在哪裡／有沒有人來輔導」剩下的「公告要貼、人來輔導」不是團體名稱，是規則問句 */
+    if((c||t)&&kw&&kw.length<=8&&/[要來能會該應貼]/.test(kw))return{kw:"",d,t,c,rule:true};
   }
   return{kw,d,t,c};
 }
@@ -1331,6 +1333,7 @@ function dirAnswer(q,intent){
   }
   if(/(它|他們|該會|這個協會|這間|這個團體|這個社)/.test(q)&&lastDir&&!intent.name)return dirRender(q,lastDir.query,lastDir.res,intent);
   let query=dirQueryFrom(q,intent);let res;
+  if(query.rule)return smartFallback(q,matchKB(q));
   if(!intent.name&&!query.kw&&notCovered(query.t)){
     const act=STORE.dir.rows.filter(r=>r.s!=="已解散").length;
     return{category:"團體查詢",title:`${query.t}查詢`,summary:`目前線上名冊收錄社會處列管之社會團體與職業團體（存續 ${act} 個），${query.t}名冊尚未納入。請撥縣府總機 08-7320415 轉社會處查詢${query.t}資料。`,notes:[],actions:[{label:"看"+query.t+"辦理說明",view:"biz",sub:query.t==="合作社"?"coop":"community"},{label:"聯絡承辦",view:"contact",sub:""}]};
@@ -1489,9 +1492,9 @@ function smartFallback(q,kb){
   const twn=townOf(q);
   if(twn&&/統編|統一編號|國稅|扣繳|所得稅|免稅|報稅/.test(q)){const tr=STORE.kn.rows.find(r=>r.cat==="國稅轄區"&&r.text.includes(twn));if(tr)parts.where=[`${twn}的國稅窗口：`+tr.text,...(parts.where||[])]}
   /* 規則型問句（要不要、可不可以、需要…）沒有查詢名冊的字眼時，不要退回列名冊，改走「難倒小屏」交承辦補答案 */
-  if(!kb&&!parts.summary&&!PROCESS_RE.test(q)&&ENTITY_RE.test(q)&&STORE.dir.rows.length&&!(/要不要|需不需要|需要|可不可以|可以|能不能|能否|是否|一定要|必須|必要|會不會|為什麼|為何|怎樣|怎麼|如何/.test(q)&&!QUERY_RE.test(q))){
+  if(!kb&&!parts.summary&&!PROCESS_RE.test(q)&&ENTITY_RE.test(q)&&STORE.dir.rows.length&&!(/要不要|需不需要|需要|可不可以|可以|能不能|能否|是否|一定要|必須|必要|會不會|為什麼|為何|怎樣|怎麼|如何|嗎|呢|要做|要辦|要幾|幾件|幾次|做什麼|要什麼/.test(q)&&!QUERY_RE.test(q))){
     const t=detectType(q),c=detectCat(q),d=townOf(q);
-    if(c||t||d){const r=searchDir({kw:"",d,c,t},10);
+    if((c||t||d)&&!dirQueryFrom(q,{}).rule){const r=searchDir({kw:"",d,c,t},10);
       if(r.total&&!parts.groups){parts.groups=r.rows.slice(0,6);parts.dirMeta=dirMetaLine();
         if(!parts.summary){const label=[d,c||t].filter(Boolean).join("");
           const live=r.all.filter(x=>x.s!=="已解散").length;
@@ -1866,13 +1869,13 @@ touch();
   route();
 })();
 </script>
-<script src="feedback-collector.js?v=20261124-183"></script>
-<script src="round-fixes.js?v=20261124-183"></script>
-<script src="answer-arbiter.js?v=20261124-183"></script>
-<script src="question-understanding.js?v=20261124-183"></script>
-<script src="counter-upgrade.js?v=20261124-183"></script>
-<script src="ai-assist.js?v=20261124-183"></script>
-<script src="festive.js?v=20261124-183" defer></script>
+<script src="feedback-collector.js?v=20261124-184"></script>
+<script src="round-fixes.js?v=20261124-184"></script>
+<script src="answer-arbiter.js?v=20261124-184"></script>
+<script src="question-understanding.js?v=20261124-184"></script>
+<script src="counter-upgrade.js?v=20261124-184"></script>
+<script src="ai-assist.js?v=20261124-184"></script>
+<script src="festive.js?v=20261124-184" defer></script>
 </body>
 </html>
 
