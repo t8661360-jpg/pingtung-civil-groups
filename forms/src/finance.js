@@ -58,7 +58,7 @@ function cashEnd() { return cashPrev() + accVal(ACC_BY.inc, 'a') - accVal(ACC_BY
 function finHeader(title, period) {
   return [TITLE(orgFull(), { after: 2 }), TITLE(title, { size: 15, sp: 0.3, after: 2 }), P(period, { align: 'c', size: 11, after: 6 })];
 }
-const finSign = () => P(sigLine([['製表：', ''], ['會計：', pname('會計')], ['總幹事：', pname('總幹事')], ['理事長：', pname('理事長')]]), { before: 8, size: 11 });
+const finSign = () => P(sigLine([['製表：', V('org.maker')], ['會計：', pname('會計')], ['總幹事：', pname('總幹事')], ['理事長：', pname('理事長')]]), { before: 8, size: 11 });
 function accRows(cols, extra) {
   // cols: [{c:'b'}...] 三個金額欄 + 說明欄 key
   const hide = S.fin.hideZero; const rows = [];
@@ -140,7 +140,7 @@ function sheetProp() {
   return { name: '財產目錄', cols: [7, 10, 14, 9, 5, 5, 10, 9, 10], size: 10, ls: 1.2, blocks: [
     ...finHeader('財　產　目　錄', `中華民國${BL(y)}年${finEndMD()}`),
     T(rows, { size: 10 }),
-    P(sigLine([['製表：', ''], ['保管：', ''], ['會計：', pname('會計')], ['總幹事：', pname('總幹事')], ['團體負責人：', pname('理事長')]]), { before: 8, size: 11 }),
+    P(sigLine([['製表：', V('org.maker')], ['保管：', V('org.keeper')], ['會計：', pname('會計')], ['總幹事：', pname('總幹事')], ['團體負責人：', pname('理事長')]]), { before: 8, size: 11 }),
     P('說明：', { size: 10, before: 6 }),
     P('1.本目錄根據財產登記簿，按本辦法所訂固定資產之科目編造。', { size: 10, indent: 1 }),
     P('2.本表須經製表、保管、會計、總幹事及團體負責人蓋章。', { size: 10, indent: 1 }),
@@ -167,7 +167,7 @@ function sheetBS() {
   return { name: '資產負債表', cols: [16, 11, 16, 11], size: 10, ls: 1.15, blocks: [
     ...finHeader('資　產　負　債　表', `中華民國${BL(y)}年${finEndMD()}`),
     T(rows, { size: 10 }),
-    P(sigLine([['製表：', ''], ['出納：', pname('出納')], ['會計：', pname('會計')], ['總幹事：', pname('總幹事')], ['團體負責人：', pname('理事長')]]), { before: 8, size: 11 }),
+    P(sigLine([['製表：', V('org.maker')], ['出納：', pname('出納')], ['會計：', pname('會計')], ['總幹事：', pname('總幹事')], ['團體負責人：', pname('理事長')]]), { before: 8, size: 11 }),
     P('說明：', { size: 9.5, before: 4 }),
     ...['1.流動資產＋固定資產＋其他資產＝合計（資產）。', '2.流動負債＋長期負債＋其他負債＋基金＋餘絀＝合計（負債、基金暨餘絀）。', '3.資產部份之合計金額與負債、基金暨餘絀部份之合計金額需相同才正確。', '4.本表資產、負債、基金暨餘絀之科目根據本辦法所訂之資產、負債、基金暨餘絀類科目編列。', '5.本表須經製表、出納、會計、總幹事及團體負責人蓋章。'].map(t => P(t, { size: 9.5, indent: 1, hang: 1 })),
   ] };
@@ -189,7 +189,7 @@ function sheetFund() {
   return { name: '基金收支表', cols: [16, 11, 16, 11], size: 11, ls: 1.2, blocks: [
     ...finHeader('基　金　收　支　表', `中華民國${BL(y)}年1月1日至${BL(y)}年${finEndMD()}止`),
     T(rows, { size: 11 }),
-    P(sigLine([['製表：', ''], ['出納：', pname('出納')], ['會計：', pname('會計')], ['總幹事：', pname('總幹事')], ['團體負責人：', pname('理事長')]]), { before: 8, size: 11 }),
+    P(sigLine([['製表：', V('org.maker')], ['出納：', pname('出納')], ['會計：', pname('會計')], ['總幹事：', pname('總幹事')], ['團體負責人：', pname('理事長')]]), { before: 8, size: 11 }),
     P('說明：', { size: 10, before: 4 }),
     ...(notes.length ? notes : ['（動支基金應註明理事會通過之屆次與主管機關核備之文號）']).map((t, i) => P(t, { size: 10, indent: 1 })),
     P(`${notes.length + 1}.各基金收支結存應與收支決算表及資產負債表相關科目金額一致。`, { size: 10, indent: 1 }),

@@ -25,7 +25,16 @@ const stampOn = () => S.stamp && S.stamp.on !== false && S.seals.some(sealOk);
 const docSt = dk => { S.stamp.docs = S.stamp.docs || {}; return S.stamp.docs[dk] || (S.stamp.docs[dk] = {}); };
 const docStampOn = dk => stampOn() && !((S.stamp.docs || {})[dk] || {}).off;
 const isManual = dk => !!((S.stamp.docs || {})[dk] || {}).items;
-function keyed(sc, x) { const doc = x.b(); const dk = `${sc}:${x.id}`; doc.sheets.forEach((s, i) => { s.dk = dk; s.dsi = i; }); return doc; }
+/** 文件不出現「○○○」佔位字：沒填的地方留白（選票說明的「○」符號保留） */
+function noPH(doc) {
+  const f = t => typeof t === 'string' && t.includes('○') ? t.replace(/(^|[^「])○+/g, (m, a) => a + '　'.repeat(Math.min(3, m.length - a.length))) : t;
+  for (const sh of doc.sheets || []) for (const b of sh.blocks || []) {
+    if (typeof b.text === 'string') b.text = f(b.text);
+    for (const r of b.rows || []) for (const c of (r.cells || [])) if (c && typeof c.v === 'string') c.v = f(c.v);
+  }
+  return doc;
+}
+function keyed(sc, x) { const doc = noPH(x.b()); const dk = `${sc}:${x.id}`; doc.sheets.forEach((s, i) => { s.dk = dk; s.dsi = i; }); return doc; }
 
 /** 依錨點算出這張工作表要蓋的印章
  anchors：[{key, n, cx, cy, fs}]；回傳 items：{sid, slot, n, si, ex/ey（字高倍數）或 dx/dy（公釐）, ax/ay, sc, rot} */

@@ -105,6 +105,7 @@ SEC.org = () => {
     F('org.phone', '辦公電話', { req: 1, type: 'tel', w: 'half', ph: '08-7xxxxxx' }) + F('org.mobile', '行動電話', { type: 'tel', w: 'half' }) + F('org.homeTel', '住家電話（籌備會通知單用，可留空）', { type: 'tel', w: 'half' }) +
     F('org.contact', '聯絡人', { w: 'half' }) + F('org.contactTitle', '聯絡人職稱', { w: 'half', ph: '例：總幹事' }) +
     F('org.email', '電子信箱', { type: 'email', w: 'half' }) + F('org.fax', '傳真', { type: 'tel', w: 'half' }) + F('org.web', '網址', { w: 'full' })) +
+  H4('表冊簽章人員') + GRID(F('org.maker', '製表人（可留空）', { w: 'half', hint: '財務報表、預算表、收支報告的「製表」欄。' }) + F('org.keeper', '財產保管人（可留空）', { w: 'half' })) +
   H4('公文字號') + GRID(F('org.docWord', '發文字軌', { w: 'full', ph: '例：屏○○協', hint: '產生的公文會寫成「（字軌）字第＿＿號」，每份公文的號碼在各會議內填寫。' })) +
   (sc === 'prep' || sc === 'found' || sc === 'other' ? '' : H4('屆次') + GRID(F('org.term', fam(sc) === 'renew' ? '目前屆別（改選前）' : '目前屆別', { type: 'num', req: 1, w: 'half', pre: '第', suf: '屆' }) + F('org.termYears', '每屆任期', { type: 'num', w: 'half', suf: '年' }))) +
   (needSeats ? H4('理監事名額', '<small>依章程</small>') + GRID(F('org.dirSeats', '理事', { type: 'num', w: 'third', suf: '人' }) + F('org.supSeats', '監事', { type: 'num', w: 'third', suf: '人' }) + F('org.stdDirSeats', '常務理事', { type: 'num', w: 'third', suf: '人' }) + F('org.dirAlt', '候補理事', { type: 'num', w: 'third', suf: '人' }) + F('org.supAlt', '候補監事', { type: 'num', w: 'third', suf: '人' }) + calc('seatCheck', 'full')) : '') +

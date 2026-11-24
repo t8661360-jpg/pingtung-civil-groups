@@ -1380,7 +1380,7 @@ function cashEnd() { return cashPrev() + accVal(ACC_BY.inc, 'a') - accVal(ACC_BY
 function finHeader(title, period) {
   return [TITLE(orgFull(), { after: 2 }), TITLE(title, { size: 15, sp: 0.3, after: 2 }), P(period, { align: 'c', size: 11, after: 6 })];
 }
-const finSign = () => P(sigLine([['製表：', ''], ['會計：', pname('會計')], ['總幹事：', pname('總幹事')], ['理事長：', pname('理事長')]]), { before: 8, size: 11 });
+const finSign = () => P(sigLine([['製表：', V('org.maker')], ['會計：', pname('會計')], ['總幹事：', pname('總幹事')], ['理事長：', pname('理事長')]]), { before: 8, size: 11 });
 function accRows(cols, extra) {
   // cols: [{c:'b'}...] 三個金額欄 + 說明欄 key
   const hide = S.fin.hideZero; const rows = [];
@@ -1462,7 +1462,7 @@ function sheetProp() {
   return { name: '財產目錄', cols: [7, 10, 14, 9, 5, 5, 10, 9, 10], size: 10, ls: 1.2, blocks: [
     ...finHeader('財　產　目　錄', `中華民國${BL(y)}年${finEndMD()}`),
     T(rows, { size: 10 }),
-    P(sigLine([['製表：', ''], ['保管：', ''], ['會計：', pname('會計')], ['總幹事：', pname('總幹事')], ['團體負責人：', pname('理事長')]]), { before: 8, size: 11 }),
+    P(sigLine([['製表：', V('org.maker')], ['保管：', V('org.keeper')], ['會計：', pname('會計')], ['總幹事：', pname('總幹事')], ['團體負責人：', pname('理事長')]]), { before: 8, size: 11 }),
     P('說明：', { size: 10, before: 6 }),
     P('1.本目錄根據財產登記簿，按本辦法所訂固定資產之科目編造。', { size: 10, indent: 1 }),
     P('2.本表須經製表、保管、會計、總幹事及團體負責人蓋章。', { size: 10, indent: 1 }),
@@ -1489,7 +1489,7 @@ function sheetBS() {
   return { name: '資產負債表', cols: [16, 11, 16, 11], size: 10, ls: 1.15, blocks: [
     ...finHeader('資　產　負　債　表', `中華民國${BL(y)}年${finEndMD()}`),
     T(rows, { size: 10 }),
-    P(sigLine([['製表：', ''], ['出納：', pname('出納')], ['會計：', pname('會計')], ['總幹事：', pname('總幹事')], ['團體負責人：', pname('理事長')]]), { before: 8, size: 11 }),
+    P(sigLine([['製表：', V('org.maker')], ['出納：', pname('出納')], ['會計：', pname('會計')], ['總幹事：', pname('總幹事')], ['團體負責人：', pname('理事長')]]), { before: 8, size: 11 }),
     P('說明：', { size: 9.5, before: 4 }),
     ...['1.流動資產＋固定資產＋其他資產＝合計（資產）。', '2.流動負債＋長期負債＋其他負債＋基金＋餘絀＝合計（負債、基金暨餘絀）。', '3.資產部份之合計金額與負債、基金暨餘絀部份之合計金額需相同才正確。', '4.本表資產、負債、基金暨餘絀之科目根據本辦法所訂之資產、負債、基金暨餘絀類科目編列。', '5.本表須經製表、出納、會計、總幹事及團體負責人蓋章。'].map(t => P(t, { size: 9.5, indent: 1, hang: 1 })),
   ] };
@@ -1511,7 +1511,7 @@ function sheetFund() {
   return { name: '基金收支表', cols: [16, 11, 16, 11], size: 11, ls: 1.2, blocks: [
     ...finHeader('基　金　收　支　表', `中華民國${BL(y)}年1月1日至${BL(y)}年${finEndMD()}止`),
     T(rows, { size: 11 }),
-    P(sigLine([['製表：', ''], ['出納：', pname('出納')], ['會計：', pname('會計')], ['總幹事：', pname('總幹事')], ['團體負責人：', pname('理事長')]]), { before: 8, size: 11 }),
+    P(sigLine([['製表：', V('org.maker')], ['出納：', pname('出納')], ['會計：', pname('會計')], ['總幹事：', pname('總幹事')], ['團體負責人：', pname('理事長')]]), { before: 8, size: 11 }),
     P('說明：', { size: 10, before: 4 }),
     ...(notes.length ? notes : ['（動支基金應註明理事會通過之屆次與主管機關核備之文號）']).map((t, i) => P(t, { size: 10, indent: 1 })),
     P(`${notes.length + 1}.各基金收支結存應與收支決算表及資產負債表相關科目金額一致。`, { size: 10, indent: 1 }),
@@ -2481,7 +2481,7 @@ DER.push(
 );
 function certMeet() { return S.ui.scen === 'found' ? 'found.brd' : (S.ui.scen === 'renew' ? 'renew.brd' : ''); }
 function scenTerm(sc) { return sc === 'found' ? '1' : sc === 'renew' ? mTerm('renew.asm') : S.org.term; }
-const SIG5 = () => P(sigLine([['製表：', ''], ['會計：', pname('會計')], ['總幹事：', pname('總幹事')], ['理事長：', chairName()]]), { before: 8, size: 11 });
+const SIG5 = () => P(sigLine([['製表：', V('org.maker')], ['會計：', pname('會計')], ['總幹事：', pname('總幹事')], ['理事長：', chairName()]]), { before: 8, size: 11 });
 
 /* ---------- 年度工作計畫 ---------- */
 const stripCat = s => String(s || '').replace(/^[一二三四五六七八九十]+、/, '').trim();
@@ -2546,7 +2546,7 @@ function docLedger() {
     TITLE(`${orgFull()}第${O(cn(V('x.ledger.term')), '○')}屆經費收支報表`, { after: 2 }),
     P(`自${rd(x.from)}起至${rd(x.to)}止`, { align: 'c', after: 6 }),
     T(rows, { size: 11 }),
-    P(sigLine([['製表：', ''], ['會計：', pname('會計')], ['總幹事：', pname('總幹事')], ['團體負責人：', chairName()]]), { before: 8, size: 11 }),
+    P(sigLine([['製表：', V('org.maker')], ['會計：', pname('會計')], ['總幹事：', pname('總幹事')], ['團體負責人：', chairName()]]), { before: 8, size: 11 }),
   ] }] };
 }
 
@@ -2564,7 +2564,7 @@ function docPrepFin() {
     TITLE(orgFull(), { after: 0 }), TITLE('籌備期間經費收支報告表', { after: 2 }),
     P(`中華民國${rd(x.from)}至${rd(x.to)}止`, { align: 'c', after: 6 }),
     T(rows, { size: 12 }),
-    P(sigLine([['製表：', ''], ['會計：', pname('會計')], ['總幹事：', pname('總幹事')], ['籌備會主任委員：', prepChair()]]), { before: 8, size: 11 }),
+    P(sigLine([['製表：', V('org.maker')], ['會計：', pname('會計')], ['總幹事：', pname('總幹事')], ['籌備會主任委員：', prepChair()]]), { before: 8, size: 11 }),
     P('註：收支應保持平衡或有結餘，不得負債。', { size: 11, before: 6 }),
   ] }] };
 }
@@ -2675,7 +2675,7 @@ function docRecruit() {
     P(`三、籌備期間申請入會之截止日期：即日起至${rd(x.deadline)}止。`, { indent: 1, hang: 2 }),
     P(`四、籌備會地址及電話：${S.org.address || ''}${S.org.phone ? '　電話：' + S.org.phone : ''}`, { indent: 1, hang: 2 }),
     P('五、入會申請書有關資料請向前項地址索取。', { indent: 1, hang: 2 }),
-    P(`主任委員　${V('x.recruit.chair') || FW.repeat(4)}`, { align: 'r', before: 24, size: 16 }),
+    P(`${SA('@org', -6, -1.2)}主任委員　${V('x.recruit.chair') || FW.repeat(4)}${STAMP(slotOf('籌備會主任委員', V('x.recruit.chair')), '（蓋章）')}`, { align: 'r', before: 24, size: 16 }),
   ] }] };
 }
 function docApplyP() {
@@ -3157,6 +3157,7 @@ SEC.org = () => {
     F('org.phone', '辦公電話', { req: 1, type: 'tel', w: 'half', ph: '08-7xxxxxx' }) + F('org.mobile', '行動電話', { type: 'tel', w: 'half' }) + F('org.homeTel', '住家電話（籌備會通知單用，可留空）', { type: 'tel', w: 'half' }) +
     F('org.contact', '聯絡人', { w: 'half' }) + F('org.contactTitle', '聯絡人職稱', { w: 'half', ph: '例：總幹事' }) +
     F('org.email', '電子信箱', { type: 'email', w: 'half' }) + F('org.fax', '傳真', { type: 'tel', w: 'half' }) + F('org.web', '網址', { w: 'full' })) +
+  H4('表冊簽章人員') + GRID(F('org.maker', '製表人（可留空）', { w: 'half', hint: '財務報表、預算表、收支報告的「製表」欄。' }) + F('org.keeper', '財產保管人（可留空）', { w: 'half' })) +
   H4('公文字號') + GRID(F('org.docWord', '發文字軌', { w: 'full', ph: '例：屏○○協', hint: '產生的公文會寫成「（字軌）字第＿＿號」，每份公文的號碼在各會議內填寫。' })) +
   (sc === 'prep' || sc === 'found' || sc === 'other' ? '' : H4('屆次') + GRID(F('org.term', fam(sc) === 'renew' ? '目前屆別（改選前）' : '目前屆別', { type: 'num', req: 1, w: 'half', pre: '第', suf: '屆' }) + F('org.termYears', '每屆任期', { type: 'num', w: 'half', suf: '年' }))) +
   (needSeats ? H4('理監事名額', '<small>依章程</small>') + GRID(F('org.dirSeats', '理事', { type: 'num', w: 'third', suf: '人' }) + F('org.supSeats', '監事', { type: 'num', w: 'third', suf: '人' }) + F('org.stdDirSeats', '常務理事', { type: 'num', w: 'third', suf: '人' }) + F('org.dirAlt', '候補理事', { type: 'num', w: 'third', suf: '人' }) + F('org.supAlt', '候補監事', { type: 'num', w: 'third', suf: '人' }) + calc('seatCheck', 'full')) : '') +
@@ -3338,7 +3339,7 @@ SEC.fin = () => {
       H4('支出') + GRID(F('fin.fund.o1n', '支付項目', { w: 'half' }) + F('fin.fund.o1', '金額', { type: 'num', w: 'half', suf: '元' }) + F('fin.fund.o2n', '支付項目', { w: 'half' }) + F('fin.fund.o2', '金額', { type: 'num', w: 'half', suf: '元' }) + F('fin.fund.o3', '支付退職金', { type: 'num', w: 'half', suf: '元' }) + F('fin.fund.o4', '支付退休金', { type: 'num', w: 'half', suf: '元' })) +
       calc('fundTotal') + GRID(F('fin.fund.notes', '說明（每行一點；無動支可留空）', { type: 'area', rows: 3, w: 'full', ph: '1.支付○○○總幹事退職金經第○屆第○次理事會通過，報經屏東縣政府○年○月○日屏府社政字第○○○○號函核准動支。' }));
   } else {
-    body = GRID(F('fin.year', '決算年度', { type: 'num', w: 'half', suf: '年', hint: '預設為會議年度的前一年。' }) + F('fin.budgetYear', '預算／工作計畫年度', { type: 'num', w: 'half', suf: '年', hint: '預設為決算年度＋1。' }) +
+    body = H4('表冊簽章人員') + GRID(F('org.maker', '製表人', { w: 'half', hint: '財務報表、預算表、收支報告的「製表」欄，上傳印章後自動核章。' }) + F('org.keeper', '財產保管人', { w: 'half', hint: '財產目錄的「保管」欄。' })) + H4('年度') + GRID(F('fin.year', '決算年度', { type: 'num', w: 'half', suf: '年', hint: '預設為會議年度的前一年。' }) + F('fin.budgetYear', '預算／工作計畫年度', { type: 'num', w: 'half', suf: '年', hint: '預設為決算年度＋1。' }) +
       (S.ui.scen === 'dissolve' ? F('fin.end', '報表截止日期（解散日）', { type: 'date', w: 'half', hint: '解散時請與解散日期一致。' }) : '') +
       `<div class="f full">${CK('fin.hideZero', '輸出時省略預算、上年度預算、決算皆為 0 的科目')}</div>`);
   }
@@ -3668,7 +3669,7 @@ function refreshSummaries() {
 
 /* ===== 預覽 ===== */
 function docById(sc, id) { if (id === '__check') return { id, name: '送件檢核表', b: () => docChecklist(sc) }; return docsOf(sc).find(x => x.id === id); }
-function buildDoc(sc, id) { const x = docById(sc, id); return x && x.b ? x.b() : null; }
+function buildDoc(sc, id) { const x = docById(sc, id); return x && x.b ? noPH(x.b()) : null; }
 function pvDocs(sc) { return docsUsing(sc, S.ui.open || 'org'); }
 let sideTimer = null;
 function renderSide() {
@@ -4246,7 +4247,16 @@ const stampOn = () => S.stamp && S.stamp.on !== false && S.seals.some(sealOk);
 const docSt = dk => { S.stamp.docs = S.stamp.docs || {}; return S.stamp.docs[dk] || (S.stamp.docs[dk] = {}); };
 const docStampOn = dk => stampOn() && !((S.stamp.docs || {})[dk] || {}).off;
 const isManual = dk => !!((S.stamp.docs || {})[dk] || {}).items;
-function keyed(sc, x) { const doc = x.b(); const dk = `${sc}:${x.id}`; doc.sheets.forEach((s, i) => { s.dk = dk; s.dsi = i; }); return doc; }
+/** 文件不出現「○○○」佔位字：沒填的地方留白（選票說明的「○」符號保留） */
+function noPH(doc) {
+  const f = t => typeof t === 'string' && t.includes('○') ? t.replace(/(^|[^「])○+/g, (m, a) => a + '　'.repeat(Math.min(3, m.length - a.length))) : t;
+  for (const sh of doc.sheets || []) for (const b of sh.blocks || []) {
+    if (typeof b.text === 'string') b.text = f(b.text);
+    for (const r of b.rows || []) for (const c of (r.cells || [])) if (c && typeof c.v === 'string') c.v = f(c.v);
+  }
+  return doc;
+}
+function keyed(sc, x) { const doc = noPH(x.b()); const dk = `${sc}:${x.id}`; doc.sheets.forEach((s, i) => { s.dk = dk; s.dsi = i; }); return doc; }
 
 /** 依錨點算出這張工作表要蓋的印章
  anchors：[{key, n, cx, cy, fs}]；回傳 items：{sid, slot, n, si, ex/ey（字高倍數）或 dx/dy（公釐）, ax/ay, sc, rot} */

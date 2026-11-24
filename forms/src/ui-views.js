@@ -30,7 +30,7 @@ SEC.fin = () => {
       H4('支出') + GRID(F('fin.fund.o1n', '支付項目', { w: 'half' }) + F('fin.fund.o1', '金額', { type: 'num', w: 'half', suf: '元' }) + F('fin.fund.o2n', '支付項目', { w: 'half' }) + F('fin.fund.o2', '金額', { type: 'num', w: 'half', suf: '元' }) + F('fin.fund.o3', '支付退職金', { type: 'num', w: 'half', suf: '元' }) + F('fin.fund.o4', '支付退休金', { type: 'num', w: 'half', suf: '元' })) +
       calc('fundTotal') + GRID(F('fin.fund.notes', '說明（每行一點；無動支可留空）', { type: 'area', rows: 3, w: 'full', ph: '1.支付○○○總幹事退職金經第○屆第○次理事會通過，報經屏東縣政府○年○月○日屏府社政字第○○○○號函核准動支。' }));
   } else {
-    body = GRID(F('fin.year', '決算年度', { type: 'num', w: 'half', suf: '年', hint: '預設為會議年度的前一年。' }) + F('fin.budgetYear', '預算／工作計畫年度', { type: 'num', w: 'half', suf: '年', hint: '預設為決算年度＋1。' }) +
+    body = H4('表冊簽章人員') + GRID(F('org.maker', '製表人', { w: 'half', hint: '財務報表、預算表、收支報告的「製表」欄，上傳印章後自動核章。' }) + F('org.keeper', '財產保管人', { w: 'half', hint: '財產目錄的「保管」欄。' })) + H4('年度') + GRID(F('fin.year', '決算年度', { type: 'num', w: 'half', suf: '年', hint: '預設為會議年度的前一年。' }) + F('fin.budgetYear', '預算／工作計畫年度', { type: 'num', w: 'half', suf: '年', hint: '預設為決算年度＋1。' }) +
       (S.ui.scen === 'dissolve' ? F('fin.end', '報表截止日期（解散日）', { type: 'date', w: 'half', hint: '解散時請與解散日期一致。' }) : '') +
       `<div class="f full">${CK('fin.hideZero', '輸出時省略預算、上年度預算、決算皆為 0 的科目')}</div>`);
   }
@@ -360,7 +360,7 @@ function refreshSummaries() {
 
 /* ===== 預覽 ===== */
 function docById(sc, id) { if (id === '__check') return { id, name: '送件檢核表', b: () => docChecklist(sc) }; return docsOf(sc).find(x => x.id === id); }
-function buildDoc(sc, id) { const x = docById(sc, id); return x && x.b ? x.b() : null; }
+function buildDoc(sc, id) { const x = docById(sc, id); return x && x.b ? noPH(x.b()) : null; }
 function pvDocs(sc) { return docsUsing(sc, S.ui.open || 'org'); }
 let sideTimer = null;
 function renderSide() {

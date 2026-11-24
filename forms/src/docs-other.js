@@ -39,7 +39,7 @@ DER.push(
 );
 function certMeet() { return S.ui.scen === 'found' ? 'found.brd' : (S.ui.scen === 'renew' ? 'renew.brd' : ''); }
 function scenTerm(sc) { return sc === 'found' ? '1' : sc === 'renew' ? mTerm('renew.asm') : S.org.term; }
-const SIG5 = () => P(sigLine([['製表：', ''], ['會計：', pname('會計')], ['總幹事：', pname('總幹事')], ['理事長：', chairName()]]), { before: 8, size: 11 });
+const SIG5 = () => P(sigLine([['製表：', V('org.maker')], ['會計：', pname('會計')], ['總幹事：', pname('總幹事')], ['理事長：', chairName()]]), { before: 8, size: 11 });
 
 /* ---------- 年度工作計畫 ---------- */
 const stripCat = s => String(s || '').replace(/^[一二三四五六七八九十]+、/, '').trim();
@@ -104,7 +104,7 @@ function docLedger() {
     TITLE(`${orgFull()}第${O(cn(V('x.ledger.term')), '○')}屆經費收支報表`, { after: 2 }),
     P(`自${rd(x.from)}起至${rd(x.to)}止`, { align: 'c', after: 6 }),
     T(rows, { size: 11 }),
-    P(sigLine([['製表：', ''], ['會計：', pname('會計')], ['總幹事：', pname('總幹事')], ['團體負責人：', chairName()]]), { before: 8, size: 11 }),
+    P(sigLine([['製表：', V('org.maker')], ['會計：', pname('會計')], ['總幹事：', pname('總幹事')], ['團體負責人：', chairName()]]), { before: 8, size: 11 }),
   ] }] };
 }
 
@@ -122,7 +122,7 @@ function docPrepFin() {
     TITLE(orgFull(), { after: 0 }), TITLE('籌備期間經費收支報告表', { after: 2 }),
     P(`中華民國${rd(x.from)}至${rd(x.to)}止`, { align: 'c', after: 6 }),
     T(rows, { size: 12 }),
-    P(sigLine([['製表：', ''], ['會計：', pname('會計')], ['總幹事：', pname('總幹事')], ['籌備會主任委員：', prepChair()]]), { before: 8, size: 11 }),
+    P(sigLine([['製表：', V('org.maker')], ['會計：', pname('會計')], ['總幹事：', pname('總幹事')], ['籌備會主任委員：', prepChair()]]), { before: 8, size: 11 }),
     P('註：收支應保持平衡或有結餘，不得負債。', { size: 11, before: 6 }),
   ] }] };
 }
@@ -233,7 +233,7 @@ function docRecruit() {
     P(`三、籌備期間申請入會之截止日期：即日起至${rd(x.deadline)}止。`, { indent: 1, hang: 2 }),
     P(`四、籌備會地址及電話：${S.org.address || ''}${S.org.phone ? '　電話：' + S.org.phone : ''}`, { indent: 1, hang: 2 }),
     P('五、入會申請書有關資料請向前項地址索取。', { indent: 1, hang: 2 }),
-    P(`主任委員　${V('x.recruit.chair') || FW.repeat(4)}`, { align: 'r', before: 24, size: 16 }),
+    P(`${SA('@org', -6, -1.2)}主任委員　${V('x.recruit.chair') || FW.repeat(4)}${STAMP(slotOf('籌備會主任委員', V('x.recruit.chair')), '（蓋章）')}`, { align: 'r', before: 24, size: 16 }),
   ] }] };
 }
 function docApplyP() {
