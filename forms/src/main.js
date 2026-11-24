@@ -175,7 +175,7 @@ function rerenderSection() {
   const sb = sec.querySelector('.sb'); if (!sb) { render(); return; }
   const y = window.scrollY;
   sb.innerHTML = k.startsWith('m:') ? meetSection(k.slice(2)) : SEC[k]();
-  refreshLive(); renderSide(); window.scrollTo({ top: y });
+  foldOptional(sec); refreshLive(); renderSide(); window.scrollTo({ top: y });
 }
 function listOp(act, path, i, tpl) {
   const arr = getp(S, path) || []; i = +i;

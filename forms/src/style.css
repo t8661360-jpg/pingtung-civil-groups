@@ -669,3 +669,12 @@ html.tips-on .docrow,html.tips-on .tile,html.tips-on .dock .btn{-webkit-touch-ca
 .hsearch small{color:var(--mute);font-size:.78rem;line-height:1.5}
 .ckrow{display:flex;flex-wrap:wrap;gap:8px 16px}
 .in .seg button{white-space:nowrap}
+/* 選填欄位收合、區塊小標 */
+details.optf{margin-top:14px;border:1px dashed #cfdcd8;border-radius:12px;background:#fbfcfc}
+details.optf>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;padding:11px 14px;font-weight:700;font-size:.9rem;color:var(--pri-d)}
+details.optf>summary::-webkit-details-marker{display:none}
+details.optf>summary small{font-weight:400;color:var(--mute);font-size:.78rem}
+details.optf>summary .ic{width:16px;height:16px}
+details.optf[open]>summary .ic{transform:rotate(45deg)}
+details.optf>.grid{padding:0 14px 12px}
+.f.subf{font-weight:700;color:var(--ink);font-size:.95rem;padding:10px 0 2px;border-top:1px solid var(--line);margin-top:6px}

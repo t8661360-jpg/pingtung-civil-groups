@@ -12,8 +12,9 @@ function docSecs(x) {
 }
 /** 通知書「此致」：署名身分、姓名（可蓋章）、受文者 */
 function noticeSignFields(mk) {
-  const k = MEET[mk].kind;
-  return (k === 'pre' || k === 'brd' ? `<div class="f full"><label>會議類別</label><div class="in">${SEG(`m.${mk}.brdType`, [['聯席', '理監事聯席會議'], ['理事會', '理事會（單獨）'], ['監事會', '監事會（單獨）']], { def: '聯席', rr: 1 })}</div></div>` : '') + `<div class="f full"><label>此致：署名</label><div class="in">${SEG(`m.${mk}.signRole`, signRoleOpts(mk).map(r => [r, r]), { def: signRoleDef(mk), rr: 1 })}</div></div>` +
+  const k = MEET[mk].kind, prep = scenOf(mk) === 'prep';
+  return `<div class="f full subf">署名與受文者</div>` + (prep ? F(`m.${mk}.chair`, '主持人', { w: 'half' }) + F(`m.${mk}.speed`, '速別（可留空，預設普通件）', { type: 'sel', opts: ['普通件', '速件', '最速件'], w: 'half' }) + F(`m.${mk}.cc`, '副本（可留空）', { w: 'full', ph: '例：本會籌備委員' }) : '') +
+    (k === 'pre' || k === 'brd' ? `<div class="f full"><label>會議類別</label><div class="in">${SEG(`m.${mk}.brdType`, [['聯席', '理監事聯席會議'], ['理事會', '理事會（單獨）'], ['監事會', '監事會（單獨）']], { def: '聯席', rr: 1 })}</div></div>` : '') + `<div class="f full"><label>此致：署名</label><div class="in">${SEG(`m.${mk}.signRole`, signRoleOpts(mk).map(r => [r, r]), { def: signRoleDef(mk), rr: 1 })}</div></div>` +
     F(`m.${mk}.signName`, `${signRole(mk)}姓名`, { w: 'half', hint: '預設帶入人員名單；上傳印章後，這裡會自動蓋章，也可以在預覽裡拖曳位置。' }) +
     `<div class="f full"><label>此致：受文者</label><div class="ckrow">${recipOpts(mk).map(k => CK(`m.${mk}.to.${k}`, recipLabel(k), { def: recipDef(mk, k), rr: 1 })).join('')}</div></div>`;
 }
@@ -101,7 +102,7 @@ SEC.org = () => {
   H4('聯絡資料') + GRID(
     F('org.address', '會址', { req: 1, w: 'full', ph: '屏東縣○○鄉○○村○○路○○號' }) +
     F('org.place', '常用開會地點', { w: 'full', hint: '留空會用會址。會議若在別處，到該會議再改即可。' }) +
-    F('org.phone', '辦公電話', { req: 1, type: 'tel', w: 'half', ph: '08-7xxxxxx' }) + F('org.mobile', '行動電話', { type: 'tel', w: 'half' }) +
+    F('org.phone', '辦公電話', { req: 1, type: 'tel', w: 'half', ph: '08-7xxxxxx' }) + F('org.mobile', '行動電話', { type: 'tel', w: 'half' }) + F('org.homeTel', '住家電話（籌備會通知單用，可留空）', { type: 'tel', w: 'half' }) +
     F('org.contact', '聯絡人', { w: 'half' }) + F('org.contactTitle', '聯絡人職稱', { w: 'half', ph: '例：總幹事' }) +
     F('org.email', '電子信箱', { type: 'email', w: 'half' }) + F('org.fax', '傳真', { type: 'tel', w: 'half' }) + F('org.web', '網址', { w: 'full' })) +
   H4('公文字號') + GRID(F('org.docWord', '發文字軌', { w: 'full', ph: '例：屏○○協', hint: '產生的公文會寫成「（字軌）字第＿＿號」，每份公文的號碼在各會議內填寫。' })) +
@@ -184,7 +185,7 @@ function meetSection(mk) {
   if (d.el === 'ds') h += electionBlock(mk);
   if (d.el === 'chair') h += H4('選舉結果') + GRID(
     (k === 'foundBrd' ? F(`m.${mk}.el.jp`, '監票員', { w: 'half' }) + F(`m.${mk}.el.fp`, '發票員', { w: 'half' }) + F(`m.${mk}.el.cp`, '唱票員', { w: 'half' }) + F(`m.${mk}.el.jip`, '計票員', { w: 'half' }) : '') +
-    F(`m.${mk}.el.stdDirs`, '常務理事當選人（可留空）', { w: 'full' }) + F(`m.${mk}.el.chair`, '理事長當選人', { w: 'half' }) + F(`m.${mk}.el.chairVotes`, '得票數', { type: 'num', w: 'half', suf: '票' }) +
+    F(`m.${mk}.el.stdDirs`, '常務理事當選人（可留空）', { w: 'full' }) + F(`m.${mk}.el.stdDirVotes`, '常務理事得票數（可留空）', { w: 'half', ph: '例：12、10、9' }) + F(`m.${mk}.el.chair`, '理事長當選人', { w: 'half' }) + F(`m.${mk}.el.chairVotes`, '得票數', { type: 'num', w: 'half', suf: '票' }) +
     F(`m.${mk}.el.stdSup`, '常務監事當選人', { w: 'half' }) + F(`m.${mk}.el.stdSupVotes`, '得票數', { type: 'num', w: 'half', suf: '票' })) + NOTE('當選人預設帶入「人員名單」中職別為常務理事、理事長、常務監事的人；名單更新後這裡會自動跟著變。');
   h += H4(k === 'dissolve' ? '討論提案（縣府要求範例提案請勿刪減）' : '討論提案') + (k === 'dissolve' ? NOTE('提案文字會依「解散相關資料」區塊的內容自動產生。') : '') +
     LISTC(`m.${mk}.props`, propFields(mk), { summary: (r, i) => PV(mk, i, 'reason').slice(0, 40), numFmt: i => '案' + cn(i + 1), addLabel: '新增提案', emptyLabel: '（新提案）', empty: '目前沒有提案' });
@@ -245,7 +246,7 @@ SEC.recruit = () => GRID(F('x.recruit.no', '公告字號（號碼）', { w: 'hal
   F('x.recruit.deadline', '申請入會截止日期', { type: 'date', w: 'half', req: 1 }) + F('x.recruit.chair', '主任委員', { w: 'half' }));
 SEC.report = () => NOTE('解散須經大會出席人數三分之二以上同意（已辦社團法人登記者為四分之三以上）。五項財務報表的截止日期、解散日期、大會召開日期三者請決議一致。') + GRID(
   F('x.report.reason', '解散原因', { w: 'full', req: 1, ph: '例：會員老化、人數縮減，會務無法繼續推動' }) + F('x.report.date', '解散日期', { type: 'date', w: 'half' }) + F('x.report.agree', '同意解散人數', { type: 'num', w: 'half', suf: '人', req: 1 }) + calc('dissolveCheck', 'full') +
-  F('x.report.cash', '財務存款（剩餘財產）', { type: 'num', w: 'half', pre: '新台幣', suf: '元' }) + F('x.report.to', '剩餘財產歸屬', { w: 'half', hint: '請以公部門為主，其他團體為次。' }) + F('x.report.propDesc', '財產說明（可留空）', { type: 'area', rows: 2, w: 'full' }) +
+  F('x.report.signDate', '填表日期（可留空，預設今天）', { type: 'date', w: 'half' }) + F('x.report.memo', '備考（可留空）', { w: 'full' }) + F('x.report.cash', '財務存款（剩餘財產）', { type: 'num', w: 'half', pre: '新台幣', suf: '元' }) + F('x.report.to', '剩餘財產歸屬', { w: 'half', hint: '請以公部門為主，其他團體為次。' }) + F('x.report.propDesc', '財產說明（可留空）', { type: 'area', rows: 2, w: 'full' }) +
   F('x.report.liq', '清算人', { w: 'half' }) + F('x.report.liqFrom', '清算時間自', { type: 'date', w: 'half' }) + F('x.report.liqTo', '至', { type: 'date', w: 'half' }) + F('x.report.returnDate', '繳銷立案證書及圖記日期', { type: 'date', w: 'half' }) +
   F('x.report.okDate', '奉准解散日期（核准後填）', { type: 'date', w: 'half' }) + F('x.report.okNo', '奉准文號', { w: 'half' }) + F('x.report.story', '解散原因及經過（報告表用，可留空）', { type: 'area', rows: 3, w: 'full' }) + F('x.report.other', '其他', { w: 'full' }));
 SEC.seal = () => GRID(F('x.seal.sealDate', '印信啟用核備日期', { type: 'date', w: 'half' }) + F('x.seal.sealNo', '核備文號', { w: 'half', pre: '屏府社政字第', suf: '號' }) + F('x.seal.chair', '現任理事長', { w: 'half' }) + F('x.seal.addr', '團體會址', { w: 'full' }) + F('x.seal.use', '本印鑑證明書之用途', { type: 'area', rows: 2, w: 'full', req: 1, ph: '例：辦理銀行開戶' })) +

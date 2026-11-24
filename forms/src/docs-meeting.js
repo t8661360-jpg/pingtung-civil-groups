@@ -58,7 +58,40 @@ function contactBlock() {
   const o = S.org, ct = V('org.contactTitle'), c = V('org.contact');
   return [o.address || '', c ? `${ct ? ct + '：' : ''}${c}` : '', o.phone ? `【辦公】${o.phone}` : '', o.mobile ? `【行動】${o.mobile}` : ''].join('\n');
 }
+/* ---------- 籌備會開會通知單（縣府公文格式） ---------- */
+function docPrepNotice(mk) {
+  const m = M(mk), date = MV(mk, 'date'), k = MEET[mk].kind, k2 = MV(mk, 'kind2'), o = S.org;
+  const row = (lab, v, o2 = {}) => ({ cells: [{ v: lab, va: 't', ...o2.l }, { v: v ?? '', va: 't', ...o2.v }] });
+  const att = noticeAtt(mk).map(x => x.name), role = signRole(mk), who = MV(mk, 'signName');
+  const tel = [`辦公　${o.phone || ''}`, `住家　${o.homeTel || ''}`, `手機　${o.mobile || ''}`].join('\n');
+  const out = (ks) => ks.map(x => yesNo(recipOn(mk, x), recipLabel(x))).join('　　');
+  const head = T([row('受文者：', recipOn(mk, 'gov') ? `${o.county || '屏東縣'}政府` : '', { l: { sz: 14 }, v: { sz: 14 } }),
+    row('發文日期：', `中華民國${rd(MV(mk, 'noticeDate'))}`), row('發文字號：', docNo(m.noticeNo)), row('速別：', V(`m.${mk}.speed`) || '普通件'),
+    { cells: [{ v: '密等及解密條件或保密期限：', cs: 2 }] }, row('附件：', att.join('、'))], { size: 12, noBorder: true, pad: 0 });
+  const body = T([
+    row('開會事由：', `${yesNo(k === 'prep1', '發起人暨第一次籌備會')}　　${yesNo(k === 'prep2', '第二次籌備會')}`),
+    row('會議性質：', `${yesNo(k2 !== '臨時會', '定期會')}　　${yesNo(k2 === '臨時會', '臨時會')}`),
+    row('開會時間：', `中華民國${rd(date)}${date ? `（${weekday(date)}）` : '（星期　）'}${tm(MV(mk, 'time'))}`),
+    row('開會地點：', MV(mk, 'place')),
+    row('主持人：', MV(mk, 'chair')),
+    row('聯絡人及電話：', `${V('org.contact') || ''}\n${tel}`),
+    row('聯絡地址：', o.address || ''),
+    row('出席者：', out(['prepCom', 'founders'])),
+    row('應出席人數：', `${BL(MV(mk, 'should'))}人`),
+    row('列席者：', '敬請屏東縣政府派員列席指導。'),
+    row('副本：', V(`m.${mk}.cc`) || ''),
+    row('議程：', `一、報告事項${MV(mk, 'report') ? '\n' + MV(mk, 'report') : ''}\n二、重要討論事項\n${MV(mk, 'topics') || ''}`),
+    row('備註：', (m.noticeNote || '').trim()),
+  ], { size: 12, noBorder: true, pad: 0 });
+  return { title: '開會通知單', sheets: [{ name: '開會通知單', cols: [22, 78], size: 12, ls: 1.25, blocks: [
+    P('檔　　號：\n保存年限：', { align: 'r', size: 10, after: 4 }),
+    TITLE(`${orgFull()}籌備會`, { size: 17, after: 0 }), TITLE('開會通知單', { size: 19, after: 6 }),
+    head, P('', { after: 2 }), body,
+    P(`${yesNo(role === '籌備主委', '籌備主任委員')}　${yesNo(role === '發起人代表', '發起人代表')}　${O(who)}${STAMP(slotOf(SIGN_ROLES[role], who), '（蓋章）')}`, { align: 'c', size: 13, before: 10 }),
+  ] }] };
+}
 function docNotice(mk) {
+  if (scenOf(mk) === 'prep') return docPrepNotice(mk);
   const m = M(mk), date = MV(mk, 'date');
   const title = `${orgFull()}${scenOf(mk) === 'prep' ? '籌備會' : ''}開會通知書${FW.repeat(2)}民國${rd(MV(mk, 'noticeDate'))}\n${docNo(m.noticeNo)}`;
   const k2 = MV(mk, 'kind2');

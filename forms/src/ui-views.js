@@ -261,7 +261,26 @@ function renderFill() {
   $('#view').innerHTML = h;
   const i = secs.indexOf(S.ui.open), next = secs[i + 1];
   dock(`<button class="btn ghost" data-step="docs">${icon('back')}文件</button><button class="btn ghost pvbtn" data-cmd="pvOpen">${icon('eye')}預覽</button>${next ? `<button class="btn pri" data-open="${next}">下一段 ${icon('back', 'flip')}</button>` : `<button class="btn pri" data-step="dl"><span>下一步<span class="xs-hide">：下載</span></span>${icon('back', 'flip')}</button>`}`);
-  refreshLive(); renderSide();
+  foldOptional($('#view')); refreshLive(); renderSide();
+}
+/* 簡單填報：還沒填的選填欄位（標示「可留空」）收進每一區最下面的「選填欄位」，需要時再展開 */
+const OPT_OPEN = new Set();
+function foldOptional(root) {
+  if (!root) return;
+  root.querySelectorAll('section.sec .sb').forEach(sb => {
+    const key = (sb.closest('section.sec') || {}).dataset?.sec || '';
+    const opt = [...sb.querySelectorAll('.grid > .f')].filter(f => {
+      const lab = (f.querySelector('label') || {}).textContent || '', inp = f.querySelector('input[data-p], textarea[data-p], select[data-p]');
+      return /可留空|選填/.test(lab) && inp && inp.type !== 'checkbox' && isBlank(getp(S, inp.dataset.p)) && !f.closest('.lcard, .listc, details');
+    });
+    if (opt.length < 2) return;
+    const d = document.createElement('details'); d.className = 'optf'; if (OPT_OPEN.has(key)) d.open = true;
+    d.innerHTML = `<summary>${icon('plus')}選填欄位<small>${opt.length} 項，可留空；需要時再展開</small></summary><div class="grid"></div>`;
+    const g = d.querySelector('.grid'); opt.forEach(f => g.appendChild(f));
+    d.addEventListener('toggle', () => d.open ? OPT_OPEN.add(key) : OPT_OPEN.delete(key));
+    sb.appendChild(d);
+    sb.querySelectorAll('.grid').forEach(gr => { if (gr !== g && !gr.children.length) gr.remove(); });
+  });
 }
 function renderDl() {
   const sc = S.ui.scen, list = selDocs(sc), fill = list.filter(x => x.kind !== 'attach'), hb = fill.filter(x => x.hb);

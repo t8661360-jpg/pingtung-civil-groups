@@ -681,6 +681,15 @@ html.tips-on .docrow,html.tips-on .tile,html.tips-on .dock .btn{-webkit-touch-ca
 .hsearch small{color:var(--mute);font-size:.78rem;line-height:1.5}
 .ckrow{display:flex;flex-wrap:wrap;gap:8px 16px}
 .in .seg button{white-space:nowrap}
+/* 選填欄位收合、區塊小標 */
+details.optf{margin-top:14px;border:1px dashed #cfdcd8;border-radius:12px;background:#fbfcfc}
+details.optf>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;padding:11px 14px;font-weight:700;font-size:.9rem;color:var(--pri-d)}
+details.optf>summary::-webkit-details-marker{display:none}
+details.optf>summary small{font-weight:400;color:var(--mute);font-size:.78rem}
+details.optf>summary .ic{width:16px;height:16px}
+details.optf[open]>summary .ic{transform:rotate(45deg)}
+details.optf>.grid{padding:0 14px 12px}
+.f.subf{font-weight:700;color:var(--ink);font-size:.95rem;padding:10px 0 2px;border-top:1px solid var(--line);margin-top:6px}
 </style>
 </head>
 <body>
@@ -1941,7 +1950,40 @@ function contactBlock() {
   const o = S.org, ct = V('org.contactTitle'), c = V('org.contact');
   return [o.address || '', c ? `${ct ? ct + '：' : ''}${c}` : '', o.phone ? `【辦公】${o.phone}` : '', o.mobile ? `【行動】${o.mobile}` : ''].join('\n');
 }
+/* ---------- 籌備會開會通知單（縣府公文格式） ---------- */
+function docPrepNotice(mk) {
+  const m = M(mk), date = MV(mk, 'date'), k = MEET[mk].kind, k2 = MV(mk, 'kind2'), o = S.org;
+  const row = (lab, v, o2 = {}) => ({ cells: [{ v: lab, va: 't', ...o2.l }, { v: v ?? '', va: 't', ...o2.v }] });
+  const att = noticeAtt(mk).map(x => x.name), role = signRole(mk), who = MV(mk, 'signName');
+  const tel = [`辦公　${o.phone || ''}`, `住家　${o.homeTel || ''}`, `手機　${o.mobile || ''}`].join('\n');
+  const out = (ks) => ks.map(x => yesNo(recipOn(mk, x), recipLabel(x))).join('　　');
+  const head = T([row('受文者：', recipOn(mk, 'gov') ? `${o.county || '屏東縣'}政府` : '', { l: { sz: 14 }, v: { sz: 14 } }),
+    row('發文日期：', `中華民國${rd(MV(mk, 'noticeDate'))}`), row('發文字號：', docNo(m.noticeNo)), row('速別：', V(`m.${mk}.speed`) || '普通件'),
+    { cells: [{ v: '密等及解密條件或保密期限：', cs: 2 }] }, row('附件：', att.join('、'))], { size: 12, noBorder: true, pad: 0 });
+  const body = T([
+    row('開會事由：', `${yesNo(k === 'prep1', '發起人暨第一次籌備會')}　　${yesNo(k === 'prep2', '第二次籌備會')}`),
+    row('會議性質：', `${yesNo(k2 !== '臨時會', '定期會')}　　${yesNo(k2 === '臨時會', '臨時會')}`),
+    row('開會時間：', `中華民國${rd(date)}${date ? `（${weekday(date)}）` : '（星期　）'}${tm(MV(mk, 'time'))}`),
+    row('開會地點：', MV(mk, 'place')),
+    row('主持人：', MV(mk, 'chair')),
+    row('聯絡人及電話：', `${V('org.contact') || ''}\n${tel}`),
+    row('聯絡地址：', o.address || ''),
+    row('出席者：', out(['prepCom', 'founders'])),
+    row('應出席人數：', `${BL(MV(mk, 'should'))}人`),
+    row('列席者：', '敬請屏東縣政府派員列席指導。'),
+    row('副本：', V(`m.${mk}.cc`) || ''),
+    row('議程：', `一、報告事項${MV(mk, 'report') ? '\n' + MV(mk, 'report') : ''}\n二、重要討論事項\n${MV(mk, 'topics') || ''}`),
+    row('備註：', (m.noticeNote || '').trim()),
+  ], { size: 12, noBorder: true, pad: 0 });
+  return { title: '開會通知單', sheets: [{ name: '開會通知單', cols: [22, 78], size: 12, ls: 1.25, blocks: [
+    P('檔　　號：\n保存年限：', { align: 'r', size: 10, after: 4 }),
+    TITLE(`${orgFull()}籌備會`, { size: 17, after: 0 }), TITLE('開會通知單', { size: 19, after: 6 }),
+    head, P('', { after: 2 }), body,
+    P(`${yesNo(role === '籌備主委', '籌備主任委員')}　${yesNo(role === '發起人代表', '發起人代表')}　${O(who)}${STAMP(slotOf(SIGN_ROLES[role], who), '（蓋章）')}`, { align: 'c', size: 13, before: 10 }),
+  ] }] };
+}
 function docNotice(mk) {
+  if (scenOf(mk) === 'prep') return docPrepNotice(mk);
   const m = M(mk), date = MV(mk, 'date');
   const title = `${orgFull()}${scenOf(mk) === 'prep' ? '籌備會' : ''}開會通知書${FW.repeat(2)}民國${rd(MV(mk, 'noticeDate'))}\n${docNo(m.noticeNo)}`;
   const k2 = MV(mk, 'kind2');
@@ -3022,8 +3064,9 @@ function docSecs(x) {
 }
 /** 通知書「此致」：署名身分、姓名（可蓋章）、受文者 */
 function noticeSignFields(mk) {
-  const k = MEET[mk].kind;
-  return (k === 'pre' || k === 'brd' ? `<div class="f full"><label>會議類別</label><div class="in">${SEG(`m.${mk}.brdType`, [['聯席', '理監事聯席會議'], ['理事會', '理事會（單獨）'], ['監事會', '監事會（單獨）']], { def: '聯席', rr: 1 })}</div></div>` : '') + `<div class="f full"><label>此致：署名</label><div class="in">${SEG(`m.${mk}.signRole`, signRoleOpts(mk).map(r => [r, r]), { def: signRoleDef(mk), rr: 1 })}</div></div>` +
+  const k = MEET[mk].kind, prep = scenOf(mk) === 'prep';
+  return `<div class="f full subf">署名與受文者</div>` + (prep ? F(`m.${mk}.chair`, '主持人', { w: 'half' }) + F(`m.${mk}.speed`, '速別（可留空，預設普通件）', { type: 'sel', opts: ['普通件', '速件', '最速件'], w: 'half' }) + F(`m.${mk}.cc`, '副本（可留空）', { w: 'full', ph: '例：本會籌備委員' }) : '') +
+    (k === 'pre' || k === 'brd' ? `<div class="f full"><label>會議類別</label><div class="in">${SEG(`m.${mk}.brdType`, [['聯席', '理監事聯席會議'], ['理事會', '理事會（單獨）'], ['監事會', '監事會（單獨）']], { def: '聯席', rr: 1 })}</div></div>` : '') + `<div class="f full"><label>此致：署名</label><div class="in">${SEG(`m.${mk}.signRole`, signRoleOpts(mk).map(r => [r, r]), { def: signRoleDef(mk), rr: 1 })}</div></div>` +
     F(`m.${mk}.signName`, `${signRole(mk)}姓名`, { w: 'half', hint: '預設帶入人員名單；上傳印章後，這裡會自動蓋章，也可以在預覽裡拖曳位置。' }) +
     `<div class="f full"><label>此致：受文者</label><div class="ckrow">${recipOpts(mk).map(k => CK(`m.${mk}.to.${k}`, recipLabel(k), { def: recipDef(mk, k), rr: 1 })).join('')}</div></div>`;
 }
@@ -3111,7 +3154,7 @@ SEC.org = () => {
   H4('聯絡資料') + GRID(
     F('org.address', '會址', { req: 1, w: 'full', ph: '屏東縣○○鄉○○村○○路○○號' }) +
     F('org.place', '常用開會地點', { w: 'full', hint: '留空會用會址。會議若在別處，到該會議再改即可。' }) +
-    F('org.phone', '辦公電話', { req: 1, type: 'tel', w: 'half', ph: '08-7xxxxxx' }) + F('org.mobile', '行動電話', { type: 'tel', w: 'half' }) +
+    F('org.phone', '辦公電話', { req: 1, type: 'tel', w: 'half', ph: '08-7xxxxxx' }) + F('org.mobile', '行動電話', { type: 'tel', w: 'half' }) + F('org.homeTel', '住家電話（籌備會通知單用，可留空）', { type: 'tel', w: 'half' }) +
     F('org.contact', '聯絡人', { w: 'half' }) + F('org.contactTitle', '聯絡人職稱', { w: 'half', ph: '例：總幹事' }) +
     F('org.email', '電子信箱', { type: 'email', w: 'half' }) + F('org.fax', '傳真', { type: 'tel', w: 'half' }) + F('org.web', '網址', { w: 'full' })) +
   H4('公文字號') + GRID(F('org.docWord', '發文字軌', { w: 'full', ph: '例：屏○○協', hint: '產生的公文會寫成「（字軌）字第＿＿號」，每份公文的號碼在各會議內填寫。' })) +
@@ -3194,7 +3237,7 @@ function meetSection(mk) {
   if (d.el === 'ds') h += electionBlock(mk);
   if (d.el === 'chair') h += H4('選舉結果') + GRID(
     (k === 'foundBrd' ? F(`m.${mk}.el.jp`, '監票員', { w: 'half' }) + F(`m.${mk}.el.fp`, '發票員', { w: 'half' }) + F(`m.${mk}.el.cp`, '唱票員', { w: 'half' }) + F(`m.${mk}.el.jip`, '計票員', { w: 'half' }) : '') +
-    F(`m.${mk}.el.stdDirs`, '常務理事當選人（可留空）', { w: 'full' }) + F(`m.${mk}.el.chair`, '理事長當選人', { w: 'half' }) + F(`m.${mk}.el.chairVotes`, '得票數', { type: 'num', w: 'half', suf: '票' }) +
+    F(`m.${mk}.el.stdDirs`, '常務理事當選人（可留空）', { w: 'full' }) + F(`m.${mk}.el.stdDirVotes`, '常務理事得票數（可留空）', { w: 'half', ph: '例：12、10、9' }) + F(`m.${mk}.el.chair`, '理事長當選人', { w: 'half' }) + F(`m.${mk}.el.chairVotes`, '得票數', { type: 'num', w: 'half', suf: '票' }) +
     F(`m.${mk}.el.stdSup`, '常務監事當選人', { w: 'half' }) + F(`m.${mk}.el.stdSupVotes`, '得票數', { type: 'num', w: 'half', suf: '票' })) + NOTE('當選人預設帶入「人員名單」中職別為常務理事、理事長、常務監事的人；名單更新後這裡會自動跟著變。');
   h += H4(k === 'dissolve' ? '討論提案（縣府要求範例提案請勿刪減）' : '討論提案') + (k === 'dissolve' ? NOTE('提案文字會依「解散相關資料」區塊的內容自動產生。') : '') +
     LISTC(`m.${mk}.props`, propFields(mk), { summary: (r, i) => PV(mk, i, 'reason').slice(0, 40), numFmt: i => '案' + cn(i + 1), addLabel: '新增提案', emptyLabel: '（新提案）', empty: '目前沒有提案' });
@@ -3255,7 +3298,7 @@ SEC.recruit = () => GRID(F('x.recruit.no', '公告字號（號碼）', { w: 'hal
   F('x.recruit.deadline', '申請入會截止日期', { type: 'date', w: 'half', req: 1 }) + F('x.recruit.chair', '主任委員', { w: 'half' }));
 SEC.report = () => NOTE('解散須經大會出席人數三分之二以上同意（已辦社團法人登記者為四分之三以上）。五項財務報表的截止日期、解散日期、大會召開日期三者請決議一致。') + GRID(
   F('x.report.reason', '解散原因', { w: 'full', req: 1, ph: '例：會員老化、人數縮減，會務無法繼續推動' }) + F('x.report.date', '解散日期', { type: 'date', w: 'half' }) + F('x.report.agree', '同意解散人數', { type: 'num', w: 'half', suf: '人', req: 1 }) + calc('dissolveCheck', 'full') +
-  F('x.report.cash', '財務存款（剩餘財產）', { type: 'num', w: 'half', pre: '新台幣', suf: '元' }) + F('x.report.to', '剩餘財產歸屬', { w: 'half', hint: '請以公部門為主，其他團體為次。' }) + F('x.report.propDesc', '財產說明（可留空）', { type: 'area', rows: 2, w: 'full' }) +
+  F('x.report.signDate', '填表日期（可留空，預設今天）', { type: 'date', w: 'half' }) + F('x.report.memo', '備考（可留空）', { w: 'full' }) + F('x.report.cash', '財務存款（剩餘財產）', { type: 'num', w: 'half', pre: '新台幣', suf: '元' }) + F('x.report.to', '剩餘財產歸屬', { w: 'half', hint: '請以公部門為主，其他團體為次。' }) + F('x.report.propDesc', '財產說明（可留空）', { type: 'area', rows: 2, w: 'full' }) +
   F('x.report.liq', '清算人', { w: 'half' }) + F('x.report.liqFrom', '清算時間自', { type: 'date', w: 'half' }) + F('x.report.liqTo', '至', { type: 'date', w: 'half' }) + F('x.report.returnDate', '繳銷立案證書及圖記日期', { type: 'date', w: 'half' }) +
   F('x.report.okDate', '奉准解散日期（核准後填）', { type: 'date', w: 'half' }) + F('x.report.okNo', '奉准文號', { w: 'half' }) + F('x.report.story', '解散原因及經過（報告表用，可留空）', { type: 'area', rows: 3, w: 'full' }) + F('x.report.other', '其他', { w: 'full' }));
 SEC.seal = () => GRID(F('x.seal.sealDate', '印信啟用核備日期', { type: 'date', w: 'half' }) + F('x.seal.sealNo', '核備文號', { w: 'half', pre: '屏府社政字第', suf: '號' }) + F('x.seal.chair', '現任理事長', { w: 'half' }) + F('x.seal.addr', '團體會址', { w: 'full' }) + F('x.seal.use', '本印鑑證明書之用途', { type: 'area', rows: 2, w: 'full', req: 1, ph: '例：辦理銀行開戶' })) +
@@ -3526,7 +3569,26 @@ function renderFill() {
   $('#view').innerHTML = h;
   const i = secs.indexOf(S.ui.open), next = secs[i + 1];
   dock(`<button class="btn ghost" data-step="docs">${icon('back')}文件</button><button class="btn ghost pvbtn" data-cmd="pvOpen">${icon('eye')}預覽</button>${next ? `<button class="btn pri" data-open="${next}">下一段 ${icon('back', 'flip')}</button>` : `<button class="btn pri" data-step="dl"><span>下一步<span class="xs-hide">：下載</span></span>${icon('back', 'flip')}</button>`}`);
-  refreshLive(); renderSide();
+  foldOptional($('#view')); refreshLive(); renderSide();
+}
+/* 簡單填報：還沒填的選填欄位（標示「可留空」）收進每一區最下面的「選填欄位」，需要時再展開 */
+const OPT_OPEN = new Set();
+function foldOptional(root) {
+  if (!root) return;
+  root.querySelectorAll('section.sec .sb').forEach(sb => {
+    const key = (sb.closest('section.sec') || {}).dataset?.sec || '';
+    const opt = [...sb.querySelectorAll('.grid > .f')].filter(f => {
+      const lab = (f.querySelector('label') || {}).textContent || '', inp = f.querySelector('input[data-p], textarea[data-p], select[data-p]');
+      return /可留空|選填/.test(lab) && inp && inp.type !== 'checkbox' && isBlank(getp(S, inp.dataset.p)) && !f.closest('.lcard, .listc, details');
+    });
+    if (opt.length < 2) return;
+    const d = document.createElement('details'); d.className = 'optf'; if (OPT_OPEN.has(key)) d.open = true;
+    d.innerHTML = `<summary>${icon('plus')}選填欄位<small>${opt.length} 項，可留空；需要時再展開</small></summary><div class="grid"></div>`;
+    const g = d.querySelector('.grid'); opt.forEach(f => g.appendChild(f));
+    d.addEventListener('toggle', () => d.open ? OPT_OPEN.add(key) : OPT_OPEN.delete(key));
+    sb.appendChild(d);
+    sb.querySelectorAll('.grid').forEach(gr => { if (gr !== g && !gr.children.length) gr.remove(); });
+  });
 }
 function renderDl() {
   const sc = S.ui.scen, list = selDocs(sc), fill = list.filter(x => x.kind !== 'attach'), hb = fill.filter(x => x.hb);
@@ -5805,7 +5867,7 @@ function rerenderSection() {
   const sb = sec.querySelector('.sb'); if (!sb) { render(); return; }
   const y = window.scrollY;
   sb.innerHTML = k.startsWith('m:') ? meetSection(k.slice(2)) : SEC[k]();
-  refreshLive(); renderSide(); window.scrollTo({ top: y });
+  foldOptional(sec); refreshLive(); renderSide(); window.scrollTo({ top: y });
 }
 function listOp(act, path, i, tpl) {
   const arr = getp(S, path) || []; i = +i;
