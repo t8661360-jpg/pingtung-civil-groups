@@ -10,10 +10,23 @@ const SIMP='册冊劝勸协協会會员員长長补補办辦县縣么麼请請�
 const SIMPRE=new RegExp('['+SIMP.split('').filter((c,i)=>i%2===0).join('')+']');
 function simp2trad(s){if(!SIMPRE.test(s))return s;let o='';for(const c of s){const i=SIMP.indexOf(c);o+=(i>=0&&i%2===0)?SIMP[i+1]:c}return o}
 function normalizeQuestion(q){
- return normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(q))))))))))))))));
+ return normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(q)))))))))))))))));
 }
 /* 第156輪（根源）：「義買」是「義賣」的錯字；「捐錢／捐了一筆錢」＝捐款；「勸募的錢怎麼管／保管／處理」＝勸募的錢誰在管；
    「補助要等核銷完才撥嗎」＝補助款什麼時候撥；「餐會／晚會／園遊會收費算不算勸募」＝義賣算不算勸募 */
+/* 第159輪（根源）：志工換問法——「請他走／叫他走／讓他走／不讓志工繼續服務」＝開除；
+   「誤傷人／把人弄傷／打傷路人」＝傷到人（志工傷到別人，運用單位賠償）；「志工會員跟一般會員有什麼不同」＝志工和會員差在哪。
+   志工自己摔傷、跌倒、中暑＝受傷（既有保險／意外答案）；合作社不轉換 */
+function normalizeQuestion159(s){
+ s=String(s||'');
+ if(/(合作社|社員)/.test(s)||!/(志工|義工)/.test(s))return s;
+ if(/志工會員/.test(s)&&/(不同|差別|不一樣|差在哪|有何|一樣嗎)/.test(s))return '志工和會員差在哪';
+ s=s.replace(/(請|叫|讓|要|逼|趕)(他|她|這個志工|該志工|那個志工|某個志工|某位志工|志工)(走人|走|離開|退出|滾|出去|離隊)/g,'開除志工');
+ s=s.replace(/不(讓|給|准|要)(他|她|這個志工|該志工|那個志工|某個志工|志工)(繼續|再)?(服務|做|當|來|參加)/g,'開除志工');
+ s=s.replace(/(誤傷|打傷|撞傷|弄傷|碰傷|踢傷|推傷)(了)?(人|別人|路人|行人|民眾|長輩|老人|小孩|對方|他人|旁人|服務對象|案主)/g,'傷到人').replace(/把(人|別人|路人|行人|民眾|長輩|老人|小孩|對方|他人|旁人|服務對象|案主)(給)?(弄傷|打傷|撞傷|推傷|碰傷|踢傷)/g,'傷到$1').replace(/誤傷(?!人)/g,'傷到人');
+ s=s.replace(/(摔傷|跌傷|跌倒|扭傷|割傷|燙傷|扭到腳|跌斷|中暑|暈倒)/g,'受傷');
+ return s;
+}
 /* 第158輪（根源）：「退群」＝退會（問的是協會、沒提群組／LINE）；「不給入會／不給加入」＝拒絕入會；
    「會員人數變少／減少了要通知縣府」＝退會要不要報縣府（既有答案：不用逐筆報） */
 function normalizeQuestion158(s){
@@ -1275,6 +1288,7 @@ function volunteerTeam(t){
  statutes:[VS(16),VS(3),VS(7)],
  notes:['若是聘用支薪的工作人員（不是志工），適用勞動法規，請改問勞健保相關問題。']};
  if(!/(申請|成立|組|隊|備案|可以|能不能|可不可以|怎麼|如何|計畫)/.test(t))return null;
+ if(!/(成立|組成|組織|組個|組一|申請|備案|計畫|志工隊|服務隊|志工團|祥和|召募|招募|找志工|找義工|怎麼找|哪裡找|去哪找|如何找|運用單位|運用志工|能不能用志工|可以用志工|可不可以用志工)/.test(t))return null; /* 第159輪：不再用「可以／怎麼」就回成立志工隊 */
  if(/(投票|表決|選舉權|有票|離職|退出|不做了|代表協會|對外|騙|詐|偷|侵占|私吞)/.test(t))return null;
  if(/(合作社|社員|勞保|健保|勞健保|工資|薪|僱傭|僱用|雇用|職災|加班)/.test(t))return null;
  return{category:'志願服務',title:'協會可以成立志工隊、申請祥和計畫志願服務隊：立案團體可作為志願服務運用單位，運用前要先備案',
@@ -9105,7 +9119,7 @@ function patrol150(t){
  if(/(志工|義工|志願服務)/.test(t)&&/(做滿|服務滿|累積|滿|超過|達)[^，。？]{0,6}(幾小時|多少小時|小時|時數)[^，。？]{0,6}(證明|證書)/.test(t)&&!/(榮譽卡|獎牌|金牌|銀牌|銅牌)/.test(t))
   return R('志工服務滿多少小時才有證明：服務績效證明書沒有訂時數門檻，榮譽卡要滿三年且三百小時','志願服務運用單位對服務成績良好的志工，因為升學、進修、就業或其他原因需要志願服務績效證明時，得發給服務績效證明書（志願服務法第17條第1項）。條文沒有訂要服務滿幾小時才可以申請，是否發給由運用單位決定。\n另外，服務年資滿三年、服務時數達三百小時以上，可以向縣府申請志願服務榮譽卡（第20條第1項）。',[VS(17),VS(20)]);
  // (g) 當志工要不要付費、交錢
- if(/(志工|義工)/.test(t)&&/(要不要|需不需要|需要|要|得|必須|一定).{0,3}(付費|付錢|交錢|繳錢|交費|繳費|自費|自己付|自己出錢|出錢|花錢)/.test(t)&&!/(會員|入會|會費|收費|收錢|收取|報酬|民眾|受服務|服務對象|捐|募)/.test(t))
+ if(/(志工|義工)/.test(t)&&/(要不要|需不需要|需要|要|得|必須|一定).{0,3}(付費|付錢|交錢|繳錢|交費|繳費|自費|自己付|自己出錢|出錢|花錢)/.test(t)&&!/(會員|入會|會費|收費|收錢|收取|報酬|民眾|受服務|服務對象|捐|募|受傷|送醫|醫藥|醫療|住院|意外|車禍|賠|保險|中暑|暈倒)/.test(t))
   return R('當志工要不要付費、交錢：志願服務法沒有規定志工要繳費','志願服務法沒有規定志工要付費或交錢。志願服務運用單位必要時，反而得補助志工的交通、誤餐和特殊保險等經費（志願服務法第16條）。\n志工要遵守運用單位訂定的規章（第15條第1項第2款），所以有沒有訂其他費用（例如制服、訓練教材），請看運用單位的規定。\n如果志工同時是協會會員，會員的入會費、常年會費依章程訂定並經會員（會員代表）大會通過（社會團體財務處理辦法第14條、人民團體法第33條）。',[VS(16),VS(15),{title:'社會團體財務處理辦法第14條',source:LAW+'D0050097'},P(33)]);
  // (h) 志工服務可不可以抵會費
  if(/(志工|義工|志願服務|服務)/.test(t)&&/(抵|折抵|扣抵|抵銷|換|免)/.test(t)&&/(會費|常年會費|入會費)/.test(t)&&!/(收據|收入|帳)/.test(t))

@@ -13,7 +13,7 @@ function readable(text){
 function sourceLinks(source){return publicReferenceLinks(source)}
 let statuteData={laws:{}},statutePromise=null;
 async function loadStatutes(){
- if(!statutePromise)statutePromise=(async()=>{const response=await fetch('data/statutes.json.gz?v=20261124-174');if(!response.ok)throw Error('法條原文讀取失敗');const bytes=new Uint8Array(await response.arrayBuffer());let text;if(bytes[0]===31&&bytes[1]===139){text=await new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'))).text()}else text=new TextDecoder().decode(bytes);statuteData=JSON.parse(text)})().catch(error=>{console.warn(error);statutePromise=null});
+ if(!statutePromise)statutePromise=(async()=>{const response=await fetch('data/statutes.json.gz?v=20261124-175');if(!response.ok)throw Error('法條原文讀取失敗');const bytes=new Uint8Array(await response.arrayBuffer());let text;if(bytes[0]===31&&bytes[1]===139){text=await new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'))).text()}else text=new TextDecoder().decode(bytes);statuteData=JSON.parse(text)})().catch(error=>{console.warn(error);statutePromise=null});
  return statutePromise;
 }
 function statuteFor(row){
@@ -23,7 +23,7 @@ function statuteFor(row){
  return {...law,number:number[1],text:law.articles[number[1]],url:`https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=${code[1]}&flno=${number[1]}`};
 }
 /* 只顯示與回答正文相關的條文：正文（含注意事項）引用到該條號，或條文內容與正文高度重疊；避免把無關條文硬附在答案下方 */
-function citedArticleNumbers(text){const out=new Set();String(text||'').replace(/第\s*([\d\s、，,及和與至到\-－~～之]+)\s*[條點]/g,(m,g)=>{g.split(/[、，,及和與\s]+/).forEach(x=>{const r=x.match(/^(\d+)\s*[至到\-－~～]\s*(\d+)$/);if(r){for(let i=+r[1];i<=+r[2]&&i-+r[1]<30;i++)out.add(String(i))}else{const n=x.match(/\d+(?:[之\-]\d+)?/);if(n)out.add(n[0].replace('之','-'))}});return m});return out}
+function citedArticleNumbers(text){const out=new Set();String(text||'').replace(/第\s*([\d\s、，,及和與至到\-－~～之]+)\s*[條點]/g,(m,g)=>{g.split(/[、，,及和與\s]+/).forEach(x=>{const r=x.match(/^(\d+)\s*[至到\-－~～]\s*(\d+)$/);if(r){for(let i=+r[1];i<=+r[2]&&i-+r[1]<30;i++)out.add(String(i))}else{const n=x.match(/\d+(?:[之\-]\d+)?/);if(n)out.add(n[0].replace('之','-'))}});return m});String(text||'').replace(/第\s*(\d+)\s*條之\s*(\d+)/g,(m,x,y)=>{out.add(x+'-'+y);return m});return out}/* 第159輪：「第71條之1」也要認得，否則內文有引用的條文被濾掉 */
 function relevantStatutes(a){const list=a.statutes||[];if(list.length<=1)return list;
  const body=String(a.summary||'')+'\n'+(a.notes||[]).join('\n')+'\n'+(a.steps||[]).join('\n');const cited=citedArticleNumbers(body);const nb=norm(body);
  const grams=t=>{const x=norm(t).replace(/[^\u4e00-\u9fa5]/g,'');const g=new Set();for(let i=0;i<x.length-1;i++)g.add(x.slice(i,i+2));return g};const bg=grams(body);
@@ -309,7 +309,7 @@ smartFallback=function(q,kb){
   return scopedFallback(q,kb);
 };
 loadAll=async function(force){await baseLoadAll(force);await loadStatutes();if(!STORE.coopLoaded){
-  try{const responses=await Promise.all([fetch('data/coop/directory.json?v=20261124-174'),fetch('data/coop/catalog.json')]);if(responses.some(r=>!r.ok))throw Error('合作社資料載入失敗');const [dir,cat]=await Promise.all(responses.map(r=>r.json()));STORE.dir.rows=STORE.dir.rows.filter(r=>r.t!=='合作社').concat(dir.rows.map(r=>({...r,d:townOf(r.a)})));coopCatalog=cat.files;STORE.coopLoaded=true;fillCatSelect()}catch(e){console.warn(e)}
+  try{const responses=await Promise.all([fetch('data/coop/directory.json?v=20261124-175'),fetch('data/coop/catalog.json')]);if(responses.some(r=>!r.ok))throw Error('合作社資料載入失敗');const [dir,cat]=await Promise.all(responses.map(r=>r.json()));STORE.dir.rows=STORE.dir.rows.filter(r=>r.t!=='合作社').concat(dir.rows.map(r=>({...r,d:townOf(r.a)})));coopCatalog=cat.files;STORE.coopLoaded=true;fillCatSelect()}catch(e){console.warn(e)}
 }if(!STORE.kn.rows.some(r=>r.title===COOP_RULING.title)){STORE.kn.rows.push(COOP_RULING);KN_IDX=null}};
 const oldDirMetaLine=dirMetaLine;
 dirMetaLine=function(){const rows=STORE.dir.rows;const original=rows.filter(r=>r.t!=='合作社');return `人民團體 ${original.length} 筆；合作社 ${rows.filter(r=>r.t==='合作社').length} 筆（合作社名冊日期：2026/10/01）。名冊列載不代表即時營運狀態。`};
