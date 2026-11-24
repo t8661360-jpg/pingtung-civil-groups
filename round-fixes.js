@@ -10,10 +10,21 @@ const SIMP='册冊劝勸协協会會员員长長补補办辦县縣么麼请請�
 const SIMPRE=new RegExp('['+SIMP.split('').filter((c,i)=>i%2===0).join('')+']');
 function simp2trad(s){if(!SIMPRE.test(s))return s;let o='';for(const c of s){const i=SIMP.indexOf(c);o+=(i>=0&&i%2===0)?SIMP[i+1]:c}return o}
 function normalizeQuestion(q){
- return normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(q))))))))))))))))))));
+ return normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(q)))))))))))))))))))));
 }
 /* 第156輪（根源）：「義買」是「義賣」的錯字；「捐錢／捐了一筆錢」＝捐款；「勸募的錢怎麼管／保管／處理」＝勸募的錢誰在管；
    「補助要等核銷完才撥嗎」＝補助款什麼時候撥；「餐會／晚會／園遊會收費算不算勸募」＝義賣算不算勸募 */
+/* 第163輪（根源）：稅務、勸募與補助換問法——
+   「捐錢／捐款／贊助 給協會，可以扣稅／減稅／省稅／退稅／少繳稅」＝捐款能不能抵稅（交給「請洽國稅局」規則，不再被答成扣繳）；
+   協會自己「收到捐款要不要免稅／繳稅」是協會的所得稅，不改寫 */
+function normalizeQuestion163(s){
+ s=String(s||'');
+ if(/(合作社|社員)/.test(s))return s;
+ if(/(捐錢|捐款|捐贈|捐給|贊助|樂捐|捐了)/.test(s)&&/(扣稅|減稅|省稅|少繳稅|退稅|扣所得稅|減免稅|免稅額|扣抵)/.test(s)&&!/(收到|收了|收取|收入|領到|拿到|協會要|協會有|社團要|社團有|需要繳|要不要繳|要繳)/.test(s)){
+  s=s.replace(/捐錢|捐了|贊助|樂捐/g,'捐款').replace(/(扣所得稅|減免稅|扣稅|減稅|省稅|少繳稅|退稅|扣抵)/,'抵稅');
+ }
+ return s;
+}
 /* 第162輪（根源）：入會退會、會員權利、志工、工作人員換問法——
    「不想／懶得／不願意去（參加、出席）大會」＝不去大會（沒寫「會員」時補上主詞，交給會員出席大會規則）；
    「會被處罰／會被罰款／有罰則嗎」＝會被罰 */
@@ -3507,7 +3518,7 @@ function patrol26(t){
   return Object.assign({},base,{title:'統一編號和立案證書字號不一樣：統編是向國稅局申請的',
   summary:'不一樣。立案證書字號是協會向縣府社會處登記立案時取得的；統一編號則是協會立案後，另外向國稅局申請的。\n有了統編，才能開協會帳戶、開立收據、辦理扣繳申報。\n申請方式請洽協會所在地的國稅局；也可以參考本站「協會怎麼申請統一編號」。'+tax});
  /* 協會有沒有統編 */
- if(/(統編|統一編號)/.test(t)&&/(有沒有|有無|需要|要不要|一定要|必須|有嗎|要有)/.test(t)&&!/(申請|怎麼|如何|哪裡|查|換|變更)/.test(t)&&!/(買|採購|購買|消費|拿|打統編|報帳|核銷|收據|發票|抬頭|店家|廠商)/.test(t))
+ if(/(統編|統一編號)/.test(t)&&/(有沒有|有無|需要|要不要|一定要|必須|有嗎|要有|要申請|要辦|沒有統|沒統|無統|不申請)/.test(t)&&(!/(申請|怎麼|如何|哪裡|查|換|變更)/.test(t)||(/(要|需要|需不需要|一定要|必須).{0,2}申請/.test(t)&&/(嗎|要不要|需不需要|一定|必須|是不是)/.test(t)&&!/(怎麼|如何|哪裡|哪邊|流程|文件|帶什麼|多久|費用|線上)/.test(t)))&&!/(買|採購|購買|消費|拿|打統編|報帳|核銷|收據|發票|抬頭|店家|廠商)/.test(t))
   return Object.assign({},base,{title:'協會立案後要自己向國稅局申請統一編號',
   summary:'協會立案後，統一編號不是自動產生的，要自己向協會所在地的國稅局申請。\n有了統編，才能開協會帳戶、開立收據、辦理扣繳申報。\n申請的方式與要帶的文件，請洽國稅局；也可以參考本站「協會怎麼申請統一編號」。'+tax});
  /* 買東西統編發票 */
