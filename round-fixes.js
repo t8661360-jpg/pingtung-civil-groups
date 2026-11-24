@@ -9218,7 +9218,12 @@ function patrol153(t){
  return null;
 }
 function patrol155(t){
- if(!/(紀錄|記錄|決議|備查|核備|通知|公文|函|掛號|蓋什麼章|用什麼章|結果|告知|告訴)/.test(t))return null;
+ if(!/(紀錄|記錄|決議|備查|核備|通知|公文|函|掛號|蓋什麼章|用什麼章|結果|告知|告訴|議員|民意代表|立委|立法委員)/.test(t))return null;
+ // (g) 現任議員、民意代表可否加入協會當會員（Gemini 初審 r155，法規無明文）
+ if(/(議員|民意代表|立委|立法委員)/.test(t)&&/(會員|入會|加入)/.test(t)&&!/(合作社|社員|工會|公會|政黨|基金會|理事|監事|理監事|候選|補助|捐|贊助|政治獻金|選舉|競選|兼任|擔任)/.test(t))
+  return {direct:true,category:'人民團體會務說明',notes:[],questionState:{focus:'member-155',domain:'social'},actions:[{label:'聯絡承辦',view:'contact',sub:''}],title:'現任議員、民意代表可以加入協會當會員嗎：本站查到的人民團體法沒有限制，入會資格看章程',
+   summary:'本站收錄的人民團體法，沒有規定現任議員或民意代表不能加入人民團體當會員。會員入會、出會與除名、會員的權利與義務，都是章程要載明的事項（人民團體法第12條第7款、第8款），所以能不能入會，要看該協會章程訂的入會資格，並依章程的程序申請。\n如果是要擔任理事、監事或理事長，或牽涉補助、政治獻金等其他問題，請另外詢問，或洽縣府社會處承辦人員，縣府總機 08-7320415。',
+   statutes:[{title:'人民團體法第12條',source:LAW+'D0050091'}]};
  if(/(合作社|社員|股金|基金會|工會|公會|政黨|管委會|管理委員會|志工|義工|寺廟|議員|魅力社區|社區發展|選舉|改選|財務|帳冊|稅)/.test(t))return null;
  const base={direct:true,category:'人民團體會務說明',notes:[],questionState:{focus:'docs-155',domain:'social'},actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
  const call='\n\n個案細節請洽縣府社會處承辦人員，縣府總機 08-7320415。';
