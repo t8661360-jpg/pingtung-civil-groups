@@ -831,7 +831,7 @@ async function saveChunked(coll,rows,metaExtra){
 async function loadAll(force){
   if(loadPromise&&!force)return loadPromise;
   loadPromise=(async()=>{
-    const base=document.baseURI.replace(/[^/]*$/,"")+"data/";const DV="?v=20261124-184";
+    const base=document.baseURI.replace(/[^/]*$/,"")+"data/";const DV="?v=20261124-185";
     const jf=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);return r.json()};
     const jgz=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);const b=new Uint8Array(await r.arrayBuffer());if(b[0]!==31||b[1]!==139)return JSON.parse(new TextDecoder().decode(b));if(typeof DecompressionStream==="undefined")throw new Error("gzip unsupported");const text=await new Response(new Blob([b]).stream().pipeThrough(new DecompressionStream("gzip"))).text();return JSON.parse(text)};
     const [d,s,k,f]=await Promise.allSettled([jf(base+"directory.json"+DV),jf(base+"staff.json"+DV),jgz(base+"knowledge.json.gz"+DV).catch(()=>jf(base+"knowledge.json"+DV)),jf(base+"forms-catalog.json?v=20261105-5")]);
@@ -985,7 +985,7 @@ function dirQueryFrom(q,intent){
     if((c||t||d)&&kw.length<=2)kw="";
     if(/^(協會|學會|公會|社區|團體|會|的|有|的團體|的協會|的社區)?$/.test(kw))kw="";
     /* 第166輪：「社區發展協會的公告要貼在哪裡／有沒有人來輔導」剩下的「公告要貼、人來輔導」不是團體名稱，是規則問句 */
-    if((c||t)&&kw&&kw.length<=8&&/[要來能會該應貼]/.test(kw))return{kw:"",d,t,c,rule:true};
+    if(kw&&kw.length<=8&&((c||t)?/[要來能會該應貼]|可以/.test(kw):/[要能該應貼]|人來|可以/.test(kw)))return{kw:"",d,t,c,rule:true};
   }
   return{kw,d,t,c};
 }
@@ -1869,13 +1869,13 @@ touch();
   route();
 })();
 </script>
-<script src="feedback-collector.js?v=20261124-184"></script>
-<script src="round-fixes.js?v=20261124-184"></script>
-<script src="answer-arbiter.js?v=20261124-184"></script>
-<script src="question-understanding.js?v=20261124-184"></script>
-<script src="counter-upgrade.js?v=20261124-184"></script>
-<script src="ai-assist.js?v=20261124-184"></script>
-<script src="festive.js?v=20261124-184" defer></script>
+<script src="feedback-collector.js?v=20261124-185"></script>
+<script src="round-fixes.js?v=20261124-185"></script>
+<script src="answer-arbiter.js?v=20261124-185"></script>
+<script src="question-understanding.js?v=20261124-185"></script>
+<script src="counter-upgrade.js?v=20261124-185"></script>
+<script src="ai-assist.js?v=20261124-185"></script>
+<script src="festive.js?v=20261124-185" defer></script>
 </body>
 </html>
 
