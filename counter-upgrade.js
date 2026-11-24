@@ -13,7 +13,7 @@ function readable(text){
 function sourceLinks(source){return publicReferenceLinks(source)}
 let statuteData={laws:{}},statutePromise=null;
 async function loadStatutes(){
- if(!statutePromise)statutePromise=(async()=>{const response=await fetch('data/statutes.json.gz?v=20261124-157');if(!response.ok)throw Error('法條原文讀取失敗');const bytes=new Uint8Array(await response.arrayBuffer());let text;if(bytes[0]===31&&bytes[1]===139){text=await new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'))).text()}else text=new TextDecoder().decode(bytes);statuteData=JSON.parse(text)})().catch(error=>{console.warn(error);statutePromise=null});
+ if(!statutePromise)statutePromise=(async()=>{const response=await fetch('data/statutes.json.gz?v=20261124-158');if(!response.ok)throw Error('法條原文讀取失敗');const bytes=new Uint8Array(await response.arrayBuffer());let text;if(bytes[0]===31&&bytes[1]===139){text=await new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'))).text()}else text=new TextDecoder().decode(bytes);statuteData=JSON.parse(text)})().catch(error=>{console.warn(error);statutePromise=null});
  return statutePromise;
 }
 function statuteFor(row){
@@ -283,7 +283,11 @@ searchKn=function(q,limit,legacy){
   /* 問句沒有提到合作社，就不拿合作社的條目來回答（例如「社團每年要開什麼會」） */
   const people=!coop;
   const exact=articleRows(q);
-  const results=unscopedSearchKn(String(q).replaceAll('法規說明','白話說明'),STORE.kn.rows.length,legacy).filter(hit=>!exact.length||exact.includes(hit._r));
+  /* 第147輪（根源）：問句含「社區發展協會」時，這幾個字的字詞片段會讓所有標題有這四字的條目拿到高分
+     （例如「社區發展協會多久要開一次理監事會？」「社區發展協會名冊」搶答「怎麼改選」「有分幾個組」「要居民才能入會嗎」）。
+     先把團體名稱拿掉，剩下的主題字詞至少要有一個出現在條目的標題或別名，才算同一件事。 */
+  const typeTopic=/(社區發展協會|社區協會)/.test(q)?bigrams(String(q).replace(/社區發展協會|社區協會|社發協會|協會|社團|團體|本會/g,'').replace(KSTOP,'').replace(/一定|不要|有沒有|沒有|能不能|可不可|是不是|是否|哪些|幾個|多少|為什麼|還是|或是/g,'')).filter(b=>b.length===2):[];
+  const results=unscopedSearchKn(String(q).replaceAll('法規說明','白話說明'),STORE.kn.rows.length,legacy).filter(hit=>!exact.length||exact.includes(hit._r)).filter(hit=>{if(!typeTopic.length)return true;const tt=norm((hit._r.title||'')+' '+(hit._r.alias||''));return typeTopic.some(b=>tt.includes(b))});
   return results.filter(hit=>{if(comparison||(!coop&&!people))return true;const row=hit._r;const isCoop=/^合作社/.test(row.cat||'')||/合作社|合作農場/.test((row.title||'')+' '+(row.alias||''));if(people&&!/工會|公會|商業|工業|醫事|社工|護理|律師/.test(q)&&/工會|公會|商業團體|工業團體|醫事|社工師|護理|律師/.test(row.title+' '+(row.alias||'')+' '+row.cat))return false;return coop?isCoop:!isCoop}).slice(0,limit||5);
 };
 const scopedFallback=smartFallback;
@@ -305,7 +309,7 @@ smartFallback=function(q,kb){
   return scopedFallback(q,kb);
 };
 loadAll=async function(force){await baseLoadAll(force);await loadStatutes();if(!STORE.coopLoaded){
-  try{const responses=await Promise.all([fetch('data/coop/directory.json?v=20261124-157'),fetch('data/coop/catalog.json')]);if(responses.some(r=>!r.ok))throw Error('合作社資料載入失敗');const [dir,cat]=await Promise.all(responses.map(r=>r.json()));STORE.dir.rows=STORE.dir.rows.filter(r=>r.t!=='合作社').concat(dir.rows.map(r=>({...r,d:townOf(r.a)})));coopCatalog=cat.files;STORE.coopLoaded=true;fillCatSelect()}catch(e){console.warn(e)}
+  try{const responses=await Promise.all([fetch('data/coop/directory.json?v=20261124-158'),fetch('data/coop/catalog.json')]);if(responses.some(r=>!r.ok))throw Error('合作社資料載入失敗');const [dir,cat]=await Promise.all(responses.map(r=>r.json()));STORE.dir.rows=STORE.dir.rows.filter(r=>r.t!=='合作社').concat(dir.rows.map(r=>({...r,d:townOf(r.a)})));coopCatalog=cat.files;STORE.coopLoaded=true;fillCatSelect()}catch(e){console.warn(e)}
 }if(!STORE.kn.rows.some(r=>r.title===COOP_RULING.title)){STORE.kn.rows.push(COOP_RULING);KN_IDX=null}};
 const oldDirMetaLine=dirMetaLine;
 dirMetaLine=function(){const rows=STORE.dir.rows;const original=rows.filter(r=>r.t!=='合作社');return `人民團體 ${original.length} 筆；合作社 ${rows.filter(r=>r.t==='合作社').length} 筆（合作社名冊日期：2026/10/01）。名冊列載不代表即時營運狀態。`};
