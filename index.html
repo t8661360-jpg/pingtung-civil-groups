@@ -831,7 +831,7 @@ async function saveChunked(coll,rows,metaExtra){
 async function loadAll(force){
   if(loadPromise&&!force)return loadPromise;
   loadPromise=(async()=>{
-    const base=document.baseURI.replace(/[^/]*$/,"")+"data/";const DV="?v=20261125-190";
+    const base=document.baseURI.replace(/[^/]*$/,"")+"data/";const DV="?v=20261125-191";
     const jf=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);return r.json()};
     const jgz=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);const b=new Uint8Array(await r.arrayBuffer());if(b[0]!==31||b[1]!==139)return JSON.parse(new TextDecoder().decode(b));if(typeof DecompressionStream==="undefined")throw new Error("gzip unsupported");const text=await new Response(new Blob([b]).stream().pipeThrough(new DecompressionStream("gzip"))).text();return JSON.parse(text)};
     const [d,s,k,f]=await Promise.allSettled([jf(base+"directory.json"+DV),jf(base+"staff.json"+DV),jgz(base+"knowledge.json.gz"+DV).catch(()=>jf(base+"knowledge.json"+DV)),jf(base+"forms-catalog.json?v=20261105-5")]);
@@ -1492,7 +1492,7 @@ function smartFallback(q,kb){
   const twn=townOf(q);
   if(twn&&/統編|統一編號|國稅|扣繳|所得稅|免稅|報稅/.test(q)){const tr=STORE.kn.rows.find(r=>r.cat==="國稅轄區"&&r.text.includes(twn));if(tr)parts.where=[`${twn}的國稅窗口：`+tr.text,...(parts.where||[])]}
   /* 規則型問句（要不要、可不可以、需要…）沒有查詢名冊的字眼時，不要退回列名冊，改走「難倒小屏」交承辦補答案 */
-  if(!kb&&!parts.summary&&!PROCESS_RE.test(q)&&ENTITY_RE.test(q)&&STORE.dir.rows.length&&!(/要不要|需不需要|需要|可不可以|可以|能不能|能否|是否|一定要|必須|必要|會不會|為什麼|為何|怎樣|怎麼|如何|嗎|呢|要做|要辦|要幾|幾件|幾次|做什麼|要什麼/.test(q)&&!QUERY_RE.test(q))){
+  if(!kb&&!parts.summary&&!PROCESS_RE.test(q)&&ENTITY_RE.test(q)&&STORE.dir.rows.length&&!(/要不要|需不需要|需要|可不可以|可以|能不能|能否|是否|一定要|必須|必要|會不會|為什麼|為何|怎樣|怎麼|如何|嗎|呢|要做|要辦|要幾|幾件|幾次|做什麼|要什麼|遺失|不見了|弄丟|丟掉|掉了|找不到|壞掉|過期|被偷|被搶/.test(q)&&!QUERY_RE.test(q))){
     const t=detectType(q),c=detectCat(q),d=townOf(q);
     if((c||t||d)&&!dirQueryFrom(q,{}).rule){const r=searchDir({kw:"",d,c,t},10);
       if(r.total&&!parts.groups){parts.groups=r.rows.slice(0,6);parts.dirMeta=dirMetaLine();
@@ -1869,13 +1869,13 @@ touch();
   route();
 })();
 </script>
-<script src="feedback-collector.js?v=20261125-190"></script>
-<script src="round-fixes.js?v=20261125-190"></script>
-<script src="answer-arbiter.js?v=20261125-190"></script>
-<script src="question-understanding.js?v=20261125-190"></script>
-<script src="counter-upgrade.js?v=20261125-190"></script>
-<script src="ai-assist.js?v=20261125-190"></script>
-<script src="festive.js?v=20261125-190" defer></script>
+<script src="feedback-collector.js?v=20261125-191"></script>
+<script src="round-fixes.js?v=20261125-191"></script>
+<script src="answer-arbiter.js?v=20261125-191"></script>
+<script src="question-understanding.js?v=20261125-191"></script>
+<script src="counter-upgrade.js?v=20261125-191"></script>
+<script src="ai-assist.js?v=20261125-191"></script>
+<script src="festive.js?v=20261125-191" defer></script>
 </body>
 </html>
 
