@@ -10,7 +10,7 @@ const SIMP='册冊劝勸协協会會员員长長补補办辦县縣么麼请請�
 const SIMPRE=new RegExp('['+SIMP.split('').filter((c,i)=>i%2===0).join('')+']');
 function simp2trad(s){if(!SIMPRE.test(s))return s;let o='';for(const c of s){const i=SIMP.indexOf(c);o+=(i>=0&&i%2===0)?SIMP[i+1]:c}return o}
 function normalizeQuestion(q){
- return normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(q)))))))))))))))))))))))))))))))))))))))));
+ return normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(q))))))))))))))))))))))))))))))))))))))))));
 }
 /* 第156輪（根源）：「義買」是「義賣」的錯字；「捐錢／捐了一筆錢」＝捐款；「勸募的錢怎麼管／保管／處理」＝勸募的錢誰在管；
    「補助要等核銷完才撥嗎」＝補助款什麼時候撥；「餐會／晚會／園遊會收費算不算勸募」＝義賣算不算勸募 */
@@ -3616,7 +3616,7 @@ function publicServantOfficer(t){
 }
 function relativesAsOfficers(t){
  if(!/(夫妻|夫婦|父子|父女|母子|母女|兄弟|姊妹|姐妹|親屬|親戚|一家人|同一家|配偶|三親等|二親等)/.test(t))return null;
- if(!/(理事|監事|理監事|常務)/.test(t)||/合作社|社員|總幹事|秘書長|工作人員|會計|出納|幹事|職員|員工|聘/.test(t))return null;
+ if(!/(理事|監事|理監事|常務)/.test(t)||/合作社|社員|總幹事|秘書長|工作人員|會計|出納|幹事|職員|員工|聘|上班|僱|雇|任職/.test(t))return null;
  return{direct:true,category:'人民團體會務說明',title:'親屬可以同時當理事或監事：人民團體法沒有親等限制，但章程另有規定的照章程',
  summary:'人民團體法沒有限制親屬同時擔任理事、監事。理事、監事是由會員大會從會員裡選出來的（人民團體法第17條），每位會員都有被選舉權（第16條），夫妻、父子、兄弟只要都是會員、都當選，依法就可以同時擔任。\n\n要注意三件事：\n• 章程如果另有限制（例如規定理事長和監事不能是近親），就要照章程。\n• 同一個人不能同時當理事又當監事。\n• 監事會負責查核理事會的財務，理事長和監事是近親，容易讓會員質疑查帳不公正，建議盡量避開。\n\n聘僱的工作人員（總幹事、會計等）是不是可以用理事長的親屬，是另一個問題，請另外詢問。',
  statutes:[P(16),P(17)],notes:[]};
@@ -3750,7 +3750,7 @@ function staffInsurance(t){
 }
 function chairRelativeStaff(t){
  if(!/(理事長)/.test(t))return null;
- if(!/(太太|老婆|妻子|先生|老公|丈夫|配偶|兒子|女兒|小孩|孩子|爸爸|媽媽|父親|母親|兄弟|姊妹|姐妹|哥哥|弟弟|姊姊|姐姐|妹妹|親戚|親屬|女婿|媳婦|孫|姪|外甥|岳|公婆|三親等)/.test(t))return null;
+ if(!/(家人|家屬|親人|自己人|家裡人|太太|老婆|妻子|先生|老公|丈夫|配偶|兒子|女兒|小孩|孩子|爸爸|媽媽|父親|母親|兄弟|姊妹|姐妹|哥哥|弟弟|姊姊|姐姐|妹妹|親戚|親屬|女婿|媳婦|孫|姪|外甥|岳|公婆|三親等)/.test(t))return null;
  if(!/(總幹事|秘書長|工作人員|會計|出納|幹事|職員|員工|聘)/.test(t))return null;
  if(/合作社|社員|公會/.test(t))return null;
  return{category:'人民團體會務說明',title:'理事長的配偶或親屬可以當總幹事等工作人員嗎：不可以，三親等以內不得聘僱（接任前已聘者除外）',
@@ -4831,7 +4831,7 @@ function patrol19(t){
  const sw=n=>({title:'社會團體工作人員管理辦法第'+n+'條',source:LAW+'D0050096'});
  const lb=n=>({title:'勞動基準法第'+n+'條',source:LAW+'N0030001'});
  /* 理事長親屬 */
- if(/理事長|會長/.test(t)&&/(太太|老婆|妻子|先生|老公|丈夫|配偶|兒子|女兒|小孩|孩子|爸爸|媽媽|父親|母親|兄弟|姊妹|哥哥|弟弟|姊姊|姐姐|妹妹|親戚|親屬|女婿|媳婦|三親等|舅|姑|姨|叔|伯|岳|公公|婆婆|姪|甥|孫)/.test(t)&&/(上班|工作人員|幹事|總幹事|員工|聘|辭|離職|請|當|領薪|薪水|幫忙|會計|出納)/.test(t)&&!/(理事|監事)(?!長)/.test(t.replace(/理事長/g,'')))
+ if(/理事長|會長/.test(t)&&/(家人|家屬|親人|自己人|太太|老婆|妻子|先生|老公|丈夫|配偶|兒子|女兒|小孩|孩子|爸爸|媽媽|父親|母親|兄弟|姊妹|哥哥|弟弟|姊姊|姐姐|妹妹|親戚|親屬|女婿|媳婦|三親等|舅|姑|姨|叔|伯|岳|公公|婆婆|姪|甥|孫)/.test(t)&&/(上班|工作人員|幹事|總幹事|員工|聘|辭|離職|請|當|領薪|薪水|幫忙|會計|出納)/.test(t)&&!/(理事|監事)(?!長)/.test(t.replace(/理事長/g,'')))
   return Object.assign({},base,{title:'理事長的配偶、三親等以內親屬可以來協會上班嗎：不可以，接任前已經在職的才例外',
   summary:'不可以。社會團體不得聘僱現任理事長的配偶，以及三親等以內的血親、姻親當工作人員（社會團體工作人員管理辦法第5條）。\n例外只有一種：這位親屬在該理事長接任以前就已經受聘的，不在此限，所以不用因為理事長換人而辭退。\n三親等怎麼算有疑義時，請洽承辦確認。'+(/幫忙/.test(t)?'\n另外，這個辦法限制的是「聘僱」成為工作人員（辦法第2條：工作人員指由社會團體聘僱，承辦會務、業務之人員）；如果只是不領薪水、沒有受聘的義務幫忙，辦法沒有明文規定，請洽承辦確認。':''),statutes:[sw(5),sw(2)]});
  /* 理事或理事的親屬 */
@@ -8494,14 +8494,14 @@ function patrol99(t){
 function patrol98(t){
  /* 第98輪：志工與工作人員（社會團體工作人員管理辦法§3、4、5、6、7；人民團體法§24；志願服務法§3、7、9、15、16） */
  if(/(合作社|社員|公會|工會|職業團體|政黨|基金會|勸募|補助|核銷|稅|扣繳|社區發展|魅力社區|解散|清算)/.test(t))return null;
- const hire=/(請人(?!代|替|幫|來代|去)|聘人|請員工|聘員工|請職員|聘職員|請工讀|聘工讀|請的人|聘的人|找人來(?:上班|做事)|新進(?:員工|人員)|請兼職|聘兼職|請約聘|聘約聘)/;
+ const hire=/(請人(?!代|替|幫|來代|去)|聘人|請員工|聘員工|雇用員工|僱用員工|聘僱員工|雇用工作人員|僱用工作人員|聘僱工作人員|聘用工作人員|請職員|聘職員|請工讀|聘工讀|請的人|聘的人|找人來(?:上班|做事)|新進(?:員工|人員)|請兼職|聘兼職|請約聘|聘約聘)/;
  if(!/(志工|義工|志願)/.test(t)&&hire.test(t)){
   const sw=n=>({title:'社會團體工作人員管理辦法第'+n+'條',source:LAW+'D0050096'});
   if(/(入會|會員|外人|外面|外部)/.test(t)&&/(一定|必須|要是|才可以|才能|可以|能不能|嗎)/.test(t)){
    const r=staffMustBeMember(t.replace(hire,'工作人員').replace(/入會/g,'是會員'));
    if(r)return r;
   }
-  if(/(理事會|理事長|經過|通過|開會|決議|誰同意|誰核准|誰批准|誰決定|誰說了算)/.test(t)&&!/(解聘|離職|資遣|開除|辭職)/.test(t)&&!(/(誰同意|誰核准|誰批准|誰決定|誰說了算)/.test(t)&&/(員工|工作人員|總幹事|職員|幹事|工讀)/.test(t)))
+  if(/(理事會|理事長|經過|通過|開會|決議|投票|表決|大家同意|全體|誰同意|誰核准|誰批准|誰決定|誰說了算)/.test(t)&&!/(解聘|離職|資遣|開除|辭職)/.test(t)&&!(/(誰同意|誰核准|誰批准|誰決定|誰說了算)/.test(t)&&/(員工|工作人員|總幹事|職員|幹事|工讀)/.test(t)))
    return{direct:true,category:'人民團體會務說明',title:'協會請人要經過理事會通過，不需要會員大會同意：依資格條件遴選後再提理事會',
    summary:'要。協會聘僱工作人員，不是理事長一個人說了算：職稱、員額和資格條件由理事會訂定，依資格條件遴選後，提經理事會通過才聘僱（社會團體工作人員管理辦法第3條）。個別人員的聘僱不需要會員大會同意。\n\n聘僱時要注意：\n1. 理事、監事不能兼任工作人員（第4條）。\n2. 不能聘僱現任理事長的配偶及三親等以內血親、姻親；但理事長接任前就已經受聘的，不在此限（第5條）。\n3. 薪給、福利、保險、資遣、退休等事項，不得違反勞動法令，由理事會訂定，提會員（代表）大會通過後實施（第7條）。\n\n日後要解聘，也要經理事會通過（第6條）。',
    statutes:[sw(3),sw(4),sw(5),sw(7),sw(6)],notes:[],questionState:{focus:'staff-hiring-98',domain:'social'},actions:[{label:'看職員異動',view:'meet',sub:'m-roster'}]};
@@ -9425,7 +9425,7 @@ function patrol126(t){
  const LB=n=>({title:'勞動基準法第'+n+'條',source:LAW+'N0030001'});
  const MEM=/(理事|監事|理監事|理事長|會長)/;
  /* 一、員工、總幹事能不能入會當會員、有沒有投票權（理事、監事兼任工作人員另有答案，這裡不碰） */
- if(STAFF.test(t)&&!MEM.test(t)&&/(入會|加入|當會員|是會員|成為會員|做會員|要不要.{0,2}會員|可以.{0,2}會員|能.{0,2}會員|投票|表決|選舉權|被選舉|選票)/.test(t)&&!/(不是會員|非會員|不用是|不必是|可以不是|能不是|一定要是|一定要為|必須是|非要是|要是會員|一定是會員|一定要入|必須入|委託|出席|代理|代表|受託|薪|工資|待遇|勞保|健保|任期|解聘|開戶)/.test(t))
+ if(STAFF.test(t)&&!MEM.test(t)&&!/(聘|僱|雇|請).{0,4}(員工|工作人員|總幹事|職員|幹事|行政人員).{0,6}(要|需|得).{0,4}(大家|全體|大會|會員)?.{0,2}(投票|表決|同意|通過)/.test(t)&&/(入會|加入|當會員|是會員|成為會員|做會員|要不要.{0,2}會員|可以.{0,2}會員|能.{0,2}會員|投票|表決|選舉權|被選舉|選票)/.test(t)&&!/(不是會員|非會員|不用是|不必是|可以不是|能不是|一定要是|一定要為|必須是|非要是|要是會員|一定是會員|一定要入|必須入|委託|出席|代理|代表|受託|薪|工資|待遇|勞保|健保|任期|解聘|開戶)/.test(t))
   return R('協會的員工、總幹事可以入會當會員嗎：法規沒有禁止，入會資格看章程，但不能同時當理事、監事','法規沒有規定協會的員工、總幹事不能入會，也沒有規定一定要入會。社會團體工作人員管理辦法只規定工作人員是團體聘僱、承辦會務業務的人員（第2條），沒有對會員身分另訂限制；會員的入會資格，由章程訂定（人民團體法第12條第7款）。\n\n如果章程讓員工入會，成為會員後和其他會員一樣，有表決權、選舉權、被選舉權與罷免權（人民團體法第16條）。\n\n要注意的是：工作人員不得由選任的職員（理事、監事）擔任（社會團體工作人員管理辦法第4條）。員工如果被選為理事、監事，就不能再當工作人員，要先辭去其中一個職務。',[SW(2),SW(4),P(12),P(16)]);
  /* 二、總幹事、幹事、員工可不可以領薪水（沒有提到協會的問法，原規則要有協會字樣才觸發） */
  if(STAFF.test(t)&&!MEM.test(t)&&/((領|支|拿|給|付)(薪|錢|工資|待遇)|有(沒有)?(給)?(薪水|薪|工資)|無給|有給)/.test(t)&&!/(假|傷|病|職災|產|育嬰|補償|撫卹|遲到|曠職|基本工資|低於|最低|少於|低薪|高薪|考核|考績|獎懲|扣繳|扣稅|扣所得|報稅|所得稅|憑單|現金|匯款|轉帳|匯到|銀行|發放|怎麼發|怎麼付|誰決定|誰訂|誰定|理事會|大會|多少|最低|調薪|加薪|加班|年終|獎金|勞保|健保|勞退|退休|資遣)/.test(t)&&/(可以|能|可不可以|能不能|可否|合法|違法|合不合|行不行|有(沒有)?(給)?(薪水|薪|工資)|無給|有給)/.test(t)){
@@ -10513,6 +10513,18 @@ function patrol154(t){
 function normalizeQuestion186(s){
  s=String(s||'');
  s=s.replace(/章成/g,'章程').replace(/章城/g,'章程').replace(/章稱/g,'章程');
+ return s;
+}
+/* 第190輪（志工與工作人員換問法）根本原因：①「請職員／請助理／請秘書／請幹事／請工讀生」「請志工／招志工」沒對到既有的「聘僱員工」「運用志工」同義詞，落入難倒小屏；
+   ②「總幹事可以是理事長的家人」——親屬詞表沒有「家人／家屬／親人」；③聘僱規則5b只認「大會通過」，「開會通過／理事會同意」被泛用的勞健保答案吃掉。 */
+function normalizeQuestion190(s){
+ s=String(s||'');
+ if(/合作社|社員|公會|工會/.test(s))return s;
+ s=s.replace(/請(志工|義工)(?=嗎|呢|可以|可不可以|能不能|行不行|$|\?|？)/g,'運用$1').replace(/(招|找|徵|招募|徵求)(志工|義工)(?=嗎|呢|$|\?|？)/g,'運用$2');
+ if(/(志工|義工)/.test(s))s=s.replace(/(車錢|車資|油錢|油資|便當錢)/g,m=>/便當|餐/.test(m)?'餐費':'交通費');
+ if(/(志工|義工)/.test(s))s=s.replace(/(登記|登錄|造|做|建|編)(成|一份|個)?(志工|義工)?(名冊|名單)/g,'$4');
+ if(s.length<=16&&/^(協會|社團|我們協會)?的?(職員|員工|工作人員|總幹事)(可以|能|能不能|可不可以)?(參選|出來選|去選|競選)(理事|理監事|理事長)?(嗎|呢)?[?？]?$/.test(s))s='員工可以當理事嗎';
+ s=s.replace(/請(職員|助理|秘書|行政人員|行政助理|工讀生|臨時工|臨時人員)/g,'聘僱員工').replace(/(?<![只至最多少])請(一個|一位|1個|1位)?幹事(?=嗎|呢|可以|要|$|\?|？)/g,'聘僱員工');
  return s;
 }
 /* 第189輪（入會退會換問法）根本原因：①「踢掉」「退出協會」「會籍什麼時候消失」「入會費拿回來」「入會申請被打回」是口語同義詞，normalizeQuestion189 統一處理；
