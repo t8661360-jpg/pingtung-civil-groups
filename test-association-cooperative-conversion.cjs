@@ -1,6 +1,6 @@
 const assert=require('node:assert/strict');
 const answer=require('./association-cooperative-conversion.js');
-for(const q of ['已經有一個協會了，可以直接改名變成合作社嗎？','我們協會可以改組為合作社嗎？','原本的社會團體可以轉成合作社嗎？']){
+for(const q of ['已經有一個協會了，可以直接改名變成合作社嗎？','我們協會可以改組為合作社嗎？','原本的社會團體可以轉成合作社嗎？','社區發展協會可以變成合作社嗎']){
  const a=answer(q);assert.match(a?.title??'',/不能只靠改名/,q);
  assert.match(a.summary,/七人以上.*創立會.*一個月內/);
  assert.match(a.summary,/不會因為改名就自動變成社員/);
