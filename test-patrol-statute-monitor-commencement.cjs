@@ -1,0 +1,43 @@
+'use strict';
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const zlib = require('node:zlib');
+const published = require('./scripts/fixtures/pdpa-article12-20251111.json');
+const {monitor} = require('./scripts/statute-monitor.cjs');
+const effective = JSON.parse(zlib.gunzipSync(fs.readFileSync('data/statutes.json.gz'))).laws.I0050021.articles['12'];
+const laws = {I0050021:{name:'個人資料保護法',articles:{12:effective,20:'原有其他條文'}}};
+const fixture = () => ({...structuredClone(published),'法規內容':[...structuredClone(published['法規內容']),{'條號':'第 20 條','條文內容':'原有其他條文'}]});
+const run = (source, local=laws) => monitor(local, async u => u.endsWith('UpdateDate.txt')?'20261106':JSON.stringify(source),'2026-11-26');
+(async () => {
+  const only = await run(fixture());
+  assert.equal(only.code,0);
+  assert.match(only.md,/待核對異動 0；僅待施行 1/);
+  assert.match(only.md,/已公布、待施行[\s\S]*§12/);
+  assert.doesNotMatch(only.md,/⚠️|施行狀態須另核對/);
+  const actual = fixture();
+  actual['生效日期']='20270115';
+  const date = await run(actual);
+  assert.equal(date.code,1);
+  assert.match(date.md,/施行狀態須另核對.*20270115/);
+  assert.doesNotMatch(date.md,/已公布、待施行/);
+  for (const update of [{'生效日期':null},{'生效內容':'施行資訊有更新'},{'最新異動日期':'20261201'}]) {
+    const {code,md}=await run({...fixture(),...update});
+    assert.equal(code,1);
+    assert.match(md,/施行狀態須另核對/);
+  }
+  const unseen = fixture();
+  unseen['法規內容'][0]['條文內容'] += '新條文。';
+  assert.equal((await run(unseen)).code,1);
+  const mixed = fixture();
+  mixed['法規內容'][1]['條文內容']='其他條文已修改';
+  const both = await run(mixed);
+  assert.equal(both.code,1);
+  assert.match(both.md,/修訂條文 §20/);
+  assert.match(both.md,/已公布、待施行[\s\S]*§12/);
+  const other = await run({法規名稱:'其他法',法規內容:[{條號:'第 12 條',條文內容:'不同'}]},{OTHER:{name:'其他法',articles:{12:'原本'}}});
+  assert.equal(other.code,1);
+  assert.match(other.md,/修訂條文 §12/);
+  assert.doesNotMatch(other.md,/待施行（|施行狀態須另核對/);
+  assert.equal((await monitor(laws,async()=>{throw Error('unavailable')})).code,2);
+  console.log('statute commencement monitor OK');
+})().catch(e=>{console.error(e);process.exitCode=1});
