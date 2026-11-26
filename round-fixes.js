@@ -10,7 +10,23 @@ const SIMP='册冊劝勸协協会會员員长長补補办辦县縣么麼请請�
 const SIMPRE=new RegExp('['+SIMP.split('').filter((c,i)=>i%2===0).join('')+']');
 function simp2trad(s){if(!SIMPRE.test(s))return s;let o='';for(const c of s){const i=SIMP.indexOf(c);o+=(i>=0&&i%2===0)?SIMP[i+1]:c}return o}
 function normalizeQuestion(q){
- return normalizeQuestion194(normalizeQuestion193(normalizeQuestion192(normalizeQuestion191(normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(q))))))))))))))))))))))))))))))))))))))))))))));
+ return normalizeQuestion200(normalizeQuestion194(normalizeQuestion193(normalizeQuestion192(normalizeQuestion191(normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(q)))))))))))))))))))))))))))))))))))))))))))))));
+}
+/* 第200輪（根源）：入會退會與會員資格換問法——
+   「忘記繳／忘了繳／漏繳會費」＝沒繳會費（原本「忘記繳會費會被退會嗎」被當成退費）；
+   「當理事要先是會員／要先入會才能當理監事／外人可以選理事長」＝理事一定要是會員嗎（原本被答成監事職權或難倒小屏）；
+   「入會要不要會員介紹／要幾個人介紹／要不要人推薦」＝入會一定要有人介紹嗎（原本被答成最低會員數或難倒小屏） */
+function normalizeQuestion200(s){
+ s=String(s||'');
+ if(/合作社|社員|社區|工會|公會/.test(s))return s;
+ if(/(退會|除名|開除|被退|被踢|踢出|資格|還是會員|算會員|投票)/.test(s))s=s.replace(/(忘記|忘了|忘掉|漏)(了)?(繳|交)(了)?(.{0,2})會費/g,'沒繳$5會費').replace(/會費(忘記|忘了|漏)(了)?(繳|交)/g,'會費沒繳');
+ if(/(理事|監事|理監事|理事長)/.test(s)&&/(先入會|先加入|先成為會員|先當會員|先變成會員|要先是會員|先是會員|先要是會員|先是協會的會員|得是會員)/.test(s)&&!/(志工|志願)/.test(s))
+  s='理事一定要是會員嗎';
+ else if(/(理事|監事|理監事|理事長)/.test(s)&&/(外人|外頭的人|外部人士|不是本會的人|不是協會的人)/.test(s)&&/(選|當|擔任|做|出任)/.test(s))
+  s='非會員可以當理事嗎';
+ if(/(入會|加入|參加|進)/.test(s)&&!/(志工|志願|介紹信|介紹函|簡介|自我介紹)/.test(s)&&(/(要不要|需不需要)(有)?(會員|其他會員|別人|理事|幹部)(來)?(介紹|推薦|引薦)/.test(s)||/(幾個|幾位|幾人|多少).{0,2}(人|會員)?(介紹|推薦|引薦)/.test(s)))
+  s='入會一定要有人介紹嗎';
+ return s;
 }
 /* 第156輪（根源）：「義買」是「義賣」的錯字；「捐錢／捐了一筆錢」＝捐款；「勸募的錢怎麼管／保管／處理」＝勸募的錢誰在管；
    「補助要等核銷完才撥嗎」＝補助款什麼時候撥；「餐會／晚會／園遊會收費算不算勸募」＝義賣算不算勸募 */
@@ -898,8 +914,8 @@ function patrol167(t){
  /* 會費可不可以退（未涉及退會、除名；退會、除名另有既有答案） */
  if(/(入會費|常年會費|會費)/.test(t)&&/(退還|退費|退錢|退給|退回|退出來|要退|能退|可以退|可不可以退|還給|返還|又退|退掉|怎麼退|如何退|要退嗎|想退|不退|不用退|不必退|不能退|不給退|退不退|拿回)/.test(t)&&!/(退會|除名|開除|退出協會|不入會|不加入|解散|清算|合併|撤銷|廢止)/.test(t))
   return Object.assign({},base,{title:'會費收了可以退嗎：要由理事會訂退費原則，提會員大會通過後才能退',
-  summary:'可以退，但不能隨便退。社會團體財務處理辦法第14條規定：入會費、常年會費的標準和繳納方式要訂入章程；如果有退費的需要，要由理事會訂定退費原則，提經會員（會員代表）大會通過後才能辦理。\n所以要先看協會有沒有經大會通過的退費原則；沒有的話，建議先由理事會擬訂、提大會通過再退。多繳、繳錯的款項要怎麼處理，法規沒有另外規定，'+call,
-  statutes:[F(14)]});
+  summary:'可以退，但不能隨便退。社會團體財務處理辦法第14條規定：入會費、常年會費的標準和繳納方式要訂入章程；如果有退費的需要，要由理事會訂定退費原則，提經會員（會員代表）大會通過後才能辦理。\n所以要先看協會有沒有經大會通過的退費原則；沒有的話，建議先由理事會擬訂、提大會通過再退。多繳、繳錯的款項要怎麼處理，法規沒有另外規定，'+call+'\n如果是已經退會或被除名的會員要拿回已繳的會費：已完成法人登記的協會，依民法第55條第1項，已退社或開除的社員對社團財產原則上沒有請求權，但非公益法人的章程另有規定的除外，請先看章程。',
+  statutes:[F(14),{title:'民法第55條',source:LAW+'B0000001'}]});
  /* 協會可不可以有現金／留零用金 */
  if(/(現金|零用金|庫存現金|手頭|手上)/.test(t)&&/(協會|團體|社團|本會|我們)/.test(t)&&/(可以|能不能|能否|可不可以|要不要|能留|留多少|放)/.test(t)&&!/(收據|發票|會費|捐|收到|收取|收入|付|領|提|存款|報稅|稅|補助|義賣|活動|薪|工資|員工|發放|發給|發放)/.test(t))
   return Object.assign({},base,{title:'協會可不可以有現金：收入原則上要隨收隨存進金融機構，零用金在免稅標準有提到，但沒有訂金額',
@@ -4258,8 +4274,8 @@ function patrol20(t){
   summary:'法規沒有明文規定，退會（或除名）之前積欠的會費，還要不要補繳。人民團體法把「會員入會、出會與除名」和「會員之權利與義務」交給章程規定（第12條第7、8款）；會費的標準和繳納方式要訂入章程（社會團體財務處理辦法第14條），數額和繳納方式還要經會員（會員代表）大會通過並報縣府核備（人民團體法第33條第2項），所以請看章程的會費和出會條文，以及經大會通過的收費標準。\n已完成法人登記的協會，民法第55條第2項規定：退社或被開除的社員，對於退社或開除以前應分擔的出資，仍負清償的義務；積欠的會費算不算這裡所說的「應分擔的出資」，條文沒有寫，請洽承辦人員確認。有疑義請電洽縣府總機 08-7320415，請總機轉接社會處承辦人員。',
   statutes:[fn(14),pt(12),pt(33),{title:'民法第55條',source:LAW+'B0000001'}]})
   :Object.assign({},base,{title:'除名或退會後入會費、會費要不要退、還要不要繳：法規沒有明文，看章程和退費原則',
-  summary:'法規沒有規定一律要退，也沒有規定一律不能退。社會團體財務處理辦法第14條規定：入會費、常年會費的標準和繳納方式要訂入章程；如果有退費的需要，要由理事會訂定退費原則，提經會員（會員代表）大會通過後才能辦理。所以請先看協會有沒有經大會通過的退費原則；沒有的話，建議先洽承辦人員確認怎麼處理。\n退會或被除名以後，積欠的會費還要不要補繳，法規也沒有明文，請看章程的會費和出會條文；有疑義請電洽縣府總機 08-7320415，請總機轉接社會處承辦人員。',
-  statutes:[fn(14),pt(12)]});
+  summary:'法規沒有規定一律要退，也沒有規定一律不能退。社會團體財務處理辦法第14條規定：入會費、常年會費的標準和繳納方式要訂入章程；如果有退費的需要，要由理事會訂定退費原則，提經會員（會員代表）大會通過後才能辦理。所以請先看協會有沒有經大會通過的退費原則；沒有的話，建議先洽承辦人員確認怎麼處理。\n已完成法人登記的協會，另有民法第55條第1項：已退社或開除的社員，對社團的財產原則上沒有請求權，但非公益法人的章程另有規定的除外；所以已繳的入會費、會費能不能要回來，除了退費原則，還要看協會是公益或非公益法人、章程怎麼寫，條文沒有直接認定，請洽承辦人員。\n退會或被除名以後，積欠的會費還要不要補繳，法規也沒有明文，請看章程的會費和出會條文；有疑義請電洽縣府總機 08-7320415，請總機轉接社會處承辦人員。',
+  statutes:[fn(14),pt(12),{title:'民法第55條',source:LAW+'B0000001'}]});
  /* 退會後再入會 */
  if(/(退會|退出|被除名|除名|離開|出會).{0,12}(再|重新|回來|回去|回到|復)(入會|加入|申請|參加|回)|(再|重新|回來|復)(入會|加入).{0,6}(退會|退出)?|退了會.{0,6}(再|能)|(退會|退出).{0,8}(想回來|想再)/.test(t)&&!/(退費|退還|除名|開除)/.test(t))
   return Object.assign({},base,{title:'退會或被除名後可以再入會嗎：法規沒有禁止，要重新依章程申請',
@@ -7556,7 +7572,7 @@ function memberRound83(t){
  if(quit&&/(怎麼提出|如何提出|怎麼申請|如何申請|怎麼通知|如何通知|怎麼講|怎麼說|怎麼表示|怎麼遞|怎麼交|怎麼辦理|如何辦理)/.test(t)&&!/(費|名冊|理事|監事)/.test(t))
   return again('會員想退會怎麼辦');
  /* 退會前後積欠的會費要不要補 */
- if(/(退會|退出|出會|離開|脫離)(協會|社團|學會|團體)?(前|後|之前|之後)?.{0,6}(欠|積欠|沒繳|未繳|拖欠).{0,4}會費|(欠|積欠|沒繳|未繳|拖欠).{0,4}會費.{0,6}(退會|退出)/.test(t)&&/(補|繳|還要|要不要|算|免|怎麼辦)/.test(t))
+ if(/(退會|退出|出會|離開|脫離)(協會|社團|學會|團體)?(前|後|之前|之後)?.{0,6}(欠|積欠|沒繳|未繳|拖欠).{0,4}會費|(欠|積欠|沒繳|未繳|拖欠).{0,4}會費.{0,6}(退會|退出)/.test(t)&&/(補|繳|還要|要不要|算|免|怎麼辦)/.test(t.replace(/沒繳|未繳|不繳|欠繳|拖欠|積欠/g,'')))
   return again('退會前欠的會費還要補嗎');
  /* 欠費不算退會 */
  /* 機關、學校、團體可不可以入會 */
