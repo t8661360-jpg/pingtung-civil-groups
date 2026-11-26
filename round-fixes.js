@@ -10,7 +10,7 @@ const SIMP='册冊劝勸协協会會员員长長补補办辦县縣么麼请請�
 const SIMPRE=new RegExp('['+SIMP.split('').filter((c,i)=>i%2===0).join('')+']');
 function simp2trad(s){if(!SIMPRE.test(s))return s;let o='';for(const c of s){const i=SIMP.indexOf(c);o+=(i>=0&&i%2===0)?SIMP[i+1]:c}return o}
 function normalizeQuestion(q){
- return normalizeQuestion214(normalizeQuestion212(normalizeQuestion210(normalizeQuestion209(normalizeQuestion208(normalizeQuestion207(normalizeQuestion206(normalizeQuestion202(normalizeQuestion201(normalizeQuestion200(normalizeQuestion194(normalizeQuestion193(normalizeQuestion192(normalizeQuestion191(normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(q))))))))))))))))))))))))))))))))))))))))))))))))))))))));
+ return normalizeQuestion215(normalizeQuestion214(normalizeQuestion212(normalizeQuestion210(normalizeQuestion209(normalizeQuestion208(normalizeQuestion207(normalizeQuestion206(normalizeQuestion202(normalizeQuestion201(normalizeQuestion200(normalizeQuestion194(normalizeQuestion193(normalizeQuestion192(normalizeQuestion191(normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(q)))))))))))))))))))))))))))))))))))))))))))))))))))))))));
 }
 /* 第200輪（根源）：入會退會與會員資格換問法——
    「忘記繳／忘了繳／漏繳會費」＝沒繳會費（原本「忘記繳會費會被退會嗎」被當成退費）；
@@ -6327,7 +6327,7 @@ function patrol34(t){
  if(!/理事|監事|會員|幹部|職員|員工|會長|總幹事|秘書/.test(t)&&(/(沒|不|未|沒有).{0,2}(照|依|按|遵守|遵照|按照|依照).{0,2}章程.{0,8}(會怎樣|會怎麼樣|怎麼樣|後果|處罰|罰|怎麼辦|會被|有什麼|會如何)/.test(t)||/違反章程.{0,6}(會怎樣|會怎麼樣|怎麼樣|後果|處罰|罰|怎麼辦|會被|會如何)/.test(t)))
   return A('協會沒有照章程做：縣府可以警告、撤銷決議，要求限期改善','人民團體有違反法令、章程的情事，縣府可以警告、撤銷它的決議、停止業務的一部或全部，並限期要求改善；逾期沒改善或情節重大的，還可能撤免職員、限期整理、廢止許可或解散（人民團體法第58條）。\n所以章程訂了就要照做；如果章程內容已經不合時宜，應提案修改章程（第27條）。',[P2(58),P2(27)]);
  if(/(會費|入會費|常年會費|常年費).{0,6}(可以|能|能不能|可不可以|可以不可以).{0,4}(自己|理事會|理事長|隨便)?.{0,2}(調|改|漲|調整|調高|提高|增加|調漲|加)/.test(t)||/(章程|協會).{0,3}(裡|中)?的?(會費|入會費|常年會費).{0,6}(可以|能不能|可不可以).{0,3}(自己)/.test(t))
-  return A('會費可以調整：數額要提會員大會通過，並報縣府核備','可以調整，但不能由理事長或理事會自己決定。入會費、常年會費、事業費和會員捐款的繳納數額及方式，要提經會員（會員代表）大會通過，並報縣府核備後才能實施（人民團體法第33條）。\n如果章程裡直接寫了會費金額，調整會費就要連章程一起修改（第27條）。',[P2(33),P2(27)]);
+  return A('會費可以調整：數額要提會員大會通過，並報縣府核備','可以調整，但不能由理事長或理事會自己決定。入會費、常年會費、事業費和會員捐款的繳納數額及方式，要提經會員（會員代表）大會通過，並報縣府核備後才能實施（人民團體法第33條）。\n另外，入會費和常年會費的標準及繳納方式要訂入章程（社會團體財務處理辦法第14條），所以章程裡有寫會費金額或標準的，調整時要連章程一起修改：會員（會員代表）大會出席人數三分之二以上同意（人民團體法第27條），通過後30日內報縣府核備（第54條）。調整前請先看章程怎麼寫。',[P2(33),F(14),P2(27),P2(54)]);
  if(/(會址|會所|地址|辦公室).{0,6}(跟|和|與).{0,3}章程.{0,6}(不一樣|不同|不符|對不上|不一致)/.test(t))
   return A('會址和章程寫的不一樣：要補辦會址異動，章程有寫門牌的要一併修改','會址是章程要載明的事項（人民團體法第12條第4款）。實際搬了地方，要補辦：先經理事會決議通過，報縣府備查（人民團體會務輔導辦法第8條）；章程如果寫的是完整門牌地址，還要依修改章程的程序辦理（第27條），通過後三十日內報縣府核備（第54條）。\n已經搬了卻還沒辦的，建議盡快補辦，補辦方式請向承辦人員確認。\n人民團體法第58條規定，人民團體有違反法令、章程的情事，縣府得予警告、撤銷決議、停止業務的一部或全部，並限期改善；逾期未報備是否屬於這種情形、實際怎麼處理，由縣府認定，本站查不到明文，請向承辦人員確認。',[P2(12),G(8),P2(27),P2(54),P2(58)]);
  if(/(忘記|忘了|沒有|沒|還沒|漏).{0,4}(報|通知|告知|送|報備|備查).{0,6}(新地址|新會址|會址|搬家|搬遷|地址)/.test(t)||/(忘記|忘了|漏).{0,3}把?(新地址|新會址|會址|地址).{0,4}(報|通知|告知|送)/.test(t))
@@ -11438,6 +11438,28 @@ function patrol201(t){
    「勸募多的／多出來的／多餘的錢」＝勸募的錢有剩（原本答成協會可以申請勸募）；
    「辦活動募款可以嗎」＝協會可以對外募款嗎（原本只答用途，沒有先講結論）；
    「會務人員薪資怎麼編／訂」＝員工薪水誰訂、要不要經會員大會（原本答難倒小屏） */
+/* 第215輪（根源）：會址、章程、財務與會計換問法——
+   「會址／會所／地址變更要通知（報給）誰、要報備嗎」＝搬辦公室要通知縣府嗎；「章程條文可以增加／刪除嗎」＝修改章程要開會嗎；
+   「帳目沒做好／帳簿忘記做了」＝忘了記帳；「會費收太少／沒錢辦活動」＝協會經費不夠；「財務人員是理事長的親戚」＝理事長的親戚可以當會計嗎。 */
+function normalizeQuestion215(s){
+ s=String(s||'');
+ if(/(合作社|社員|工會|公會|社區發展|政黨|基金會|宗教|寺廟|宮廟)/.test(s))return s;
+ if((/(會址|會所|辦公室|辦公處)/.test(s)||/(協會|社團|本會|我們|咱們).{0,3}地址/.test(s))&&/(變更|異動|更改|更換|換了|改了|有變|變動)/.test(s)&&/(通知|報備|備查|告知|報給|報誰|報哪|給誰|跟誰|向誰|要報|通報)/.test(s)&&!/(忘|沒有?(報|通知|備查|核備)|不(去)?(報|通知|備查|核備)|未(報|通知|備查)|會怎|有罰|處罰|罰|後果|章程|多久|幾天|幾日|期限|證書|稅|銀行|國稅局|文件|附|書表|範本|下載|外縣市|縣外|會員|理事長|個人|我的|住址|戶籍)/.test(s))
+  s='協會搬辦公室要通知縣府嗎';
+ else if(/章程(的)?(條文|條款)(可以|能|能不能|可不可以)?(增加|新增|增訂|刪除|刪掉|減少)/.test(s)&&!/(任務|一條|一項|理事|監事|人數|名額|會址|範本|下載|解散|多久|幾天|幾日|期限|沒報|備查|核備)/.test(s))
+  s='修改章程要開會嗎';
+ else if(/(帳目|帳務|帳簿|帳本|帳)/.test(s)&&/(沒|未|還沒|不).{0,2}(做好|記好|弄好|整理好|處理好|做完|記完)|(忘記|忘了|漏了|漏掉).{0,3}(做|記|登)(帳|了)?|(做|記|登)(帳|了)?.{0,2}(忘記|忘了)/.test(s)&&!/(憑證|發票|收據|保存|保管|查帳|監事|被查|報稅|稅)/.test(s)&&/(怎麼|如何|要不要|嗎|辦)/.test(s))
+  s='忘了記帳';
+ else if(/(會費|常年會費|會員費)/.test(s)&&/(收|繳).{0,2}(得)?(太少|很少|不夠|不足|太低|太少了|不太夠)|(太少|不夠|不足|短少|短缺)/.test(s)&&!/(不繳|欠|沒繳|未繳|退|減|免|調|漲|降|多少|開收據|稅)/.test(s)&&/(怎麼|如何|辦|嗎)/.test(s))
+  s='經費不足怎麼辦';
+ else if(/(沒錢|沒有錢|缺錢|沒經費|沒有經費|經費不夠|經費不足|錢不夠)/.test(s)&&/(辦|做|舉辦|舉行|推|搞|推動).{0,4}(活動|事情|業務|會務|課程|旅遊)|(活動|業務|會務).{0,4}(沒錢|沒有錢|缺錢|沒經費|沒有經費|經費不夠|經費不足|錢不夠)/.test(s)&&!/(補助|申請|募款|勸募|捐|贊助|稅|公所|縣府|文化局|社會處|收錢|收費|加收|向會員|跟會員|攤|分攤|會員出|會員繳)/.test(s)&&/(怎麼|如何|辦|嗎)/.test(s))
+  s='經費不足怎麼辦';
+ if(/(協會|團體|社團|本會)/.test(s)&&/(放款|借錢給|借款給|把錢借給|錢借給|借出去|借出|貸款給)/.test(s)&&!/(向|跟).{0,3}(銀行|理事|會員|別人)借/.test(s)&&!/(理事長|會員)/.test(s))
+  s='協會可以借錢給理事長嗎';
+ if(/(財務人員|出納人員|會計人員|管帳)/.test(s)&&/(親戚|親屬|家人|太太|先生|老婆|老公|兒子|女兒|小孩|配偶|姪|兄弟|姊妹|姐妹|爸爸|媽媽|父母)/.test(s)&&/理事長|會長/.test(s)&&/(可以|能|行|嗎)/.test(s))
+  s='理事長的親戚可以當會計嗎';
+ return s;
+}
 /* 第214輪（根源）：改選與補選換問法——
    「理事長不是（一定要是）理事可以當嗎」＝理事長資格（原本被答成開戶或難倒小屏）；
    「改選要有幾個人出席才算數／要到幾個人才能投票／選舉要過半數出席嗎」＝改選出席要過半數。 */

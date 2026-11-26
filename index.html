@@ -831,7 +831,7 @@ async function saveChunked(coll,rows,metaExtra){
 async function loadAll(force){
   if(loadPromise&&!force)return loadPromise;
   loadPromise=(async()=>{
-    const base=document.baseURI.replace(/[^/]*$/,"")+"data/";const DV="?v=20261126-244";
+    const base=document.baseURI.replace(/[^/]*$/,"")+"data/";const DV="?v=20261126-245";
     const jf=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);return r.json()};
     const jgz=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);const b=new Uint8Array(await r.arrayBuffer());if(b[0]!==31||b[1]!==139)return JSON.parse(new TextDecoder().decode(b));if(typeof DecompressionStream==="undefined")throw new Error("gzip unsupported");const text=await new Response(new Blob([b]).stream().pipeThrough(new DecompressionStream("gzip"))).text();return JSON.parse(text)};
     const [d,s,k,f]=await Promise.allSettled([jf(base+"directory.json"+DV),jf(base+"staff.json"+DV),jgz(base+"knowledge.json.gz"+DV).catch(()=>jf(base+"knowledge.json"+DV)),jf(base+"forms-catalog.json?v=20261105-5")]);
@@ -1872,8 +1872,8 @@ touch();
   route();
 })();
 </script>
-<script src="feedback-collector.js?v=20261126-244"></script>
-<script src="round-fixes.js?v=20261126-244"></script>
+<script src="feedback-collector.js?v=20261126-245"></script>
+<script src="round-fixes.js?v=20261126-245"></script>
 <script src="ordinary-association-notice.js?v=1"></script>
 <script src="member-expulsion-phrasing.js?v=1"></script>
 <script src="founding-meeting-notice.js?v=1"></script>
@@ -1893,13 +1893,13 @@ touch();
 <script src="mail-election-results.js?v=1"></script>
 <script src="post-election-first-meeting.js?v=1"></script>
 <script src="member-roster-access.js?v=1"></script>
-<script src="answer-arbiter.js?v=20261126-244"></script>
-<script src="question-understanding.js?v=20261126-244"></script>
-<script src="counter-upgrade.js?v=20261126-244"></script>
-<script src="keyword-menu.js?v=20261126-244a"></script>
-<script src="ai-assist.js?v=20261126-244"></script>
-<script src="answer-guard.js?v=20261126-244b"></script>
-<script src="festive.js?v=20261126-244" defer></script>
+<script src="answer-arbiter.js?v=20261126-245"></script>
+<script src="question-understanding.js?v=20261126-245"></script>
+<script src="counter-upgrade.js?v=20261126-245"></script>
+<script src="keyword-menu.js?v=20261126-245a"></script>
+<script src="ai-assist.js?v=20261126-245"></script>
+<script src="answer-guard.js?v=20261126-245b"></script>
+<script src="festive.js?v=20261126-245" defer></script>
 </body>
 </html>
 
