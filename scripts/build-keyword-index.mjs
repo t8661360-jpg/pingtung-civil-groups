@@ -13,7 +13,7 @@ let kb = [];
 try { const d = JSON.parse(zlib.gunzipSync(fs.readFileSync('data/knowledge.json.gz')).toString()); kb = Array.isArray(d) ? d : (Object.values(d).find(Array.isArray) || []); } catch (e) {}
 for (const it of kb) { const t = String(it.title || it.q || '').trim(); if (t.length >= 6 && t.length <= 30 && isQ(t) && !/函|字第|號/.test(t)) set.add(t); }
 /* 以題目原文直接問時答不到重點的候選題（第193輪點選檢查），先排除 */
-const EXCLUDE = ['勞動合作社的社員同時是員工時，營業稅怎麼算？','發票和帳冊不見了，可以寫一張切結書全部補過去嗎？','前任幹部不交出印章和帳冊，可以直接取消他的會員權利嗎？'];
+const EXCLUDE = ['收據和帳簿要保存多久？收入可以直接拿去抵支出嗎？','勞動合作社的社員同時是員工時，營業稅怎麼算？','發票和帳冊不見了，可以寫一張切結書全部補過去嗎？','前任幹部不交出印章和帳冊，可以直接取消他的會員權利嗎？'];
 for (const q of EXCLUDE) set.delete(q);
 const list = [...set].sort((a, b) => a.length - b.length);
 fs.writeFileSync('data/keyword-questions.json', JSON.stringify({ updatedAt: new Date().toISOString().slice(0, 10), questions: list }));
