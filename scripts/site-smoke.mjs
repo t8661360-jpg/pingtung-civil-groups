@@ -2,6 +2,8 @@
 import { chromium } from 'playwright';
 const BASE = (process.env.BASE_URL || 'https://t8661360-jpg.github.io/pingtung-civil-groups/').replace(/\/?$/, '/');
 const CHECKS = [
+  ['已經有一個協會了，可以直接改名變成合作社嗎？', '不能只靠改名變成合作社'],
+  ['我們協會可以改組為合作社嗎？', '須有七人以上'],
   ['理事長可以在會議過程中抽菸嗎', '會議室內全面禁菸'],
   ['協會租會議室開會，主席可以抽煙嗎？', '2,000元至10,000元'],
   ['我們在戶外廣場開會，有人抽菸能檢舉嗎？', '不能單靠「在戶外」判斷'],

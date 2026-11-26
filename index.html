@@ -1528,6 +1528,7 @@ async function ask(q){
   await loadAll();
   let ans=typeof window.documentInspectionAnswer==="function"?window.documentInspectionAnswer(shownQ):null;
   if(!ans&&typeof window.associationChairFiling==="function")ans=window.associationChairFiling(shownQ);
+  if(!ans&&typeof window.associationCooperativeConversion==="function")ans=window.associationCooperativeConversion(shownQ);
   const kwMenu=!ans&&typeof keywordMenu==="function"?await keywordMenu(q,shownQ,intent):null;
   if(ans||kwMenu)ans=ans||kwMenu;else try{
     const exact=typeof exactArticleAnswer==="function"?exactArticleAnswer(q):null;
@@ -1883,6 +1884,7 @@ touch();
 <script src="cooperative-election-threshold.js?v=1"></script>
 <script src="association-chair-filing.js?v=1"></script>
 <script src="meeting-smoke-free.js?v=1"></script>
+<script src="association-cooperative-conversion.js?v=1"></script>
 <script src="answer-arbiter.js?v=20261126-240"></script>
 <script src="question-understanding.js?v=20261126-240"></script>
 <script src="counter-upgrade.js?v=20261126-240"></script>
