@@ -2,6 +2,8 @@
 import { chromium } from 'playwright';
 const BASE = (process.env.BASE_URL || 'https://t8661360-jpg.github.io/pingtung-civil-groups/').replace(/\/?$/, '/');
 const CHECKS = [
+  ['新當選的理事長要送哪些資料？', '理事會互選紀錄'],
+  ['協會補選理事長要交哪些文件？', '不要把它和整屆改選混在一起'],
   ['合作社理事選舉要過半嗎？', '不要求候選人得票過半'],
   ['我是合作社的理事，想辭職要先經理事會准許嗎？', '書面送達合作社社址即生效'],
   ['合作社理事會主席選舉沒有人得票過半怎麼辦？', '第一、第二的候選人再行投票'],
