@@ -1,0 +1,13 @@
+const assert=require('node:assert/strict');
+const {clarify}=require('./director-absence-clarification');
+const base={title:'理事、監事連續兩次無故缺席，視同辭職，由候補遞補',statutes:[{title:'人民團體法第31條'}],notes:['保留候補及補選提醒']};
+const a=clarify(base);
+assert.match(a.summary,/未事先請假不等於無故缺席.*合法原因或正當理由.*突發住院/);
+assert.match(a.summary,/不得委託代理；只有連續二次無故缺席才視同辭職.*決議通過後解任.*三十日內/);
+assert.deepEqual(a.notes,base.notes);
+assert.equal(a.statutes[0],base.statutes[0]);
+assert.match(a.statutes[1].source,/moi\.gov\.tw/);
+const unrelated={title:'合作社理事未出席'};
+assert.equal(clarify(unrelated),unrelated);
+assert.equal(clarify(null),null);
+console.log('director absence clarification OK');
