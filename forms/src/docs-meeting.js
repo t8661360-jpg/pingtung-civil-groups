@@ -60,7 +60,7 @@ function contactBlock() {
 }
 /* ---------- 籌備會開會通知單（縣府公文格式） ---------- */
 function docPrepNotice(mk) {
-  const m = M(mk), date = MV(mk, 'date'), k = MEET[mk].kind, k2 = MV(mk, 'kind2'), o = S.org;
+  const m = M(mk), date = MV(mk, 'date'), k = MEET[mk].kind, o = S.org;
   const row = (lab, v, o2 = {}) => ({ cells: [{ v: lab, va: 't', ...o2.l }, { v: v ?? '', va: 't', ...o2.v }] });
   const att = noticeAtt(mk).map(x => x.name), role = signRole(mk), who = MV(mk, 'signName');
   const tel = [`辦公　${o.phone || ''}`, `住家　${o.homeTel || ''}`, `手機　${o.mobile || ''}`].join('\n');
@@ -70,7 +70,6 @@ function docPrepNotice(mk) {
     { cells: [{ v: '密等及解密條件或保密期限：', cs: 2 }] }, row('附件：', att.join('、'))], { size: 12, noBorder: true, pad: 0 });
   const body = T([
     row('開會事由：', `${yesNo(k === 'prep1', '發起人暨第一次籌備會')}　　${yesNo(k === 'prep2', '第二次籌備會')}`),
-    row('會議性質：', `${yesNo(k2 !== '臨時會', '定期會')}　　${yesNo(k2 === '臨時會', '臨時會')}`),
     row('開會時間：', `中華民國${rd(date)}${date ? `（${weekday(date)}）` : '（星期　）'}${tm(MV(mk, 'time'))}`),
     row('開會地點：', MV(mk, 'place')),
     row('主持人：', MV(mk, 'chair')),

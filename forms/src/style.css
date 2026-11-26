@@ -678,3 +678,13 @@ details.optf>summary .ic{width:16px;height:16px}
 details.optf[open]>summary .ic{transform:rotate(45deg)}
 details.optf>.grid{padding:0 14px 12px}
 .f.subf{font-weight:700;color:var(--ink);font-size:.95rem;padding:10px 0 2px;border-top:1px solid var(--line);margin-top:6px}
+
+/* 右上角「清除記憶」 */
+.bar .wipe{display:inline-flex;align-items:center;gap:4px;flex:none;height:34px;padding:0 10px;border:1px solid #f0c9c4;border-radius:999px;background:#fff6f5;color:#b3261e;font:inherit;font-size:.82rem;font-weight:600;white-space:nowrap;cursor:pointer}
+.bar .wipe:hover{background:#fde9e7}
+.bar .wipe .ic{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+@media (max-width:560px){html:not(.desk) .bar .wipe{height:30px;padding:0 7px;font-size:.72rem;gap:2px}html:not(.desk) .bar .wipe .ic{width:13px;height:13px}}
+.signup .btnrow{display:flex;flex-wrap:wrap;gap:8px}
+.signup .btnrow .btn{flex:1 1 auto}
+.signup .hint{display:block;margin-top:6px}
+#modal .box p{white-space:pre-line}

@@ -292,7 +292,7 @@ function docHandover(sc) {
   B.push(...sub('人事移交清冊', ['檔案名稱', '數量(本)', '備　　註'], found
     ? [['會員入會申請書', '', `共${ms ? ms : FW.repeat(3)}員`], ['會員名冊', '', `共${ms ? ms : FW.repeat(3)}員`], ['服務規則', '', ''], [], []]
     : [['會員入會申請書', '', `共${ms ? ms : FW.repeat(3)}員`], ['會員名冊', '', `共${ms ? ms : FW.repeat(3)}員`], ['待遇－職稱、薪給', '', ''], ['服務規則', '', ''], ['考勤－平時、年終', '', ''], ['資遣、退職', '', ''], ['退休、撫恤', '', ''], ['選任職員', '', '歷屆理、監事簡歷冊資料']]));
-  B.push(P('註：一、於新任理事長選出後14日內以移交清冊乙份連同圖記移交新任。', { size: 11, before: 6 }), P('二、理事長當選後十日內辦竣點交手續，備函並檢同移交清冊乙份報主管機關。', { size: 11, indent: 1.5 }));
+  B.push(P('註：一、於新任理事長選出後15日內以移交清冊乙份連同圖記移交新任。', { size: 11, before: 6 }), P('二、理事長當選後十日內辦竣點交手續，備函並檢同移交清冊乙份報主管機關。', { size: 11, indent: 1.5 }));
   return { title: '移交清冊', sheets: [{ name: '移交清冊', cols: [40, 14, 46], size: 12, blocks: B }] };
 }
 
@@ -428,7 +428,7 @@ function docDissolveReport() {
   const rows = [
     { h: 30, cells: [{ v: '團體名稱', ...L }, { v: orgFull(), cs: 3 }] },
     { h: 30, cells: [{ v: '會　　址', ...L }, { v: S.org.address, cs: 3 }] },
-    { h: 34, cells: [{ v: '原頒立案\n證書字號', ...L }, { v: `屏府社政字第${S.org.regNum || FW.repeat(6)}號` }, { v: '有無辦理\n登記法人', ...L }, { v: S.org.corp === '有' ? '■有　□無' : S.org.corp === '無' ? '□有　■無' : '□有　□無', al: 'c' }] },
+    { h: 34, cells: [{ v: '原頒立案\n證書字號', ...L }, { v: `${S.org.regWord || '屏府社政'}字第${S.org.regNum || FW.repeat(6)}號` }, { v: '有無辦理\n登記法人', ...L }, { v: S.org.corp === '有' ? '■有　□無' : S.org.corp === '無' ? '□有　■無' : '□有　□無', al: 'c' }] },
     { h: 70, cells: [{ v: '解散原因\n及經過', ...L }, { v: r.story || (r.reason ? `本會因${r.reason}，經${mTitle('dissolve.asm')}決議解散。` : ''), cs: 3, va: 't' }] },
     { h: 30, cells: [{ v: '奉准解散\n時間及文號', ...L }, { v: `${rd(r.okDate)}${FW}${r.okNo || FW.repeat(3) + '字第' + FW.repeat(6) + '號'}`, cs: 3 }] },
     { h: 30, cells: [{ v: '解散時間', ...L }, { v: rd(V('x.report.date')), cs: 3 }] },
@@ -503,11 +503,11 @@ function deadlines(sc) {
     const d = MV(mk, 'date'), M0 = MEET[mk], nm = M0.label;
     if (M0.before) { const a = MV(M0.before, 'date'); if (a) out.push({ when: addDays(a, -15), what: `${nm}最晚召開日（大會召開前15日）${d && daysBetween(d, addDays(a, -15)) < 0 ? '　⚠ 目前排定的日期太晚' : ''}`, kind: 'meet' }); }
     if (d) {
-      if (!M0.same) out.push({ when: addDays(d, -M0.days), what: `${nm}開會通知書送達縣府備查（會議前${M0.days}日）`, kind: 'notice', bt: PRE });
+      if (!M0.same) out.push({ when: addDays(d, -M0.days), what: brdOnly(mk) ? `${nm}開會通知送達各理事、監事（會議前${M0.days}日）` : `${nm}開會通知書送達縣府備查（會議前${M0.days}日）`, kind: 'notice', bt: PRE });
       out.push({ when: d, what: `召開${nm}`, kind: 'day' });
-      if (!M0.same) out.push({ when: addDays(d, 30), what: `檢送${nm}紀錄公文送達縣府（會議後30日內）`, kind: 'letter', bt: POST });
+      if (!M0.same && !brdOnly(mk)) out.push({ when: addDays(d, 30), what: `檢送${nm}紀錄公文送達縣府（會議後30日內）`, kind: 'letter', bt: POST });
     } else out.push({ when: '', what: `${nm}：請先填寫會議日期，系統會自動算出期限`, kind: 'none' });
-    if (M0.el === 'chair') { const d2 = MV(mk, 'date'); if (d2) out.push({ when: addDays(d2, 14), what: '新任理事長選出後14日內完成移交（移交清冊連同圖記）', kind: 'hand', bt: POST }); }
+    if (M0.el === 'chair') { const d2 = MV(mk, 'date'); if (d2) out.push({ when: addDays(d2, 15), what: '新任理事長就任後15日內完成移交接收（移交清冊連同立案證書、圖記；人民團體會務輔導辦法第18條）', kind: 'hand', bt: POST }); }
   }
   return out.sort((a, b) => (a.when || '9') < (b.when || '9') ? -1 : 1);
 }

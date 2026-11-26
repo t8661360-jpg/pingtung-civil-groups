@@ -690,6 +690,16 @@ details.optf>summary .ic{width:16px;height:16px}
 details.optf[open]>summary .ic{transform:rotate(45deg)}
 details.optf>.grid{padding:0 14px 12px}
 .f.subf{font-weight:700;color:var(--ink);font-size:.95rem;padding:10px 0 2px;border-top:1px solid var(--line);margin-top:6px}
+
+/* 右上角「清除記憶」 */
+.bar .wipe{display:inline-flex;align-items:center;gap:4px;flex:none;height:34px;padding:0 10px;border:1px solid #f0c9c4;border-radius:999px;background:#fff6f5;color:#b3261e;font:inherit;font-size:.82rem;font-weight:600;white-space:nowrap;cursor:pointer}
+.bar .wipe:hover{background:#fde9e7}
+.bar .wipe .ic{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+@media (max-width:560px){html:not(.desk) .bar .wipe{height:30px;padding:0 7px;font-size:.72rem;gap:2px}html:not(.desk) .bar .wipe .ic{width:13px;height:13px}}
+.signup .btnrow{display:flex;flex-wrap:wrap;gap:8px}
+.signup .btnrow .btn{flex:1 1 auto}
+.signup .hint{display:block;margin-top:6px}
+#modal .box p{white-space:pre-line}
 </style>
 </head>
 <body>
@@ -698,6 +708,7 @@ details.optf>.grid{padding:0 14px 12px}
   <div class="ttl"><b id="hTitle">會務文件線上填報</b><small id="hSub"></small></div>
   <button id="cloudChip" class="cloudchip" hidden></button>
   <span id="saved" class="saved" aria-live="polite"></span>
+  <button class="wipe" id="wipeBtn" aria-label="清除記憶：清空存在這個網頁的所有資料" title="清空存在這個網頁的所有資料"><svg class="ic" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6"/></svg><span>清除記憶</span></button>
   <button class="icon lay" id="layBtn" aria-label="切換手機版或電腦版版面" title="切換手機版或電腦版版面"></button>
   <button class="icon tipbtn" id="tipBtn" aria-pressed="false" aria-label="操作提示" title="操作提示"></button>
   <button class="icon" id="fontBtn" aria-label="放大字體" aria-pressed="false" title="放大字體">A＋</button>
@@ -844,7 +855,9 @@ let saveTimer = null;
 /** 只比對填寫內容（不含畫面狀態），內容有變才更新時間並同步雲端 */
 const dataSig = () => { const { ui, meta, cloud, ...d } = S; return JSON.stringify(d); };
 let lastSig = dataSig();
+let WIPING = false;
 function save(o = {}) {
+  if (WIPING) return;
   S.meta = S.meta || {};
   const sig = dataSig(), changed = sig !== lastSig;
   if (changed) { lastSig = sig; if (!o.keepTime) S.meta.savedAt = Date.now(); }
@@ -1535,6 +1548,8 @@ const MEET = {
 };
 function M(mk) { let o = getp(S, 'm.' + mk); if (!o || typeof o !== 'object') { o = { props: null, motions: [], el: {} }; setp(S, 'm.' + mk, o); } return o; }
 function MV(mk, f) { return V(`m.${mk}.${f}`); }
+/** 單純的理事會、監事會、理監事聯席會（不是和大會同日接續召開的那一場） */
+const brdOnly = mk => ['pre', 'brd'].includes(MEET[mk].kind);
 const isNewTerm = mk => mk === 'renew.asm' || mk === 'renew.brd';
 function mTerm(mk) { return MV(mk, 'term'); }
 function mNo(mk) { return MV(mk, 'no'); }
@@ -1567,7 +1582,7 @@ DER.push(
   [/^m\.([\w]+\.[\w]+)\.dirNames$/, () => names(DIR_ROLES).join('、')],
   [/^m\.([\w]+\.[\w]+)\.supNames$/, () => names(SUP_ROLES).join('、')],
   [/^m\.([\w]+\.[\w]+)\.noticeDate$/, () => isoToday()],
-  [/^m\.([\w]+\.[\w]+)\.letterDate$/, () => isoToday()],
+  [/^m\.([\w]+\.[\w]+)\.letterDate$/, m => { const d = MV(m[1], 'date'); return d && daysBetween(isoToday(), d) > 0 ? '' : isoToday(); }],
   [/^m\.([\w]+\.[\w]+)\.report$/, m => defaultReport(m[1])],
   [/^m\.([\w]+\.[\w]+)\.topics$/, m => defaultTopics(m[1])],
   [/^m\.([\w]+\.[\w]+)\.subject$/, m => letterSubject(m[1])],
@@ -1716,9 +1731,11 @@ const mainMeet = sc => SCEN[sc].meets().find(mk => !MEET[mk].same) || SCEN[sc].m
 /* ===== 報送批次：① 會前（開會通知） ② 會後（會議紀錄送件） ===== */
 const PRE = 'pre', POST = 'post';
 const BATCH = {
-  pre: { n: '①', t: '會前：開會通知', s: d => `會議前${d}日送達縣府` },
-  post: { n: '②', t: '會後：會議紀錄送件', s: () => '會議後30日內送達縣府' },
+  pre: { n: '①', t: '會前：開會通知', s: (d, sc) => scBrd(sc) ? `會議前${d}日送達各理事、監事` : `會議前${d}日送達縣府` },
+  post: { n: '②', t: '會後：會議紀錄送件', s: (d, sc) => scBrd(sc) ? '紀錄自行留存，須報縣府的事項才送件' : '會議後30日內送達縣府' },
 };
+/** 這個選單的主要會議是不是單純的理監事會 */
+function scBrd(sc) { const mk = sc && SCEN[sc] && SCEN[sc].meets()[0]; return !!mk && brdOnly(mk); }
 const hasBatch = sc => SCEN[sc].meets().length > 0;
 /** 目前選了哪些批次；沒選過時依開會日期判斷：日期已過＝會後，否則＝會前 */
 function batchOn(sc) {
@@ -1752,7 +1769,7 @@ const DAY = '開會當天使用（不必送府，勾選才產生）';
 function scenDocs(sc) { return withMat(scenDocs0(sc)); }
 function scenDocs0(sc) {
   const pv = S.ui.prepVar || 'p1';
-  const F6 = '6項財務報表', d7 = '會議召開前7日送達縣府備查', d15 = '會議召開前15日送達縣府備查', d30 = '會議召開後30日內送達縣府備查';
+  const F6 = '6項財務報表', d7 = '會議召開前7日送達縣府備查', d15 = '會議召開前15日送達縣府備查', d30 = '會議召開後30日內送達縣府備查', d7b = '會議召開前7日送達各理事、監事', dKeep = '理監事會紀錄閉會後自行留存；有依法令須報縣府的事項才檢送，不需要可取消勾選';
   const F6N = '預算表、決算表(含現金出納表)、財產目錄、資產負債表、基金收支表';
   const signPre = (id, name, mk, b) => d(id, name, { bt: PRE, def: 1, note: '開會前印出，供出席人員簽到', m: mk, b });
   /* 會後：簽到表改為選填，可上傳簽到後的照片或掃描檔一併檢附 */
@@ -1789,17 +1806,17 @@ function scenDocs0(sc) {
         G('會議紀錄'), d('asmMin', '第1屆第1次成立會員大會紀錄', { req: 1, note: '選舉理事、監事', m: 'found.asm', b: () => docMinutes('found.asm') }), signUp('asmSignUp', '大會簽到表（簽到後影本）'),
         d('brdMin', '第1屆第1次理監事會紀錄', { req: 1, note: '選舉常務理事、理事長、常務監事', m: 'found.brd', b: () => docMinutes('found.brd') }), signUp('brdSignUp', '理監事會簽到表（簽到後影本）'),
         G('會員大會手冊'), ...hbDocs(POST, HB),
-        G('其他檢附資料'), d('handover', '移交清冊', { def: 1, b: () => docHandover('found'), note: '新任理事長選出後14日內移交' }), d('roster', '理監事暨會務人員一覽表', { req: 1, b: () => docRoster('found'), note: '一式三份，二份送府、一份自存' }),
+        G('其他檢附資料'), d('handover', '移交清冊', { def: 1, b: () => docHandover('found'), note: '新任理事長選出後15日內移交' }), d('roster', '理監事暨會務人員一覽表', { req: 1, b: () => docRoster('found'), note: '一式三份，二份送府、一份自存' }),
         d('cert', '申請理事長當選證明書', { req: 1, b: docCert, note: '檢附當選人身分證正反面影本1份，2吋大頭照2張', up: '身分證影本、照片' }), d('consent', '會址使用同意書', { req: 1, b: docConsent, note: '需檢附使用權狀或近期繳稅單影本', up: '權狀或稅單影本' }),
       ];
     }
     case 'renewPre': case 'annualPre': {
       const mk = sc === 'renewPre' ? 'renew.pre' : 'annual.pre', rn = sc === 'renewPre', A = rn ? 'renew' : 'annual';
       return [
-        G('開會通知', PRE), d('notice', '開會通知書', { bt: PRE, req: 1, note: d7, m: mk, b: () => docNotice(mk) }),
+        G('開會通知', PRE), d('notice', '開會通知書', { bt: PRE, req: 1, note: d7b, m: mk, b: () => docNotice(mk) }),
         ...NA(mk, [d('members', '會員名冊', { b: () => docMembers(A) }), d('fin', F6, { b: () => docFinance(['bud', 'act', 'prop', 'bs', 'fund']) }), d('plan', '年度工作計畫', { b: docPlan }), d('ledger', '經費收支報告', { b: docLedger })]),
         G(DAY, PRE, { sub: 1 }), signPre('sign', '理監事會簽到表', mk, () => docSignBrd(mk)),
-        G('公文'), d('letter', '檢送會議紀錄公文', { req: 1, note: d30, m: mk, b: () => docLetter(mk) }),
+        G('公文'), d('letter', '檢送會議紀錄公文', { def: 1, note: dKeep, m: mk, b: () => docLetter(mk) }),
         G('會議紀錄'), d('min', '理監事會會議紀錄', { req: 1, note: rn ? '會員大會改選會議前15日，召開選前理監事會' : '會員大會召開前15日，開大會前理監事會', m: mk, b: () => docMinutes(mk) }),
         signUp('signUp', '理監事會簽到表（簽到後影本）'),
         G('隨函檢附（大會手冊內容，經本次會議審查）'),
@@ -1822,7 +1839,7 @@ function scenDocs0(sc) {
         G('會議紀錄'), d('asmMin', '會員大會會議紀錄', { req: 1, note: '改選理事、監事', m: 'renew.asm', b: () => docMinutes('renew.asm') }), signUp('asmSignUp', '大會簽到表（簽到後影本）'),
         d('brdMin', '理監事會會議紀錄（選後）', { req: 1, note: '選舉常務理事、理事長、常務監事', m: 'renew.brd', b: () => docMinutes('renew.brd') }), signUp('brdSignUp', '理監事會簽到表（選後，簽到後影本）'),
         G('會員大會手冊'), ...hbDocs(POST, HB), d('charter', '組織章程（現行）', { req: 1, hb: 1, kind: 'attach', note: '請附貴會現行章程', up: '現行章程', upk: 'charter' }),
-        G('其他檢附資料'), d('handover', '移交清冊', { def: 1, b: () => docHandover('renew'), note: '理事長連任或未更換時免附；新任理事長選出後14日內移交' }), d('roster', '理監事暨會務人員一覽表', { req: 1, b: () => docRoster('renew'), note: '一式三份，二份送府、一份自存' }),
+        G('其他檢附資料'), d('handover', '移交清冊', { def: 1, b: () => docHandover('renew'), note: '理事長連任或未更換時免附；新任理事長選出後15日內移交' }), d('roster', '理監事暨會務人員一覽表', { req: 1, b: () => docRoster('renew'), note: '一式三份，二份送府、一份自存' }),
         d('cert', '申請理事長當選證明書', { def: 1, b: docCert, note: '檢附當選人身分證正反面影本1份，2吋大頭照2張', up: '身分證影本、照片' }), d('consent', '會址使用同意書', { def: 1, b: docConsent, note: '需檢附使用權狀或近期繳稅單影本', up: '權狀或稅單影本' }),
         d('ballot', '選舉及罷免票（樣張）', { b: () => docBallot('renew.asm') }), d('amend', '組織章程修正對照表', { b: () => docAmend('renew'), note: '需檢附新舊章程各2份', up: '新舊章程' }),
       ];
@@ -1843,11 +1860,11 @@ function scenDocs0(sc) {
       ];
     }
     case 'board': { const ad = !!S.ui.boardAddr; return [
-      G('開會通知', PRE), d('notice', '開會通知書', { bt: PRE, req: 1, note: d7, m: 'board.brd', b: () => docNotice('board.brd') }),
+      G('開會通知', PRE), d('notice', '開會通知書', { bt: PRE, req: 1, note: d7b, m: 'board.brd', b: () => docNotice('board.brd') }),
       ...NA('board.brd', [d('ledger', '經費收支報告', { b: docLedger }), d('members', '會員名冊（新入會名單）', { b: () => docMembers('board') }), d('plan', '年度工作計畫', { b: docPlan }), d('fin', F6, { b: () => docFinance(['bud', 'act', 'prop', 'bs', 'fund']) })]),
       G(DAY, PRE, { sub: 1 }), signPre('sign', '簽到表', 'board.brd', () => docSignBrd('board.brd')),
-      G('公文'), d('letter', '檢送會議紀錄公文', { req: 1, note: d30, m: 'board.brd', b: () => docLetter('board.brd') }),
-      ...(ad ? [d('addrLetter', '檢送會址變更公文', { req: 1, note: '理監事會討論會址變更、會議召開後30日內送達縣府備查', b: docAddrLetter })] : []),
+      G('公文'), d('letter', '檢送會議紀錄公文', { def: 1, note: dKeep, m: 'board.brd', b: () => docLetter('board.brd') }),
+      ...(ad ? [d('addrLetter', '檢送會址變更公文', { req: 1, note: '會址變更經理監事會決議後，檢附會議紀錄與會址使用同意書報縣府備查', b: docAddrLetter })] : []),
       G('會議紀錄'), d('min', ad ? '討論會址變更會議紀錄' : '理監事會會議紀錄', { req: 1, note: ad ? '討論會址變更' : '定期會、臨時會', m: 'board.brd', b: () => docMinutes('board.brd') }), signUp('signUp', '簽到表（簽到後影本）'),
       G('其他檢附資料'), d('ledger', '經費收支報告', { def: 1, b: docLedger, note: '當季收支報表' }), d('plan', '年度工作計畫', { b: docPlan }), d('fin', F6, { b: () => docFinance(['bud', 'act', 'prop', 'bs', 'fund']) }),
       d('consent', '會址使用同意書', { req: ad ? 1 : 0, b: docConsent, note: '需檢附使用權狀或近期繳稅單影本', up: '權狀或稅單影本' }),
@@ -1952,7 +1969,7 @@ function contactBlock() {
 }
 /* ---------- 籌備會開會通知單（縣府公文格式） ---------- */
 function docPrepNotice(mk) {
-  const m = M(mk), date = MV(mk, 'date'), k = MEET[mk].kind, k2 = MV(mk, 'kind2'), o = S.org;
+  const m = M(mk), date = MV(mk, 'date'), k = MEET[mk].kind, o = S.org;
   const row = (lab, v, o2 = {}) => ({ cells: [{ v: lab, va: 't', ...o2.l }, { v: v ?? '', va: 't', ...o2.v }] });
   const att = noticeAtt(mk).map(x => x.name), role = signRole(mk), who = MV(mk, 'signName');
   const tel = [`辦公　${o.phone || ''}`, `住家　${o.homeTel || ''}`, `手機　${o.mobile || ''}`].join('\n');
@@ -1962,7 +1979,6 @@ function docPrepNotice(mk) {
     { cells: [{ v: '密等及解密條件或保密期限：', cs: 2 }] }, row('附件：', att.join('、'))], { size: 12, noBorder: true, pad: 0 });
   const body = T([
     row('開會事由：', `${yesNo(k === 'prep1', '發起人暨第一次籌備會')}　　${yesNo(k === 'prep2', '第二次籌備會')}`),
-    row('會議性質：', `${yesNo(k2 !== '臨時會', '定期會')}　　${yesNo(k2 === '臨時會', '臨時會')}`),
     row('開會時間：', `中華民國${rd(date)}${date ? `（${weekday(date)}）` : '（星期　）'}${tm(MV(mk, 'time'))}`),
     row('開會地點：', MV(mk, 'place')),
     row('主持人：', MV(mk, 'chair')),
@@ -2734,7 +2750,7 @@ function docHandover(sc) {
   B.push(...sub('人事移交清冊', ['檔案名稱', '數量(本)', '備　　註'], found
     ? [['會員入會申請書', '', `共${ms ? ms : FW.repeat(3)}員`], ['會員名冊', '', `共${ms ? ms : FW.repeat(3)}員`], ['服務規則', '', ''], [], []]
     : [['會員入會申請書', '', `共${ms ? ms : FW.repeat(3)}員`], ['會員名冊', '', `共${ms ? ms : FW.repeat(3)}員`], ['待遇－職稱、薪給', '', ''], ['服務規則', '', ''], ['考勤－平時、年終', '', ''], ['資遣、退職', '', ''], ['退休、撫恤', '', ''], ['選任職員', '', '歷屆理、監事簡歷冊資料']]));
-  B.push(P('註：一、於新任理事長選出後14日內以移交清冊乙份連同圖記移交新任。', { size: 11, before: 6 }), P('二、理事長當選後十日內辦竣點交手續，備函並檢同移交清冊乙份報主管機關。', { size: 11, indent: 1.5 }));
+  B.push(P('註：一、於新任理事長選出後15日內以移交清冊乙份連同圖記移交新任。', { size: 11, before: 6 }), P('二、理事長當選後十日內辦竣點交手續，備函並檢同移交清冊乙份報主管機關。', { size: 11, indent: 1.5 }));
   return { title: '移交清冊', sheets: [{ name: '移交清冊', cols: [40, 14, 46], size: 12, blocks: B }] };
 }
 
@@ -2870,7 +2886,7 @@ function docDissolveReport() {
   const rows = [
     { h: 30, cells: [{ v: '團體名稱', ...L }, { v: orgFull(), cs: 3 }] },
     { h: 30, cells: [{ v: '會　　址', ...L }, { v: S.org.address, cs: 3 }] },
-    { h: 34, cells: [{ v: '原頒立案\n證書字號', ...L }, { v: `屏府社政字第${S.org.regNum || FW.repeat(6)}號` }, { v: '有無辦理\n登記法人', ...L }, { v: S.org.corp === '有' ? '■有　□無' : S.org.corp === '無' ? '□有　■無' : '□有　□無', al: 'c' }] },
+    { h: 34, cells: [{ v: '原頒立案\n證書字號', ...L }, { v: `${S.org.regWord || '屏府社政'}字第${S.org.regNum || FW.repeat(6)}號` }, { v: '有無辦理\n登記法人', ...L }, { v: S.org.corp === '有' ? '■有　□無' : S.org.corp === '無' ? '□有　■無' : '□有　□無', al: 'c' }] },
     { h: 70, cells: [{ v: '解散原因\n及經過', ...L }, { v: r.story || (r.reason ? `本會因${r.reason}，經${mTitle('dissolve.asm')}決議解散。` : ''), cs: 3, va: 't' }] },
     { h: 30, cells: [{ v: '奉准解散\n時間及文號', ...L }, { v: `${rd(r.okDate)}${FW}${r.okNo || FW.repeat(3) + '字第' + FW.repeat(6) + '號'}`, cs: 3 }] },
     { h: 30, cells: [{ v: '解散時間', ...L }, { v: rd(V('x.report.date')), cs: 3 }] },
@@ -2945,11 +2961,11 @@ function deadlines(sc) {
     const d = MV(mk, 'date'), M0 = MEET[mk], nm = M0.label;
     if (M0.before) { const a = MV(M0.before, 'date'); if (a) out.push({ when: addDays(a, -15), what: `${nm}最晚召開日（大會召開前15日）${d && daysBetween(d, addDays(a, -15)) < 0 ? '　⚠ 目前排定的日期太晚' : ''}`, kind: 'meet' }); }
     if (d) {
-      if (!M0.same) out.push({ when: addDays(d, -M0.days), what: `${nm}開會通知書送達縣府備查（會議前${M0.days}日）`, kind: 'notice', bt: PRE });
+      if (!M0.same) out.push({ when: addDays(d, -M0.days), what: brdOnly(mk) ? `${nm}開會通知送達各理事、監事（會議前${M0.days}日）` : `${nm}開會通知書送達縣府備查（會議前${M0.days}日）`, kind: 'notice', bt: PRE });
       out.push({ when: d, what: `召開${nm}`, kind: 'day' });
-      if (!M0.same) out.push({ when: addDays(d, 30), what: `檢送${nm}紀錄公文送達縣府（會議後30日內）`, kind: 'letter', bt: POST });
+      if (!M0.same && !brdOnly(mk)) out.push({ when: addDays(d, 30), what: `檢送${nm}紀錄公文送達縣府（會議後30日內）`, kind: 'letter', bt: POST });
     } else out.push({ when: '', what: `${nm}：請先填寫會議日期，系統會自動算出期限`, kind: 'none' });
-    if (M0.el === 'chair') { const d2 = MV(mk, 'date'); if (d2) out.push({ when: addDays(d2, 14), what: '新任理事長選出後14日內完成移交（移交清冊連同圖記）', kind: 'hand', bt: POST }); }
+    if (M0.el === 'chair') { const d2 = MV(mk, 'date'); if (d2) out.push({ when: addDays(d2, 15), what: '新任理事長就任後15日內完成移交接收（移交清冊連同立案證書、圖記；人民團體會務輔導辦法第18條）', kind: 'hand', bt: POST }); }
   }
   return out.sort((a, b) => (a.when || '9') < (b.when || '9') ? -1 : 1);
 }
@@ -3063,11 +3079,17 @@ function docSecs(x) {
   return s;
 }
 /** 通知書「此致」：署名身分、姓名（可蓋章）、受文者 */
+/** 簽章處：選擇上傳簽名筆跡或印章（自動辨識、去背，並放到簽章位置） */
+function signUpRow(title, name) {
+  const s = matchSeal(slotOf(title, name)), o = `data-owner="${esc(name || '')}" data-title="${esc(title || '')}"`;
+  return `<div class="f full signup"><label>簽章方式（擇一）</label><div class="btnrow"><button type="button" class="btn ghost" data-seal="pickSign" ${o}>${icon('pen')}上傳簽名筆跡</button><button type="button" class="btn ghost" data-seal="pick" ${o}>${icon('stamp')}上傳印章</button><button type="button" class="btn ghost" data-seal="sign" ${o}>${icon('pen')}螢幕手寫</button></div>
+    <small class="hint">${s ? `目前使用：<b>${esc(s.name || sealDefName(s))}</b>（${SEAL_TYPES[s.type][0]}），下載的文件會自動放在「（蓋章）」處。要更換請到右上角「⋯ → 電子印章與簽名」刪除後重新上傳。` : `拍下簽在白紙上的簽名或蓋好的印章上傳，系統會自動辨識、去除背景，並放到「（蓋章）」的位置${name ? '' : '；請先填上方的姓名，系統才知道是誰的簽章'}。`}</small></div>`;
+}
 function noticeSignFields(mk) {
   const k = MEET[mk].kind, prep = scenOf(mk) === 'prep';
   return `<div class="f full subf">署名與受文者</div>` + (prep ? F(`m.${mk}.chair`, '主持人', { w: 'half' }) + F(`m.${mk}.speed`, '速別（可留空，預設普通件）', { type: 'sel', opts: ['普通件', '速件', '最速件'], w: 'half' }) + F(`m.${mk}.cc`, '副本（可留空）', { w: 'full', ph: '例：本會籌備委員' }) : '') +
     (k === 'pre' || k === 'brd' ? `<div class="f full"><label>會議類別</label><div class="in">${SEG(`m.${mk}.brdType`, [['聯席', '理監事聯席會議'], ['理事會', '理事會（單獨）'], ['監事會', '監事會（單獨）']], { def: '聯席', rr: 1 })}</div></div>` : '') + `<div class="f full"><label>此致：署名</label><div class="in">${SEG(`m.${mk}.signRole`, signRoleOpts(mk).map(r => [r, r]), { def: signRoleDef(mk), rr: 1 })}</div></div>` +
-    F(`m.${mk}.signName`, `${signRole(mk)}姓名`, { w: 'half', hint: '預設帶入人員名單；上傳印章後，這裡會自動蓋章，也可以在預覽裡拖曳位置。' }) +
+    F(`m.${mk}.signName`, `${signRole(mk)}姓名`, { w: 'half', hint: '預設帶入人員名單；上傳簽名筆跡或印章後，這裡會自動簽章，也可以在預覽裡拖曳位置。' }) + signUpRow(SIGN_ROLES[signRole(mk)], MV(mk, 'signName')) +
     `<div class="f full"><label>此致：受文者</label><div class="ckrow">${recipOpts(mk).map(k => CK(`m.${mk}.to.${k}`, recipLabel(k), { def: recipDef(mk, k), rr: 1 })).join('')}</div></div>`;
 }
 /** 附註欄提示：會自動列出哪些附件 */
@@ -3205,7 +3227,7 @@ function meetSection(mk) {
   if (d.same) h += NOTE('通常與會員大會同日接續召開；日期、地點未填時會自動沿用大會的資料。');
   h += GRID(
     (['prep', 'found'].includes(sc) ? '' : F(`m.${mk}.term`, '屆次', { type: 'num', w: 'third', pre: '第', suf: '屆' }) + F(`m.${mk}.no`, '會次', { type: 'num', w: 'third', pre: '第', suf: '次', req: !isNewTerm(mk) })) +
-    F(`m.${mk}.kind2`, '會議性質', { type: 'sel', opts: ['定期會', '臨時會'], w: 'third', blank: false }) +
+    (sc === 'prep' ? '' : F(`m.${mk}.kind2`, '會議性質', { type: 'sel', opts: ['定期會', '臨時會'], w: 'third', blank: false })) +
     F(`m.${mk}.date`, '開會日期', { type: 'date', w: 'half', req: 1 }) + F(`m.${mk}.time`, '開會時間', { type: 'time', w: 'half', req: 1 }) +
     F(`m.${mk}.place`, '開會地點', { w: 'full', req: 1 }) +
     (post ? F(`m.${mk}.chair`, '主席', { w: 'half', req: 1 }) + F(`m.${mk}.rec`, '紀錄', { w: 'half' }) : ''));
@@ -3280,7 +3302,7 @@ SEC.statute = () => NOTE('依縣府「組織章程」範本產生，條文順序
 SEC.amend = () => NOTE('需檢附新舊章程各2份。') + LISTC('amend.rows', [{ k: 'orig', label: '原條文', type: 'area', rows: 4, w: 'full' }, { k: 'rev', label: '修正後條文', type: 'area', rows: 4, w: 'full' }, { k: 'note', label: '說明', type: 'area', rows: 3, w: 'full' }],
   { summary: r => (r.rev || r.orig || '').split('\n')[0].slice(0, 36), addLabel: '新增修正條文' });
 SEC.handover = () => GRID(F('x.handover.date', '移交日期', { type: 'date', w: 'half' }) + F('x.handover.from', S.ui.scen === 'found' ? '移交人（卸任籌備會主任委員）' : '移交人（卸任理事長）', { w: 'half' }) + F('x.handover.to', '接收人（新任理事長）', { w: 'half' }) + F('x.handover.sup', '監交人（常務監事）', { w: 'half' })) +
-  NOTE('於新任理事長選出後14日內，以移交清冊乙份連同圖記移交新任；理事長當選後十日內辦竣點交手續，備函並檢同移交清冊乙份報主管機關。各清冊的數量欄可列印後手寫。');
+  NOTE('於新任理事長選出後15日內，以移交清冊乙份連同圖記移交新任；理事長當選後十日內辦竣點交手續，備函並檢同移交清冊乙份報主管機關。各清冊的數量欄可列印後手寫。');
 SEC.cert = () => GRID(F('x.cert.name', '理事長姓名', { w: 'half', req: 1 }) + F('x.cert.birthplace', '出生地', { w: 'half', req: 1 }) + F('x.cert.birth', '出生日期（民國）', { type: 'rdate', w: 'half', req: 1 }) + F('x.cert.phone', '電話', { type: 'tel', w: 'half' }) + F('x.cert.addr', '戶籍地址', { w: 'full' }) +
   F('x.cert.term', '當選屆次', { type: 'num', w: 'third', pre: '第', suf: '屆' }) + F('x.cert.firstDate', '第一次理事會日期', { type: 'date', w: 'third' }) + F('x.cert.tenure', '任期', { w: 'full', hint: '預設由第一次理事會日期加上任期年數自動推算。' }) + F('x.cert.note', '備註', { w: 'full' })) +
   NOTE('送件時請檢附當選人身分證正反面影本1份、2吋大頭照2張。');
@@ -3297,7 +3319,7 @@ SEC.proxy = () => GRID(F('x.proxy.pages', '列印頁數（每頁6張）', { type
 SEC.recruit = () => GRID(F('x.recruit.no', '公告字號（號碼）', { w: 'half', pre: '第', suf: '號' }) + F('x.recruit.date', '公告日期', { type: 'date', w: 'half' }) + F('x.recruit.approveDate', '縣府准予設立日期', { type: 'date', w: 'half' }) + F('x.recruit.approveNo', '准予設立文號', { w: 'half', pre: '屏府社政字第', suf: '號' }) +
   F('x.recruit.goal', '本會宗旨', { type: 'area', rows: 2, w: 'full' }) + F('x.recruit.quals', '入會資格（每行一項）', { type: 'area', rows: 4, w: 'full', ph: '1.個人會員：凡贊同本會宗旨，年滿二十歲者，得申請入會。' }) +
   F('x.recruit.deadline', '申請入會截止日期', { type: 'date', w: 'half', req: 1 }) + F('x.recruit.chair', '主任委員', { w: 'half' }));
-SEC.report = () => NOTE('解散須經大會出席人數三分之二以上同意（已辦社團法人登記者為四分之三以上）。五項財務報表的截止日期、解散日期、大會召開日期三者請決議一致。') + GRID(
+SEC.report = () => NOTE('未辦法人登記：會員過半數出席，出席人數三分之二以上同意（人民團體法第27條）。已辦社團法人登記：須經全體會員三分之二以上同意（民法第57條）。章程訂有更高門檻時，依章程規定。五項財務報表的截止日期、解散日期、大會召開日期三者請決議一致。') + GRID(
   F('x.report.reason', '解散原因', { w: 'full', req: 1, ph: '例：會員老化、人數縮減，會務無法繼續推動' }) + F('x.report.date', '解散日期', { type: 'date', w: 'half' }) + F('x.report.agree', '同意解散人數', { type: 'num', w: 'half', suf: '人', req: 1 }) + calc('dissolveCheck', 'full') +
   F('x.report.signDate', '填表日期（可留空，預設今天）', { type: 'date', w: 'half' }) + F('x.report.memo', '備考（可留空）', { w: 'full' }) + F('x.report.cash', '財務存款（剩餘財產）', { type: 'num', w: 'half', pre: '新台幣', suf: '元' }) + F('x.report.to', '剩餘財產歸屬', { w: 'half', hint: '請以公部門為主，其他團體為次。' }) + F('x.report.propDesc', '財產說明（可留空）', { type: 'area', rows: 2, w: 'full' }) +
   F('x.report.liq', '清算人', { w: 'half' }) + F('x.report.liqFrom', '清算時間自', { type: 'date', w: 'half' }) + F('x.report.liqTo', '至', { type: 'date', w: 'half' }) + F('x.report.returnDate', '繳銷立案證書及圖記日期', { type: 'date', w: 'half' }) +
@@ -3366,8 +3388,15 @@ const CALC = {
   prepfinTotal: () => { const i = (S.x.prepfin.inc || []).reduce((s, x) => s + num(x.amt), 0), e = (S.x.prepfin.exp || []).reduce((s, x) => s + num(x.amt), 0); return `<div class="sumline ${i - e < 0 ? 'bad' : ''}">收入 <b>${fmt(i)}</b>　支出 <b>${fmt(e)}</b>　結餘 <b>${fmt(i - e)}</b> 元${i - e < 0 ? '（不得負債）' : ''}</div>`; },
   dissolveCheck: () => {
     const a = num(getp(S, 'm.dissolve.asm.attend')), g = num(S.x.report.agree); if (!a || !g) return '<div class="muted">填入大會實際出席人數與同意人數後，會自動檢查是否達到法定比例。</div>';
-    const need = S.org.corp === '有' ? Math.ceil(a * 3 / 4) : Math.ceil(a * 2 / 3);
-    return g >= need ? `<div class="ok">${icon('check')}同意 ${g} 人，已達出席 ${a} 人的${S.org.corp === '有' ? '四分之三' : '三分之二'}（${need} 人）。</div>` : `<div class="bad">${icon('warn')}同意 ${g} 人，未達出席 ${a} 人的${S.org.corp === '有' ? '四分之三' : '三分之二'}（需 ${need} 人）。</div>`;
+    if (S.org.corp === '有') {
+      /* 已辦法人登記：民法第57條，全體會員三分之二以上可決 */
+      const all = num(MV('dissolve.asm', 'should')), nAll = Math.ceil(all * 2 / 3);
+      if (!all) return '<div class="muted">已辦社團法人登記：請先填應出席人數（全體會員），才能檢查是否達全體會員三分之二以上同意（民法第57條）。</div>';
+      return g >= nAll ? `<div class="ok">${icon('check')}同意 ${g} 人，已達全體會員 ${all} 人的三分之二（${nAll} 人，民法第57條）。章程訂有更高門檻時，依章程規定。</div>`
+        : `<div class="bad">${icon('warn')}同意 ${g} 人，未達全體會員 ${all} 人的三分之二（需 ${nAll} 人）。已辦社團法人登記的團體，解散須經全體會員三分之二以上同意（民法第57條），出席與同意人數都要達到這個數字。</div>`;
+    }
+    const need = Math.ceil(a * 2 / 3);
+    return g >= need ? `<div class="ok">${icon('check')}同意 ${g} 人，已達出席 ${a} 人的三分之二（${need} 人，人民團體法第27條）。章程訂有更高門檻時，依章程規定。</div>` : `<div class="bad">${icon('warn')}同意 ${g} 人，未達出席 ${a} 人的三分之二（需 ${need} 人，人民團體法第27條）。</div>`;
   },
   propTotal: () => `<div class="sumline">財產合計 <b>${fmt(propSum(''))}</b> 元</div>`,
   bsA: () => fmt(bsAssets()), bsL: () => fmt(bsLiab()), bsE: () => fmt(bsEquity()),
@@ -3387,9 +3416,10 @@ function seatWarn(d, s, da, sa, sd) {
   if (d && da > Math.floor(d / 3)) w.push('候補理事不得超過理事名額三分之一。');
   if (s && sa > Math.floor(s / 3)) w.push('候補監事不得超過監事名額三分之一。');
   if (sd && d && sd > Math.floor(d / 3)) w.push('常務理事不得超過理事總額三分之一。');
-  if ((d && d % 2 === 0) || (s && s % 2 === 0)) w.push('理監事名額建議定為奇數。');
-  if (!d) return '<div class="muted">依章程規定：理事最多15人、監事不超過理事三分之一、候補不超過正選三分之一。</div>';
-  return w.length ? w.map(t => `<div class="warn">${icon('warn')}${t}</div>`).join('') : `<div class="ok">${icon('check')}名額符合章程範本規定。</div>`;
+  if ((d && d % 2 === 0) || (s && s % 2 === 0)) w.push('理事、監事名額應定額並為奇數（人民團體會務輔導辦法第9條）。');
+  if ((d && d < 9) || (s && s < 3)) w.push('理事至少九人、監事至少三人；自由職業團體會員不足十二人者不在此限（人民團體會務輔導辦法第9條）。');
+  if (!d) return '<div class="muted">理事9至15人、監事至少3人且不超過理事三分之一、候補不超過正選三分之一，名額應為奇數。</div>';
+  return w.length ? w.map(t => `<div class="warn">${icon('warn')}${t}</div>`).join('') : `<div class="ok">${icon('check')}名額符合規定。</div>`;
 }
 function calcVal(key) {
   if (CALC[key]) return CALC[key]();
@@ -3400,7 +3430,9 @@ function calcVal(key) {
   if (t === 'deadline') return deadlineCard(rest);
   if (t === 'preDeadline') { const ad = MV(MEET[rest].before, 'date'); return ad ? `大會${rd(ad)} → 本會議最晚 <b>${rd(addDays(ad, -15))}</b> 召開。` : ''; }
   if (t === 'quorum') { const mk = rest; const s = num(MV(mk, 'should')), at = num(getp(S, `m.${mk}.attend`)); if (!s || !at) return ''; return at > s / 2 ? `<div class="ok">${icon('check')}出席 ${at} 人，已過半數（應出席 ${s} 人），會議可成立。</div>` : `<div class="bad">${icon('warn')}出席 ${at} 人，未過半數（需 ${Math.floor(s / 2) + 1} 人），會議無法成立。</div>`; }
-  if (t === 'elResult') { const mk = rest, { dr, sr } = elOf(mk); if (!dr.all.length && !sr.all.length) return '<div class="muted">輸入候選人與得票數後，這裡會依票數排出當選與候補名單。</div>'; const f = (lab, l) => `<div><b>${lab}</b>${l.length ? l.map(c => `${esc(c.name)}（${c.v}）`).join('、') : '—'}</div>`; return `<div class="elres">${f('當選理事：', dr.win)}${f('候補理事：', dr.alt)}${f('當選監事：', sr.win)}${f('候補監事：', sr.alt)}</div>`; }
+  if (t === 'elResult') { const mk = rest, { dr, sr } = elOf(mk); if (!dr.all.length && !sr.all.length) return '<div class="muted">輸入候選人與得票數後，這裡會依票數排出當選與候補名單。</div>'; const f = (lab, l) => `<div><b>${lab}</b>${l.length ? l.map(c => `${esc(c.name)}（${c.v}）`).join('、') : '—'}</div>`; const tie = (lab, r) => { const seq = [...r.win.map(c => ['w', c]), ...r.alt.map((c, i) => ['a' + i, c]), ...r.lose.map(c => ['l', c])], t = new Set(); for (let i = 1; i < seq.length; i++) if (seq[i][1].v === seq[i - 1][1].v && seq[i][0] !== seq[i - 1][0]) { t.add(seq[i - 1][1].name); t.add(seq[i][1].name); } return t.size ? `<div class="warn">${icon('warn')}${lab}${[...t].map(esc).join('、')}票數相同，當選與候補名次要以抽籤決定（人民團體選舉罷免辦法第15條）；請依抽籤結果調整候選人的排列順序，排在前面的優先。</div>` : ''; };
+    const both = dr.win.filter(c => sr.win.some(x => x.name === c.name)).map(c => c.name);
+    return `<div class="elres">${f('當選理事：', dr.win)}${f('候補理事：', dr.alt)}${f('當選監事：', sr.win)}${f('候補監事：', sr.alt)}</div>${tie('理事', dr)}${tie('監事', sr)}${both.length ? `<div class="warn">${icon('warn')}${both.map(esc).join('、')}同時當選理事與監事，只能擇一擔任（人民團體選舉罷免辦法第16條）。</div>` : ''}`; }
   return '';
 }
 function deadlineCard(mk) {
@@ -3408,6 +3440,7 @@ function deadlineCard(mk) {
   if (!dt) return `<div class="dl muted">${icon('clock')}填入日期後，系統會自動算出開會通知與紀錄送府的期限。</div>`;
   const today = isoToday(), n = addDays(dt, -d.days), l = addDays(dt, 30);
   const left = x => { const v = daysBetween(today, x); return v == null ? '' : v < 0 ? `<em class="late">已過 ${-v} 天</em>` : v === 0 ? '<em class="soon">今天</em>' : `<em${v <= 3 ? ' class="soon"' : ''}>剩 ${v} 天</em>`; };
+  if (brdOnly(mk)) return `<div class="dl">${icon('clock')}<div><div>開會通知最晚 <b>${rd(n)}（${weekday(n)}）</b>送達各理事、監事（會議前 7 日）${left(n)}</div><div>會議紀錄閉會後自行留存、提供會員查閱；只有依法令須報縣府的事項（例如會址變更）才檢附文件報送。</div><div class="muted">${rd(dt)}（${weekday(dt)}）${tm(MV(mk, 'time'))}開會</div></div></div>`;
   return `<div class="dl">${icon('clock')}<div><div>開會通知書最晚 <b>${rd(n)}（${weekday(n)}）</b>送達縣府 ${left(n)}</div>${d.same ? '' : `<div>會議紀錄最晚 <b>${rd(l)}（${weekday(l)}）</b>前函送縣府 ${left(l)}</div>`}<div class="muted">${rd(dt)}（${weekday(dt)}）${tm(MV(mk, 'time'))}開會</div></div></div>`;
 }
 
@@ -3513,7 +3546,7 @@ function renderDocs() {
   if (sc === 'board') h += `<div class="card">${CK('ui.boardAddr', '本次會議要討論會址變更', { rr: 1 })}<div class="muted small">勾選後會加入「檢送會址變更公文」、會議紀錄改用會址變更範本，並需附會址使用同意書。</div></div>`;
   if (sc === 'dissolve') h += `<details class="card info"><summary>${icon('info')}縣府「團體解散說明」</summary><div class="small">
     <p><b>流程：</b>函寄大會通知函 → 召開會員大會 → 團體函送大會紀錄及相關資料報屏東縣政府 → 收到屏東縣政府核准解散函 →（清算人可自行向會址所在地之國稅局查詢解散情形）。</p>
-    <p><b>會議內容：</b>1.同意解散及決議解散日期（可與大會日期不同）。2.出席人數：有社團法人登記者需出席人數四分之三以上同意；無者三分之二以上同意。3.五項財務報表（截止日期與解散日期一致）。4.剩餘財產歸屬（請以公部門為主，其他團體為次）。5.選出清算人（為理事長）。</p>
+    <p><b>會議內容：</b>1.同意解散及決議解散日期（可與大會日期不同）。2.出席與決議門檻：未辦法人登記者，應有會員（會員代表）過半數出席，出席人數三分之二以上同意（人民團體法第27條）；已辦社團法人登記者，須經全體會員三分之二以上同意（民法第57條），出席與同意人數都要達到全體會員的三分之二。章程訂有更高門檻時，依章程規定。（常聽到的「四分之三」是民法第53條社團法人變更章程的門檻，不是解散門檻。）3.五項財務報表（截止日期與解散日期一致）。4.剩餘財產歸屬（請以公部門為主，其他團體為次）。5.選出清算人（為理事長）。</p>
     <p><b>應附資料：</b>第一階段：會員大會紀錄、各項財務報表（共5項，缺一不可）、解散報告表、原核發之立案證書、圖記、理事長當選證明書、其他相關資料。第二階段（如有後續清算資產）：解散報告表、剩餘財產歸屬資料（造冊由清算人簽章）。</p>
     <p><b>備註：</b>五項財務報表截止日期、解散日期、大會召開日期三者請決議一致；清算日期可延後。會議紀錄範例格式及提案請勿刪減。</p></div></details>`;
   const prev = SCEN[sc].prev;
@@ -3521,7 +3554,7 @@ function renderDocs() {
   const on = batchOn(sc), both = on.pre && on.post;
   if (hasBatch(sc)) {
     const days = MEET[mainMeet(sc)].days;
-    h += `<div class="batches" role="group" aria-label="這次要準備的文件">${[PRE, POST].map(k => `<button type="button" class="bt${on[k] ? ' on' : ''}" data-batch="${k}" aria-pressed="${on[k]}"><span class="bn">${BATCH[k].n}</span><span class="bd"><b>${BATCH[k].t}</b><small>${BATCH[k].s(days)}</small></span><span class="bck">${icon('check')}</span></button>`).join('')}</div>
+    h += `<div class="batches" role="group" aria-label="這次要準備的文件">${[PRE, POST].map(k => `<button type="button" class="bt${on[k] ? ' on' : ''}" data-batch="${k}" aria-pressed="${on[k]}"><span class="bn">${BATCH[k].n}</span><span class="bd"><b>${BATCH[k].t}</b><small>${BATCH[k].s(days, sc)}</small></span><span class="bck">${icon('check')}</span></button>`).join('')}</div>
       <p class="muted small bhint">${batchAuto(sc) ? '已依開會日期自動選好。' : ''}開會通知要在會前先送，會議紀錄等資料會後再送；兩批可以分開準備，也可以一起勾選。</p>`;
   }
   h += NOTE('<b>必備</b>的文件已自動勾選；<b>選填</b>的文件勾選後才會出現在填寫與下載清單。標示「另附」的是要另外準備的文件，可以按「上傳」把照片或掃描檔一起放進下載檔。');
@@ -3862,7 +3895,7 @@ function sealScore(A, ink) {
   A.SC = SC; A.md = md; A.thr = md === 'black' ? Math.min(0.7, Math.max(0.28, t)) : Math.min(0.45, Math.max(0.09, t));
 }
 /** 找出每一顆印章（連通區塊＋鄰近合併） */
-function sealDetect(A) {
+function sealDetect(A, mode) {
   const { W, H, SC, thr } = A, f = Math.max(1, Math.ceil(Math.max(W, H) / 480)), GW = Math.ceil(W / f), GH = Math.ceil(H / f), GN = GW * GH;
   const G = new Uint8Array(GN);
   for (let y = 0; y < H; y++) { const row = ((y / f) | 0) * GW; for (let x = 0; x < W; x++) if (SC[y * W + x] > thr) G[row + ((x / f) | 0)] = 1; }
@@ -3882,12 +3915,14 @@ function sealDetect(A) {
   }
   comps = comps.filter(c => c.ink >= Math.max(3, GN * 0.00004)).sort((a, b) => b.ink - a.ink).slice(0, 400);
   const sz = c => Math.max(c.x1 - c.x0, c.y1 - c.y0) + 1;
+  /* 簽名筆跡：字與字、筆畫與筆畫之間有空隙，距離在一個字高以內的都算同一個簽名 */
+  const near = mode === 'sign' ? (a, b) => 1.1 * Math.max(Math.min(a.y1 - a.y0, a.x1 - a.x0), Math.min(b.y1 - b.y0, b.x1 - b.x0), Math.max(GW, GH) * 0.03) : (a, b) => Math.max(1, 0.3 * Math.min(sz(a), sz(b)));
   for (let changed = true; changed;) {
     changed = false;
     outer: for (let i = 0; i < comps.length; i++) for (let j = i + 1; j < comps.length; j++) {
       const a = comps[i], b = comps[j];
       const gap = Math.max(Math.max(0, Math.max(a.x0, b.x0) - Math.min(a.x1, b.x1)), Math.max(0, Math.max(a.y0, b.y0) - Math.min(a.y1, b.y1)));
-      if (gap <= Math.max(1, 0.3 * Math.min(sz(a), sz(b)))) {
+      if (gap <= near(a, b)) {
         comps[i] = { ids: [...a.ids, ...b.ids], x0: Math.min(a.x0, b.x0), y0: Math.min(a.y0, b.y0), x1: Math.max(a.x1, b.x1), y1: Math.max(a.y1, b.y1), ink: a.ink + b.ink };
         comps.splice(j, 1); changed = true; break outer;
       }
@@ -3901,7 +3936,7 @@ function sealDetect(A) {
   return comps.map(c => {
     const w = (c.x1 - c.x0 + 1) * f, h = (c.y1 - c.y0 + 1) * f, pad = Math.round(Math.max(w, h) * 0.04);
     const x = Math.max(0, c.x0 * f - pad), y = Math.max(0, c.y0 * f - pad);
-    return { box: { x, y, w: Math.min(W - x, w + pad * 2), h: Math.min(H - y, h + pad * 2) }, ids: c.ids };
+    return { box: { x, y, w: Math.min(W - x, w + pad * 2), h: Math.min(H - y, h + pad * 2) }, ids: mode === 'sign' ? null : c.ids };
   });
 }
 /** 取出一顆印章：去背、統一印泥色、修邊 */
@@ -3939,8 +3974,10 @@ function sealExtract(A, c, opt = {}) {
   const og = o.getContext('2d'); og.imageSmoothingQuality = 'high'; og.drawImage(cv, tx0, ty0, tw, th, 0, 0, o.width, o.height);
   return { canvas: o, url: o.toDataURL('image/png'), box: { x: x + tx0, y: y + ty0, w: tw, h: th }, color: base };
 }
-function sealGuessType(c, all, mmpp) {
+function sealGuessType(c, all, mmpp, kind, ink) {
   const ar = c.box.w / c.box.h, L = Math.max(c.box.w, c.box.h), narrow = ar < 0.55 || ar > 1.8;
+  /* 指定上傳簽名，或黑色筆跡且是長條形（印章通常是紅、藍印泥）→ 簽名 */
+  if (kind === 'sign' || (ink === 'black' && narrow)) return 'sign';
   if (mmpp) { const mm = L * mmpp; if (mm < 28) return 'person'; return narrow ? 'title' : 'org'; }
   if (narrow) return 'title';
   const maxL = Math.max(...all.map(x => Math.max(x.box.w, x.box.h)));
@@ -3948,6 +3985,8 @@ function sealGuessType(c, all, mmpp) {
 }
 function sealSizeFor(c, type, mmpp) {
   const w = c.box.w, h = c.box.h;
+  /* 簽名：照實際大小，但長邊最多 4.5 公分，才放得進簽章欄 */
+  if (mmpp && type === 'sign' && Math.max(w, h) * mmpp > 45) mmpp = 45 / Math.max(w, h);
   if (mmpp) return { wmm: +(w * mmpp).toFixed(1), hmm: +(h * mmpp).toFixed(1) };
   const L = SEAL_TYPES[type][1], k = L / Math.max(w, h);
   return { wmm: +(w * k).toFixed(1), hmm: +(h * k).toFixed(1) };
@@ -3975,13 +4014,14 @@ function sealRender() {
     <p class="muted small">系統會依文件的簽章位置自動擺放：「蓋團體圖記」處用印信或大章；理事長等簽章處優先用該職稱的職章，沒有時用本人的印鑑或簽名。可在每份文件的「預覽」拖曳調整。</p>` : ''}
     <div class="sgrid">${L.map(s => `<div class="scard${sealOk(s) ? '' : ' miss'}">${sealOk(s) ? chk(sealUrl(s.id)) : `<span class="chk">${icon('warn')}</span>`}<b>${esc(s.name || sealDefName(s))}</b><small>${SEAL_TYPES[s.type][0]}${s.type === 'title' && s.title ? '・' + esc(s.title) : ''}${(s.type === 'person' || s.type === 'sign') && s.owner ? '・' + esc(s.owner) : ''}</small><small>${(s.wmm / 10).toFixed(1)} × ${(s.hmm / 10).toFixed(1)} 公分${sealOk(s) ? '' : '・圖檔遺失，請重新上傳'}</small>
       <span class="sact"><button class="mini" data-seal="edit" data-id="${s.id}">${icon('pen')}編輯</button><button class="mini danger" data-seal="del" data-id="${s.id}">${icon('x')}刪除</button></span></div>`).join('')}</div>
-    ${L.length ? '' : `<div class="empty big">${icon('stamp', 'big')}<b>還沒有印章</b><span>上傳蓋在白紙上的印章照片或掃描檔，系統會自動切出每一顆章並去除背景。</span></div>`}
-    <div class="btnrow col"><button class="btn pri" data-seal="pick">${icon('up')}上傳印章照片或掃描檔</button><button class="btn ghost" data-seal="sign">${icon('pen')}手寫簽名</button></div>
+    ${L.length ? '' : `<div class="empty big">${icon('stamp', 'big')}<b>還沒有印章或簽名</b><span>上傳蓋在白紙上的印章，或簽在白紙上的簽名（照片或掃描檔），系統會自動辨識、去除背景，並放到文件的簽章位置。</span></div>`}
+    <div class="btnrow col"><button class="btn pri" data-seal="pick">${icon('up')}上傳印章照片或掃描檔</button><button class="btn pri" data-seal="pickSign">${icon('pen')}上傳簽名筆跡（照片或掃描檔）</button><button class="btn ghost" data-seal="sign">${icon('pen')}直接在螢幕上手寫簽名</button></div>
     <details class="card info"><summary>${icon('info')}拍照、掃描小技巧</summary><ul class="small">
       <li>把印章蓋在<b>白紙</b>上，可以一次蓋好團體圖記、大章、職章、印鑑再拍一張，系統會自動分開。</li>
       <li>光線均勻、手機在正上方拍，避免陰影與反光；印章之間留點距離。</li>
       <li>用掃描器以 300 dpi 掃描（JPG 或 PNG），或拍整張 A4 白紙，系統可以自動算出印章的實際尺寸。</li>
-      <li>沒有自動算出尺寸時，請用尺量印章的實際寬高，填在「實際尺寸」。</li></ul></details>
+      <li>沒有自動算出尺寸時，請用尺量印章的實際寬高，填在「實際尺寸」。</li>
+      <li><b>簽名筆跡</b>：用黑色或藍色筆簽在白紙上，簽名四周留白，拍照或掃描後按「上傳簽名筆跡」，系統會自動找出簽名、去除背景。</li></ul></details>
   </div>${lists}`;
 }
 function sealUpHTML() {
@@ -3992,12 +4032,12 @@ function sealUpHTML() {
       <button class="mini drawbtn${UP.draw === si ? ' on' : ''}" data-seal="draw" data-src="${si}">${icon('plus')}${UP.draw === si ? '在圖上拖曳框出印章…' : '手動框選'}</button></div>`).join('')}
     <div class="sopts">
       <label>去背強度<input type="range" min="0" max="100" step="5" value="${UP.opt.strength}" data-sopt="strength"></label>
-      <label>印泥<select data-sopt="ink">${Object.entries(INK_MODE).map(([k, t]) => `<option value="${k}"${UP.opt.ink === k ? ' selected' : ''}>${t}${k === 'auto' && UP.srcs[0] ? `（${INK_MODE[UP.srcs[0].A.autoInk]}）` : ''}</option>`).join('')}</select></label>
+      <label>${UP.kind === 'sign' ? '筆的顏色' : '印泥'}<select data-sopt="ink">${Object.entries(INK_MODE).map(([k, t]) => `<option value="${k}"${UP.opt.ink === k ? ' selected' : ''}>${inkName(k)}${k === 'auto' && UP.srcs[0] ? `（${inkName(UP.srcs[0].A.autoInk)}）` : ''}</option>`).join('')}</select></label>
       <label>顏色<select data-sopt="color">${Object.entries(INK).map(([k, [t]]) => `<option value="${k}"${UP.opt.color === k ? ' selected' : ''}>${t}</option>`).join('')}</select></label>
     </div>
-    <p class="muted small">${UP.cands.length ? `找到 ${UP.cands.length} 個印章。請確認類別、所屬人與實際尺寸（${UP.srcs.some(s => s.mmpp) ? '已依掃描解析度自動計算，可再修改' : '請用尺量印章實際大小'}）。不要的取消勾選；沒抓到的可用「手動框選」。` : '沒有找到印章，請用「手動框選」框出印章範圍，或調整去背強度、印泥顏色。'}</p>
+    <p class="muted small">${UP.kind === 'sign' ? (UP.cands.length ? '已自動找出簽名筆跡並去除背景。請確認是誰的簽名；存好後，文件上這個人的簽章處會自動放上簽名，大小與位置可在預覽裡拖曳調整。沒抓好的可用「手動框選」，或調整去背強度、筆的顏色。' : '沒有找到簽名筆跡，請用「手動框選」框出簽名範圍，或調整去背強度、筆的顏色。') : UP.cands.length ? `找到 ${UP.cands.length} 個印章。請確認類別、所屬人與實際尺寸（${UP.srcs.some(s => s.mmpp) ? '已依掃描解析度自動計算，可再修改' : '請用尺量印章實際大小'}）。不要的取消勾選；沒抓到的可用「手動框選」。` : '沒有找到印章，請用「手動框選」框出印章範圍，或調整去背強度、印泥顏色。'}</p>
     <div class="cands">${UP.cands.map((c, i) => candHTML(c, i)).join('')}</div>
-    <div class="btnrow"><button class="btn ghost" data-seal="lib">取消</button><button class="btn pri" data-seal="save"${n ? '' : ' disabled'}>${icon('check')}加入 ${n} 個印章</button></div>
+    <div class="btnrow"><button class="btn ghost" data-seal="lib">取消</button><button class="btn pri" data-seal="save"${n ? '' : ' disabled'}>${icon('check')}加入 ${n} 個${upWord()}</button></div>
   </div>`;
 }
 function sealFields(o, attr) {
@@ -4011,8 +4051,8 @@ function candHTML(c, i) {
   return `<div class="cand${c.keep ? '' : ' off'}">${c.res ? chk(c.res.url) : `<span class="chk">${icon('warn')}</span>`}
     <div class="cf"><label class="ck"><input type="checkbox" data-cand="${i}" data-cf="keep"${c.keep ? ' checked' : ''}><b>第 ${i + 1} 個</b></label>${sealFields(c, `data-cand="${i}"`)}</div></div>`;
 }
-async function sealFiles(files) {
-  const busy = showBusy('正在辨識印章…');
+async function sealFiles(files, kind = 'seal', ctx = {}) {
+  const busy = showBusy(kind === 'sign' ? '正在辨識簽名筆跡…' : '正在辨識印章…');
   try {
     const srcs = [];
     for (const f of files) {
@@ -4025,8 +4065,10 @@ async function sealFiles(files) {
       srcs.push({ url, img, A, mmpp });
     }
     if (!srcs.length) return;
-    UP = { srcs, cands: [], opt: { strength: 50, ink: 'auto', color: 'orig' }, draw: -1 };
-    srcs.forEach((s, si) => { sealScore(s.A, 'auto'); sealDetect(s.A).forEach(c => UP.cands.push({ ...c, src: si, keep: true })); });
+    UP = { srcs, cands: [], opt: { strength: 50, ink: 'auto', color: 'orig' }, draw: -1, kind, ctx };
+    srcs.forEach((s, si) => { sealScore(s.A, 'auto'); sealDetect(s.A, kind).forEach(c => UP.cands.push({ ...c, src: si, keep: true })); });
+    /* 簽名通常一張照片只有一個：只留最大的，其餘（紙邊、陰影）預設不勾 */
+    if (kind === 'sign') srcs.forEach((s, si) => { const L = UP.cands.filter(c => c.src === si), top = L.slice().sort((a, b) => b.box.w * b.box.h - a.box.w * a.box.h)[0]; L.forEach(c => { if (c !== top) c.keep = false; }); });
     upRefresh(true);
     SV.view = 'up'; sealRender();
   } finally { busy.done(); }
@@ -4038,13 +4080,17 @@ function upRefresh(first) {
     const s = UP.srcs[c.src];
     c.res = sealExtract(s.A, c, UP.opt);
     if (first || c.fresh) {
-      c.type = sealGuessType(c, all.filter(x => x.src === c.src), s.mmpp);
-      if (c.type === 'title') c.title = '理事長';
+      c.type = sealGuessType(c, all.filter(x => x.src === c.src), s.mmpp, UP.kind, s.A.md);
+      const cx = UP.ctx || {};
+      if (c.type === 'title') c.title = c.title || (SEAL_TITLES.includes(cx.title) ? cx.title : '理事長');
+      if ((c.type === 'sign' || c.type === 'person') && !c.owner) c.owner = cx.owner || (c.type === 'sign' ? chairName() || '' : '');
       Object.assign(c, sealSizeFor(c.res || c, c.type, s.mmpp)); c.fresh = false;
     }
     if (!c.res) c.keep = false;
   });
 }
+const inkName = k => (UP && UP.kind === 'sign' ? { auto: '自動判斷', red: '紅色筆', blue: '藍色筆', black: '黑色筆' }[k] : INK_MODE[k]);
+const upWord = () => (UP && UP.kind === 'sign' ? '簽名' : '印章');
 async function sealSave() {
   const keep = UP.cands.filter(c => c.keep && c.res);
   for (const c of keep) {
@@ -4059,7 +4105,8 @@ async function sealSave() {
   }
   if (S.stamp.on == null) S.stamp.on = true;
   save(); UP.srcs.forEach(s => URL.revokeObjectURL(s.url)); UP = null;
-  SV.view = 'lib'; sealRender(); toast(`已加入 ${keep.length} 個印章`);
+  const wd = keep.every(c => c.type === 'sign') ? '簽名' : '印章';
+  SV.view = 'lib'; sealRender(); toast(`已加入 ${keep.length} 個${wd}，文件會自動放到簽章位置`);
 }
 /* 編輯：重新去背、尺寸、旋轉 */
 function sealEditHTML() {
@@ -4158,14 +4205,15 @@ async function sigSave() {
 }
 
 /* ---------- 事件 ---------- */
-$('#sealIn').addEventListener('change', async e => { const fs = [...e.target.files]; e.target.value = ''; if (fs.length) await sealFiles(fs); });
+let PICK = { kind: 'seal', ctx: {} };
+$('#sealIn').addEventListener('change', async e => { const fs = [...e.target.files]; e.target.value = ''; if (!fs.length) return; if ($('#seal').hidden) sealOpen('lib'); await sealFiles(fs, PICK.kind, PICK.ctx); });
 document.addEventListener('click', async e => {
   const t = e.target.closest('[data-seal]'); if (!t) return;
   const a = t.dataset.seal;
   if (a === 'close') return sealClose();
   if (a === 'lib') { if (UP) UP.srcs.forEach(s => URL.revokeObjectURL(s.url)); UP = null; ED_A = null; SV = { view: 'lib' }; return sealRender(); }
-  if (a === 'pick') return $('#sealIn').click();
-  if (a === 'sign') { SV = { view: 'sign' }; return sealRender(); }
+  if (a === 'pick' || a === 'pickSign') { PICK = { kind: a === 'pickSign' ? 'sign' : 'seal', ctx: { owner: t.dataset.owner || '', title: t.dataset.title || '' } }; return $('#sealIn').click(); }
+  if (a === 'sign') { if ($('#seal').hidden) sealOpen('lib'); SV = { view: 'sign' }; if (t.dataset.owner) SV.sg = { owner: t.dataset.owner, color: 'black', width: 3 }; return sealRender(); }
   if (a === 'sigclear') { if (SIG) { SIG.g.clearRect(0, 0, SIG.cv.width, SIG.cv.height); SIG.any = false; } return; }
   if (a === 'sigsave') return sigSave();
   if (a === 'save') return sealSave();
@@ -4191,7 +4239,7 @@ document.addEventListener('change', e => {
   const t = e.target;
   if (t.dataset.cand != null && UP) { const c = UP.cands[+t.dataset.cand]; c.mmppKnown = !!UP.srcs[c.src].mmpp; const r = candSet(c, t.dataset.cf, t.type === 'checkbox' ? t.checked : t.value); if (r) sealRender(); else if (t.dataset.cf === 'keep') sealRender(); return; }
   if (t.dataset.edit && SV.e) { const r = candSet(SV.e, t.dataset.cf, t.value); SV.e.mmppKnown = !!SV.e.mmpp; if (r === 'r') sealRender(); else if (r) { const o = $(`#seal [data-cf=${r === 'h' ? 'hcm' : 'wcm'}]`); if (o) o.value = ((r === 'h' ? SV.e.hmm : SV.e.wmm) / 10).toFixed(1); } return; }
-  if (t.dataset.sopt && UP) { UP.opt[t.dataset.sopt] = t.dataset.sopt === 'strength' ? +t.value : t.value; const busy = showBusy('重新去背…'); setTimeout(() => { try { if (t.dataset.sopt === 'ink') { UP.srcs.forEach(s => { s.A.SC = null; s.A.md = null; sealScore(s.A, UP.opt.ink); }); UP.cands = []; UP.srcs.forEach((s, si) => sealDetect(s.A).forEach(c => UP.cands.push({ ...c, src: si, keep: true, fresh: true }))); upRefresh(false); } else upRefresh(false); sealRender(); } finally { busy.done(); } }, 30); return; }
+  if (t.dataset.sopt && UP) { UP.opt[t.dataset.sopt] = t.dataset.sopt === 'strength' ? +t.value : t.value; const busy = showBusy('重新去背…'); setTimeout(() => { try { if (t.dataset.sopt === 'ink') { UP.srcs.forEach(s => { s.A.SC = null; s.A.md = null; sealScore(s.A, UP.opt.ink); }); UP.cands = []; UP.srcs.forEach((s, si) => sealDetect(s.A, UP.kind).forEach(c => UP.cands.push({ ...c, src: si, keep: true, fresh: true }))); upRefresh(false); } else upRefresh(false); sealRender(); } finally { busy.done(); } }, 30); return; }
   if (t.dataset.eopt && SV.e) { const k = t.dataset.eopt; SV.e[k] = k === 'rot' || k === 'strength' ? +t.value : t.value; if (k === 'rot') { const o = t.parentElement.querySelector('output'); if (o) o.textContent = t.value + '°'; const im = $('#seal .eprev img'); if (im) im.style.transform = `rotate(${t.value}deg)`; return; } if (k === 'color') SV.e.colorChanged = true; else { SV.e.reproc = true; if (k === 'ink') ED_A = null; } sealEditReprocess(); return; }
   if (t.dataset.sg && SV.sg) { SV.sg[t.dataset.sg] = t.value; }
 });
@@ -4214,7 +4262,7 @@ document.addEventListener('pointerdown', e => {
     box.removeEventListener('pointermove', mv); box.removeEventListener('pointerup', up); box.removeEventListener('pointercancel', up);
     const p = toImg(ev), x = Math.round(Math.min(p0[0], p[0])), y = Math.round(Math.min(p0[1], p[1])), w = Math.round(Math.abs(p[0] - p0[0])), h = Math.round(Math.abs(p[1] - p0[1]));
     UP.draw = -1;
-    if (w > 12 && h > 12) { const c = { box: { x, y, w, h }, ids: null, src: si, keep: true, fresh: true }; UP.cands.push(c); upRefresh(false); if (!c.res) toast('框選範圍內沒有找到印泥，請調整去背強度或印泥顏色', 'err'); }
+    if (w > 12 && h > 12) { const c = { box: { x, y, w, h }, ids: null, src: si, keep: true, fresh: true }; UP.cands.push(c); upRefresh(false); if (!c.res) toast(UP.kind === 'sign' ? '框選範圍內沒有找到筆跡，請調整去背強度或筆的顏色' : '框選範圍內沒有找到印泥，請調整去背強度或印泥顏色', 'err'); }
     sealRender();
   };
   box.addEventListener('pointermove', mv); box.addEventListener('pointerup', up); box.addEventListener('pointercancel', up);
@@ -4285,7 +4333,9 @@ function geoOf(it, fs) {
   const r = rot * Math.PI / 180, ac = Math.abs(Math.cos(r)), as = Math.abs(Math.sin(r));
   /* 垂直位置：'b'＝印章上緣貼齊該行；簽章處的長形職章大部分垂在簽名行下方，不壓到上面的表格 */
   const dy = it.dy != null ? it.dy : it.ey === 'b' ? h / 2 - f * PT_MM * 0.8 : !+it.ey && it.slot && it.slot[0] !== '@' ? Math.max(0, h / 2 - 8) : (+it.ey || 0) * f * PT_MM;
-  return { w, h, rot, bw: w * ac + h * as, bh: w * as + h * ac, dx: it.dx != null ? it.dx : (it.ex || 0) * f * PT_MM, dy };
+  /* 簽名比印章寬：自動擺放時從簽章處往右放，不蓋到前面打字的姓名 */
+  const ex = (it.ex || 0) * f * PT_MM, dx = it.dx != null ? it.dx : s.type === 'sign' && ex > 0 ? Math.max(ex, (w * ac + h * as) / 2 - 1) : ex;
+  return { w, h, rot, bw: w * ac + h * as, bh: w * as + h * ac, dx, dy };
 }
 /** 從文件模型找出錨點（順序與 HTML、Word、Excel 輸出一致） */
 function modelAnchors(sh) {
@@ -4865,13 +4915,13 @@ function docChecks(sc, x) {
   }
   if (/notice/i.test(id) && mk) {
     const d = MV(mk, 'date'), nd = MV(mk, 'noticeDate'), days = MEET[mk].days;
-    if (d && nd) { const left = daysBetween(nd, d); if (left != null && left < days) P('warn', `開會通知書發文日期距開會只有 ${left} 天，依規定應於會議前 ${days} 日送達縣府`); }
+    if (d && nd) { const left = daysBetween(nd, d); if (left != null && left < days) P('warn', brdOnly(mk) ? `開會通知書發文日期距開會只有 ${left} 天，應於會議前 ${days} 日送達各理事、監事` : `開會通知書發文日期距開會只有 ${left} 天，依規定應於會議前 ${days} 日送達縣府`); }
     const refs = noticeRefs(mk), miss = scenDocs(sc).filter(a => a.nm === mk && refs.has(a.id) && !isSel(sc, a)).map(a => a.name);
     if (miss.length) P('warn', `通知書的報告或討論事項提到「${miss.join('、')}」，但開會通知檢附資料沒有勾選，送件時請一併附上`);
   }
   if (/letter/i.test(id) && mk) {
     const d = MV(mk, 'date'), ld = MV(mk, 'letterDate'), typed = !isBlank(getp(S, `m.${mk}.letterDate`)), held = d && daysBetween(d, isoToday()) >= 0;
-    if (d && ld && (typed || held)) { const gap = daysBetween(d, ld); if (gap != null && gap > 30) P('warn', `檢送公文日期在會後 ${gap} 天，應於會議後 30 日內送達縣府`); if (gap != null && gap < 0) P('err', '檢送會議紀錄公文的發文日期早於開會日期'); }
+    if (d && ld && (typed || held)) { const gap = daysBetween(d, ld); if (gap != null && gap > 30 && !brdOnly(mk)) P('warn', `檢送公文日期在會後 ${gap} 天，應於會議後 30 日內送達縣府`); if (gap != null && gap < 0) P('err', '檢送會議紀錄公文的發文日期早於開會日期'); }
   }
   if (/Min$|^min$/.test(id) && mk && MEET[mk].asm) {
     const a = num(MV(mk, 'attend')), s = num(MV(mk, 'should'));
@@ -5383,13 +5433,19 @@ function meetDateLines(mk) {
   }
   if (!d) { w.push(TW('填好開會日期後，會自動算出開會通知與會議紀錄的送件期限')); return w; }
   if (M0.same) w.push(TW(`與「${MEET[M0.same].label}」同一天召開，送件期限跟大會相同`));
+  else if (brdOnly(mk)) {
+    const due = addDays(d, -M0.days), left = daysBetween(today, due);
+    w.push(left < 0 ? TW(`開會通知應在 ${rd(due)} 前送達各理事、監事（會議前 ${M0.days} 日），已超過 ${-left} 天，請調整開會日期`, 'bad')
+      : TW(`開會通知：${rd(due)} 前送達各理事、監事（會議前 ${M0.days} 日）${left === 0 ? '，就是今天' : `，還有 ${left} 天`}`, left <= 3 ? 'warn' : 'ok'));
+    w.push(TW('會議紀錄：閉會後自行留存、提供會員查閱；只有依法令須報縣府的事項（例如會址變更）才檢附文件報送', 'ok'));
+  }
   else {
     const due = addDays(d, -M0.days), left = daysBetween(today, due);
     w.push(left < 0 ? TW(`開會通知書應在 ${rd(due)} 前送達縣府（會議前 ${M0.days} 日），已超過 ${-left} 天，請調整開會日期或儘快送件`, 'bad')
       : TW(`開會通知書：${rd(due)} 前送達縣府（會議前 ${M0.days} 日）${left === 0 ? '，就是今天' : `，還有 ${left} 天`}`, left <= 3 ? 'warn' : 'ok'));
     w.push(TW(`會議紀錄：${rd(addDays(d, 30))} 前檢送縣府（會後 30 日內）`, 'ok'));
   }
-  if (M0.el === 'chair') w.push(TW(`新任理事長選出後 14 日內完成移交：${rd(addDays(d, 14))} 前`));
+  if (M0.el === 'chair') w.push(TW(`新任理事長就任後 15 日內完成移交接收：${rd(addDays(d, 15))} 前`));
   return w;
 }
 /** 出席是否過半 */
@@ -5403,13 +5459,14 @@ function quorumLines(mk) {
 function noticeDateLines(mk) {
   const M0 = MEET[mk], d = MV(mk, 'date'), nd = MV(mk, 'noticeDate');
   if (!d) return [TW('先填開會日期，會自動算出最晚的發文日期')];
-  const w = [TW(`通知書要在會議前 ${M0.days} 日送達縣府：最晚 ${rd(addDays(d, -M0.days))}，請預留郵寄時間`)];
+  const w = [TW(brdOnly(mk) ? `通知要在會議前 ${M0.days} 日送達各理事、監事：最晚 ${rd(addDays(d, -M0.days))}` : `通知書要在會議前 ${M0.days} 日送達縣府：最晚 ${rd(addDays(d, -M0.days))}，請預留郵寄時間`)];
   if (nd) { const gap = daysBetween(nd, d); if (gap != null && gap < M0.days) w.push(TW(`發文日期距開會只有 ${gap} 天，不足 ${M0.days} 天`, 'bad')); }
   return w;
 }
 function letterDateLines(mk) {
   const d = MV(mk, 'date'), ld = MV(mk, 'letterDate');
   if (!d) return [TW('先填開會日期，會自動算出期限')];
+  if (brdOnly(mk)) { const w0 = [TW('理監事會紀錄閉會後自行留存；只有依法令須報縣府的事項（例如會址變更）才需要發這份公文，沒有 30 日的期限')]; if (ld && daysBetween(d, ld) < 0) w0.push(TW('發文日期早於開會日期，請確認', 'bad')); return w0; }
   const due = addDays(d, 30), w = [TW(`會議紀錄要在會後 30 日內報府：最晚 ${rd(due)}`)];
   if (ld) { if (daysBetween(d, ld) < 0) w.push(TW('發文日期早於開會日期，請確認', 'bad')); else if (daysBetween(ld, due) < 0) w.push(TW(`發文日期已超過會後 30 日（${rd(due)}）`, 'bad')); }
   return w;
@@ -5445,7 +5502,7 @@ const ORG_TIPS = [
   [/^org\.(dirSeats|supSeats|stdDirSeats|dirAlt|supAlt)$/, '依章程規定的名額，會用來檢查選舉的當選人數。'],
   [/^org\.(memberCount|groupCount)$/, '目前的會員人數，會帶入應出席人數；停權、贊助會員沒有表決權。'],
   [/^org\.reelectDate$/, '上一次改選的大會日期，用來推算任期與下次改選。'],
-  [/^org\.(corp|courtNo|courtDate)$/, '有向法院辦理社團法人登記才需要填；解散時，出席同意比例和沒有登記的團體不同。'],
+  [/^org\.(corp|courtNo|courtDate)$/, '有向法院辦理社團法人登記才需要填；解散時須全體會員三分之二以上同意（民法第57條），和沒有登記的團體不同。'],
   [/^org\.place$/, '常用的開會地點，各次會議會自動帶入，可再個別修改。'],
   [/^org\.(county|town)$/, '團體所在的縣市與鄉鎮市，會用在文件抬頭與地址。'],
 ];
@@ -5482,7 +5539,7 @@ function docTip(row) {
   const sc = S.ui.scen, id = (row.querySelector('[data-sel]') || {}).dataset?.sel, x = id && docsOf(sc).find(d => d.id === id); if (!x) return null;
   const grp = ((row.closest('.doclist') || {}).previousElementSibling || {}).textContent || '', L = [];
   L.push(x.req ? '必備：縣府規定要附的文件，已自動勾選。' : x.kind === 'attach' ? '另附：要另外準備的文件，可以上傳照片或掃描檔，一起放進壓縮檔與合併 PDF。' : '選填：需要時再勾選，勾了才會出現在「填資料」與「下載」。');
-  if (hasBatch(sc)) L.push(/當天/.test(grp) ? '開會當天使用，不必送縣府。' : x.bt === PRE ? `屬於「① 會前：開會通知」，要在會議前 ${MEET[mainMeet(sc)].days} 日送達縣府。` : '屬於「② 會後：會議紀錄送件」，會議後 30 日內送縣府。');
+  if (hasBatch(sc)) L.push(/當天/.test(grp) ? '開會當天使用，不必送縣府。' : x.bt === PRE ? `屬於「① 會前：開會通知」，要在會議前 ${MEET[mainMeet(sc)].days} 日送達${scBrd(sc) ? '各理事、監事' : '縣府'}。` : scBrd(sc) ? '屬於「② 會後：會議紀錄送件」；理監事會紀錄自行留存，有依法令須報縣府的事項才送件。' : '屬於「② 會後：會議紀錄送件」，會議後 30 日內送縣府。');
   if (x.mat) L.push('可以「線上填寫」，或直接「上傳檔案」（Excel、PDF、Word、照片），上傳後會自動檢查格式與計算錯誤。');
   else if (x.up) L.push('可以按「上傳」附上照片或掃描檔。');
   const secs = x.kind === 'attach' || isUp(x) ? [] : docSecs(x).map(k => secMeta(k).t);
@@ -5495,7 +5552,7 @@ function docTip(row) {
 function scenTip(k) {
   const s = SCEN[k]; if (!s) return null;
   const L = [s.sub + '。'], w = [];
-  for (const mk of s.meets()) { const M0 = MEET[mk]; if (!M0 || M0.same) continue; L.push(`${M0.label}：開會通知於會議前 ${M0.days} 日送達縣府，會議紀錄於會後 30 日內報府。`); }
+  for (const mk of s.meets()) { const M0 = MEET[mk]; if (!M0 || M0.same) continue; L.push(brdOnly(mk) ? `${M0.label}：開會通知於會議前 ${M0.days} 日送達各理事、監事；會議紀錄自行留存，有依法令須報縣府的事項才送件。` : `${M0.label}：開會通知於會議前 ${M0.days} 日送達縣府，會議紀錄於會後 30 日內報府。`); }
   if (s.prev) w.push(TW(`請先辦理「${SCEN[s.prev].title}」，填過的資料會自動帶過來`));
   if (s.next) w.push(TW(`接著辦理「${SCEN[s.next].title}」`));
   return { t: s.title, d: L.map(esc).join('<br>'), w };
@@ -5519,6 +5576,7 @@ const BTN_TIPS = {
   'cmd:paste': ['從 Excel 貼上', '在 Excel 選取多列複製，貼到這裡，系統會自動辨識姓名、職稱、身分證字號等欄位。'],
   back: ['回首頁', '資料會自動保存，隨時可以回來繼續填。'],
   fontBtn: ['放大字體', '字太小看不清楚時按這裡，再按一次恢復。'],
+  wipeBtn: ['清除記憶', '清空這個網頁存在這台裝置瀏覽器裡的所有資料：填寫內容、印章與簽名、上傳的附件與設定。借用別人的電腦或公用電腦填完後，請按這裡。'],
   menuBtn: ['更多功能', '備份、還原、範例資料、版面切換、操作提示、電子印章都在這裡。'],
   tipBtn: ['操作提示', '開啟後，滑鼠移到欄位或按鈕上會顯示說明與提醒；手機上點欄位就會顯示，長按按鈕可以看用途。'],
   layBtn: ['切換版面', '電腦版左右分欄、一次看更多；手機版單欄、按鈕較大。「更多」裡可以改回「自動（依螢幕寬度）」。'],
@@ -5824,6 +5882,22 @@ const CMDS = {
     await IDBX.run('files', 'readwrite', st => st.clear()); await IDBX.run('img', 'readwrite', st => st.clear()); SEALC.clear(); FILEC.clear();
     save(); render(); toast('已清除');
   },
+  /** 右上角「清除記憶」：清空這個網頁存在瀏覽器裡的所有資料（填寫內容、印章與簽名、上傳附件、版面與提示設定、雲端登入狀態） */
+  async wipe() {
+    $('#sheet').hidden = true;
+    const cloudOn = !!(S.cloud && S.cloud.on);
+    if (!(await ask(`確定清除記憶？\n會清空這個網頁存在這台裝置瀏覽器裡的所有資料：填寫內容、印章與簽名、上傳的附件、版面與提示設定。${cloudOn ? '\n也會登出雲端存檔；已存在您 Google 雲端硬碟的備份不會被刪除。' : ''}\n此動作無法復原，需要保留的資料請先用「⋯ → 備份資料」。`, { ok: '清除記憶' }))) return;
+    const busy = showBusy('正在清除…'); WIPING = true; clearTimeout(saveTimer);
+    try {
+      try { await IDBX.run('files', 'readwrite', st => st.clear()); await IDBX.run('img', 'readwrite', st => st.clear()); } catch (e) { }
+      try { await new Promise(res => { const rq = indexedDB.deleteDatabase('pt-assoc-seals'); rq.onsuccess = rq.onerror = rq.onblocked = () => res(); setTimeout(res, 1500); }); } catch (e) { }
+      SEALC.clear(); FILEC.clear();
+      try { Object.keys(localStorage).filter(k => k.startsWith('pt-')).forEach(k => localStorage.removeItem(k)); } catch (e) { }
+      try { Object.keys(sessionStorage).filter(k => k.startsWith('pt-')).forEach(k => sessionStorage.removeItem(k)); } catch (e) { }
+      try { if (window.caches) for (const k of await caches.keys()) await caches.delete(k); } catch (e) { }
+    } finally { busy.done(); }
+    location.reload();
+  },
   pvOpen() { const list = pvDocs(S.ui.scen).length ? pvDocs(S.ui.scen) : selDocs(S.ui.scen).filter(x => x.kind !== 'attach' && !isUp(x)); if (list.length) openPreview(list.some(x => x.id === S.ui.pvDoc) ? S.ui.pvDoc : list[0].id); },
   pvClose() { closePreview(); },
   toPost() { const sc = S.ui.scen; S.batch = S.batch || {}; S.batch[sc] = { pre: false, post: true }; S.ui.step = 'docs'; save(); render(); window.scrollTo({ top: 0 }); toast('已切換到「② 會後：會議紀錄送件」'); },
@@ -5918,6 +5992,7 @@ document.addEventListener('click', async e => {
   if (t.id === 'back') { if ($('#pv').hidden === false) { closePreview(); return; } S.ui.view = 'home'; save(); render(); return; }
   if (t.id === 'fontBtn') { S.ui.large = !S.ui.large; save(); document.documentElement.classList.toggle('large', S.ui.large); t.setAttribute('aria-pressed', S.ui.large); return; }
   if (t.id === 'menuBtn') { CMDS.menu(); return; }
+  if (t.id === 'wipeBtn') { CMDS.wipe(); return; }
   if (t.id === 'tipBtn') { setTips(!tipsOn()); return; }
   if (t.id === 'layBtn') { setLayout(isDesk() ? 'm' : 'd'); return; }
   if (t.id === 'cloudChip') { cloudChipClick(); return; }

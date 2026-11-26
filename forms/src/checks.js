@@ -234,13 +234,13 @@ function docChecks(sc, x) {
   }
   if (/notice/i.test(id) && mk) {
     const d = MV(mk, 'date'), nd = MV(mk, 'noticeDate'), days = MEET[mk].days;
-    if (d && nd) { const left = daysBetween(nd, d); if (left != null && left < days) P('warn', `開會通知書發文日期距開會只有 ${left} 天，依規定應於會議前 ${days} 日送達縣府`); }
+    if (d && nd) { const left = daysBetween(nd, d); if (left != null && left < days) P('warn', brdOnly(mk) ? `開會通知書發文日期距開會只有 ${left} 天，應於會議前 ${days} 日送達各理事、監事` : `開會通知書發文日期距開會只有 ${left} 天，依規定應於會議前 ${days} 日送達縣府`); }
     const refs = noticeRefs(mk), miss = scenDocs(sc).filter(a => a.nm === mk && refs.has(a.id) && !isSel(sc, a)).map(a => a.name);
     if (miss.length) P('warn', `通知書的報告或討論事項提到「${miss.join('、')}」，但開會通知檢附資料沒有勾選，送件時請一併附上`);
   }
   if (/letter/i.test(id) && mk) {
     const d = MV(mk, 'date'), ld = MV(mk, 'letterDate'), typed = !isBlank(getp(S, `m.${mk}.letterDate`)), held = d && daysBetween(d, isoToday()) >= 0;
-    if (d && ld && (typed || held)) { const gap = daysBetween(d, ld); if (gap != null && gap > 30) P('warn', `檢送公文日期在會後 ${gap} 天，應於會議後 30 日內送達縣府`); if (gap != null && gap < 0) P('err', '檢送會議紀錄公文的發文日期早於開會日期'); }
+    if (d && ld && (typed || held)) { const gap = daysBetween(d, ld); if (gap != null && gap > 30 && !brdOnly(mk)) P('warn', `檢送公文日期在會後 ${gap} 天，應於會議後 30 日內送達縣府`); if (gap != null && gap < 0) P('err', '檢送會議紀錄公文的發文日期早於開會日期'); }
   }
   if (/Min$|^min$/.test(id) && mk && MEET[mk].asm) {
     const a = num(MV(mk, 'attend')), s = num(MV(mk, 'should'));

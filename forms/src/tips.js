@@ -43,13 +43,19 @@ function meetDateLines(mk) {
   }
   if (!d) { w.push(TW('填好開會日期後，會自動算出開會通知與會議紀錄的送件期限')); return w; }
   if (M0.same) w.push(TW(`與「${MEET[M0.same].label}」同一天召開，送件期限跟大會相同`));
+  else if (brdOnly(mk)) {
+    const due = addDays(d, -M0.days), left = daysBetween(today, due);
+    w.push(left < 0 ? TW(`開會通知應在 ${rd(due)} 前送達各理事、監事（會議前 ${M0.days} 日），已超過 ${-left} 天，請調整開會日期`, 'bad')
+      : TW(`開會通知：${rd(due)} 前送達各理事、監事（會議前 ${M0.days} 日）${left === 0 ? '，就是今天' : `，還有 ${left} 天`}`, left <= 3 ? 'warn' : 'ok'));
+    w.push(TW('會議紀錄：閉會後自行留存、提供會員查閱；只有依法令須報縣府的事項（例如會址變更）才檢附文件報送', 'ok'));
+  }
   else {
     const due = addDays(d, -M0.days), left = daysBetween(today, due);
     w.push(left < 0 ? TW(`開會通知書應在 ${rd(due)} 前送達縣府（會議前 ${M0.days} 日），已超過 ${-left} 天，請調整開會日期或儘快送件`, 'bad')
       : TW(`開會通知書：${rd(due)} 前送達縣府（會議前 ${M0.days} 日）${left === 0 ? '，就是今天' : `，還有 ${left} 天`}`, left <= 3 ? 'warn' : 'ok'));
     w.push(TW(`會議紀錄：${rd(addDays(d, 30))} 前檢送縣府（會後 30 日內）`, 'ok'));
   }
-  if (M0.el === 'chair') w.push(TW(`新任理事長選出後 14 日內完成移交：${rd(addDays(d, 14))} 前`));
+  if (M0.el === 'chair') w.push(TW(`新任理事長就任後 15 日內完成移交接收：${rd(addDays(d, 15))} 前`));
   return w;
 }
 /** 出席是否過半 */
@@ -63,13 +69,14 @@ function quorumLines(mk) {
 function noticeDateLines(mk) {
   const M0 = MEET[mk], d = MV(mk, 'date'), nd = MV(mk, 'noticeDate');
   if (!d) return [TW('先填開會日期，會自動算出最晚的發文日期')];
-  const w = [TW(`通知書要在會議前 ${M0.days} 日送達縣府：最晚 ${rd(addDays(d, -M0.days))}，請預留郵寄時間`)];
+  const w = [TW(brdOnly(mk) ? `通知要在會議前 ${M0.days} 日送達各理事、監事：最晚 ${rd(addDays(d, -M0.days))}` : `通知書要在會議前 ${M0.days} 日送達縣府：最晚 ${rd(addDays(d, -M0.days))}，請預留郵寄時間`)];
   if (nd) { const gap = daysBetween(nd, d); if (gap != null && gap < M0.days) w.push(TW(`發文日期距開會只有 ${gap} 天，不足 ${M0.days} 天`, 'bad')); }
   return w;
 }
 function letterDateLines(mk) {
   const d = MV(mk, 'date'), ld = MV(mk, 'letterDate');
   if (!d) return [TW('先填開會日期，會自動算出期限')];
+  if (brdOnly(mk)) { const w0 = [TW('理監事會紀錄閉會後自行留存；只有依法令須報縣府的事項（例如會址變更）才需要發這份公文，沒有 30 日的期限')]; if (ld && daysBetween(d, ld) < 0) w0.push(TW('發文日期早於開會日期，請確認', 'bad')); return w0; }
   const due = addDays(d, 30), w = [TW(`會議紀錄要在會後 30 日內報府：最晚 ${rd(due)}`)];
   if (ld) { if (daysBetween(d, ld) < 0) w.push(TW('發文日期早於開會日期，請確認', 'bad')); else if (daysBetween(ld, due) < 0) w.push(TW(`發文日期已超過會後 30 日（${rd(due)}）`, 'bad')); }
   return w;
@@ -105,7 +112,7 @@ const ORG_TIPS = [
   [/^org\.(dirSeats|supSeats|stdDirSeats|dirAlt|supAlt)$/, '依章程規定的名額，會用來檢查選舉的當選人數。'],
   [/^org\.(memberCount|groupCount)$/, '目前的會員人數，會帶入應出席人數；停權、贊助會員沒有表決權。'],
   [/^org\.reelectDate$/, '上一次改選的大會日期，用來推算任期與下次改選。'],
-  [/^org\.(corp|courtNo|courtDate)$/, '有向法院辦理社團法人登記才需要填；解散時，出席同意比例和沒有登記的團體不同。'],
+  [/^org\.(corp|courtNo|courtDate)$/, '有向法院辦理社團法人登記才需要填；解散時須全體會員三分之二以上同意（民法第57條），和沒有登記的團體不同。'],
   [/^org\.place$/, '常用的開會地點，各次會議會自動帶入，可再個別修改。'],
   [/^org\.(county|town)$/, '團體所在的縣市與鄉鎮市，會用在文件抬頭與地址。'],
 ];
@@ -142,7 +149,7 @@ function docTip(row) {
   const sc = S.ui.scen, id = (row.querySelector('[data-sel]') || {}).dataset?.sel, x = id && docsOf(sc).find(d => d.id === id); if (!x) return null;
   const grp = ((row.closest('.doclist') || {}).previousElementSibling || {}).textContent || '', L = [];
   L.push(x.req ? '必備：縣府規定要附的文件，已自動勾選。' : x.kind === 'attach' ? '另附：要另外準備的文件，可以上傳照片或掃描檔，一起放進壓縮檔與合併 PDF。' : '選填：需要時再勾選，勾了才會出現在「填資料」與「下載」。');
-  if (hasBatch(sc)) L.push(/當天/.test(grp) ? '開會當天使用，不必送縣府。' : x.bt === PRE ? `屬於「① 會前：開會通知」，要在會議前 ${MEET[mainMeet(sc)].days} 日送達縣府。` : '屬於「② 會後：會議紀錄送件」，會議後 30 日內送縣府。');
+  if (hasBatch(sc)) L.push(/當天/.test(grp) ? '開會當天使用，不必送縣府。' : x.bt === PRE ? `屬於「① 會前：開會通知」，要在會議前 ${MEET[mainMeet(sc)].days} 日送達${scBrd(sc) ? '各理事、監事' : '縣府'}。` : scBrd(sc) ? '屬於「② 會後：會議紀錄送件」；理監事會紀錄自行留存，有依法令須報縣府的事項才送件。' : '屬於「② 會後：會議紀錄送件」，會議後 30 日內送縣府。');
   if (x.mat) L.push('可以「線上填寫」，或直接「上傳檔案」（Excel、PDF、Word、照片），上傳後會自動檢查格式與計算錯誤。');
   else if (x.up) L.push('可以按「上傳」附上照片或掃描檔。');
   const secs = x.kind === 'attach' || isUp(x) ? [] : docSecs(x).map(k => secMeta(k).t);
@@ -155,7 +162,7 @@ function docTip(row) {
 function scenTip(k) {
   const s = SCEN[k]; if (!s) return null;
   const L = [s.sub + '。'], w = [];
-  for (const mk of s.meets()) { const M0 = MEET[mk]; if (!M0 || M0.same) continue; L.push(`${M0.label}：開會通知於會議前 ${M0.days} 日送達縣府，會議紀錄於會後 30 日內報府。`); }
+  for (const mk of s.meets()) { const M0 = MEET[mk]; if (!M0 || M0.same) continue; L.push(brdOnly(mk) ? `${M0.label}：開會通知於會議前 ${M0.days} 日送達各理事、監事；會議紀錄自行留存，有依法令須報縣府的事項才送件。` : `${M0.label}：開會通知於會議前 ${M0.days} 日送達縣府，會議紀錄於會後 30 日內報府。`); }
   if (s.prev) w.push(TW(`請先辦理「${SCEN[s.prev].title}」，填過的資料會自動帶過來`));
   if (s.next) w.push(TW(`接著辦理「${SCEN[s.next].title}」`));
   return { t: s.title, d: L.map(esc).join('<br>'), w };
@@ -179,6 +186,7 @@ const BTN_TIPS = {
   'cmd:paste': ['從 Excel 貼上', '在 Excel 選取多列複製，貼到這裡，系統會自動辨識姓名、職稱、身分證字號等欄位。'],
   back: ['回首頁', '資料會自動保存，隨時可以回來繼續填。'],
   fontBtn: ['放大字體', '字太小看不清楚時按這裡，再按一次恢復。'],
+  wipeBtn: ['清除記憶', '清空這個網頁存在這台裝置瀏覽器裡的所有資料：填寫內容、印章與簽名、上傳的附件與設定。借用別人的電腦或公用電腦填完後，請按這裡。'],
   menuBtn: ['更多功能', '備份、還原、範例資料、版面切換、操作提示、電子印章都在這裡。'],
   tipBtn: ['操作提示', '開啟後，滑鼠移到欄位或按鈕上會顯示說明與提醒；手機上點欄位就會顯示，長按按鈕可以看用途。'],
   layBtn: ['切換版面', '電腦版左右分欄、一次看更多；手機版單欄、按鈕較大。「更多」裡可以改回「自動（依螢幕寬度）」。'],

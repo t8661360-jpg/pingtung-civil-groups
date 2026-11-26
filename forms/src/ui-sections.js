@@ -11,11 +11,17 @@ function docSecs(x) {
   return s;
 }
 /** 通知書「此致」：署名身分、姓名（可蓋章）、受文者 */
+/** 簽章處：選擇上傳簽名筆跡或印章（自動辨識、去背，並放到簽章位置） */
+function signUpRow(title, name) {
+  const s = matchSeal(slotOf(title, name)), o = `data-owner="${esc(name || '')}" data-title="${esc(title || '')}"`;
+  return `<div class="f full signup"><label>簽章方式（擇一）</label><div class="btnrow"><button type="button" class="btn ghost" data-seal="pickSign" ${o}>${icon('pen')}上傳簽名筆跡</button><button type="button" class="btn ghost" data-seal="pick" ${o}>${icon('stamp')}上傳印章</button><button type="button" class="btn ghost" data-seal="sign" ${o}>${icon('pen')}螢幕手寫</button></div>
+    <small class="hint">${s ? `目前使用：<b>${esc(s.name || sealDefName(s))}</b>（${SEAL_TYPES[s.type][0]}），下載的文件會自動放在「（蓋章）」處。要更換請到右上角「⋯ → 電子印章與簽名」刪除後重新上傳。` : `拍下簽在白紙上的簽名或蓋好的印章上傳，系統會自動辨識、去除背景，並放到「（蓋章）」的位置${name ? '' : '；請先填上方的姓名，系統才知道是誰的簽章'}。`}</small></div>`;
+}
 function noticeSignFields(mk) {
   const k = MEET[mk].kind, prep = scenOf(mk) === 'prep';
   return `<div class="f full subf">署名與受文者</div>` + (prep ? F(`m.${mk}.chair`, '主持人', { w: 'half' }) + F(`m.${mk}.speed`, '速別（可留空，預設普通件）', { type: 'sel', opts: ['普通件', '速件', '最速件'], w: 'half' }) + F(`m.${mk}.cc`, '副本（可留空）', { w: 'full', ph: '例：本會籌備委員' }) : '') +
     (k === 'pre' || k === 'brd' ? `<div class="f full"><label>會議類別</label><div class="in">${SEG(`m.${mk}.brdType`, [['聯席', '理監事聯席會議'], ['理事會', '理事會（單獨）'], ['監事會', '監事會（單獨）']], { def: '聯席', rr: 1 })}</div></div>` : '') + `<div class="f full"><label>此致：署名</label><div class="in">${SEG(`m.${mk}.signRole`, signRoleOpts(mk).map(r => [r, r]), { def: signRoleDef(mk), rr: 1 })}</div></div>` +
-    F(`m.${mk}.signName`, `${signRole(mk)}姓名`, { w: 'half', hint: '預設帶入人員名單；上傳印章後，這裡會自動蓋章，也可以在預覽裡拖曳位置。' }) +
+    F(`m.${mk}.signName`, `${signRole(mk)}姓名`, { w: 'half', hint: '預設帶入人員名單；上傳簽名筆跡或印章後，這裡會自動簽章，也可以在預覽裡拖曳位置。' }) + signUpRow(SIGN_ROLES[signRole(mk)], MV(mk, 'signName')) +
     `<div class="f full"><label>此致：受文者</label><div class="ckrow">${recipOpts(mk).map(k => CK(`m.${mk}.to.${k}`, recipLabel(k), { def: recipDef(mk, k), rr: 1 })).join('')}</div></div>`;
 }
 /** 附註欄提示：會自動列出哪些附件 */
@@ -153,7 +159,7 @@ function meetSection(mk) {
   if (d.same) h += NOTE('通常與會員大會同日接續召開；日期、地點未填時會自動沿用大會的資料。');
   h += GRID(
     (['prep', 'found'].includes(sc) ? '' : F(`m.${mk}.term`, '屆次', { type: 'num', w: 'third', pre: '第', suf: '屆' }) + F(`m.${mk}.no`, '會次', { type: 'num', w: 'third', pre: '第', suf: '次', req: !isNewTerm(mk) })) +
-    F(`m.${mk}.kind2`, '會議性質', { type: 'sel', opts: ['定期會', '臨時會'], w: 'third', blank: false }) +
+    (sc === 'prep' ? '' : F(`m.${mk}.kind2`, '會議性質', { type: 'sel', opts: ['定期會', '臨時會'], w: 'third', blank: false })) +
     F(`m.${mk}.date`, '開會日期', { type: 'date', w: 'half', req: 1 }) + F(`m.${mk}.time`, '開會時間', { type: 'time', w: 'half', req: 1 }) +
     F(`m.${mk}.place`, '開會地點', { w: 'full', req: 1 }) +
     (post ? F(`m.${mk}.chair`, '主席', { w: 'half', req: 1 }) + F(`m.${mk}.rec`, '紀錄', { w: 'half' }) : ''));
@@ -228,7 +234,7 @@ SEC.statute = () => NOTE('依縣府「組織章程」範本產生，條文順序
 SEC.amend = () => NOTE('需檢附新舊章程各2份。') + LISTC('amend.rows', [{ k: 'orig', label: '原條文', type: 'area', rows: 4, w: 'full' }, { k: 'rev', label: '修正後條文', type: 'area', rows: 4, w: 'full' }, { k: 'note', label: '說明', type: 'area', rows: 3, w: 'full' }],
   { summary: r => (r.rev || r.orig || '').split('\n')[0].slice(0, 36), addLabel: '新增修正條文' });
 SEC.handover = () => GRID(F('x.handover.date', '移交日期', { type: 'date', w: 'half' }) + F('x.handover.from', S.ui.scen === 'found' ? '移交人（卸任籌備會主任委員）' : '移交人（卸任理事長）', { w: 'half' }) + F('x.handover.to', '接收人（新任理事長）', { w: 'half' }) + F('x.handover.sup', '監交人（常務監事）', { w: 'half' })) +
-  NOTE('於新任理事長選出後14日內，以移交清冊乙份連同圖記移交新任；理事長當選後十日內辦竣點交手續，備函並檢同移交清冊乙份報主管機關。各清冊的數量欄可列印後手寫。');
+  NOTE('於新任理事長選出後15日內，以移交清冊乙份連同圖記移交新任；理事長當選後十日內辦竣點交手續，備函並檢同移交清冊乙份報主管機關。各清冊的數量欄可列印後手寫。');
 SEC.cert = () => GRID(F('x.cert.name', '理事長姓名', { w: 'half', req: 1 }) + F('x.cert.birthplace', '出生地', { w: 'half', req: 1 }) + F('x.cert.birth', '出生日期（民國）', { type: 'rdate', w: 'half', req: 1 }) + F('x.cert.phone', '電話', { type: 'tel', w: 'half' }) + F('x.cert.addr', '戶籍地址', { w: 'full' }) +
   F('x.cert.term', '當選屆次', { type: 'num', w: 'third', pre: '第', suf: '屆' }) + F('x.cert.firstDate', '第一次理事會日期', { type: 'date', w: 'third' }) + F('x.cert.tenure', '任期', { w: 'full', hint: '預設由第一次理事會日期加上任期年數自動推算。' }) + F('x.cert.note', '備註', { w: 'full' })) +
   NOTE('送件時請檢附當選人身分證正反面影本1份、2吋大頭照2張。');
@@ -245,7 +251,7 @@ SEC.proxy = () => GRID(F('x.proxy.pages', '列印頁數（每頁6張）', { type
 SEC.recruit = () => GRID(F('x.recruit.no', '公告字號（號碼）', { w: 'half', pre: '第', suf: '號' }) + F('x.recruit.date', '公告日期', { type: 'date', w: 'half' }) + F('x.recruit.approveDate', '縣府准予設立日期', { type: 'date', w: 'half' }) + F('x.recruit.approveNo', '准予設立文號', { w: 'half', pre: '屏府社政字第', suf: '號' }) +
   F('x.recruit.goal', '本會宗旨', { type: 'area', rows: 2, w: 'full' }) + F('x.recruit.quals', '入會資格（每行一項）', { type: 'area', rows: 4, w: 'full', ph: '1.個人會員：凡贊同本會宗旨，年滿二十歲者，得申請入會。' }) +
   F('x.recruit.deadline', '申請入會截止日期', { type: 'date', w: 'half', req: 1 }) + F('x.recruit.chair', '主任委員', { w: 'half' }));
-SEC.report = () => NOTE('解散須經大會出席人數三分之二以上同意（已辦社團法人登記者為四分之三以上）。五項財務報表的截止日期、解散日期、大會召開日期三者請決議一致。') + GRID(
+SEC.report = () => NOTE('未辦法人登記：會員過半數出席，出席人數三分之二以上同意（人民團體法第27條）。已辦社團法人登記：須經全體會員三分之二以上同意（民法第57條）。章程訂有更高門檻時，依章程規定。五項財務報表的截止日期、解散日期、大會召開日期三者請決議一致。') + GRID(
   F('x.report.reason', '解散原因', { w: 'full', req: 1, ph: '例：會員老化、人數縮減，會務無法繼續推動' }) + F('x.report.date', '解散日期', { type: 'date', w: 'half' }) + F('x.report.agree', '同意解散人數', { type: 'num', w: 'half', suf: '人', req: 1 }) + calc('dissolveCheck', 'full') +
   F('x.report.signDate', '填表日期（可留空，預設今天）', { type: 'date', w: 'half' }) + F('x.report.memo', '備考（可留空）', { w: 'full' }) + F('x.report.cash', '財務存款（剩餘財產）', { type: 'num', w: 'half', pre: '新台幣', suf: '元' }) + F('x.report.to', '剩餘財產歸屬', { w: 'half', hint: '請以公部門為主，其他團體為次。' }) + F('x.report.propDesc', '財產說明（可留空）', { type: 'area', rows: 2, w: 'full' }) +
   F('x.report.liq', '清算人', { w: 'half' }) + F('x.report.liqFrom', '清算時間自', { type: 'date', w: 'half' }) + F('x.report.liqTo', '至', { type: 'date', w: 'half' }) + F('x.report.returnDate', '繳銷立案證書及圖記日期', { type: 'date', w: 'half' }) +

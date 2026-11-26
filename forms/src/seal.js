@@ -161,7 +161,7 @@ function sealScore(A, ink) {
   A.SC = SC; A.md = md; A.thr = md === 'black' ? Math.min(0.7, Math.max(0.28, t)) : Math.min(0.45, Math.max(0.09, t));
 }
 /** 找出每一顆印章（連通區塊＋鄰近合併） */
-function sealDetect(A) {
+function sealDetect(A, mode) {
   const { W, H, SC, thr } = A, f = Math.max(1, Math.ceil(Math.max(W, H) / 480)), GW = Math.ceil(W / f), GH = Math.ceil(H / f), GN = GW * GH;
   const G = new Uint8Array(GN);
   for (let y = 0; y < H; y++) { const row = ((y / f) | 0) * GW; for (let x = 0; x < W; x++) if (SC[y * W + x] > thr) G[row + ((x / f) | 0)] = 1; }
@@ -181,12 +181,14 @@ function sealDetect(A) {
   }
   comps = comps.filter(c => c.ink >= Math.max(3, GN * 0.00004)).sort((a, b) => b.ink - a.ink).slice(0, 400);
   const sz = c => Math.max(c.x1 - c.x0, c.y1 - c.y0) + 1;
+  /* 簽名筆跡：字與字、筆畫與筆畫之間有空隙，距離在一個字高以內的都算同一個簽名 */
+  const near = mode === 'sign' ? (a, b) => 1.1 * Math.max(Math.min(a.y1 - a.y0, a.x1 - a.x0), Math.min(b.y1 - b.y0, b.x1 - b.x0), Math.max(GW, GH) * 0.03) : (a, b) => Math.max(1, 0.3 * Math.min(sz(a), sz(b)));
   for (let changed = true; changed;) {
     changed = false;
     outer: for (let i = 0; i < comps.length; i++) for (let j = i + 1; j < comps.length; j++) {
       const a = comps[i], b = comps[j];
       const gap = Math.max(Math.max(0, Math.max(a.x0, b.x0) - Math.min(a.x1, b.x1)), Math.max(0, Math.max(a.y0, b.y0) - Math.min(a.y1, b.y1)));
-      if (gap <= Math.max(1, 0.3 * Math.min(sz(a), sz(b)))) {
+      if (gap <= near(a, b)) {
         comps[i] = { ids: [...a.ids, ...b.ids], x0: Math.min(a.x0, b.x0), y0: Math.min(a.y0, b.y0), x1: Math.max(a.x1, b.x1), y1: Math.max(a.y1, b.y1), ink: a.ink + b.ink };
         comps.splice(j, 1); changed = true; break outer;
       }
@@ -200,7 +202,7 @@ function sealDetect(A) {
   return comps.map(c => {
     const w = (c.x1 - c.x0 + 1) * f, h = (c.y1 - c.y0 + 1) * f, pad = Math.round(Math.max(w, h) * 0.04);
     const x = Math.max(0, c.x0 * f - pad), y = Math.max(0, c.y0 * f - pad);
-    return { box: { x, y, w: Math.min(W - x, w + pad * 2), h: Math.min(H - y, h + pad * 2) }, ids: c.ids };
+    return { box: { x, y, w: Math.min(W - x, w + pad * 2), h: Math.min(H - y, h + pad * 2) }, ids: mode === 'sign' ? null : c.ids };
   });
 }
 /** 取出一顆印章：去背、統一印泥色、修邊 */
@@ -238,8 +240,10 @@ function sealExtract(A, c, opt = {}) {
   const og = o.getContext('2d'); og.imageSmoothingQuality = 'high'; og.drawImage(cv, tx0, ty0, tw, th, 0, 0, o.width, o.height);
   return { canvas: o, url: o.toDataURL('image/png'), box: { x: x + tx0, y: y + ty0, w: tw, h: th }, color: base };
 }
-function sealGuessType(c, all, mmpp) {
+function sealGuessType(c, all, mmpp, kind, ink) {
   const ar = c.box.w / c.box.h, L = Math.max(c.box.w, c.box.h), narrow = ar < 0.55 || ar > 1.8;
+  /* 指定上傳簽名，或黑色筆跡且是長條形（印章通常是紅、藍印泥）→ 簽名 */
+  if (kind === 'sign' || (ink === 'black' && narrow)) return 'sign';
   if (mmpp) { const mm = L * mmpp; if (mm < 28) return 'person'; return narrow ? 'title' : 'org'; }
   if (narrow) return 'title';
   const maxL = Math.max(...all.map(x => Math.max(x.box.w, x.box.h)));
@@ -247,6 +251,8 @@ function sealGuessType(c, all, mmpp) {
 }
 function sealSizeFor(c, type, mmpp) {
   const w = c.box.w, h = c.box.h;
+  /* 簽名：照實際大小，但長邊最多 4.5 公分，才放得進簽章欄 */
+  if (mmpp && type === 'sign' && Math.max(w, h) * mmpp > 45) mmpp = 45 / Math.max(w, h);
   if (mmpp) return { wmm: +(w * mmpp).toFixed(1), hmm: +(h * mmpp).toFixed(1) };
   const L = SEAL_TYPES[type][1], k = L / Math.max(w, h);
   return { wmm: +(w * k).toFixed(1), hmm: +(h * k).toFixed(1) };
@@ -274,13 +280,14 @@ function sealRender() {
     <p class="muted small">系統會依文件的簽章位置自動擺放：「蓋團體圖記」處用印信或大章；理事長等簽章處優先用該職稱的職章，沒有時用本人的印鑑或簽名。可在每份文件的「預覽」拖曳調整。</p>` : ''}
     <div class="sgrid">${L.map(s => `<div class="scard${sealOk(s) ? '' : ' miss'}">${sealOk(s) ? chk(sealUrl(s.id)) : `<span class="chk">${icon('warn')}</span>`}<b>${esc(s.name || sealDefName(s))}</b><small>${SEAL_TYPES[s.type][0]}${s.type === 'title' && s.title ? '・' + esc(s.title) : ''}${(s.type === 'person' || s.type === 'sign') && s.owner ? '・' + esc(s.owner) : ''}</small><small>${(s.wmm / 10).toFixed(1)} × ${(s.hmm / 10).toFixed(1)} 公分${sealOk(s) ? '' : '・圖檔遺失，請重新上傳'}</small>
       <span class="sact"><button class="mini" data-seal="edit" data-id="${s.id}">${icon('pen')}編輯</button><button class="mini danger" data-seal="del" data-id="${s.id}">${icon('x')}刪除</button></span></div>`).join('')}</div>
-    ${L.length ? '' : `<div class="empty big">${icon('stamp', 'big')}<b>還沒有印章</b><span>上傳蓋在白紙上的印章照片或掃描檔，系統會自動切出每一顆章並去除背景。</span></div>`}
-    <div class="btnrow col"><button class="btn pri" data-seal="pick">${icon('up')}上傳印章照片或掃描檔</button><button class="btn ghost" data-seal="sign">${icon('pen')}手寫簽名</button></div>
+    ${L.length ? '' : `<div class="empty big">${icon('stamp', 'big')}<b>還沒有印章或簽名</b><span>上傳蓋在白紙上的印章，或簽在白紙上的簽名（照片或掃描檔），系統會自動辨識、去除背景，並放到文件的簽章位置。</span></div>`}
+    <div class="btnrow col"><button class="btn pri" data-seal="pick">${icon('up')}上傳印章照片或掃描檔</button><button class="btn pri" data-seal="pickSign">${icon('pen')}上傳簽名筆跡（照片或掃描檔）</button><button class="btn ghost" data-seal="sign">${icon('pen')}直接在螢幕上手寫簽名</button></div>
     <details class="card info"><summary>${icon('info')}拍照、掃描小技巧</summary><ul class="small">
       <li>把印章蓋在<b>白紙</b>上，可以一次蓋好團體圖記、大章、職章、印鑑再拍一張，系統會自動分開。</li>
       <li>光線均勻、手機在正上方拍，避免陰影與反光；印章之間留點距離。</li>
       <li>用掃描器以 300 dpi 掃描（JPG 或 PNG），或拍整張 A4 白紙，系統可以自動算出印章的實際尺寸。</li>
-      <li>沒有自動算出尺寸時，請用尺量印章的實際寬高，填在「實際尺寸」。</li></ul></details>
+      <li>沒有自動算出尺寸時，請用尺量印章的實際寬高，填在「實際尺寸」。</li>
+      <li><b>簽名筆跡</b>：用黑色或藍色筆簽在白紙上，簽名四周留白，拍照或掃描後按「上傳簽名筆跡」，系統會自動找出簽名、去除背景。</li></ul></details>
   </div>${lists}`;
 }
 function sealUpHTML() {
@@ -291,12 +298,12 @@ function sealUpHTML() {
       <button class="mini drawbtn${UP.draw === si ? ' on' : ''}" data-seal="draw" data-src="${si}">${icon('plus')}${UP.draw === si ? '在圖上拖曳框出印章…' : '手動框選'}</button></div>`).join('')}
     <div class="sopts">
       <label>去背強度<input type="range" min="0" max="100" step="5" value="${UP.opt.strength}" data-sopt="strength"></label>
-      <label>印泥<select data-sopt="ink">${Object.entries(INK_MODE).map(([k, t]) => `<option value="${k}"${UP.opt.ink === k ? ' selected' : ''}>${t}${k === 'auto' && UP.srcs[0] ? `（${INK_MODE[UP.srcs[0].A.autoInk]}）` : ''}</option>`).join('')}</select></label>
+      <label>${UP.kind === 'sign' ? '筆的顏色' : '印泥'}<select data-sopt="ink">${Object.entries(INK_MODE).map(([k, t]) => `<option value="${k}"${UP.opt.ink === k ? ' selected' : ''}>${inkName(k)}${k === 'auto' && UP.srcs[0] ? `（${inkName(UP.srcs[0].A.autoInk)}）` : ''}</option>`).join('')}</select></label>
       <label>顏色<select data-sopt="color">${Object.entries(INK).map(([k, [t]]) => `<option value="${k}"${UP.opt.color === k ? ' selected' : ''}>${t}</option>`).join('')}</select></label>
     </div>
-    <p class="muted small">${UP.cands.length ? `找到 ${UP.cands.length} 個印章。請確認類別、所屬人與實際尺寸（${UP.srcs.some(s => s.mmpp) ? '已依掃描解析度自動計算，可再修改' : '請用尺量印章實際大小'}）。不要的取消勾選；沒抓到的可用「手動框選」。` : '沒有找到印章，請用「手動框選」框出印章範圍，或調整去背強度、印泥顏色。'}</p>
+    <p class="muted small">${UP.kind === 'sign' ? (UP.cands.length ? '已自動找出簽名筆跡並去除背景。請確認是誰的簽名；存好後，文件上這個人的簽章處會自動放上簽名，大小與位置可在預覽裡拖曳調整。沒抓好的可用「手動框選」，或調整去背強度、筆的顏色。' : '沒有找到簽名筆跡，請用「手動框選」框出簽名範圍，或調整去背強度、筆的顏色。') : UP.cands.length ? `找到 ${UP.cands.length} 個印章。請確認類別、所屬人與實際尺寸（${UP.srcs.some(s => s.mmpp) ? '已依掃描解析度自動計算，可再修改' : '請用尺量印章實際大小'}）。不要的取消勾選；沒抓到的可用「手動框選」。` : '沒有找到印章，請用「手動框選」框出印章範圍，或調整去背強度、印泥顏色。'}</p>
     <div class="cands">${UP.cands.map((c, i) => candHTML(c, i)).join('')}</div>
-    <div class="btnrow"><button class="btn ghost" data-seal="lib">取消</button><button class="btn pri" data-seal="save"${n ? '' : ' disabled'}>${icon('check')}加入 ${n} 個印章</button></div>
+    <div class="btnrow"><button class="btn ghost" data-seal="lib">取消</button><button class="btn pri" data-seal="save"${n ? '' : ' disabled'}>${icon('check')}加入 ${n} 個${upWord()}</button></div>
   </div>`;
 }
 function sealFields(o, attr) {
@@ -310,8 +317,8 @@ function candHTML(c, i) {
   return `<div class="cand${c.keep ? '' : ' off'}">${c.res ? chk(c.res.url) : `<span class="chk">${icon('warn')}</span>`}
     <div class="cf"><label class="ck"><input type="checkbox" data-cand="${i}" data-cf="keep"${c.keep ? ' checked' : ''}><b>第 ${i + 1} 個</b></label>${sealFields(c, `data-cand="${i}"`)}</div></div>`;
 }
-async function sealFiles(files) {
-  const busy = showBusy('正在辨識印章…');
+async function sealFiles(files, kind = 'seal', ctx = {}) {
+  const busy = showBusy(kind === 'sign' ? '正在辨識簽名筆跡…' : '正在辨識印章…');
   try {
     const srcs = [];
     for (const f of files) {
@@ -324,8 +331,10 @@ async function sealFiles(files) {
       srcs.push({ url, img, A, mmpp });
     }
     if (!srcs.length) return;
-    UP = { srcs, cands: [], opt: { strength: 50, ink: 'auto', color: 'orig' }, draw: -1 };
-    srcs.forEach((s, si) => { sealScore(s.A, 'auto'); sealDetect(s.A).forEach(c => UP.cands.push({ ...c, src: si, keep: true })); });
+    UP = { srcs, cands: [], opt: { strength: 50, ink: 'auto', color: 'orig' }, draw: -1, kind, ctx };
+    srcs.forEach((s, si) => { sealScore(s.A, 'auto'); sealDetect(s.A, kind).forEach(c => UP.cands.push({ ...c, src: si, keep: true })); });
+    /* 簽名通常一張照片只有一個：只留最大的，其餘（紙邊、陰影）預設不勾 */
+    if (kind === 'sign') srcs.forEach((s, si) => { const L = UP.cands.filter(c => c.src === si), top = L.slice().sort((a, b) => b.box.w * b.box.h - a.box.w * a.box.h)[0]; L.forEach(c => { if (c !== top) c.keep = false; }); });
     upRefresh(true);
     SV.view = 'up'; sealRender();
   } finally { busy.done(); }
@@ -337,13 +346,17 @@ function upRefresh(first) {
     const s = UP.srcs[c.src];
     c.res = sealExtract(s.A, c, UP.opt);
     if (first || c.fresh) {
-      c.type = sealGuessType(c, all.filter(x => x.src === c.src), s.mmpp);
-      if (c.type === 'title') c.title = '理事長';
+      c.type = sealGuessType(c, all.filter(x => x.src === c.src), s.mmpp, UP.kind, s.A.md);
+      const cx = UP.ctx || {};
+      if (c.type === 'title') c.title = c.title || (SEAL_TITLES.includes(cx.title) ? cx.title : '理事長');
+      if ((c.type === 'sign' || c.type === 'person') && !c.owner) c.owner = cx.owner || (c.type === 'sign' ? chairName() || '' : '');
       Object.assign(c, sealSizeFor(c.res || c, c.type, s.mmpp)); c.fresh = false;
     }
     if (!c.res) c.keep = false;
   });
 }
+const inkName = k => (UP && UP.kind === 'sign' ? { auto: '自動判斷', red: '紅色筆', blue: '藍色筆', black: '黑色筆' }[k] : INK_MODE[k]);
+const upWord = () => (UP && UP.kind === 'sign' ? '簽名' : '印章');
 async function sealSave() {
   const keep = UP.cands.filter(c => c.keep && c.res);
   for (const c of keep) {
@@ -358,7 +371,8 @@ async function sealSave() {
   }
   if (S.stamp.on == null) S.stamp.on = true;
   save(); UP.srcs.forEach(s => URL.revokeObjectURL(s.url)); UP = null;
-  SV.view = 'lib'; sealRender(); toast(`已加入 ${keep.length} 個印章`);
+  const wd = keep.every(c => c.type === 'sign') ? '簽名' : '印章';
+  SV.view = 'lib'; sealRender(); toast(`已加入 ${keep.length} 個${wd}，文件會自動放到簽章位置`);
 }
 /* 編輯：重新去背、尺寸、旋轉 */
 function sealEditHTML() {
@@ -457,14 +471,15 @@ async function sigSave() {
 }
 
 /* ---------- 事件 ---------- */
-$('#sealIn').addEventListener('change', async e => { const fs = [...e.target.files]; e.target.value = ''; if (fs.length) await sealFiles(fs); });
+let PICK = { kind: 'seal', ctx: {} };
+$('#sealIn').addEventListener('change', async e => { const fs = [...e.target.files]; e.target.value = ''; if (!fs.length) return; if ($('#seal').hidden) sealOpen('lib'); await sealFiles(fs, PICK.kind, PICK.ctx); });
 document.addEventListener('click', async e => {
   const t = e.target.closest('[data-seal]'); if (!t) return;
   const a = t.dataset.seal;
   if (a === 'close') return sealClose();
   if (a === 'lib') { if (UP) UP.srcs.forEach(s => URL.revokeObjectURL(s.url)); UP = null; ED_A = null; SV = { view: 'lib' }; return sealRender(); }
-  if (a === 'pick') return $('#sealIn').click();
-  if (a === 'sign') { SV = { view: 'sign' }; return sealRender(); }
+  if (a === 'pick' || a === 'pickSign') { PICK = { kind: a === 'pickSign' ? 'sign' : 'seal', ctx: { owner: t.dataset.owner || '', title: t.dataset.title || '' } }; return $('#sealIn').click(); }
+  if (a === 'sign') { if ($('#seal').hidden) sealOpen('lib'); SV = { view: 'sign' }; if (t.dataset.owner) SV.sg = { owner: t.dataset.owner, color: 'black', width: 3 }; return sealRender(); }
   if (a === 'sigclear') { if (SIG) { SIG.g.clearRect(0, 0, SIG.cv.width, SIG.cv.height); SIG.any = false; } return; }
   if (a === 'sigsave') return sigSave();
   if (a === 'save') return sealSave();
@@ -490,7 +505,7 @@ document.addEventListener('change', e => {
   const t = e.target;
   if (t.dataset.cand != null && UP) { const c = UP.cands[+t.dataset.cand]; c.mmppKnown = !!UP.srcs[c.src].mmpp; const r = candSet(c, t.dataset.cf, t.type === 'checkbox' ? t.checked : t.value); if (r) sealRender(); else if (t.dataset.cf === 'keep') sealRender(); return; }
   if (t.dataset.edit && SV.e) { const r = candSet(SV.e, t.dataset.cf, t.value); SV.e.mmppKnown = !!SV.e.mmpp; if (r === 'r') sealRender(); else if (r) { const o = $(`#seal [data-cf=${r === 'h' ? 'hcm' : 'wcm'}]`); if (o) o.value = ((r === 'h' ? SV.e.hmm : SV.e.wmm) / 10).toFixed(1); } return; }
-  if (t.dataset.sopt && UP) { UP.opt[t.dataset.sopt] = t.dataset.sopt === 'strength' ? +t.value : t.value; const busy = showBusy('重新去背…'); setTimeout(() => { try { if (t.dataset.sopt === 'ink') { UP.srcs.forEach(s => { s.A.SC = null; s.A.md = null; sealScore(s.A, UP.opt.ink); }); UP.cands = []; UP.srcs.forEach((s, si) => sealDetect(s.A).forEach(c => UP.cands.push({ ...c, src: si, keep: true, fresh: true }))); upRefresh(false); } else upRefresh(false); sealRender(); } finally { busy.done(); } }, 30); return; }
+  if (t.dataset.sopt && UP) { UP.opt[t.dataset.sopt] = t.dataset.sopt === 'strength' ? +t.value : t.value; const busy = showBusy('重新去背…'); setTimeout(() => { try { if (t.dataset.sopt === 'ink') { UP.srcs.forEach(s => { s.A.SC = null; s.A.md = null; sealScore(s.A, UP.opt.ink); }); UP.cands = []; UP.srcs.forEach((s, si) => sealDetect(s.A, UP.kind).forEach(c => UP.cands.push({ ...c, src: si, keep: true, fresh: true }))); upRefresh(false); } else upRefresh(false); sealRender(); } finally { busy.done(); } }, 30); return; }
   if (t.dataset.eopt && SV.e) { const k = t.dataset.eopt; SV.e[k] = k === 'rot' || k === 'strength' ? +t.value : t.value; if (k === 'rot') { const o = t.parentElement.querySelector('output'); if (o) o.textContent = t.value + '°'; const im = $('#seal .eprev img'); if (im) im.style.transform = `rotate(${t.value}deg)`; return; } if (k === 'color') SV.e.colorChanged = true; else { SV.e.reproc = true; if (k === 'ink') ED_A = null; } sealEditReprocess(); return; }
   if (t.dataset.sg && SV.sg) { SV.sg[t.dataset.sg] = t.value; }
 });
@@ -513,7 +528,7 @@ document.addEventListener('pointerdown', e => {
     box.removeEventListener('pointermove', mv); box.removeEventListener('pointerup', up); box.removeEventListener('pointercancel', up);
     const p = toImg(ev), x = Math.round(Math.min(p0[0], p[0])), y = Math.round(Math.min(p0[1], p[1])), w = Math.round(Math.abs(p[0] - p0[0])), h = Math.round(Math.abs(p[1] - p0[1]));
     UP.draw = -1;
-    if (w > 12 && h > 12) { const c = { box: { x, y, w, h }, ids: null, src: si, keep: true, fresh: true }; UP.cands.push(c); upRefresh(false); if (!c.res) toast('框選範圍內沒有找到印泥，請調整去背強度或印泥顏色', 'err'); }
+    if (w > 12 && h > 12) { const c = { box: { x, y, w, h }, ids: null, src: si, keep: true, fresh: true }; UP.cands.push(c); upRefresh(false); if (!c.res) toast(UP.kind === 'sign' ? '框選範圍內沒有找到筆跡，請調整去背強度或筆的顏色' : '框選範圍內沒有找到印泥，請調整去背強度或印泥顏色', 'err'); }
     sealRender();
   };
   box.addEventListener('pointermove', mv); box.addEventListener('pointerup', up); box.addEventListener('pointercancel', up);

@@ -57,8 +57,15 @@ const CALC = {
   prepfinTotal: () => { const i = (S.x.prepfin.inc || []).reduce((s, x) => s + num(x.amt), 0), e = (S.x.prepfin.exp || []).reduce((s, x) => s + num(x.amt), 0); return `<div class="sumline ${i - e < 0 ? 'bad' : ''}">收入 <b>${fmt(i)}</b>　支出 <b>${fmt(e)}</b>　結餘 <b>${fmt(i - e)}</b> 元${i - e < 0 ? '（不得負債）' : ''}</div>`; },
   dissolveCheck: () => {
     const a = num(getp(S, 'm.dissolve.asm.attend')), g = num(S.x.report.agree); if (!a || !g) return '<div class="muted">填入大會實際出席人數與同意人數後，會自動檢查是否達到法定比例。</div>';
-    const need = S.org.corp === '有' ? Math.ceil(a * 3 / 4) : Math.ceil(a * 2 / 3);
-    return g >= need ? `<div class="ok">${icon('check')}同意 ${g} 人，已達出席 ${a} 人的${S.org.corp === '有' ? '四分之三' : '三分之二'}（${need} 人）。</div>` : `<div class="bad">${icon('warn')}同意 ${g} 人，未達出席 ${a} 人的${S.org.corp === '有' ? '四分之三' : '三分之二'}（需 ${need} 人）。</div>`;
+    if (S.org.corp === '有') {
+      /* 已辦法人登記：民法第57條，全體會員三分之二以上可決 */
+      const all = num(MV('dissolve.asm', 'should')), nAll = Math.ceil(all * 2 / 3);
+      if (!all) return '<div class="muted">已辦社團法人登記：請先填應出席人數（全體會員），才能檢查是否達全體會員三分之二以上同意（民法第57條）。</div>';
+      return g >= nAll ? `<div class="ok">${icon('check')}同意 ${g} 人，已達全體會員 ${all} 人的三分之二（${nAll} 人，民法第57條）。章程訂有更高門檻時，依章程規定。</div>`
+        : `<div class="bad">${icon('warn')}同意 ${g} 人，未達全體會員 ${all} 人的三分之二（需 ${nAll} 人）。已辦社團法人登記的團體，解散須經全體會員三分之二以上同意（民法第57條），出席與同意人數都要達到這個數字。</div>`;
+    }
+    const need = Math.ceil(a * 2 / 3);
+    return g >= need ? `<div class="ok">${icon('check')}同意 ${g} 人，已達出席 ${a} 人的三分之二（${need} 人，人民團體法第27條）。章程訂有更高門檻時，依章程規定。</div>` : `<div class="bad">${icon('warn')}同意 ${g} 人，未達出席 ${a} 人的三分之二（需 ${need} 人，人民團體法第27條）。</div>`;
   },
   propTotal: () => `<div class="sumline">財產合計 <b>${fmt(propSum(''))}</b> 元</div>`,
   bsA: () => fmt(bsAssets()), bsL: () => fmt(bsLiab()), bsE: () => fmt(bsEquity()),
@@ -78,9 +85,10 @@ function seatWarn(d, s, da, sa, sd) {
   if (d && da > Math.floor(d / 3)) w.push('候補理事不得超過理事名額三分之一。');
   if (s && sa > Math.floor(s / 3)) w.push('候補監事不得超過監事名額三分之一。');
   if (sd && d && sd > Math.floor(d / 3)) w.push('常務理事不得超過理事總額三分之一。');
-  if ((d && d % 2 === 0) || (s && s % 2 === 0)) w.push('理監事名額建議定為奇數。');
-  if (!d) return '<div class="muted">依章程規定：理事最多15人、監事不超過理事三分之一、候補不超過正選三分之一。</div>';
-  return w.length ? w.map(t => `<div class="warn">${icon('warn')}${t}</div>`).join('') : `<div class="ok">${icon('check')}名額符合章程範本規定。</div>`;
+  if ((d && d % 2 === 0) || (s && s % 2 === 0)) w.push('理事、監事名額應定額並為奇數（人民團體會務輔導辦法第9條）。');
+  if ((d && d < 9) || (s && s < 3)) w.push('理事至少九人、監事至少三人；自由職業團體會員不足十二人者不在此限（人民團體會務輔導辦法第9條）。');
+  if (!d) return '<div class="muted">理事9至15人、監事至少3人且不超過理事三分之一、候補不超過正選三分之一，名額應為奇數。</div>';
+  return w.length ? w.map(t => `<div class="warn">${icon('warn')}${t}</div>`).join('') : `<div class="ok">${icon('check')}名額符合規定。</div>`;
 }
 function calcVal(key) {
   if (CALC[key]) return CALC[key]();
@@ -91,7 +99,9 @@ function calcVal(key) {
   if (t === 'deadline') return deadlineCard(rest);
   if (t === 'preDeadline') { const ad = MV(MEET[rest].before, 'date'); return ad ? `大會${rd(ad)} → 本會議最晚 <b>${rd(addDays(ad, -15))}</b> 召開。` : ''; }
   if (t === 'quorum') { const mk = rest; const s = num(MV(mk, 'should')), at = num(getp(S, `m.${mk}.attend`)); if (!s || !at) return ''; return at > s / 2 ? `<div class="ok">${icon('check')}出席 ${at} 人，已過半數（應出席 ${s} 人），會議可成立。</div>` : `<div class="bad">${icon('warn')}出席 ${at} 人，未過半數（需 ${Math.floor(s / 2) + 1} 人），會議無法成立。</div>`; }
-  if (t === 'elResult') { const mk = rest, { dr, sr } = elOf(mk); if (!dr.all.length && !sr.all.length) return '<div class="muted">輸入候選人與得票數後，這裡會依票數排出當選與候補名單。</div>'; const f = (lab, l) => `<div><b>${lab}</b>${l.length ? l.map(c => `${esc(c.name)}（${c.v}）`).join('、') : '—'}</div>`; return `<div class="elres">${f('當選理事：', dr.win)}${f('候補理事：', dr.alt)}${f('當選監事：', sr.win)}${f('候補監事：', sr.alt)}</div>`; }
+  if (t === 'elResult') { const mk = rest, { dr, sr } = elOf(mk); if (!dr.all.length && !sr.all.length) return '<div class="muted">輸入候選人與得票數後，這裡會依票數排出當選與候補名單。</div>'; const f = (lab, l) => `<div><b>${lab}</b>${l.length ? l.map(c => `${esc(c.name)}（${c.v}）`).join('、') : '—'}</div>`; const tie = (lab, r) => { const seq = [...r.win.map(c => ['w', c]), ...r.alt.map((c, i) => ['a' + i, c]), ...r.lose.map(c => ['l', c])], t = new Set(); for (let i = 1; i < seq.length; i++) if (seq[i][1].v === seq[i - 1][1].v && seq[i][0] !== seq[i - 1][0]) { t.add(seq[i - 1][1].name); t.add(seq[i][1].name); } return t.size ? `<div class="warn">${icon('warn')}${lab}${[...t].map(esc).join('、')}票數相同，當選與候補名次要以抽籤決定（人民團體選舉罷免辦法第15條）；請依抽籤結果調整候選人的排列順序，排在前面的優先。</div>` : ''; };
+    const both = dr.win.filter(c => sr.win.some(x => x.name === c.name)).map(c => c.name);
+    return `<div class="elres">${f('當選理事：', dr.win)}${f('候補理事：', dr.alt)}${f('當選監事：', sr.win)}${f('候補監事：', sr.alt)}</div>${tie('理事', dr)}${tie('監事', sr)}${both.length ? `<div class="warn">${icon('warn')}${both.map(esc).join('、')}同時當選理事與監事，只能擇一擔任（人民團體選舉罷免辦法第16條）。</div>` : ''}`; }
   return '';
 }
 function deadlineCard(mk) {
@@ -99,6 +109,7 @@ function deadlineCard(mk) {
   if (!dt) return `<div class="dl muted">${icon('clock')}填入日期後，系統會自動算出開會通知與紀錄送府的期限。</div>`;
   const today = isoToday(), n = addDays(dt, -d.days), l = addDays(dt, 30);
   const left = x => { const v = daysBetween(today, x); return v == null ? '' : v < 0 ? `<em class="late">已過 ${-v} 天</em>` : v === 0 ? '<em class="soon">今天</em>' : `<em${v <= 3 ? ' class="soon"' : ''}>剩 ${v} 天</em>`; };
+  if (brdOnly(mk)) return `<div class="dl">${icon('clock')}<div><div>開會通知最晚 <b>${rd(n)}（${weekday(n)}）</b>送達各理事、監事（會議前 7 日）${left(n)}</div><div>會議紀錄閉會後自行留存、提供會員查閱；只有依法令須報縣府的事項（例如會址變更）才檢附文件報送。</div><div class="muted">${rd(dt)}（${weekday(dt)}）${tm(MV(mk, 'time'))}開會</div></div></div>`;
   return `<div class="dl">${icon('clock')}<div><div>開會通知書最晚 <b>${rd(n)}（${weekday(n)}）</b>送達縣府 ${left(n)}</div>${d.same ? '' : `<div>會議紀錄最晚 <b>${rd(l)}（${weekday(l)}）</b>前函送縣府 ${left(l)}</div>`}<div class="muted">${rd(dt)}（${weekday(dt)}）${tm(MV(mk, 'time'))}開會</div></div></div>`;
 }
 
@@ -204,7 +215,7 @@ function renderDocs() {
   if (sc === 'board') h += `<div class="card">${CK('ui.boardAddr', '本次會議要討論會址變更', { rr: 1 })}<div class="muted small">勾選後會加入「檢送會址變更公文」、會議紀錄改用會址變更範本，並需附會址使用同意書。</div></div>`;
   if (sc === 'dissolve') h += `<details class="card info"><summary>${icon('info')}縣府「團體解散說明」</summary><div class="small">
     <p><b>流程：</b>函寄大會通知函 → 召開會員大會 → 團體函送大會紀錄及相關資料報屏東縣政府 → 收到屏東縣政府核准解散函 →（清算人可自行向會址所在地之國稅局查詢解散情形）。</p>
-    <p><b>會議內容：</b>1.同意解散及決議解散日期（可與大會日期不同）。2.出席人數：有社團法人登記者需出席人數四分之三以上同意；無者三分之二以上同意。3.五項財務報表（截止日期與解散日期一致）。4.剩餘財產歸屬（請以公部門為主，其他團體為次）。5.選出清算人（為理事長）。</p>
+    <p><b>會議內容：</b>1.同意解散及決議解散日期（可與大會日期不同）。2.出席與決議門檻：未辦法人登記者，應有會員（會員代表）過半數出席，出席人數三分之二以上同意（人民團體法第27條）；已辦社團法人登記者，須經全體會員三分之二以上同意（民法第57條），出席與同意人數都要達到全體會員的三分之二。章程訂有更高門檻時，依章程規定。（常聽到的「四分之三」是民法第53條社團法人變更章程的門檻，不是解散門檻。）3.五項財務報表（截止日期與解散日期一致）。4.剩餘財產歸屬（請以公部門為主，其他團體為次）。5.選出清算人（為理事長）。</p>
     <p><b>應附資料：</b>第一階段：會員大會紀錄、各項財務報表（共5項，缺一不可）、解散報告表、原核發之立案證書、圖記、理事長當選證明書、其他相關資料。第二階段（如有後續清算資產）：解散報告表、剩餘財產歸屬資料（造冊由清算人簽章）。</p>
     <p><b>備註：</b>五項財務報表截止日期、解散日期、大會召開日期三者請決議一致；清算日期可延後。會議紀錄範例格式及提案請勿刪減。</p></div></details>`;
   const prev = SCEN[sc].prev;
@@ -212,7 +223,7 @@ function renderDocs() {
   const on = batchOn(sc), both = on.pre && on.post;
   if (hasBatch(sc)) {
     const days = MEET[mainMeet(sc)].days;
-    h += `<div class="batches" role="group" aria-label="這次要準備的文件">${[PRE, POST].map(k => `<button type="button" class="bt${on[k] ? ' on' : ''}" data-batch="${k}" aria-pressed="${on[k]}"><span class="bn">${BATCH[k].n}</span><span class="bd"><b>${BATCH[k].t}</b><small>${BATCH[k].s(days)}</small></span><span class="bck">${icon('check')}</span></button>`).join('')}</div>
+    h += `<div class="batches" role="group" aria-label="這次要準備的文件">${[PRE, POST].map(k => `<button type="button" class="bt${on[k] ? ' on' : ''}" data-batch="${k}" aria-pressed="${on[k]}"><span class="bn">${BATCH[k].n}</span><span class="bd"><b>${BATCH[k].t}</b><small>${BATCH[k].s(days, sc)}</small></span><span class="bck">${icon('check')}</span></button>`).join('')}</div>
       <p class="muted small bhint">${batchAuto(sc) ? '已依開會日期自動選好。' : ''}開會通知要在會前先送，會議紀錄等資料會後再送；兩批可以分開準備，也可以一起勾選。</p>`;
   }
   h += NOTE('<b>必備</b>的文件已自動勾選；<b>選填</b>的文件勾選後才會出現在填寫與下載清單。標示「另附」的是要另外準備的文件，可以按「上傳」把照片或掃描檔一起放進下載檔。');

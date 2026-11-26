@@ -14,6 +14,8 @@ const MEET = {
 };
 function M(mk) { let o = getp(S, 'm.' + mk); if (!o || typeof o !== 'object') { o = { props: null, motions: [], el: {} }; setp(S, 'm.' + mk, o); } return o; }
 function MV(mk, f) { return V(`m.${mk}.${f}`); }
+/** 單純的理事會、監事會、理監事聯席會（不是和大會同日接續召開的那一場） */
+const brdOnly = mk => ['pre', 'brd'].includes(MEET[mk].kind);
 const isNewTerm = mk => mk === 'renew.asm' || mk === 'renew.brd';
 function mTerm(mk) { return MV(mk, 'term'); }
 function mNo(mk) { return MV(mk, 'no'); }
@@ -46,7 +48,7 @@ DER.push(
   [/^m\.([\w]+\.[\w]+)\.dirNames$/, () => names(DIR_ROLES).join('、')],
   [/^m\.([\w]+\.[\w]+)\.supNames$/, () => names(SUP_ROLES).join('、')],
   [/^m\.([\w]+\.[\w]+)\.noticeDate$/, () => isoToday()],
-  [/^m\.([\w]+\.[\w]+)\.letterDate$/, () => isoToday()],
+  [/^m\.([\w]+\.[\w]+)\.letterDate$/, m => { const d = MV(m[1], 'date'); return d && daysBetween(isoToday(), d) > 0 ? '' : isoToday(); }],
   [/^m\.([\w]+\.[\w]+)\.report$/, m => defaultReport(m[1])],
   [/^m\.([\w]+\.[\w]+)\.topics$/, m => defaultTopics(m[1])],
   [/^m\.([\w]+\.[\w]+)\.subject$/, m => letterSubject(m[1])],
@@ -195,9 +197,11 @@ const mainMeet = sc => SCEN[sc].meets().find(mk => !MEET[mk].same) || SCEN[sc].m
 /* ===== 報送批次：① 會前（開會通知） ② 會後（會議紀錄送件） ===== */
 const PRE = 'pre', POST = 'post';
 const BATCH = {
-  pre: { n: '①', t: '會前：開會通知', s: d => `會議前${d}日送達縣府` },
-  post: { n: '②', t: '會後：會議紀錄送件', s: () => '會議後30日內送達縣府' },
+  pre: { n: '①', t: '會前：開會通知', s: (d, sc) => scBrd(sc) ? `會議前${d}日送達各理事、監事` : `會議前${d}日送達縣府` },
+  post: { n: '②', t: '會後：會議紀錄送件', s: (d, sc) => scBrd(sc) ? '紀錄自行留存，須報縣府的事項才送件' : '會議後30日內送達縣府' },
 };
+/** 這個選單的主要會議是不是單純的理監事會 */
+function scBrd(sc) { const mk = sc && SCEN[sc] && SCEN[sc].meets()[0]; return !!mk && brdOnly(mk); }
 const hasBatch = sc => SCEN[sc].meets().length > 0;
 /** 目前選了哪些批次；沒選過時依開會日期判斷：日期已過＝會後，否則＝會前 */
 function batchOn(sc) {
@@ -231,7 +235,7 @@ const DAY = '開會當天使用（不必送府，勾選才產生）';
 function scenDocs(sc) { return withMat(scenDocs0(sc)); }
 function scenDocs0(sc) {
   const pv = S.ui.prepVar || 'p1';
-  const F6 = '6項財務報表', d7 = '會議召開前7日送達縣府備查', d15 = '會議召開前15日送達縣府備查', d30 = '會議召開後30日內送達縣府備查';
+  const F6 = '6項財務報表', d7 = '會議召開前7日送達縣府備查', d15 = '會議召開前15日送達縣府備查', d30 = '會議召開後30日內送達縣府備查', d7b = '會議召開前7日送達各理事、監事', dKeep = '理監事會紀錄閉會後自行留存；有依法令須報縣府的事項才檢送，不需要可取消勾選';
   const F6N = '預算表、決算表(含現金出納表)、財產目錄、資產負債表、基金收支表';
   const signPre = (id, name, mk, b) => d(id, name, { bt: PRE, def: 1, note: '開會前印出，供出席人員簽到', m: mk, b });
   /* 會後：簽到表改為選填，可上傳簽到後的照片或掃描檔一併檢附 */
@@ -268,17 +272,17 @@ function scenDocs0(sc) {
         G('會議紀錄'), d('asmMin', '第1屆第1次成立會員大會紀錄', { req: 1, note: '選舉理事、監事', m: 'found.asm', b: () => docMinutes('found.asm') }), signUp('asmSignUp', '大會簽到表（簽到後影本）'),
         d('brdMin', '第1屆第1次理監事會紀錄', { req: 1, note: '選舉常務理事、理事長、常務監事', m: 'found.brd', b: () => docMinutes('found.brd') }), signUp('brdSignUp', '理監事會簽到表（簽到後影本）'),
         G('會員大會手冊'), ...hbDocs(POST, HB),
-        G('其他檢附資料'), d('handover', '移交清冊', { def: 1, b: () => docHandover('found'), note: '新任理事長選出後14日內移交' }), d('roster', '理監事暨會務人員一覽表', { req: 1, b: () => docRoster('found'), note: '一式三份，二份送府、一份自存' }),
+        G('其他檢附資料'), d('handover', '移交清冊', { def: 1, b: () => docHandover('found'), note: '新任理事長選出後15日內移交' }), d('roster', '理監事暨會務人員一覽表', { req: 1, b: () => docRoster('found'), note: '一式三份，二份送府、一份自存' }),
         d('cert', '申請理事長當選證明書', { req: 1, b: docCert, note: '檢附當選人身分證正反面影本1份，2吋大頭照2張', up: '身分證影本、照片' }), d('consent', '會址使用同意書', { req: 1, b: docConsent, note: '需檢附使用權狀或近期繳稅單影本', up: '權狀或稅單影本' }),
       ];
     }
     case 'renewPre': case 'annualPre': {
       const mk = sc === 'renewPre' ? 'renew.pre' : 'annual.pre', rn = sc === 'renewPre', A = rn ? 'renew' : 'annual';
       return [
-        G('開會通知', PRE), d('notice', '開會通知書', { bt: PRE, req: 1, note: d7, m: mk, b: () => docNotice(mk) }),
+        G('開會通知', PRE), d('notice', '開會通知書', { bt: PRE, req: 1, note: d7b, m: mk, b: () => docNotice(mk) }),
         ...NA(mk, [d('members', '會員名冊', { b: () => docMembers(A) }), d('fin', F6, { b: () => docFinance(['bud', 'act', 'prop', 'bs', 'fund']) }), d('plan', '年度工作計畫', { b: docPlan }), d('ledger', '經費收支報告', { b: docLedger })]),
         G(DAY, PRE, { sub: 1 }), signPre('sign', '理監事會簽到表', mk, () => docSignBrd(mk)),
-        G('公文'), d('letter', '檢送會議紀錄公文', { req: 1, note: d30, m: mk, b: () => docLetter(mk) }),
+        G('公文'), d('letter', '檢送會議紀錄公文', { def: 1, note: dKeep, m: mk, b: () => docLetter(mk) }),
         G('會議紀錄'), d('min', '理監事會會議紀錄', { req: 1, note: rn ? '會員大會改選會議前15日，召開選前理監事會' : '會員大會召開前15日，開大會前理監事會', m: mk, b: () => docMinutes(mk) }),
         signUp('signUp', '理監事會簽到表（簽到後影本）'),
         G('隨函檢附（大會手冊內容，經本次會議審查）'),
@@ -301,7 +305,7 @@ function scenDocs0(sc) {
         G('會議紀錄'), d('asmMin', '會員大會會議紀錄', { req: 1, note: '改選理事、監事', m: 'renew.asm', b: () => docMinutes('renew.asm') }), signUp('asmSignUp', '大會簽到表（簽到後影本）'),
         d('brdMin', '理監事會會議紀錄（選後）', { req: 1, note: '選舉常務理事、理事長、常務監事', m: 'renew.brd', b: () => docMinutes('renew.brd') }), signUp('brdSignUp', '理監事會簽到表（選後，簽到後影本）'),
         G('會員大會手冊'), ...hbDocs(POST, HB), d('charter', '組織章程（現行）', { req: 1, hb: 1, kind: 'attach', note: '請附貴會現行章程', up: '現行章程', upk: 'charter' }),
-        G('其他檢附資料'), d('handover', '移交清冊', { def: 1, b: () => docHandover('renew'), note: '理事長連任或未更換時免附；新任理事長選出後14日內移交' }), d('roster', '理監事暨會務人員一覽表', { req: 1, b: () => docRoster('renew'), note: '一式三份，二份送府、一份自存' }),
+        G('其他檢附資料'), d('handover', '移交清冊', { def: 1, b: () => docHandover('renew'), note: '理事長連任或未更換時免附；新任理事長選出後15日內移交' }), d('roster', '理監事暨會務人員一覽表', { req: 1, b: () => docRoster('renew'), note: '一式三份，二份送府、一份自存' }),
         d('cert', '申請理事長當選證明書', { def: 1, b: docCert, note: '檢附當選人身分證正反面影本1份，2吋大頭照2張', up: '身分證影本、照片' }), d('consent', '會址使用同意書', { def: 1, b: docConsent, note: '需檢附使用權狀或近期繳稅單影本', up: '權狀或稅單影本' }),
         d('ballot', '選舉及罷免票（樣張）', { b: () => docBallot('renew.asm') }), d('amend', '組織章程修正對照表', { b: () => docAmend('renew'), note: '需檢附新舊章程各2份', up: '新舊章程' }),
       ];
@@ -322,11 +326,11 @@ function scenDocs0(sc) {
       ];
     }
     case 'board': { const ad = !!S.ui.boardAddr; return [
-      G('開會通知', PRE), d('notice', '開會通知書', { bt: PRE, req: 1, note: d7, m: 'board.brd', b: () => docNotice('board.brd') }),
+      G('開會通知', PRE), d('notice', '開會通知書', { bt: PRE, req: 1, note: d7b, m: 'board.brd', b: () => docNotice('board.brd') }),
       ...NA('board.brd', [d('ledger', '經費收支報告', { b: docLedger }), d('members', '會員名冊（新入會名單）', { b: () => docMembers('board') }), d('plan', '年度工作計畫', { b: docPlan }), d('fin', F6, { b: () => docFinance(['bud', 'act', 'prop', 'bs', 'fund']) })]),
       G(DAY, PRE, { sub: 1 }), signPre('sign', '簽到表', 'board.brd', () => docSignBrd('board.brd')),
-      G('公文'), d('letter', '檢送會議紀錄公文', { req: 1, note: d30, m: 'board.brd', b: () => docLetter('board.brd') }),
-      ...(ad ? [d('addrLetter', '檢送會址變更公文', { req: 1, note: '理監事會討論會址變更、會議召開後30日內送達縣府備查', b: docAddrLetter })] : []),
+      G('公文'), d('letter', '檢送會議紀錄公文', { def: 1, note: dKeep, m: 'board.brd', b: () => docLetter('board.brd') }),
+      ...(ad ? [d('addrLetter', '檢送會址變更公文', { req: 1, note: '會址變更經理監事會決議後，檢附會議紀錄與會址使用同意書報縣府備查', b: docAddrLetter })] : []),
       G('會議紀錄'), d('min', ad ? '討論會址變更會議紀錄' : '理監事會會議紀錄', { req: 1, note: ad ? '討論會址變更' : '定期會、臨時會', m: 'board.brd', b: () => docMinutes('board.brd') }), signUp('signUp', '簽到表（簽到後影本）'),
       G('其他檢附資料'), d('ledger', '經費收支報告', { def: 1, b: docLedger, note: '當季收支報表' }), d('plan', '年度工作計畫', { b: docPlan }), d('fin', F6, { b: () => docFinance(['bud', 'act', 'prop', 'bs', 'fund']) }),
       d('consent', '會址使用同意書', { req: ad ? 1 : 0, b: docConsent, note: '需檢附使用權狀或近期繳稅單影本', up: '權狀或稅單影本' }),

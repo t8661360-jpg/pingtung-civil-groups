@@ -63,7 +63,9 @@ function geoOf(it, fs) {
   const r = rot * Math.PI / 180, ac = Math.abs(Math.cos(r)), as = Math.abs(Math.sin(r));
   /* 垂直位置：'b'＝印章上緣貼齊該行；簽章處的長形職章大部分垂在簽名行下方，不壓到上面的表格 */
   const dy = it.dy != null ? it.dy : it.ey === 'b' ? h / 2 - f * PT_MM * 0.8 : !+it.ey && it.slot && it.slot[0] !== '@' ? Math.max(0, h / 2 - 8) : (+it.ey || 0) * f * PT_MM;
-  return { w, h, rot, bw: w * ac + h * as, bh: w * as + h * ac, dx: it.dx != null ? it.dx : (it.ex || 0) * f * PT_MM, dy };
+  /* 簽名比印章寬：自動擺放時從簽章處往右放，不蓋到前面打字的姓名 */
+  const ex = (it.ex || 0) * f * PT_MM, dx = it.dx != null ? it.dx : s.type === 'sign' && ex > 0 ? Math.max(ex, (w * ac + h * as) / 2 - 1) : ex;
+  return { w, h, rot, bw: w * ac + h * as, bh: w * as + h * ac, dx, dy };
 }
 /** 從文件模型找出錨點（順序與 HTML、Word、Excel 輸出一致） */
 function modelAnchors(sh) {

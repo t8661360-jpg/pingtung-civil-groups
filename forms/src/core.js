@@ -126,7 +126,9 @@ let saveTimer = null;
 /** 只比對填寫內容（不含畫面狀態），內容有變才更新時間並同步雲端 */
 const dataSig = () => { const { ui, meta, cloud, ...d } = S; return JSON.stringify(d); };
 let lastSig = dataSig();
+let WIPING = false;
 function save(o = {}) {
+  if (WIPING) return;
   S.meta = S.meta || {};
   const sig = dataSig(), changed = sig !== lastSig;
   if (changed) { lastSig = sig; if (!o.keepTime) S.meta.savedAt = Date.now(); }

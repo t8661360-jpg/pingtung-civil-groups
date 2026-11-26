@@ -122,6 +122,22 @@ const CMDS = {
     await IDBX.run('files', 'readwrite', st => st.clear()); await IDBX.run('img', 'readwrite', st => st.clear()); SEALC.clear(); FILEC.clear();
     save(); render(); toast('已清除');
   },
+  /** 右上角「清除記憶」：清空這個網頁存在瀏覽器裡的所有資料（填寫內容、印章與簽名、上傳附件、版面與提示設定、雲端登入狀態） */
+  async wipe() {
+    $('#sheet').hidden = true;
+    const cloudOn = !!(S.cloud && S.cloud.on);
+    if (!(await ask(`確定清除記憶？\n會清空這個網頁存在這台裝置瀏覽器裡的所有資料：填寫內容、印章與簽名、上傳的附件、版面與提示設定。${cloudOn ? '\n也會登出雲端存檔；已存在您 Google 雲端硬碟的備份不會被刪除。' : ''}\n此動作無法復原，需要保留的資料請先用「⋯ → 備份資料」。`, { ok: '清除記憶' }))) return;
+    const busy = showBusy('正在清除…'); WIPING = true; clearTimeout(saveTimer);
+    try {
+      try { await IDBX.run('files', 'readwrite', st => st.clear()); await IDBX.run('img', 'readwrite', st => st.clear()); } catch (e) { }
+      try { await new Promise(res => { const rq = indexedDB.deleteDatabase('pt-assoc-seals'); rq.onsuccess = rq.onerror = rq.onblocked = () => res(); setTimeout(res, 1500); }); } catch (e) { }
+      SEALC.clear(); FILEC.clear();
+      try { Object.keys(localStorage).filter(k => k.startsWith('pt-')).forEach(k => localStorage.removeItem(k)); } catch (e) { }
+      try { Object.keys(sessionStorage).filter(k => k.startsWith('pt-')).forEach(k => sessionStorage.removeItem(k)); } catch (e) { }
+      try { if (window.caches) for (const k of await caches.keys()) await caches.delete(k); } catch (e) { }
+    } finally { busy.done(); }
+    location.reload();
+  },
   pvOpen() { const list = pvDocs(S.ui.scen).length ? pvDocs(S.ui.scen) : selDocs(S.ui.scen).filter(x => x.kind !== 'attach' && !isUp(x)); if (list.length) openPreview(list.some(x => x.id === S.ui.pvDoc) ? S.ui.pvDoc : list[0].id); },
   pvClose() { closePreview(); },
   toPost() { const sc = S.ui.scen; S.batch = S.batch || {}; S.batch[sc] = { pre: false, post: true }; S.ui.step = 'docs'; save(); render(); window.scrollTo({ top: 0 }); toast('已切換到「② 會後：會議紀錄送件」'); },
@@ -216,6 +232,7 @@ document.addEventListener('click', async e => {
   if (t.id === 'back') { if ($('#pv').hidden === false) { closePreview(); return; } S.ui.view = 'home'; save(); render(); return; }
   if (t.id === 'fontBtn') { S.ui.large = !S.ui.large; save(); document.documentElement.classList.toggle('large', S.ui.large); t.setAttribute('aria-pressed', S.ui.large); return; }
   if (t.id === 'menuBtn') { CMDS.menu(); return; }
+  if (t.id === 'wipeBtn') { CMDS.wipe(); return; }
   if (t.id === 'tipBtn') { setTips(!tipsOn()); return; }
   if (t.id === 'layBtn') { setLayout(isDesk() ? 'm' : 'd'); return; }
   if (t.id === 'cloudChip') { cloudChipClick(); return; }
