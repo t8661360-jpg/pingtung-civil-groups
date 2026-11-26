@@ -10,7 +10,7 @@ const SIMP='册冊劝勸协協会會员員长長补補办辦县縣么麼请請�
 const SIMPRE=new RegExp('['+SIMP.split('').filter((c,i)=>i%2===0).join('')+']');
 function simp2trad(s){if(!SIMPRE.test(s))return s;let o='';for(const c of s){const i=SIMP.indexOf(c);o+=(i>=0&&i%2===0)?SIMP[i+1]:c}return o}
 function normalizeQuestion(q){
- return normalizeQuestion192(normalizeQuestion191(normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(q))))))))))))))))))))))))))))))))))))))))))));
+ return normalizeQuestion193(normalizeQuestion192(normalizeQuestion191(normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(q)))))))))))))))))))))))))))))))))))))))))))));
 }
 /* 第156輪（根源）：「義買」是「義賣」的錯字；「捐錢／捐了一筆錢」＝捐款；「勸募的錢怎麼管／保管／處理」＝勸募的錢誰在管；
    「補助要等核銷完才撥嗎」＝補助款什麼時候撥；「餐會／晚會／園遊會收費算不算勸募」＝義賣算不算勸募 */
@@ -10689,6 +10689,16 @@ function normalizeQuestion192(s){
  }
  /* 收報名費／賣票／賣愛心商品算不算勸募，與既有「義賣算不算勸募」是同一件事（法規無明文，請洽承辦） */
  s=s.replace(/(路跑|報名費|收費活動|收費課程|愛心商品|愛心.{0,2}品|賣愛心.{0,3}|賣票|賣門票|收門票|門票|入場費|攤位費).{0,6}?((算不算|算是|是不是|是否)(算)?|算)(勸募|募款|募捐)/g,'義賣算不算勸募');
+ return s;
+}
+function normalizeQuestion193(s){
+ s=String(s||'');
+ if(/合作社|社員|社區/.test(s))return s;
+ /* 收據要去哪裡領／跟縣府領／要不要縣府核章，與「收據可以自己印」同一件事（法規沒有規定向誰購買） */
+ s=s.replace(/收據(本)?.{0,6}?(跟|向|去|到|由)?(縣府|縣政府|社會處|公所|主管機關|政府)?(要)?(領|拿|申請|核發|發給|核章|審核)(嗎|的嗎|呢|才能用|才可以用)?/g,'收據可以自己印嗎');
+ s=s.replace(/收據(本)?(要|需要)?(向誰|跟誰|找誰|去哪|買|訂)(買|訂|印|做)?/g,'收據可以自己印嗎');
+ s=s.replace(/收據.{0,4}(是|由|要)?(縣府|縣政府|社會處|政府|公所).{0,3}(發|印|給|蓋|章|核)(的|章)?/g,'收據可以自己印嗎');
+ s=s.replace(/收據.{0,3}(要)?怎麼(來|取得|弄)/g,'收據可以自己印嗎');
  return s;
 }
 let p192Busy=false;
