@@ -1,0 +1,18 @@
+const assert=require('node:assert/strict');
+const {identify,answerMixed:answer}=require('./verified-mixed-questions');
+const coop='合作社的清算報告多久要送？股息是無上限嗎？';
+const reverse='合作社股息最高多少？清算完成後多久要呈報？';
+const assoc='不住屏東還能加入協會嗎？理事長可以把會員踢掉嗎？';
+const assocReverse='理事長可以直接除名嗎？外縣市戶籍可以加入協會嗎？';
+assert.deepEqual(identify(coop),['report','interest']);
+assert.deepEqual(identify(reverse),['interest','report']);
+assert.deepEqual(identify(assoc),['admission','expulsion']);
+assert.deepEqual(identify(assocReverse),['expulsion','admission']);
+const lines=q=>answer(q).steps.map(x=>x.join('：')).join('\n');
+assert.match(lines(coop),/20日內.*分送各社員.*法院選派者，另須呈報法院/);
+assert.match(lines(coop),/百分之十.*沒有結餘就不能發息.*不是清算剩餘財產/);
+assert.match(lines(assoc),/不住屏東不一定不能加入.*現行章程/);
+assert.match(lines(assoc),/不能自行決定.*出席人數三分之二以上同意/);
+assert.deepEqual(answer(coop).refs.map(x=>x.title),['合作社法第65條','合作社法第22條']);
+for(const q of ['信用合作社清算報告多久要送？股息上限？','合作社的清算報告多久要送？','合作社股息上限是多少？','不住屏東還能加入協會嗎？','理事長可以把會員踢掉嗎？','合作社的清算報告多久要送？股息有上限嗎？怎麼報稅？','協會8月開會收支報告要做到哪天？'])assert.equal(answer(q),null,q);
+console.log('verified mixed questions OK');

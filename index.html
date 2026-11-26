@@ -1519,6 +1519,8 @@ async function ask(q){
   q=String(q||"").trim();if(!q||busy)return;
   if(!financeMeetingPlanner&&typeof window.createFinanceMeetingPlanner==="function")financeMeetingPlanner=window.createFinanceMeetingPlanner({board,showAnswer:renderAnswer});
   if(financeMeetingPlanner&&financeMeetingPlanner(q))return;
+  const verifiedMixed=typeof window.verifiedMixedQuestionAnswer==="function"?window.verifiedMixedQuestionAnswer(q):null;
+  if(verifiedMixed){renderAnswer(q,verifiedMixed);return;}
   const shownQ=q;const prevQ=convo.length?convo[convo.length-1].q:"";
   if(typeof normalizeQuestion==="function")q=normalizeQuestion(typeof withContext==="function"?withContext(q,prevQ):q);
   busy=true;touch();nudge.classList.remove("show");clerkPrompt.classList.remove("show");
@@ -1901,7 +1903,8 @@ touch();
 <script src="cooperative-address-proof.js?v=1"></script>
 <script src="liquidation-creditor-notice.js?v=2"></script>
 <script src="director-absence-clarification.js?v=1"></script>
-<script src="association-finance-meeting-month.js?v=1"></script>
+<script src="association-finance-meeting-month.js?v=2"></script>
+<script src="verified-mixed-questions.js?v=1"></script>
 <script src="answer-arbiter.js?v=20261126-249"></script>
 <script src="question-understanding.js?v=20261126-249"></script>
 <script src="counter-upgrade.js?v=20261126-249"></script>
