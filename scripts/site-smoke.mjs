@@ -1531,7 +1531,7 @@ const CHECKS = [
   ['章程的任務可以增加嗎', '增加任務'],
   ['章程可以規定理事長有決定權嗎', '理事長的職權'],
   ['改名稱要換印章嗎', '圖記'],
-  ['會費調整要改章程嗎', '會費要調整'],
+  ['會費調整要改章程嗎', ['必須一併修章', '不一定需要修章', '報主管機關核備後才能實施']],
   ['改章程需要多少會員出席', '過半數出席'],
   ['補助款收到後要怎麼處理', '20日內'],
   ['補助款跟會費可以混在一起嗎', '核准的用途'],
@@ -1774,9 +1774,10 @@ try {
     await page.waitForTimeout(1800);
     const text = await page.innerText('#board');
     const title = (await page.$eval('#board .atitle', e => e.innerText).catch(() => '')) || '';
-    const ok = text.includes(want);
+    const missing = (Array.isArray(want) ? want : [want]).filter(part => !text.includes(part));
+    const ok = !missing.length;
     log(`${ok ? 'PASS' : 'FAIL'}｜${q}｜${title}`);
-    if (!ok) fails.push(`問答：「${q}」未包含「${want}」，實際標題「${title}」`);
+    if (!ok) fails.push(`問答：「${q}」未包含「${missing.join('、')}」，實際標題「${title}」`);
   }
   // 1b. 函釋目錄與佈景（沒有音樂開關）
   await page.goto(BASE + '#law'); await page.waitForTimeout(2500);
