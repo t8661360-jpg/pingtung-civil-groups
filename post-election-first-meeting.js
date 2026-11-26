@@ -11,7 +11,7 @@ function matches(q){
   && !/怎麼投票|投票方式|誰可以當理事長/.test(t);
 }
 function firstMeetingAnswer(q,previous){
- if(!matches(q)&&!previous?.title?.startsWith('改選後第一次理事會要在幾天內開：法規沒有訂期限'))return previous;
+ if(!matches(q)&&!previous?.title?.startsWith('改選後第一次理事會要在幾天內開：'))return previous;
  const meeting=/監事會/.test(q)&&!/理事會|理監事會/.test(q)?'監事會':'理事會';
  return {direct:true,category:'改選與任期',
   title:'改選後第一次'+meeting+'要在幾天內開：原則上是大會閉會後第7日起至第15日內',
