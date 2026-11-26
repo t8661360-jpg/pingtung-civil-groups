@@ -41,19 +41,42 @@
     bar.className = 'fb-bar';
     bar.style.cssText = 'margin-top:18px;padding-top:12px;border-top:1px dashed rgba(128,128,128,.35);font-size:.92em;display:flex;gap:10px;align-items:center;flex-wrap:wrap';
     bar.innerHTML = '<span>這個答案有沒有幫到您？</span><button type="button" class="fb-yes" style="padding:6px 14px;border-radius:999px;border:1px solid currentColor;background:transparent;color:inherit;cursor:pointer">有幫到</button><button type="button" class="fb-no" style="padding:6px 14px;border-radius:999px;border:1px solid currentColor;background:transparent;color:inherit;cursor:pointer">沒有幫到我</button>';
-    const done = msg => { bar.innerHTML = '<span>' + msg + '</span>'; };
-    bar.querySelector('.fb-yes').onclick = () => done('謝謝您的回饋！');
-    bar.querySelector('.fb-no').onclick = () => {
+    const yes = bar.querySelector('.fb-yes'), no = bar.querySelector('.fb-no');
+    const status = document.createElement('span');
+    status.setAttribute('role', 'status');
+    bar.appendChild(status);
+    const done = msg => { bar.textContent = ''; status.textContent = msg; bar.appendChild(status); };
+    yes.onclick = () => done('謝謝您的回饋！');
+    no.onclick = async () => {
+      if (no.disabled) return;
+      yes.disabled = no.disabled = true;
+      status.textContent = '正在送出回報…';
+      const key = 'fb-confirmed';
+      let sent = [];
       try {
-        const scrub = typeof scrubPII === 'function' ? scrubPII : (x => String(x).slice(0, 300));
-        const text = ('〔答錯回報〕' + scrub(q) + '｜小屏答：' + String(a.title || '').slice(0, 60)).slice(0, 300);
-        const key = 'fb-sent', sent = JSON.parse(localStorage.getItem(key) || '[]');
-        if (!sent.includes(text)) {
-          sent.push(text); localStorage.setItem(key, JSON.stringify(sent.slice(-100)));
-          if (ENDPOINT) fetch(ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ q: text, page: location.pathname, at: new Date().toISOString() }), keepalive: true }).catch(() => {});
+        try {
+          const cached = JSON.parse(localStorage.getItem(key) || '[]');
+          if (Array.isArray(cached)) sent = cached;
+        } catch (e) {}
+        if (!ENDPOINT || typeof scrubPII !== 'function') throw new Error('feedback unavailable');
+        const text = ('〔答錯回報〕' + scrubPII(q) + '｜小屏答：' + scrubPII(a.title).slice(0, 60)).slice(0, 300);
+        if (sent.includes(text)) {
+          done('這則回報已送出，不用重複送。');
+          return;
         }
-      } catch (e) {}
-      done('謝謝您告訴小屏，這個問題已經記下來，會請承辦人員確認並改進。急件請電洽承辦人員。');
+        const res = await fetch(ENDPOINT, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ q: text, page: location.pathname, at: new Date().toISOString() }), keepalive: true
+        });
+        if (!res.ok) throw new Error('feedback request failed');
+        const ack = await res.json();
+        if (ack?.ok !== true || !Number.isInteger(ack.issue) || ack.issue < 1) throw new Error('feedback not acknowledged');
+        try { localStorage.setItem(key, JSON.stringify([...sent, text].slice(-100))); } catch (e) {}
+        done('謝謝，回報已送出。急件請直接電洽承辦人員。');
+      } catch (e) {
+        status.textContent = '未能確認回報已送出，請稍後再試。急件請直接電洽承辦人員。';
+        yes.disabled = no.disabled = false;
+      }
     };
     board.appendChild(bar);
   }
