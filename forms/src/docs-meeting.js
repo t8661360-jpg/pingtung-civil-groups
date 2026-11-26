@@ -13,16 +13,8 @@ const yesNo = (on, t) => (on ? '■' : '□') + t;
 /* ---------- 理監事會：聯席／理事會／監事會（單獨） ---------- */
 const brdType = mk => { const v = (M(mk) || {}).brdType; return v === '理事會' || v === '監事會' ? v : '聯席'; };
 const brdName = mk => ({ 聯席: '理監事聯席會議', 理事會: '理事會議', 監事會: '監事會議' })[brdType(mk)];
-/* ---------- 開會通知書 ---------- */
-function noticeOptions(mk) {
-  const k = MEET[mk].kind, t = O(cn(mTerm(mk)), '○'), n = O(cn(mNo(mk)), '○');
-  if (k === 'prep1' || k === 'prep2') return `${yesNo(k === 'prep1', '發起人暨第一次籌備會')}　${yesNo(k === 'prep2', '第二次籌備會')}（請打ˇ或■填寫）`;
-  if (k === 'foundAsm') return '■第一屆第一次成立會員大會';
-  if (k === 'pre' || k === 'brd') { const bt = brdType(mk), solo = bt !== '聯席'; return `□第○屆第○次會員大會　${solo ? `■第${t}屆第${n}次${yesNo(bt === '理事會', '理')}${yesNo(bt === '監事會', '監')}事會議（單獨）` : '□第○屆第○次□理□監事會議（單獨）'}\n${solo ? '□第○屆第○次' : `■第${t}屆第${n}次`}理監事聯席會議（請打ˇ或■填寫）`; }
-  if (k === 'asm' && scenOf(mk) === 'renew') return `■第${t}屆第一次會員大會　□第○屆第○次理監事會議（改選前）\n□第${t}屆第一次理監事聯席會議（請打ˇ或■填寫）`;
-  return `■第${t}屆第${n}次會員大會（請打ˇ或■填寫）`;
-}
-/* ---------- 通知書「此致」：署名身分、姓名與受文者（可在填資料修改） ---------- */
+/* ---------- 開會通知單 ---------- */
+/* ---------- 通知單「此致」：署名身分、姓名與受文者（可在填資料修改） ---------- */
 const SIGN_ROLES = { 理事長: '理事長', 籌備主委: '籌備會主任委員', 發起人代表: '發起人' };
 function signRoleOpts(mk) { const sc = scenOf(mk); return sc === 'prep' ? ['籌備主委', '發起人代表'] : sc === 'found' ? ['籌備主委', '理事長'] : ['理事長', '籌備主委', '發起人代表']; }
 function signRoleDef(mk) { const sc = scenOf(mk), k = MEET[mk].kind; return sc === 'prep' ? (k === 'prep1' ? '發起人代表' : '籌備主委') : sc === 'found' ? '籌備主委' : '理事長'; }
@@ -33,88 +25,48 @@ function recipOpts(mk) { const sc = scenOf(mk); return sc === 'prep' ? ['gov', '
 function recipDef(mk, k) { const sc = scenOf(mk), kd = MEET[mk].kind; if (k === 'gov') return true; if (sc === 'prep') return k === (kd === 'prep1' ? 'founders' : 'prepCom'); if (sc === 'found') return k === 'members'; return k === (MEET[mk].asm ? 'members' : 'board'); }
 function recipOn(mk, k) { const v = (M(mk).to || {})[k]; return v == null ? recipDef(mk, k) : !!v; }
 const recipLabel = k => k === 'gov' ? `${S.org.county || '屏東縣'}政府` : RECIPS.find(r => r[0] === k)[1];
-function signerLine(mk) {
-  const opts = signRoleOpts(mk), role = signRole(mk), who = MV(mk, 'signName');
-  return `${opts.map(r => yesNo(r === role, r)).join(' ')}：${O(who)}${STAMP(slotOf(SIGN_ROLES[role], who), '（蓋章）')}`;
+/* ---------- 開會通知單（公文格式；所有會議共用） ---------- */
+/** 開會事由：籌備會用勾選，其餘寫出會議名稱 */
+function noticeReason(mk) {
+  const k = MEET[mk].kind, sc = scenOf(mk), t = O(cn(mTerm(mk)), '○'), n = O(cn(mNo(mk)), '○');
+  if (k === 'prep1' || k === 'prep2') return `${yesNo(k === 'prep1', '發起人暨第一次籌備會')}　　${yesNo(k === 'prep2', '第二次籌備會')}`;
+  if (k === 'foundAsm') return '召開第一屆第一次成立會員大會';
+  const kind2 = `（${MV(mk, 'kind2') === '臨時會' ? '臨時會' : '定期會'}）`;
+  if (k === 'pre' || k === 'brd') return `召開第${t}屆第${n}次${brdName(mk)}${sc === 'renew' && k === 'pre' ? '（改選前）' : ''}${kind2}`;
+  if (k === 'asm' && sc === 'renew') return `召開第${t}屆第一次會員大會${kind2}`;
+  return `召開第${t}屆第${n}次會員大會${kind2}`;
 }
-function signerLine0(mk) {
-  const sc = scenOf(mk), k = MEET[mk].kind;
-  if (sc === 'prep') { const who = k === 'prep1' ? (names(['發起人'])[0] || prepChair()) : prepChair(); return `${yesNo(k === 'prep2', '籌備主委')} ${yesNo(k === 'prep1', '發起人代表')}：${O(who)}${STAMP(slotOf(k === 'prep2' || who === prepChair() ? '籌備會主任委員' : '', who), '（蓋章）')}`; }
-  if (sc === 'found') return `籌備主委　${O(prepChair())}${STAMP(slotOf('籌備會主任委員', prepChair()), '（蓋章）')}`;
-  return `■理事長 □籌備主委 □發起人代表：${O(chairName())}${STAMP(slotOf('理事長', chairName()), '（蓋章）')}`;
-}
-function recipLines(mk) {
-  const ks = recipOpts(mk), first = ks.slice(0, 1).map(k => yesNo(recipOn(mk, k), recipLabel(k))), rest = ks.slice(1).map(k => yesNo(recipOn(mk, k), recipLabel(k)));
-  return `${first.join('')}\n${rest.join('　')}`;
-}
-function recipLines0(mk) {
-  const sc = scenOf(mk), k = MEET[mk].kind, gov = `■${S.org.county || '屏東縣'}政府`;
-  if (sc === 'prep') return `${gov}\n${yesNo(k === 'prep2', '本會籌備委員')}　${yesNo(k === 'prep1', '本會發起人')}`;
-  if (sc === 'found') return `${gov}\n■本會會員　□本會籌備委員　□本會發起人`;
-  if (MEET[mk].asm) return `${gov}\n□本會理監事\n■本會會員`;
-  return `${gov}\n■本會理監事\n□本會會員`;
-}
-function contactBlock() {
-  const o = S.org, ct = V('org.contactTitle'), c = V('org.contact');
-  return [o.address || '', c ? `${ct ? ct + '：' : ''}${c}` : '', o.phone ? `【辦公】${o.phone}` : '', o.mobile ? `【行動】${o.mobile}` : ''].join('\n');
-}
-/* ---------- 籌備會開會通知單（縣府公文格式） ---------- */
-function docPrepNotice(mk) {
-  const m = M(mk), date = MV(mk, 'date'), k = MEET[mk].kind, o = S.org;
+function docNotice(mk) {
+  const m = M(mk), date = MV(mk, 'date'), o = S.org, prep = scenOf(mk) === 'prep', cty = o.county || '屏東縣';
   const row = (lab, v, o2 = {}) => ({ cells: [{ v: lab, va: 't', ...o2.l }, { v: v ?? '', va: 't', ...o2.v }] });
   const att = noticeAtt(mk).map(x => x.name), role = signRole(mk), who = MV(mk, 'signName');
-  const tel = [`辦公　${o.phone || ''}`, `住家　${o.homeTel || ''}`, `手機　${o.mobile || ''}`].join('\n');
-  const out = (ks) => ks.map(x => yesNo(recipOn(mk, x), recipLabel(x))).join('　　');
-  const head = T([row('受文者：', recipOn(mk, 'gov') ? `${o.county || '屏東縣'}政府` : '', { l: { sz: 14 }, v: { sz: 14 } }),
+  const tel = [`辦公　${o.phone || ''}`, ...(prep || o.homeTel ? [`住家　${o.homeTel || ''}`] : []), `手機　${o.mobile || ''}`].join('\n');
+  const out = recipOpts(mk).filter(x => x !== 'gov').map(x => yesNo(recipOn(mk, x), recipLabel(x))).join('　　');
+  const head = T([row('受文者：', recipOn(mk, 'gov') ? `${cty}政府` : '', { l: { sz: 14 }, v: { sz: 14 } }),
     row('發文日期：', `中華民國${rd(MV(mk, 'noticeDate'))}`), row('發文字號：', docNo(m.noticeNo)), row('速別：', V(`m.${mk}.speed`) || '普通件'),
     { cells: [{ v: '密等及解密條件或保密期限：', cs: 2 }] }, row('附件：', att.join('、'))], { size: 12, noBorder: true, pad: 0 });
   const body = T([
-    row('開會事由：', `${yesNo(k === 'prep1', '發起人暨第一次籌備會')}　　${yesNo(k === 'prep2', '第二次籌備會')}`),
+    row('開會事由：', noticeReason(mk)),
     row('開會時間：', `中華民國${rd(date)}${date ? `（${weekday(date)}）` : '（星期　）'}${tm(MV(mk, 'time'))}`),
     row('開會地點：', MV(mk, 'place')),
     row('主持人：', MV(mk, 'chair')),
     row('聯絡人及電話：', `${V('org.contact') || ''}\n${tel}`),
     row('聯絡地址：', o.address || ''),
-    row('出席者：', out(['prepCom', 'founders'])),
+    row('出席者：', out),
     row('應出席人數：', `${BL(MV(mk, 'should'))}人`),
-    row('列席者：', '敬請屏東縣政府派員列席指導。'),
+    row('列席者：', recipOn(mk, 'gov') ? `敬請${cty}政府派員列席指導。` : ''),
     row('副本：', V(`m.${mk}.cc`) || ''),
     row('議程：', `一、報告事項${MV(mk, 'report') ? '\n' + MV(mk, 'report') : ''}\n二、重要討論事項\n${MV(mk, 'topics') || ''}`),
     row('備註：', (m.noticeNote || '').trim()),
   ], { size: 12, noBorder: true, pad: 0 });
+  const roleName = { 理事長: '理事長', 籌備主委: '籌備主任委員', 發起人代表: '發起人代表' };
+  const sign = prep ? `${yesNo(role === '籌備主委', '籌備主任委員')}　${yesNo(role === '發起人代表', '發起人代表')}` : roleName[role];
   return { title: '開會通知單', sheets: [{ name: '開會通知單', cols: [22, 78], size: 12, ls: 1.25, blocks: [
     P('檔　　號：\n保存年限：', { align: 'r', size: 10, after: 4 }),
-    TITLE(`${orgFull()}籌備會`, { size: 17, after: 0 }), TITLE('開會通知單', { size: 19, after: 6 }),
+    TITLE(`${orgFull()}${prep ? '籌備會' : ''}`, { size: 17, after: 0 }), TITLE('開會通知單', { size: 19, after: 6 }),
     head, P('', { after: 2 }), body,
-    P(`${yesNo(role === '籌備主委', '籌備主任委員')}　${yesNo(role === '發起人代表', '發起人代表')}　${O(who)}${STAMP(slotOf(SIGN_ROLES[role], who), '（蓋章）')}`, { align: 'c', size: 13, before: 10 }),
+    P(`${sign}　${O(who)}${STAMP(slotOf(SIGN_ROLES[role], who), '（蓋章）')}`, { align: 'c', size: 13, before: 10 }),
   ] }] };
-}
-function docNotice(mk) {
-  if (scenOf(mk) === 'prep') return docPrepNotice(mk);
-  const m = M(mk), date = MV(mk, 'date');
-  const title = `${orgFull()}${scenOf(mk) === 'prep' ? '籌備會' : ''}開會通知書${FW.repeat(2)}民國${rd(MV(mk, 'noticeDate'))}\n${docNo(m.noticeNo)}`;
-  const k2 = MV(mk, 'kind2');
-  const rows = [
-    { cells: [{ v: title, cs: 5, al: 'c', b: true, sz: 13 }] },
-    { cells: [{ v: '會議\n名稱', cs: 2, rs: 2, al: 'c' }, { v: `${k2 === '臨時會' ? '□定期會■臨時會' : '■定期會□臨時會'}（請打ˇ填寫）`, cs: 3 }] },
-    { cells: [{ v: noticeOptions(mk), cs: 3 }] },
-    { cells: [{ v: '時　間', cs: 2, al: 'c' }, { v: `民國${rd(date)}${date ? `（${weekday(date)}）` : ''}\n${tm(MV(mk, 'time'))}` }, { v: '地址\n聯絡人\n電話\n手機', rs: 3, al: 'c' }, { v: contactBlock(), rs: 3 }] },
-    { cells: [{ v: '地　點', cs: 2, al: 'c' }, { v: MV(mk, 'place') }] },
-    { cells: [{ v: '應出席人數', cs: 2, al: 'c' }, { v: `${BL(MV(mk, 'should'))}人` }] },
-    { h: 54, cells: [{ v: '議\n\n程', rs: 2, al: 'c' }, { v: '報告事項', al: 'c' }, { v: MV(mk, 'report'), cs: 3 }] },
-    { h: 80, cells: [{ v: '重　要\n討論事項', al: 'c' }, { v: MV(mk, 'topics'), cs: 3 }] },
-    { cells: [{ v: '申請事項', cs: 2, al: 'c' }, { v: '敬請主管機關派員列席指導。', cs: 3 }] },
-    { h: 28, cells: [{ v: '附　　註', cs: 2, al: 'c' }, { v: noticeNoteText(mk), cs: 3 }] },
-    { cells: [{ v: `此致\n${signerLine(mk)}\n${recipLines(mk)}`, cs: 5 }] },
-  ];
-  return { title: '開會通知書', sheets: [{ name: '開會通知書', cols: [5, 7, 30, 10, 30], size: 12, ls: 1.35, blocks: [T(rows, { size: 12, pad: 4 })] }] };
-}
-
-/** 附註：使用者填的附註＋自動列出勾選的開會通知檢附資料 */
-function noticeNoteText(mk) {
-  const note = (M(mk).noticeNote || '').trim(), att = noticeAtt(mk).map(x => x.name);
-  if (!att.length || /附件|檢附/.test(note)) return note;
-  return [note, `附件：${att.join('、')}`].filter(Boolean).join('\n');
 }
 
 /* ---------- 檢送會議紀錄公文（函） ---------- */

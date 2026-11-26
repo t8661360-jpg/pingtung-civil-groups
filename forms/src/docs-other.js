@@ -503,7 +503,7 @@ function deadlines(sc) {
     const d = MV(mk, 'date'), M0 = MEET[mk], nm = M0.label;
     if (M0.before) { const a = MV(M0.before, 'date'); if (a) out.push({ when: addDays(a, -15), what: `${nm}最晚召開日（大會召開前15日）${d && daysBetween(d, addDays(a, -15)) < 0 ? '　⚠ 目前排定的日期太晚' : ''}`, kind: 'meet' }); }
     if (d) {
-      if (!M0.same) out.push({ when: addDays(d, -M0.days), what: brdOnly(mk) ? `${nm}開會通知送達各理事、監事（會議前${M0.days}日）` : `${nm}開會通知書送達縣府備查（會議前${M0.days}日）`, kind: 'notice', bt: PRE });
+      if (!M0.same) out.push({ when: addDays(d, -M0.days), what: brdOnly(mk) ? `${nm}開會通知送達各理事、監事（會議前${M0.days}日）` : `${nm}開會通知單送達縣府備查（會議前${M0.days}日）`, kind: 'notice', bt: PRE });
       out.push({ when: d, what: `召開${nm}`, kind: 'day' });
       if (!M0.same && !brdOnly(mk)) out.push({ when: addDays(d, 30), what: `檢送${nm}紀錄公文送達縣府（會議後30日內）`, kind: 'letter', bt: POST });
     } else out.push({ when: '', what: `${nm}：請先填寫會議日期，系統會自動算出期限`, kind: 'none' });

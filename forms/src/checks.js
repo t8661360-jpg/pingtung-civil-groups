@@ -158,7 +158,7 @@ function listChecks(sheets, kind, items, sc) {
     const mk = SCEN[sc] && SCEN[sc].meets().find(m => MEET[m] && MEET[m].asm), should = mk ? num(MV(mk, 'should')) : 0;
     const rows2 = data.filter(r => cN >= 0 && r[cN] && String(r[cN].v ?? '').trim());
     const nonVote = rows2.filter(r => /贊助|停權/.test(rowText(r))).length, formal = names.length - nonVote;
-    if (should && names.length && should !== formal && should !== names.length) items.push({ lv: 'warn', msg: `名冊有表決權的會員 ${formal} 人（共 ${names.length} 人），與開會通知書的應出席人數 ${should} 人不同，請確認` });
+    if (should && names.length && should !== formal && should !== names.length) items.push({ lv: 'warn', msg: `名冊有表決權的會員 ${formal} 人（共 ${names.length} 人），與開會通知單的應出席人數 ${should} 人不同，請確認` });
   }
 }
 /** 檢查一個上傳的檔案 */
@@ -234,9 +234,9 @@ function docChecks(sc, x) {
   }
   if (/notice/i.test(id) && mk) {
     const d = MV(mk, 'date'), nd = MV(mk, 'noticeDate'), days = MEET[mk].days;
-    if (d && nd) { const left = daysBetween(nd, d); if (left != null && left < days) P('warn', brdOnly(mk) ? `開會通知書發文日期距開會只有 ${left} 天，應於會議前 ${days} 日送達各理事、監事` : `開會通知書發文日期距開會只有 ${left} 天，依規定應於會議前 ${days} 日送達縣府`); }
+    if (d && nd) { const left = daysBetween(nd, d); if (left != null && left < days) P('warn', brdOnly(mk) ? `開會通知單發文日期距開會只有 ${left} 天，應於會議前 ${days} 日送達各理事、監事` : `開會通知單發文日期距開會只有 ${left} 天，依規定應於會議前 ${days} 日送達縣府`); }
     const refs = noticeRefs(mk), miss = scenDocs(sc).filter(a => a.nm === mk && refs.has(a.id) && !isSel(sc, a)).map(a => a.name);
-    if (miss.length) P('warn', `通知書的報告或討論事項提到「${miss.join('、')}」，但開會通知檢附資料沒有勾選，送件時請一併附上`);
+    if (miss.length) P('warn', `通知單的報告或討論事項提到「${miss.join('、')}」，但開會通知檢附資料沒有勾選，送件時請一併附上`);
   }
   if (/letter/i.test(id) && mk) {
     const d = MV(mk, 'date'), ld = MV(mk, 'letterDate'), typed = !isBlank(getp(S, `m.${mk}.letterDate`)), held = d && daysBetween(d, isoToday()) >= 0;

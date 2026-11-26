@@ -10,7 +10,7 @@ function docSecs(x) {
   (map[x.id] || []).forEach(k => s.push(k));
   return s;
 }
-/** 通知書「此致」：署名身分、姓名（可蓋章）、受文者 */
+/** 通知單「此致」：署名身分、姓名（可蓋章）、受文者 */
 /** 簽章處：選擇上傳簽名筆跡或印章（自動辨識、去背，並放到簽章位置） */
 function signUpRow(title, name) {
   const s = matchSeal(slotOf(title, name)), o = `data-owner="${esc(name || '')}" data-title="${esc(title || '')}"`;
@@ -19,15 +19,15 @@ function signUpRow(title, name) {
 }
 function noticeSignFields(mk) {
   const k = MEET[mk].kind, prep = scenOf(mk) === 'prep';
-  return `<div class="f full subf">署名與受文者</div>` + (prep ? F(`m.${mk}.chair`, '主持人', { w: 'half' }) + F(`m.${mk}.speed`, '速別（可留空，預設普通件）', { type: 'sel', opts: ['普通件', '速件', '最速件'], w: 'half' }) + F(`m.${mk}.cc`, '副本（可留空）', { w: 'full', ph: '例：本會籌備委員' }) : '') +
-    (k === 'pre' || k === 'brd' ? `<div class="f full"><label>會議類別</label><div class="in">${SEG(`m.${mk}.brdType`, [['聯席', '理監事聯席會議'], ['理事會', '理事會（單獨）'], ['監事會', '監事會（單獨）']], { def: '聯席', rr: 1 })}</div></div>` : '') + `<div class="f full"><label>此致：署名</label><div class="in">${SEG(`m.${mk}.signRole`, signRoleOpts(mk).map(r => [r, r]), { def: signRoleDef(mk), rr: 1 })}</div></div>` +
+  return `<div class="f full subf">署名與受文者</div>` + (batchOn(S.ui.scen).post ? '' : F(`m.${mk}.chair`, '主持人', { w: 'half', hint: '印在通知單的「主持人」；會後填的「主席」是同一欄。' })) + F(`m.${mk}.speed`, '速別（可留空，預設普通件）', { type: 'sel', opts: ['普通件', '速件', '最速件'], w: 'half' }) + F(`m.${mk}.cc`, '副本（可留空）', { w: 'full', ph: prep ? '例：本會籌備委員' : '例：本會理監事' }) +
+    (k === 'pre' || k === 'brd' ? `<div class="f full"><label>會議類別</label><div class="in">${SEG(`m.${mk}.brdType`, [['聯席', '理監事聯席會議'], ['理事會', '理事會（單獨）'], ['監事會', '監事會（單獨）']], { def: '聯席', rr: 1 })}</div></div>` : '') + `<div class="f full"><label>署名</label><div class="in">${SEG(`m.${mk}.signRole`, signRoleOpts(mk).map(r => [r, r]), { def: signRoleDef(mk), rr: 1 })}</div></div>` +
     F(`m.${mk}.signName`, `${signRole(mk)}姓名`, { w: 'half', hint: '預設帶入人員名單；上傳簽名筆跡或印章後，這裡會自動簽章，也可以在預覽裡拖曳位置。' }) + signUpRow(SIGN_ROLES[signRole(mk)], MV(mk, 'signName')) +
-    `<div class="f full"><label>此致：受文者</label><div class="ckrow">${recipOpts(mk).map(k => CK(`m.${mk}.to.${k}`, recipLabel(k), { def: recipDef(mk, k), rr: 1 })).join('')}</div></div>`;
+    `<div class="f full"><label>受文者與出席者</label><div class="ckrow">${recipOpts(mk).map(k => CK(`m.${mk}.to.${k}`, recipLabel(k), { def: recipDef(mk, k), rr: 1 })).join('')}</div></div>`;
 }
 /** 附註欄提示：會自動列出哪些附件 */
 function noticeNoteHint(mk) {
   const att = noticeAtt(mk).map(x => x.name);
-  return att.length ? `通知書會自動加上「附件：${att.join('、')}」（附註裡寫了「附件」或「檢附」就不另外加）` : '在「選文件」勾選開會通知檢附資料後，通知書附註會自動列出附件';
+  return att.length ? `通知單的「附件」欄會自動列出：${att.join('、')}` : '在「選文件」勾選開會通知檢附資料後，通知單的「附件」欄會自動列出';
 }
 const SEC_ORDER = ['org', 'people', 'members', 'm', 'plan', 'fin', 'ledger', 'prepfin', 'statute', 'amend', 'handover', 'cert', 'consent', 'ballot', 'proxy', 'recruit', 'report', 'seal', 'resign', 'reissue'];
 function sectionsFor(sc) {
@@ -108,7 +108,7 @@ SEC.org = () => {
   H4('聯絡資料') + GRID(
     F('org.address', '會址', { req: 1, w: 'full', ph: '屏東縣○○鄉○○村○○路○○號' }) +
     F('org.place', '常用開會地點', { w: 'full', hint: '留空會用會址。會議若在別處，到該會議再改即可。' }) +
-    F('org.phone', '辦公電話', { req: 1, type: 'tel', w: 'half', ph: '08-7xxxxxx' }) + F('org.mobile', '行動電話', { type: 'tel', w: 'half' }) + F('org.homeTel', '住家電話（籌備會通知單用，可留空）', { type: 'tel', w: 'half' }) +
+    F('org.phone', '辦公電話', { req: 1, type: 'tel', w: 'half', ph: '08-7xxxxxx' }) + F('org.mobile', '行動電話', { type: 'tel', w: 'half' }) + F('org.homeTel', '住家電話（開會通知單用，可留空）', { type: 'tel', w: 'half' }) +
     F('org.contact', '聯絡人', { w: 'half' }) + F('org.contactTitle', '聯絡人職稱', { w: 'half', ph: '例：總幹事' }) +
     F('org.email', '電子信箱', { type: 'email', w: 'half' }) + F('org.fax', '傳真', { type: 'tel', w: 'half' }) + F('org.web', '網址', { w: 'full' })) +
   H4('表冊簽章人員') + GRID(F('org.maker', '製表人（可留空）', { w: 'half', hint: '財務報表、預算表、收支報告的「製表」欄。' }) + F('org.keeper', '財產保管人（可留空）', { w: 'half' })) +
@@ -165,10 +165,10 @@ function meetSection(mk) {
     (post ? F(`m.${mk}.chair`, '主席', { w: 'half', req: 1 }) + F(`m.${mk}.rec`, '紀錄', { w: 'half' }) : ''));
   h += calc('deadline:' + mk);
   if (!post) {
-    h += GRID(F(`m.${mk}.should`, d.asm ? '應出席人數' : '應出席人數（通知書用）', { type: 'num', w: 'half', suf: '人' }));
-    if (hasNotice) h += H4('開會通知書') + GRID(F(`m.${mk}.noticeNo`, '發文字號（號碼）', { w: 'half', pre: '第', suf: '號' }) + F(`m.${mk}.noticeDate`, '發文日期', { type: 'date', w: 'half' }) +
-      F(`m.${mk}.report`, '報告事項', { type: 'area', rows: 2, w: 'full' }) + F(`m.${mk}.topics`, '重要討論事項', { type: 'area', rows: 4, w: 'full', hint: '預設依下方「討論提案」自動列出。提到工作計畫、財務報表、會員名冊等資料時，會自動勾選為「開會通知檢附資料」，附註也會列出附件。' }) + noticeSignFields(mk) + F(`m.${mk}.noticeNote`, '附註', { w: 'full', ph: '例：不克出席者請填具委託書', hint: noticeNoteHint(mk) }));
-    h += H4('討論提案（案由）') + NOTE('會前只要列出案由，開會通知書的「重要討論事項」會自動帶入；決議可以會後再填。') +
+    h += GRID(F(`m.${mk}.should`, d.asm ? '應出席人數' : '應出席人數（通知單用）', { type: 'num', w: 'half', suf: '人' }));
+    if (hasNotice) h += H4('開會通知單') + GRID(F(`m.${mk}.noticeNo`, '發文字號（號碼）', { w: 'half', pre: '第', suf: '號' }) + F(`m.${mk}.noticeDate`, '發文日期', { type: 'date', w: 'half' }) +
+      F(`m.${mk}.report`, '報告事項', { type: 'area', rows: 2, w: 'full' }) + F(`m.${mk}.topics`, '重要討論事項', { type: 'area', rows: 4, w: 'full', hint: '預設依下方「討論提案」自動列出。提到工作計畫、財務報表、會員名冊等資料時，會自動勾選為「開會通知檢附資料」，通知單的「附件」欄也會列出。' }) + noticeSignFields(mk) + F(`m.${mk}.noticeNote`, '備註', { w: 'full', ph: '例：不克出席者請填具委託書', hint: noticeNoteHint(mk) }));
+    h += H4('討論提案（案由）') + NOTE('會前只要列出案由，開會通知單的「重要討論事項」會自動帶入；決議可以會後再填。') +
       LISTC(`m.${mk}.props`, propFields(mk), { summary: (r, i) => PV(mk, i, 'reason').slice(0, 40), numFmt: i => '案' + cn(i + 1), addLabel: '新增提案', emptyLabel: '（新提案）', empty: '目前沒有提案' });
     return h;
   }
@@ -178,9 +178,9 @@ function meetSection(mk) {
   else if (sc === 'prep') h += GRID(F(`m.${mk}.attend`, k === 'prep1' ? '出席發起人' : '出席籌備委員', { type: 'num', w: 'half', suf: '人' }) + F(`m.${mk}.should`, '應出席人數', { type: 'num', w: 'half', suf: '人' }));
   else h += GRID(F(`m.${mk}.dirNames`, '出席理事', { type: 'area', rows: 2, w: 'full' }) + F(`m.${mk}.supNames`, '出席監事', { type: 'area', rows: 2, w: 'full' }) +
     (k === 'foundBrd' ? F(`m.${mk}.attend`, '出席人數', { type: 'num', w: 'third', suf: '人' }) + F(`m.${mk}.attendDir`, '其中理事', { type: 'num', w: 'third', suf: '人' }) + F(`m.${mk}.attendSup`, '其中監事', { type: 'num', w: 'third', suf: '人' }) + F(`m.${mk}.absentNames`, '缺席人員', { w: 'half' }) + F(`m.${mk}.obsNames`, '列席人員', { w: 'half' }) : '') +
-    F(`m.${mk}.leaveNames`, '請假人員', { w: 'half' }) + (k === 'postBrd' ? F(`m.${mk}.obs`, '列席人數', { type: 'num', w: 'half', suf: '人' }) : '') + F(`m.${mk}.should`, '應出席人數（通知書用）', { type: 'num', w: 'half', suf: '人' }));
-  if (hasNotice) h += H4('開會通知書') + GRID(F(`m.${mk}.noticeNo`, '發文字號（號碼）', { w: 'half', pre: '第', suf: '號' }) + F(`m.${mk}.noticeDate`, '發文日期', { type: 'date', w: 'half' }) +
-    F(`m.${mk}.report`, '報告事項', { type: 'area', rows: 2, w: 'full' }) + F(`m.${mk}.topics`, '重要討論事項', { type: 'area', rows: 4, w: 'full', hint: '預設依下方「討論提案」自動列出。提到工作計畫、財務報表、會員名冊等資料時，會自動勾選為「開會通知檢附資料」，附註也會列出附件。' }) + noticeSignFields(mk) + F(`m.${mk}.noticeNote`, '附註', { w: 'full', ph: '例：不克出席者請填具委託書', hint: noticeNoteHint(mk) }));
+    F(`m.${mk}.leaveNames`, '請假人員', { w: 'half' }) + (k === 'postBrd' ? F(`m.${mk}.obs`, '列席人數', { type: 'num', w: 'half', suf: '人' }) : '') + F(`m.${mk}.should`, '應出席人數（通知單用）', { type: 'num', w: 'half', suf: '人' }));
+  if (hasNotice) h += H4('開會通知單') + GRID(F(`m.${mk}.noticeNo`, '發文字號（號碼）', { w: 'half', pre: '第', suf: '號' }) + F(`m.${mk}.noticeDate`, '發文日期', { type: 'date', w: 'half' }) +
+    F(`m.${mk}.report`, '報告事項', { type: 'area', rows: 2, w: 'full' }) + F(`m.${mk}.topics`, '重要討論事項', { type: 'area', rows: 4, w: 'full', hint: '預設依下方「討論提案」自動列出。提到工作計畫、財務報表、會員名冊等資料時，會自動勾選為「開會通知檢附資料」，通知單的「附件」欄也會列出。' }) + noticeSignFields(mk) + F(`m.${mk}.noticeNote`, '備註', { w: 'full', ph: '例：不克出席者請填具委託書', hint: noticeNoteHint(mk) }));
   h += H4('會議內容') + GRID(
     (k === 'prep1' ? F(`m.${mk}.tmpChair`, '臨時主席（發起人代表）', { w: 'half' }) : '') +
     F(`m.${mk}.speech`, '主席致詞（留空＝略）', { type: 'area', rows: 2, w: 'full' }) +

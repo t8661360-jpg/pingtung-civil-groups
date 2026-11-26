@@ -110,7 +110,7 @@ function deadlineCard(mk) {
   const today = isoToday(), n = addDays(dt, -d.days), l = addDays(dt, 30);
   const left = x => { const v = daysBetween(today, x); return v == null ? '' : v < 0 ? `<em class="late">已過 ${-v} 天</em>` : v === 0 ? '<em class="soon">今天</em>' : `<em${v <= 3 ? ' class="soon"' : ''}>剩 ${v} 天</em>`; };
   if (brdOnly(mk)) return `<div class="dl">${icon('clock')}<div><div>開會通知最晚 <b>${rd(n)}（${weekday(n)}）</b>送達各理事、監事（會議前 7 日）${left(n)}</div><div>會議紀錄閉會後自行留存、提供會員查閱；只有依法令須報縣府的事項（例如會址變更）才檢附文件報送。</div><div class="muted">${rd(dt)}（${weekday(dt)}）${tm(MV(mk, 'time'))}開會</div></div></div>`;
-  return `<div class="dl">${icon('clock')}<div><div>開會通知書最晚 <b>${rd(n)}（${weekday(n)}）</b>送達縣府 ${left(n)}</div>${d.same ? '' : `<div>會議紀錄最晚 <b>${rd(l)}（${weekday(l)}）</b>前函送縣府 ${left(l)}</div>`}<div class="muted">${rd(dt)}（${weekday(dt)}）${tm(MV(mk, 'time'))}開會</div></div></div>`;
+  return `<div class="dl">${icon('clock')}<div><div>開會通知單最晚 <b>${rd(n)}（${weekday(n)}）</b>送達縣府 ${left(n)}</div>${d.same ? '' : `<div>會議紀錄最晚 <b>${rd(l)}（${weekday(l)}）</b>前函送縣府 ${left(l)}</div>`}<div class="muted">${rd(dt)}（${weekday(dt)}）${tm(MV(mk, 'time'))}開會</div></div></div>`;
 }
 
 /* ===== 畫面 ===== */
@@ -118,7 +118,7 @@ function setHeader(title, sub, back) {
   $('#hTitle').textContent = title; $('#hSub').textContent = sub || '';
   $('#back').hidden = !back;
 }
-/* 開會通知書的報告／討論事項提到「工作計畫、財務報表、會員名冊…」時，自動勾選為開會通知檢附資料並提示 */
+/* 開會通知單的報告／討論事項提到「工作計畫、財務報表、會員名冊…」時，自動勾選為開會通知檢附資料並提示 */
 const REFW = {}; let refT = 0;
 function refWatch(silent) {
   const sc = S.ui.scen; if (!sc || !SCEN[sc]) return;
@@ -131,7 +131,7 @@ function refWatch(silent) {
     REFW[key] = now; if (!was) continue;
     byMk[mk].forEach(x => { if ((S.sel[sc] || {})[x.sk] != null) return; if (now.has(x.id) && !was.has(x.id)) add.push(x.name); if (!now.has(x.id) && was.has(x.id)) drop.push(x.name); });
   }
-  const msg = [add.length ? `開會通知書提到「${add.join('、')}」，已自動勾選為開會通知檢附資料（可線上填寫或上傳）` : '', drop.length ? `通知書不再提到「${drop.join('、')}」，已取消自動勾選` : ''].filter(Boolean).join('；');
+  const msg = [add.length ? `開會通知單提到「${add.join('、')}」，已自動勾選為開會通知檢附資料（可線上填寫或上傳）` : '', drop.length ? `通知單不再提到「${drop.join('、')}」，已取消自動勾選` : ''].filter(Boolean).join('；');
   if (msg) toast(msg);
   if (add.length || drop.length) { const n = selDocs(sc).filter(x => x.kind !== 'attach').length, b = $('#dock .dk-t b'); if (b) b.textContent = n; }
 }

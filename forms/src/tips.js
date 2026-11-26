@@ -51,8 +51,8 @@ function meetDateLines(mk) {
   }
   else {
     const due = addDays(d, -M0.days), left = daysBetween(today, due);
-    w.push(left < 0 ? TW(`開會通知書應在 ${rd(due)} 前送達縣府（會議前 ${M0.days} 日），已超過 ${-left} 天，請調整開會日期或儘快送件`, 'bad')
-      : TW(`開會通知書：${rd(due)} 前送達縣府（會議前 ${M0.days} 日）${left === 0 ? '，就是今天' : `，還有 ${left} 天`}`, left <= 3 ? 'warn' : 'ok'));
+    w.push(left < 0 ? TW(`開會通知單應在 ${rd(due)} 前送達縣府（會議前 ${M0.days} 日），已超過 ${-left} 天，請調整開會日期或儘快送件`, 'bad')
+      : TW(`開會通知單：${rd(due)} 前送達縣府（會議前 ${M0.days} 日）${left === 0 ? '，就是今天' : `，還有 ${left} 天`}`, left <= 3 ? 'warn' : 'ok'));
     w.push(TW(`會議紀錄：${rd(addDays(d, 30))} 前檢送縣府（會後 30 日內）`, 'ok'));
   }
   if (M0.el === 'chair') w.push(TW(`新任理事長就任後 15 日內完成移交接收：${rd(addDays(d, 15))} 前`));
@@ -69,7 +69,7 @@ function quorumLines(mk) {
 function noticeDateLines(mk) {
   const M0 = MEET[mk], d = MV(mk, 'date'), nd = MV(mk, 'noticeDate');
   if (!d) return [TW('先填開會日期，會自動算出最晚的發文日期')];
-  const w = [TW(brdOnly(mk) ? `通知要在會議前 ${M0.days} 日送達各理事、監事：最晚 ${rd(addDays(d, -M0.days))}` : `通知書要在會議前 ${M0.days} 日送達縣府：最晚 ${rd(addDays(d, -M0.days))}，請預留郵寄時間`)];
+  const w = [TW(brdOnly(mk) ? `通知要在會議前 ${M0.days} 日送達各理事、監事：最晚 ${rd(addDays(d, -M0.days))}` : `通知單要在會議前 ${M0.days} 日送達縣府：最晚 ${rd(addDays(d, -M0.days))}，請預留郵寄時間`)];
   if (nd) { const gap = daysBetween(nd, d); if (gap != null && gap < M0.days) w.push(TW(`發文日期距開會只有 ${gap} 天，不足 ${M0.days} 天`, 'bad')); }
   return w;
 }
@@ -84,15 +84,15 @@ function letterDateLines(mk) {
 const MEET_TIPS = {
   date: ['', mk => meetDateLines(mk)],
   time: ['24 小時制，例如 14:00。'], end: ['散會時間會寫在會議紀錄。'],
-  place: ['開會地點會印在通知書與會議紀錄；可以在「團體基本資料」設定常用地點，各次會議會自動帶入。'],
+  place: ['開會地點會印在通知單與會議紀錄；可以在「團體基本資料」設定常用地點，各次會議會自動帶入。'],
   should: ['有表決權的會員人數，不含停權、贊助會員。', mk => quorumLines(mk)],
   attend: ['實際出席人數（含委託出席）。出席要超過應出席人數的一半，會議才成立。', mk => quorumLines(mk)],
   attendDir: ['理事出席人數。理監事聯席會議，理事、監事要分別過半數出席。'], attendSup: ['監事出席人數。理監事聯席會議，理事、監事要分別過半數出席。'],
-  noticeDate: ['開會通知書的發文日期。', mk => noticeDateLines(mk)], noticeNo: ['公文字號的號碼，會接在「發文字軌」後面，例如「屏○協字第 15 號」。', mk => noticeDateLines(mk)],
+  noticeDate: ['開會通知單的發文日期。', mk => noticeDateLines(mk)], noticeNo: ['公文字號的號碼，會接在「發文字軌」後面，例如「屏○協字第 15 號」。', mk => noticeDateLines(mk)],
   letterDate: ['檢送會議紀錄公文的發文日期。', mk => letterDateLines(mk)], letterNo: ['公文字號的號碼，會接在「發文字軌」後面。', mk => letterDateLines(mk)],
-  topics: ['通知書上的「重要討論事項」。提到工作計畫、財務報表、收支報告、會員名冊、章程時，會自動勾選為「開會通知檢附資料」，附註也會列出附件。'],
-  report: ['通知書與會議紀錄的報告事項。提到工作計畫、財務報表、會員名冊等資料時，同樣會自動勾選為開會通知檢附資料。'],
-  noticeNote: ['通知書最下面的附註。勾選的開會通知檢附資料會自動列成「附件：…」。'],
+  topics: ['通知單上的「重要討論事項」。提到工作計畫、財務報表、收支報告、會員名冊、章程時，會自動勾選為「開會通知檢附資料」，附註也會列出附件。'],
+  report: ['通知單與會議紀錄的報告事項。提到工作計畫、財務報表、會員名冊等資料時，同樣會自動勾選為開會通知檢附資料。'],
+  noticeNote: ['通知單最下面的附註。勾選的開會通知檢附資料會自動列成「附件：…」。'],
   chair: ['會議主席，會印在會議紀錄的簽名欄。'], rec: ['會議紀錄人，會印在會議紀錄的簽名欄。'],
   term: ['第幾屆，例如第 3 屆。'], no: ['這一屆的第幾次會議，例如第 2 次。'],
   subject: ['公文主旨，系統已依會議自動產生，可以再修改。'],
@@ -155,7 +155,7 @@ function docTip(row) {
   const secs = x.kind === 'attach' || isUp(x) ? [] : docSecs(x).map(k => secMeta(k).t);
   if (secs.length) L.push(`要填的資料：${secs.join('、')}。`);
   const w = [];
-  if (x.nm && noticeRefs(x.nm).has(x.id) && !isSel(sc, x)) w.push(TW('開會通知書有提到這份資料，建議勾選', 'warn'));
+  if (x.nm && noticeRefs(x.nm).has(x.id) && !isSel(sc, x)) w.push(TW('開會通知單有提到這份資料，建議勾選', 'warn'));
   if (isUp(x) && !upList(sc, x).length) w.push(TW('選了「上傳檔案」，但還沒有上傳', 'warn'));
   return { t: x.name, d: L.map(esc).join('<br>'), w };
 }
@@ -194,7 +194,7 @@ const BTN_TIPS = {
 };
 const STEP_TIPS = { docs: ['選文件', '勾選這次要準備的文件；必備的已自動勾選。'], fill: ['填資料', '依序填寫各區資料，同樣的資料只填一次，會自動帶入每份文件。'], dl: ['下載', '預覽、自動檢查，下載 Word、Excel、PDF 或全部打包。'] };
 const BATCH_TIPS = {
-  pre: ['① 會前：開會通知', '開會前要先送縣府的開會通知書與檢附資料，以及開會當天用的簽到表、選票、委託書。'],
+  pre: ['① 會前：開會通知', '開會前要先送縣府的開會通知單與檢附資料，以及開會當天用的簽到表、選票、委託書。'],
   post: ['② 會後：會議紀錄送件', '開完會後檢送會議紀錄的公文、會議紀錄與各項檢附資料，會議後 30 日內送縣府。'],
 };
 /** 依元素找出提示內容；沒有就回傳 null */
