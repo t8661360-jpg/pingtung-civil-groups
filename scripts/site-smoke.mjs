@@ -1806,6 +1806,20 @@ try {
     await page.getByRole('button',{name:'查看報表期間',exact:true}).click();
     const j=await page.locator('#board').innerText();
     if(!['監事會是審核，不是編造決算','2024年1月1日至2月29日'].every(x=>j.includes(x)))fails.push('財務報告索引未區分監事會或閏年日期');
+    await page.fill('#q','協會9月開會，財務報表做到哪天？也想知道通知要幾天前發？');
+    await page.click('#askform button[type=submit]');
+    await page.locator('#board [data-finance-kind="board"]').click({timeout:6000});
+    await page.locator('#finance-meeting-date').fill('2027-09-07');
+    await page.getByRole('button',{name:'查看報表期間',exact:true}).click();
+    const k=await page.locator('#board').innerText();
+    if(!['2027年1月1日至8月31日','開會七日前','前一日送達'].every(x=>k.includes(x)))fails.push('財務報告索引漏答口語通知問題');
+    await page.getByRole('button',{name:'更改會議類型或日期',exact:true}).click();
+    await page.locator('#board [data-finance-kind="assembly"]').click({timeout:6000});
+    await page.locator('#finance-meeting-date').fill('2027-09-21');
+    await page.getByRole('button',{name:'查看報表期間',exact:true}).click();
+    const n=await page.locator('#board').innerText();
+    if(!['2027年9月21日','開會十五日前'].every(x=>n.includes(x))||n.includes('開會七日前'))fails.push('切換會議類型後應更新開會日期及通知時限');
+
   } catch(e) { fails.push('財務報告索引無法完成：'+e.message); }
   // 1b. 函釋目錄與佈景（沒有音樂開關）
   await page.goto(BASE + '#law'); await page.waitForTimeout(2500);

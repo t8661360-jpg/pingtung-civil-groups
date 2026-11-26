@@ -41,4 +41,6 @@ assert.match(result(start('協會115年8月15日開會員大會，收支報告�
 assert.match(result(start('協會115年8月15日開理事會，收支報告要做到哪天，開會通知何時寄？')),/開會七日前.*前一日送達/);
 assert.match(result(start('協會115年8月15日開會員大會，收支決算與明年預算應該做哪一年？')),/2027年度.*會計年度開始前/);
 assert.equal(start('協會114年12月31日做完決算，會員大會收支決算要做到哪天？').date,null);
+for(const x of ['協會9月開會，財務報表做到哪天？也想知道通知要幾天前發？','協會9月開會，財務報表做到哪天？開會通知最晚哪天寄？','協會9月開會，財務報表做到哪天？提前幾天發會議通知？'])assert.equal(start(x).notice,true,x);
+assert.equal(start('協會9月開會員大會，財務報表做到哪天？有收到通知。').notice,false);
 console.log('association finance meeting date planner OK');

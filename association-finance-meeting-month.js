@@ -66,7 +66,8 @@ function start(q){
  if(/合作社|社員|公會|工會|商業團體|農會|漁會|財團法人|國際性|成立大會|第一次會員大會|補助|核銷|勸募|報稅|所得稅|公告|格式|下載|解散/.test(t))return null;
  const budget=/預算/.test(t)&&/明年|下年度|次年度/.test(t);
  if(/預算/.test(t)&&!budget)return null;
- const notice=/(?:開會|會議|大會|召集)?通知(?:書)?(?:何時|幾天|什麼時候|哪天|多久|要|怎麼|怎樣|哪時)(?:寄|發|送|通知|前)|(?:何時|幾天|什麼時候|哪天|多久|提前).{0,7}(?:寄|發|送)通知/.test(t);
+ const timing='何時|幾天|幾日|什麼時候|哪天|哪一日|多久|哪時';
+ const notice=new RegExp('通知(?:單|書)?(?:要|須|應|應該|需要|最晚|最遲|提前)*(?:'+timing+')(?:之前|以前|前)?(?:寄|發|送|通知|寄發|前|[？?。！!，,]|$)|(?:'+timing+'|提前).{0,8}(?:寄|發|送)(?:開會|會議|大會)?通知').test(t);
  const kind=meetingType(q),linked=linkedDates(q);
  const state={q,kind,date:null,linked,notice,budget};
  const options=kind?optionsFor(state,kind):uniqueDates(Object.keys(linked.map).length?[]:linked.loose);
