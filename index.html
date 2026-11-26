@@ -189,6 +189,7 @@ main{max-width:1200px;margin:0 auto;padding:28px 24px 72px}
 .recent{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;align-items:center;font-size:.85rem;color:var(--muted)}
 .chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:3px 12px;cursor:pointer;font-size:.86rem;color:var(--ink)}
 .chip:hover{border-color:var(--primary)}
+#finance-meeting-date{display:block;margin:.5rem 0;padding:.55rem;max-width:100%;font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px}
 
 /* 2026-11-11 首頁簡化：分類頁籤一次只顯示一個主題 */
 .ttabs{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
@@ -1513,8 +1514,11 @@ function smartFallback(q,kb){
   }
   return{related:parts.related||[],category:parts.category||"服務說明",title:parts.title||"小屏的回覆",summary:parts.summary,steps:parts.steps||[],docs:parts.docs||[],where:parts.where||[],guide:parts.guide||[],laws:parts.laws||[],notes:parts.notes||[],refs:parts.refs||[],groups:parts.groups||[],dirMeta:parts.dirMeta||"",staff:parts.staff||[],actions:parts.actions||[]};
 }
+let financeMeetingPlanner;
 async function ask(q){
   q=String(q||"").trim();if(!q||busy)return;
+  if(!financeMeetingPlanner&&typeof window.createFinanceMeetingPlanner==="function")financeMeetingPlanner=window.createFinanceMeetingPlanner({board,showAnswer:renderAnswer});
+  if(financeMeetingPlanner&&financeMeetingPlanner(q))return;
   const shownQ=q;const prevQ=convo.length?convo[convo.length-1].q:"";
   if(typeof normalizeQuestion==="function")q=normalizeQuestion(typeof withContext==="function"?withContext(q,prevQ):q);
   busy=true;touch();nudge.classList.remove("show");clerkPrompt.classList.remove("show");
@@ -1897,6 +1901,7 @@ touch();
 <script src="cooperative-address-proof.js?v=1"></script>
 <script src="liquidation-creditor-notice.js?v=2"></script>
 <script src="director-absence-clarification.js?v=1"></script>
+<script src="association-finance-meeting-month.js?v=1"></script>
 <script src="answer-arbiter.js?v=20261126-249"></script>
 <script src="question-understanding.js?v=20261126-249"></script>
 <script src="counter-upgrade.js?v=20261126-249"></script>

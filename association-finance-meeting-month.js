@@ -1,0 +1,112 @@
+(function(root){
+'use strict';
+const law=(title,code,n)=>({title:title+'第'+n+'條',source:'https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode='+code+'&flno='+n});
+const refs=[law('社會團體財務處理辦法','D0050097',10),law('社會團體財務處理辦法','D0050097',11),law('社會團體財務處理辦法','D0050097',12),law('人民團體法','D0050091',34)];
+const types={assembly:'會員（代表）大會',board:'理事會',supervisor:'監事會',joint:'理監事聯席會議',boards:'理事會／監事會'};
+const chinese=['','一','二','三','四','五','六','七','八','九','十','十一','十二'];
+const clean=q=>String(q??'').normalize('NFKC').replace(/\s/g,'');
+function meetingType(q){
+ const t=clean(q);
+ const assembly=/會員(?:[（(]?代表[）)]?)?大會|會員代表會議|開大會|召開大會|參加大會|^大會$/.test(t);
+ const joint=/理監事聯席|理事監事聯席/.test(t), broad=/理監事會議|理監事會|理事會[/、或及與]監事會/.test(t);
+ const board=/理事會/.test(t), supervisor=/監事會/.test(t);
+ if(assembly&&(joint||broad||board||supervisor))return null;
+ return assembly?'assembly':joint?'joint':broad||(board&&supervisor)?'boards':supervisor?'supervisor':board?'board':null;
+}
+function dateOf(q){
+ const t=clean(q);
+ const full=t.match(/(?:民國)?(\d{2,4})年(\d{1,2}|十[一二]?|[一二三四五六七八九])月(?:(\d{1,2})[日號])?/) ||
+             t.match(/(?:^|[^0-9])(\d{2,4})[-/](\d{1,2})[-/](\d{1,2})(?!\d)/);
+ const monthOnly=t.match(/(?:^|[^0-9])(\d{1,2}|十[一二]?|[一二三四五六七八九])月(?:(\d{1,2})[日號])?/);
+ if(!full&&!monthOnly)return null;
+ let y=full?Number(full[1]):null;
+ if(y!==null&&y<1000)y+=1911;
+ const raw=full?full[2]:monthOnly[1], rawDay=full?full[3]:monthOnly[2];
+ const m=/^\d+$/.test(raw)?Number(raw):chinese.indexOf(raw);
+ const d=rawDay?Number(rawDay):null;
+ if(m<1||m>12||(y!==null&&(y<1912||y>2199))||(d!==null&&(d<1||d>days(y??2000,m))))return null;
+ return {y,m,d};
+}
+function days(y,m){return new Date(Date.UTC(y,m,0)).getUTCDate();}
+function start(q){
+ const t=clean(q);
+ if(!/收支報告|收支報表|收支決算|會計報告|財務報告|財務報表|年度決算|決算(?:要做|做到|做哪|要準備)|準備決算/.test(t))return null;
+ if(!/開會|會議|大會|理事會|監事會|理監事|召開/.test(t))return null;
+ if(!dateOf(t)&&!/什麼時候|哪時|何時|多久前|做到|算到|哪一年|哪年度|哪一年度|哪段|哪一期|哪個期間|起訖|從哪|幾月|哪天|哪個月|什麼日期/.test(t))return null;
+ if(/合作社|社員|公會|工會|商業團體|農會|漁會|財團法人|國際性|成立大會|第一次會員大會|補助|核銷|勸募|報稅|所得稅|預算|公告|格式|下載|解散/.test(t))return null;
+ return {q,kind:meetingType(q),date:dateOf(q)};
+}
+const labelDate=f=>[f.y?f.y+'年':'',f.m+'月',f.d?f.d+'日':''].join('');
+function answer({kind,date:f}){
+ if(!types[kind]||!f)return null;
+ const prior=f.y?(f.y-1)+'年（上年度）1月1日至12月31日':'上年度1月1日至12月31日';
+ const current=f.y?f.y+'年':'當年度';
+ const cut=f.m>1? (f.m===3&&!f.y?'2月底':(f.m-1)+'月'+days(f.y??2000,f.m-1)+'日'):
+   (f.d>1?'1月'+(f.d-1)+'日':null);
+ const general='會議日期不會改變年度決算期間：正式年度收支決算做'+prior+'。一般曆年制協會的理事會應在'+(f.y?f.y+'年':'當年度')+'3月底前編好上年度工作報告和會計報告，不是到開會當天才開始做。';
+ const process={
+  assembly:'先由監事會審核年度決算，再把審核結果和報表提交會員（代表）大會，通過後報主管機關。若因故不能如期開大會，可先由理事會及監事會，或理監事聯席會議通過，之後提大會追認，再報主管機關備查。',
+  board:'理事會負責編造上年度會計報告，年度決算還要送監事會審核，再提會員（代表）大會。理事會單獨通過不能代替大會；若大會不能如期開，依規定可由理事會及監事會或理監事聯席會議先通過，再提大會追認。',
+  supervisor:'監事會是審核，不是編造決算。理事會編好後，監事會先審核年度決算，再把審核結果併同決算提會員（代表）大會。監事會單獨審核不是大會通過。',
+  joint:'如果是因故不能如期開會員（代表）大會，理監事聯席會議可先通過上年度報告與決算，之後仍應提大會追認，再報主管機關備查。聯席會議不會把上年度決算變成今年的期中報告。',
+  boards:'若開的是理事會，由理事會編造報告；若開的是監事會，由監事會審核年度決算。審核結果要與決算併提會員（代表）大會，不能把其中一次會議當成大會通過。若大會不能如期開，依規定可先由理事會及監事會，或由理監事聯席會議通過，再提大會追認。'
+ };
+ const currentInfo=cut?'若本次要報告今年的實際收支，可另做期中表。例如已結帳至'+cut+'，就可列'+current+'1月1日至'+cut+'。':'若本次要報告今年的實際收支，可另做期中表，列到當年度最近已完成結帳且早於會議的日期；若尚未有已結帳期間，不必假設已有完整月份。';
+ return {direct:true,category:'人民團體財務',title:labelDate(f)+' '+types[kind]+'：年度決算與期中收支要分開',summary:'年度決算做上年度；今年實際收支另外列期中表。',steps:[general,process[kind],currentInfo+' 這是報表範例，不是法定申報截止日，也不取代正式的年度決算。'],refs};
+}
+function createPlanner({board,showAnswer}){
+ let active=null;
+ const el=(tag,txt)=>{const n=board.ownerDocument.createElement(tag);if(txt)n.textContent=txt;return n;};
+ function button(label,fn,kind){
+  const b=el('button',label);b.className='btn ghost';b.type='button';if(kind)b.dataset.financeKind=kind;
+  b.addEventListener('click',fn);return b;
+ }
+ function result(s){
+  active=null;const a=answer(s);showAnswer(s.q,a);
+  const actions=board.querySelector('.actions');
+  if(actions)actions.prepend(button('更改會議類型或日期',()=>{active={...s};draw(true,true);}));
+ }
+ function draw(forceType=false,forceDate=false,err=''){
+  if(!active)return;
+  const s=active;
+  if(s.kind&&s.date?.y&&s.date?.d&&!forceType&&!forceDate){result(s);return;}
+  const top=el('div');top.className='qline';const who=el('span','您問');who.className='who';top.append(who,el('b',s.q));
+  const title=el('h2',!s.kind||forceType?'先選這次要開哪種會議':'這次預計哪一天開會？');title.className='atitle';title.tabIndex=-1;
+  const section=el('section');section.className='sec';section.setAttribute('aria-label','會議收支報告指引');
+  board.replaceChildren(top,title,section);
+  if(!s.kind||forceType){
+   section.append(el('p','會議類型不同，編製、審核及通過報表的角色也不同。'));
+   const row=el('div');row.className='actions';
+   for(const k of ['assembly','board','supervisor','joint'])row.append(button(types[k],()=>{s.kind=k;draw(false,forceDate);},k));
+   section.append(row);
+  }else{
+   const p=el('p','會議類型：'+types[s.kind]+(s.date?'。目前知道：'+labelDate(s.date)+'。':'。'));
+   const form=el('form'),label=el('label','開會日期'),date=el('input'),row=el('div');row.className='actions';
+   date.type='date';date.id='finance-meeting-date';date.min='1912-01-01';date.max='2199-12-31';label.htmlFor=date.id;
+   if(s.date?.y&&s.date?.d)date.value=[s.date.y,String(s.date.m).padStart(2,'0'),String(s.date.d).padStart(2,'0')].join('-');
+   const go=el('button','查看報表期間');go.type='submit';go.className='btn';
+   row.append(go,button('更改會議類型',()=>draw(true,true)));
+   if(s.date?.m)row.append(button('日期未定，先看這個月份',()=>result(s)));
+   const info=el('p',err||'可選日期，也可在下方回覆，例如「115年8月15日」。');info.setAttribute('role','status');
+   form.append(label,date,info,row);
+   form.addEventListener('submit',e=>{e.preventDefault();const value=dateOf(date.value);if(value?.y&&value?.d){s.date=value;result(s);}else{info.textContent='請選擇有效的開會日期。';date.focus();}});
+   section.append(p,form);
+  }
+  if(typeof board.scrollIntoView==='function')board.scrollIntoView({behavior:'smooth',block:'start'});
+  title.focus({preventScroll:true});
+ }
+ return function handle(q){
+  const next=start(q);if(next){active=next;draw();return true;}
+  if(!active)return false;
+  const t=clean(q),kind=meetingType(q),f=dateOf(q);
+  if(kind&&/^(?:是|要開|這次是|開)?(?:會員[（(]?代表[）)]?大會|會員大會|大會|理事會|監事會|理監事聯席會議|理監事會議)(?=[，,。！!]|$|(?:預計|在)?(?:民國)?[0-9])/.test(t)){active.kind=kind;if(f)active.date=f;draw();return true;}
+  if(/^(?:日期(?:是|為)?|開會(?:是|在)?|民國|預計|定在|在)?\d|^(?:[一二三四五六七八九十]+)月/.test(t)&&t.length<34){
+   if(f){active.date=f;draw();}else draw(false,false,'日期無效。請輸入完整的年月日，例如「115年8月15日」。');return true;
+  }
+  if(active.kind&&active.date?.m&&/^(?:日期未定|只有月份|先看這個月份)/.test(t)){result(active);return true;}
+  active=null;return false;
+ };
+}
+if(typeof module!=='undefined'&&module.exports){module.exports={meetingType,dateOf,start,answer,createPlanner};return;}
+root.createFinanceMeetingPlanner=createPlanner;
+})(typeof window!=='undefined'?window:globalThis);

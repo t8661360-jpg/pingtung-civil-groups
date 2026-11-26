@@ -1532,6 +1532,7 @@ const CHECKS = [
   ['章程可以規定理事長有決定權嗎', '理事長的職權'],
   ['改名稱要換印章嗎', '圖記'],
   ['會費調整要改章程嗎', ['必須一併修章', '不一定需要修章', '報主管機關核備後才能實施']],
+  ['協會115年10月12日開會員大會，今年的收支報告要做到哪天？', ['2025年（上年度）1月1日至12月31日','9月30日','不取代正式的年度決算']],
   ['改章程需要多少會員出席', '過半數出席'],
   ['補助款收到後要怎麼處理', '20日內'],
   ['補助款跟會費可以混在一起嗎', '核准的用途'],
@@ -1779,6 +1780,22 @@ try {
     log(`${ok ? 'PASS' : 'FAIL'}｜${q}｜${title}`);
     if (!ok) fails.push(`問答：「${q}」未包含「${missing.join('、')}」，實際標題「${title}」`);
   }
+  // 1a. 財務報告索引：未提供會議類型時，先選類型再填日期。
+  try {
+    await page.fill('#q','協會8月開會，請問收支報告要做什麼時候');
+    await page.click('#askform button[type=submit]');
+    await page.locator('#board [data-finance-kind="assembly"]').click({timeout:6000});
+    await page.locator('#finance-meeting-date').fill('2026-08-15');
+    await page.getByRole('button',{name:'查看報表期間',exact:true}).click();
+    const f=await page.locator('#board').innerText();
+    if(!['2025年（上年度）1月1日至12月31日','2026年3月底','監事會審核','2026年1月1日至7月31日'].every(x=>f.includes(x)))fails.push('財務報告索引未算出正確的年度及期中期間');
+    await page.getByRole('button',{name:'更改會議類型或日期',exact:true}).click();
+    await page.locator('#board [data-finance-kind="supervisor"]').click({timeout:6000});
+    await page.locator('#finance-meeting-date').fill('2024-03-10');
+    await page.getByRole('button',{name:'查看報表期間',exact:true}).click();
+    const j=await page.locator('#board').innerText();
+    if(!['監事會是審核，不是編造決算','2024年1月1日至2月29日'].every(x=>j.includes(x)))fails.push('財務報告索引未區分監事會或閏年日期');
+  } catch(e) { fails.push('財務報告索引無法完成：'+e.message); }
   // 1b. 函釋目錄與佈景（沒有音樂開關）
   await page.goto(BASE + '#law'); await page.waitForTimeout(2500);
   const hasKind = await page.click('[data-law-kind=official]').then(() => true).catch(() => false);
