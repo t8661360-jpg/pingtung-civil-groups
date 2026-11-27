@@ -213,7 +213,7 @@ function yearEndAuditVacancy(q){
  const t=String(q??'').normalize('NFKC').replace(/\s/g,'');
  if(t.length>165||!/協會|社會團體/.test(t)||!/決算|年度會計報告/.test(t)||!/監事/.test(t)
    ||/合作社|公會|工會|基金會|公司|政黨|外國|監察人|補助|核銷|報稅|勸募|成立大會/.test(t))return null;
- const one=/只剩(?:下)?(?:一|1|壹)(?:位|名|個|人)?監事|監事(?:會)?(?:只|僅)?剩(?:下)?(?:一|1|壹)(?:位|名|個|人)|(?:一|1|壹)(?:位|名|個)監事.{0,7}(?:單獨|自己)/.test(t);
+ const one=/只剩(?:下)?(?:一|1|壹)(?:位|名|個|人)?監事|監事(?:會)?(?:辭職|請辭)?(?:只|僅)?剩(?:下)?(?:一|1|壹)(?:位|名|個|人)|(?:一|1|壹)(?:位|名|個)監事.{0,7}(?:單獨|自己)/.test(t);
  const leave=/請假|請公假|因公|因病/.test(t)&&/簽|代審|先審|能審|可以審/.test(t);
  const early=/監事會(?:議)?(?:都|也|則|一直|目前|至今)*(?:還沒開|尚未開|沒開|未開|沒召開|來不及召開|開不了)/.test(t)&&/先.{0,8}(?:送|報)|逕.{0,5}(?:送|報)|直接.{0,5}(?:送|報)/.test(t);
  if(!one&&!leave&&!early)return null;
@@ -407,7 +407,32 @@ function familyAssemblyProxy(q){
  return {direct:true,category:trade?'職業團體':'人民團體會務說明',title:observe?'親友旁聽不等於代理出席':negative?'非'+role+'不能代理出席會員大會':'配偶或親友能不能代理，要看是否為同一團體的'+role,
   summary:observe?'只去旁聽要先問主辦單位；即使准許旁聽，也不能替會員簽到或投票。':negative?'不可以。未具這場大會所需的'+role+'資格的人不能代理；配偶或親友關係及委託書都不能代替資格。':both?'可以。兩人都是'+group+'具資格的'+role+'時，可用書面委託；每個人至多代理一人。':'先確認受託人是不是'+group+'有資格的'+role+'；不是就不能代理，是才可用書面委託。',steps,refs};
 }
+function dualBoardVacancies(q){
+ const t=String(q??'').normalize('NFKC').replace(/\s/g,'');
+ if(t.length>150||!/協會|社會團體/.test(t)||/合作社|公會|工會|農會|漁會|公司|基金會|管委會|財報|決算|清算/.test(t))return null;
+ if(!/理監事/.test(t)&&!(/理事(?!長|會)/.test(t)&&/監事(?!會)/.test(t))&&!(/理事會/.test(t)&&/監事會/.test(t)))return null;
+ if(!/剩|出缺|缺額|空缺|辭職|請辭|辭光|遞補|缺席|請假|沒人|沒有理事/.test(t))return null;
+ if(!/補選|召集|開會|指定|縣府|主管機關|遞補|缺額/.test(t))return null;
+ const end=/都辭光|全體.{0,6}(?:請辭|辭職|解任)|全部.{0,7}(?:請辭|辭職|解任)|沒(?:有)?人召集|無人召集|沒有現任理事/.test(t);
+ const leave=/請假|因病|因故缺席/.test(t)&&!/辭職|出缺|已解任|視同辭職/.test(t);
+ const guide=n=>law('人民團體會務輔導辦法','D0020094',n);
+ const refs=[association(29),association(31)];
+ const legalVacancies=['先確認是不是已經出缺','理事、監事辭職原則上須以書面提出，分別經理事會或監事會決議准辭才解任。只請假或當次未出席，不等於出缺。要先對照章程員額、現任人數、辭職是否生效以及候補名單。'];
+ const replacement=['理事和監事分開遞補、分開計算','先由候補理事遞補理事，候補監事遞補監事。各組遞補後若仍未達各自章程名額的三分之二，該組應補選足額。不能把兩組人數加在一起，也不能只發函就取代遞補、召集或選舉。'];
+ const convening=['依法召集不等於代替補選或作決議','會員（代表）大會或理事會不能依法召開時，主管機關得指定一名理事召集；監事會不能依法召開時，得指定一名監事召集。指定的是召集人，不是直接指定當選者。開會及選舉仍須符合法定及章程程序。'];
+ const noOfficers=['沒有可指定的現任理事時','不能只憑會員自行召集就完成補選。若全體確已解任、又沒有候補可遞補，主管機關無法依第32條指定理事召集時，得依法限期整理。請把辭職決議、現任及候補名單和章程提供承辦，由主管機關依個案判斷，不是函報就會自動核准。'];
+ const attendance=['請假只影響實際出席','請假不會直接空出理事或監事席次，不可因此辦遞補或補選。理事會及監事會應分別核對應出席人數和法定成會門檻；不能只因各剩一人到場，就讓他們代兩會作決議。'];
+ if(leave)return {direct:true,category:'人民團體會務說明',title:'只剩一人出席，不等於理事或監事出缺',summary:'不可以把請假當成缺額補選。先分別確認兩個會議有沒有達到開會門檻。',steps:[attendance],refs:[...refs,guide(16)]};
+ refs.push(guide(9),law('人民團體選舉罷免辦法','D0050093',17),law('人民團體選舉罷免辦法','D0050093',27),association(32));
+ if(end)refs.push(association(58),guide(21),guide(22),{title:'內政部函釋：全體理監事確已解任且候補不遞補',source:'https://www.moi.gov.tw/News_Content.aspx?n=14119&s=220206'});
+ const steps=[legalVacancies,replacement,convening,...(end?[noOfficers]:[])];
+ if(/理事長.{0,8}(?:辭職|請辭|出缺)/.test(t))steps.push(['理事長職務另外處理','理事長職務出缺，原則上自出缺日起一個月內補選；剩餘任期不足六個月時，依選罷辦法第17條得依章程或由有權者互推代理人。處理理事長出缺不能取代理事及監事缺額程序。']);
+ return {direct:true,category:'人民團體會務說明',title:'理事和監事同時出缺：分開遞補，不是只報縣府就補選',
+  summary:end?'不能由會員自行補選。先確認是否已解任、能否遞補；全體確已解任又無人可召集時，由主管機關依法判斷。':'不可以只報縣府就補選。先確認確實出缺，再分別處理理事、監事的候補遞補與補選。',
+  steps,refs,actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
+}
 function answerMixed(q){
+ const dual=dualBoardVacancies(q);if(dual)return dual;
  const familyProxy=familyAssemblyProxy(q);if(familyProxy)return familyProxy;
  const venue=changedMeetingVenue(q);if(venue)return venue;
  const arrears=formerMemberArrearsPrivacy(q);if(arrears)return arrears;
@@ -430,6 +455,6 @@ function answerMixed(q){
     keys.includes('creditor')?'合作社清算：就任後公告與終結報告，分別計算':isCoop?'合作社清算報告與股息上限，分開看':'協會入會資格與會員除名，分開看',
   summary:keys.length===1?topics[keys[0]].line[1]:'你問了兩件事，分別如下。',steps:keys.length>1?keys.map(k=>topics[k].line):[],refs:keys.flatMap(k=>topics[k].laws)};
 }
-if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy,changedMeetingVenue,familyAssemblyProxy};return;}
+if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy,changedMeetingVenue,familyAssemblyProxy,dualBoardVacancies};return;}
 root.verifiedMixedQuestionAnswer=answerMixed;
 })(typeof window!=='undefined'?window:globalThis);
