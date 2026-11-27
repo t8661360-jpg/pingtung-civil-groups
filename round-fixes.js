@@ -13511,9 +13511,51 @@ function cross1127r20(t){
  }
  return null;
 }
+function cross1127r21(t){
+ if(cross1127r21._busy)return null;
+ const S=(n,pc,a)=>({title:n+'第'+a+'條',source:LAW+pc});
+ const CO=a=>S('合作社法','D0050112',a),IT=a=>S('工業團體法','D0050103',a),BT=a=>S('商業團體法','D0050100',a),PT=a=>S('人民團體法','D0050091',a),AD=a=>S('人民團體會務輔導辦法','D0020094',a);
+ const fl={focus:'cross-1127r21',domain:'social'};
+ const act=[{label:'聯絡承辦',view:'contact',sub:''}];
+ const tail='\n\n其他細節請洽縣府社會處承辦人員，縣府總機 08-7320415。';
+ const HARD='抱歉，這個問題難倒小屏了，小屏暫時無法回答喔！建議您先電洽承辦人員詢問～';
+ const redir=(q,re,ext)=>{let a=null;cross1127r21._busy=true;try{a=verifiedRoundAnswer(normalizeQuestion(q),{})}catch(e){a=null}finally{cross1127r21._busy=false}
+  if(!a||!a.summary||!re.test(a.title||''))return null;return Object.assign({},a,{direct:true,questionState:fl},ext?ext(a):{});};
+ /* 合作社結餘分配（＋稅） */
+ if(/合作社/.test(t)&&/(賺錢|盈餘|結餘|賺的錢|獲利|分紅)/.test(t)&&/(分給|分配|分紅|發給|退給)/.test(t)&&!/(解散|清算|公積金可以|公益金可以)/.test(t)){
+  const tax=/(稅|國稅局)/.test(t);
+  return{direct:true,category:'合作社',title:'合作社的結餘可以分給社員：先提公積金、公益金和酬勞金，剩下的按社員交易額比例分配'+(tax?'；要不要繳稅請洽國稅局':''),
+   summary:'可以，但要照合作社法的順序分：\n1. 先彌補累積短絀、付股息。\n2. 再提撥：公積金百分之十以上、公益金百分之五以上、理事監事事務員及技術員酬勞金百分之十以下（合作社法第23條第1項）。社員不能請求分配公積金（同條第3項）；公益金只能用在社會福利、公益事業及合作事業教育訓練與宣導，不能移作他用（同條第4項）。\n3. 剩下的餘額，按社員的交易額比例分配（第24條第1項）；經社員大會決議不分配的，可以移充社員增認股金或撥作公積金（第24條第2項）。'+(tax?'\n\n至於要不要繳稅：合作社法第7條只規定合作社「得」免徵所得稅及營業稅，實際怎麼適用，由國稅局依個案認定，請洽財政部南區國稅局（免付費電話 0800-000-321）。':'')+'\n\n其他細節請洽縣府社會處承辦人員，縣府總機 08-7320415。',
+   statutes:[CO(23),CO(24)].concat(tax?[CO(7)]:[]),notes:[],actions:act,questionState:{focus:'cross-1127r21',domain:'coop'}};
+ }
+ /* 工廠／商行該加入哪一種公會 */
+ if((/工廠/.test(t)||/工業同業公會/.test(t)&&/(商行|行號|商號|公司)/.test(t))&&/(公會)/.test(t)&&/(加入|入會|入公會|進公會|會員|一定要)/.test(t)&&!/(自由職業|律師|醫師|會計師|技師|工會|工業會|代表|退會|會費|理事|監事|合併|轉讓|轉給|移轉)/.test(t)){
+  return{direct:true,category:'職業團體',title:'工廠加入工業同業公會，公司、行號加入商業同業公會：要看您是哪一種登記',
+   summary:'要看取得的是哪一種登記證照：\n• 工廠：同一區域內依法取得工廠登記證照的公營或民營工廠（國防軍事工廠除外），要在開業後一個月內加入工業同業公會為會員；兼營兩種以上工業的，要分別加入各該業的工業同業公會（工業團體法第13條）。\n• 公司、行號（商行）：依公司法或商業登記法取得登記證照的公司、行號，要在開業後一個月內加入該地區的商業同業公會；兼營二業以上的，除其他法律另有規定，至少選一業加入（商業團體法第12條）。\n• 工廠設有門市部的，門市部視同商業的公司、行號（商業團體法第13條）。\n\n所以只有商業登記、沒有工廠登記的商行，依條文是加入商業同業公會，不是工業同業公會。各公會的會員資格細節，要看該公會章程（工業團體法第12條第7款）。'+tail,
+   statutes:[IT(13),BT(12),BT(13),IT(12)],notes:[],actions:act,questionState:fl};
+ }
+ if(/(合作社|社員|股金|公會|職業團體|工會|農會|漁會)/.test(t))return null;
+ /* 理監事選舉同票 */
+ if(/(理監事選|理事選|監事選|選舉|改選|當選|選理事|選監事)/.test(t)&&/(票數一樣|票數相同|同票|票一樣|平手|一樣多票|票數相等)/.test(t)&&!/(表決|議案|提案|決議)/.test(t)){
+  const a=redir('理監事選舉同票怎麼辦',/票數相同/);if(a)return a;
+ }
+ /* 外國人當會員、當理事 */
+ if(/(外國|外籍|新住民|外配|僑生|僑民)/.test(t)&&/(會員|入會|加入)/.test(t)&&/(理事|監事|理事長)/.test(t)){
+  const a=redir('外國人可以當會員嗎',/外國籍/,x=>({title:'外國籍人士能不能入會、當理事：人民團體法沒有限制國籍，看章程；成為會員後才能被選為理事',
+   summary:x.summary.replace(/\n\n其他細節請洽[^\n]*$/,'')+'\n\n至於當理事：理事、監事是就會員（會員代表）中選舉產生（人民團體法第17條），依章程成為會員、有被選舉權的人，才能被選為理事；人民團體法沒有另外限制理事的國籍。'+tail,
+   statutes:(x.statutes||[PT(12)]).concat([PT(17)])}));if(a)return a;
+ }
+ /* 新任理事長不肯接收移交：法規查不到 */
+ if(/新任/.test(t)&&/(理事長|會長)/.test(t)&&/(不肯接|不接|不願意接|拒絕接|不要接|不接收|不接手)/.test(t)){
+  return{direct:true,category:'其他',title:'抱歉，這個問題難倒小屏了',summary:HARD+'\n\n人民團體會務輔導辦法第18條規定，理事長改選後，新任理事長要會同監交人在15日內接收移交；但新任理事長不肯接收時，移交清冊要交給誰、怎麼處理，本站查到的法規沒有明文。請先保留移交清冊和通知紀錄，並洽承辦人員確認。'+tail,
+   statutes:[AD(18)],notes:[],actions:act,questionState:fl};
+ }
+ return null;
+}
 function verifiedRoundAnswer(q,ctx){
  let x=null;
- try{x=cross1127r20(norm(q))}catch(e){x=null}
+ try{x=cross1127r21(norm(q))}catch(e){x=null}
+ if(!x)try{x=cross1127r20(norm(q))}catch(e){x=null}
  if(!x)try{x=cross1127r19(norm(q))}catch(e){x=null}
  if(!x)try{x=cross1127r18(norm(q))}catch(e){x=null}
  if(!x)try{x=cross1127r17(norm(q))}catch(e){x=null}
