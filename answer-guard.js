@@ -124,16 +124,20 @@
     const coversQ = (ans, part) => { const wt = textOf(ans); const segs = NFK(part).replace(/[^一-鿿0-9a-z]/gi, '').split(new RegExp(STOPW.source, 'g')).filter(x => x && x.length >= 2);
       const g = []; for (const sg of segs) for (let k = 0; k < sg.length - 1; k++) g.push(sg.slice(k, k + 2)); if (!g.length) return true;
       if (g.filter(x => wt.includes(x)).length / g.length < 0.75) return false;
+      /* 第4輪：問「多久開一次／一年開幾次」，答案要真的講到頻率（每…一次、至少…次），不能只因為有別的數字就算有答 */
+      if (/多久.{0,6}一次|(一年|每年|一屆).{0,6}幾次|幾個月.{0,6}一次/.test(NFK(part)) && !/每[^，。；]{0,10}(一次|[0-9一二三四五六七八九十兩]+次)|至少[^，。；]{0,8}次/.test(wt)) return false;
       const m = NFK(part).match(/幾(年|個月|天|日|人|位|名|次|屆|張|成|歲)|多少(人|錢|元)|(多久)/); if (!m) return true;
       const u = m[3] ? '(?:年|個月|日|天)' : ({ 天: '(?:天|日)', 日: '(?:天|日)', 位: '(?:人|位|名)', 名: '(?:人|位|名)', 人: '(?:人|位|名)', 錢: '元' }[m[1] || m[2]] || (m[1] || m[2]));
       return new RegExp('[0-9一二三四五六七八九十百兩半]+\\s*(?:個)?' + u).test(wt); };
+    /* 第4輪：問頻率的那一半（多久開一次、一年幾次），原答案沒有講頻率就不算涵蓋 */
+    const freqMiss = (ans, part) => /多久.{0,6}一次|(一年|每年|一屆).{0,6}幾次|幾個月.{0,6}一次/.test(NFK(part)) && !/每[^，。；]{0,10}(一次|[0-9一二三四五六七八九十兩]+次)|至少[^，。；]{0,8}次/.test(textOf(ans));
     const block = (n, x) => '第' + n + '個問題：' + x.title + '\n' + x.summary;
     const merge = (list, base) => { const seen = new Set(); const st = list.flatMap(x => x.statutes || []).filter(x => { const k = x && x.title; if (!k || seen.has(k)) return false; seen.add(k); return true; });
       return { ...base, direct: true, guarded: true, statutes: st, refs: list.flatMap(x => x.refs || []), notes: [...new Set(list.flatMap(x => x.notes || []))], questionState: { focus: 'compound' } }; };
     if (A && B && tA !== tB) {
       const isKB = typeof KB !== 'undefined' && KB.some(e => e.title === W);
       if (a.unanswered || isKB || W === tA || W === tB) {
-        if (W === tA && (covers(a, B) || coversQ(a, parts[1].ask)) || W === tB && (covers(a, A) || coversQ(a, parts[0].ask))) return null; // 原答案已經涵蓋另一半的重點
+        if (W === tA && !freqMiss(a, parts[1].ask) && (covers(a, B) || coversQ(a, parts[1].ask)) || W === tB && !freqMiss(a, parts[0].ask) && (covers(a, A) || coversQ(a, parts[0].ask))) return null; // 原答案已經涵蓋另一半的重點
         return merge([A, B], { category: A.category === B.category ? A.category : '人民團體會務說明', title: '您問了兩件事，小屏分開回答',
           summary: '您一次問了兩件事，小屏分開回答。\n\n' + block('一', A) + '\n\n' + block('二', B), steps: [], docs: [], laws: [],
           actions: (!a.unanswered && a.actions && a.actions.length ? a.actions : A.actions) || [] });
@@ -178,6 +182,9 @@
     group(['颱風', '停班', '停課', '天災', '地震', '豪雨', '停電', '淹水'], ['颱風', '停班', '停課', '天災', '地震', '豪雨', '停電', '淹水', '不可抗力', '緊急事故', '延期', '延後', '改期']),
     group(['住院', '中風', '開刀', '失智', '昏迷', '重病', '病倒'], ['住院', '中風', '開刀', '失智', '昏迷', '重病', '生病', '因故', '不能視事', '不能執行', '無法執行', '不能行使', '出缺', '請假', '代理', '代行', '辭職', '監護', '輔助宣告']),
     group(['典禮', '儀式', '布達', '剪綵', '揭牌']),
+    group(['共用', '合用', '共同使用'], ['共用', '合用', '共同使用', '同一', '共同', '一起']),
+    { ask: /(帶|拿).{1,10}(出國|去國外|到國外)|(出國|去國外).{0,6}(把|帶).{1,10}帶去/, ans: /帶|攜|保管|存放|放在|放家/ },
+    group(['帶出國', '帶去國外', '帶到國外', '帶回家', '帶回去', '拿回家'], ['帶', '攜', '保管', '存放', '放在', '放家', '拿走', '取走', '交付', '影印', '副本', '抄錄', '閱覽']),
     group(['便當', '餐盒', '誤餐', '餐費'], ['便當', '餐盒', '誤餐', '餐費', '餐點', '膳']),
     group(['被罰', '罰款', '罰錢', '罰鍰', '受罰', '會罰', '開罰', '處罰'], ['罰', '處分', '警告', '撤銷', '限期', '整理', '廢止', '解散', '撤免', '停權', '沒有規定', '沒有明文', '註銷', '繳回', '追繳', '收回', '停止補助', '不予補助'])
   ];
@@ -289,6 +296,8 @@
     const at = answerText(a);
     for (const o of OOS3) if (o.ask.test(raw) && !o.ans.test(at)) return fixedPhrase2(q, []);
     if (LABOR3.ask.test(raw) && !LABOR3.ans.test(at)) return menu2(q, similar(q, 6), '');
+    /* 第4輪：問刑責要關多久、判幾年，不是本櫃檯能回答的事；答案沒有講到刑期就用固定用語 */
+    if (/(被|會|要)?(關|判)(多久|幾年|幾個月)|刑期(多久|多長|幾年)|(罰金|罰鍰)(多少|幾萬)/.test(raw) && /酒駕|肇事|打人|傷害|偷|竊|詐欺|詐騙|毒|賭|偽造|侵占|侵佔|背信|貪污|性騷|被抓|被捕|被起訴|犯罪|犯法/.test(raw) && !/(處|科)[^，。]{0,12}(以下|以上)(有期徒刑|罰金|拘役)|[0-9一二三四五六七八九十]+年以下有期徒刑/.test(at)) return fixedPhrase2(q, []);
     if ((a.groups && a.groups.length) || a.category === '團體查詢') return null;
     /* C. 前後兩句各問一種團體（「社區發展協會可以收會費嗎，合作社也是嗎」），答案只談到其中一種 → 選單 */
     const cl = String(q || '').normalize('NFKC').split(/[，,；;。？?！!]+/).map(x => NFK(x)).filter(x => x.length >= 3);
@@ -297,11 +306,20 @@
       if (k > 0 && QMARK.test(cl[0])) { const need = [t1[0], typesOf(cl[k])[0]];
         if (!need.every(n => TYPES.find(x => x[0] === n)[1].test(n === '協會' ? at.replace(/社區發展協會|社區協會/g, '＿') : at))) return menu2(q, [...similar(cl[0], 3), ...similar(cl[k], 3), ...similar(q, 4)], '您一次問了兩種團體，小屏怕只答到其中一種。'); }
     }
+    /* 第4輪 D. 兩種團體「共用／同一個」什麼（「協會和合作社的理事長可以同一個人嗎」）：答案只談其中一種 → 選單 */
+    if (/共用|合用|同一個|同一人|共同使用/.test(raw) && !/兩件事|分別|分開/.test(a.title)) {
+      const ty4 = typesOf(raw);
+      if (ty4.length === 2 && !ty4.every(n => TYPES.find(x => x[0] === n)[1].test(n === '協會' ? at.replace(/社區發展協會|社區協會/g, '＿') : at))) return menu2(q, similar(q, 7), '您一次問了兩種團體，小屏怕只答到其中一種。');
+    }
     const m = raw.match(COND3);
-    if (m && raw.length >= 14) {
+    let known4 = false; try { known4 = typeof normalizeQuestion === 'function' && !COND3.test(NFK(normalizeQuestion(q))); } catch (e) {} // 第4輪：整句已被正規化成一個標準問法（理解層認得），就不再用字面比對擋它
+    if (m && raw.length >= 14 && !known4) {
       const tail = raw.slice(m.index + m[0].length);
-      const asks = tail.split(/[，,；;。？?！!]+/).filter(x => x.length >= 4 && QMARK.test(x));
-      const last = asks[asks.length - 1];
+      const SHORT4 = /^(這樣|這樣子|那這樣)?(可以|行|合法|有效|算數|算|可不可以|能不能|對)(嗎|呢)?$/;
+      const asks = tail.split(/[，,；;。？?！!]+/).filter(x => x.length >= 4 && QMARK.test(x) && !SHORT4.test(x));
+      let last = asks[asks.length - 1];
+      const cls4 = tail.split(/[，,；;。？?！!]+/).filter(Boolean);
+      if (!last && cls4.length >= 2 && SHORT4.test(cls4[cls4.length - 1]) && cls4[cls4.length - 2].length >= 5) last = cls4[cls4.length - 2]; // 第4輪：「…但是大會決議延長一年，可以嗎」
       if (last && rate3(last, at) < 0.5) return menu2(q, [...similar(last, 3), ...similar(q, 6)], '');
     }
     return null;
