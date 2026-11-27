@@ -1,0 +1,13 @@
+const assert=require('node:assert/strict');
+const {route}=require('./association-term-deposit-authority.js');
+const a=route('協會的定存要解約，需要理事會決議嗎，還是理事長蓋章就可以');
+assert.match(a.summary,/共同蓋章/);assert.equal(a.choices.length,2);
+assert.match(route(a.choices[0].question).summary,/視章程、授權及開戶約定/);
+assert.match(route(a.choices[1].question).summary,/先經理事會通過/);
+const use=route('我們社區發展協會的準備基金在銀行定存，我們想提前解約轉到同一協會活存，再拿去買設備；可以嗎？');
+assert.match(use.summary,/先轉到活存都不能取代/);
+const renew=route('協會打算把定存到期重新續存，還沒確認是不是準備基金；誰能辦？');
+assert.match(renew.title,/定存續存/);assert.equal(renew.choices.length,2);
+assert.match(route(renew.choices[1].question).summary,/準備基金續存要維持專戶/);
+assert.match(route('協會在信用合作社的定存要解約，誰蓋章？').summary,/共同蓋章/);
+for(const q of ['合作社社員要退股，定期存款是否能解約？','協會可以存定期存款嗎？','銀行定存的利率多少？'])assert.equal(route(q),null,q);
