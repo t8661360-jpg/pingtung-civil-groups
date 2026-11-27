@@ -226,7 +226,7 @@ function normalizeQuestionR232(s){
  return s;
 }
 function normalizeQuestion(q){
- return normalizeQuestionR235(normalizeQuestionR234(normalizeQuestionR233(normalizeQuestionR232(normalizeQuestionR229(normalizeQuestionR228(normalizeQuestionR227(normalizeQuestionR225(normalizeQuestionR223(normalizeQuestion223(normalizeQuestion222(normalizeQuestion221(normalizeQuestion216(normalizeQuestion215(normalizeQuestion214(normalizeQuestion212(normalizeQuestion210(normalizeQuestion209(normalizeQuestion208(normalizeQuestion207(normalizeQuestion206(normalizeQuestion202(normalizeQuestion201(normalizeQuestion200(normalizeQuestion194(normalizeQuestion193(normalizeQuestion192(normalizeQuestion191(normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(normalizeQuestionU5(normalizeQuestionU3(normalizeQuestionU4(normalizeQuestionU2(normalizeQuestionU6(normalizeQuestionU8(normalizeQuestionU7(normalizeQuestionR237(normalizeQuestionR238(normalizeQuestionR239(fixTyposU1(q)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
+ return normalizeQuestionR235(normalizeQuestionR234(normalizeQuestionR233(normalizeQuestionR232(normalizeQuestionR229(normalizeQuestionR228(normalizeQuestionR227(normalizeQuestionR225(normalizeQuestionR223(normalizeQuestion223(normalizeQuestion222(normalizeQuestion221(normalizeQuestion216(normalizeQuestion215(normalizeQuestion214(normalizeQuestion212(normalizeQuestion210(normalizeQuestion209(normalizeQuestion208(normalizeQuestion207(normalizeQuestion206(normalizeQuestion202(normalizeQuestion201(normalizeQuestion200(normalizeQuestion194(normalizeQuestion193(normalizeQuestion192(normalizeQuestion191(normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(normalizeQuestionU5(normalizeQuestionU3(normalizeQuestionU4(normalizeQuestionU2(normalizeQuestionU6(normalizeQuestionU8(normalizeQuestionU7(normalizeQuestionR237(normalizeQuestionR238(normalizeQuestionR239(normalizeQuestionR240(fixTyposU1(q))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
 }
 /* 第200輪（根源）：入會退會與會員資格換問法——
    「忘記繳／忘了繳／漏繳會費」＝沒繳會費（原本「忘記繳會費會被退會嗎」被當成退費）；
@@ -12897,6 +12897,31 @@ function normalizeQuestionR239(s){
  if(/^(請問)?(協會|社團|本會|我們協會|我們)(可以|能|可不可以|能不能|有沒有資格|有資格|可否)申請/.test(s)&&/(可以|能|可不可以|能不能|有沒有資格|有資格|可否)申請(縣府|縣政府|政府|公家|屏東縣|縣)?(的)?補助(款|經費)?(嗎|呢)?[？?]?$/.test(s)&&!/(中央|內政部|衛福部|教育部|文化部|勞動部|農業部|鄉鎮|公所|新成立|剛成立|沒立案|未立案|魅力|社區|托嬰|設備|人事|旅遊|活動|計畫)/.test(s))return '是不是所有的協會，都可以申請縣府的補助？';
  return s;
 }
+/* 第240輪（根源）：志工。
+   1. 「志工要退場／離場／退場怎麼辦」＝志工想退出（原本難倒小屏）。
+   2. 「志工要登記嗎／志願服務要向誰登記／沒登記的志工可以服務嗎」不是問服務時數，原本被「服務時數怎麼登記」搶答。
+   3. 「招募志工要注意什麼」原本沒有入口。 */
+function normalizeQuestionR240(s){
+ s=String(s||'');
+ if(/(志工|義工)/.test(s)&&/(退場|離場|退下來|退下去)/.test(s)&&!/(開除|趕|違規|活動|會場|現場|場地)/.test(s))s=s.replace(/退場|離場|退下來|退下去/g,'退出');
+ return s;
+}
+function patrolR240(t){
+ if(!/(志工|義工|志願服務)/.test(t))return null;
+ if(/(合作社|社員|公會|工會|政黨|基金會|寺廟|宗教|第\d+條)/.test(t))return null;
+ const VS=n=>({title:'志願服務法第'+n+'條',source:LAW+'D0050131'});
+ const VC=n=>({title:'志願服務證及服務紀錄冊管理辦法第'+n+'條',source:LAW+'D0050132'});
+ const acts=[{label:'聯絡承辦',view:'contact',sub:''}];
+ if(/(登記|登錄|註冊|報到)/.test(t)&&/(要不要|需不需要|需要|要|有沒有|沒有|沒|未|向誰|跟誰|去哪|哪裡|哪邊|找誰|在哪|可以|能不能|才能|才可以)/.test(t)&&!/(時數|時間|簽到|服務紀錄|紀錄冊|服務證|榮譽卡|在途|往返|路程|運用單位|計畫|備案|隊|(想|要|願意|打算|有意)(做|當|成為|加入)(志工|義工)|報名|加入)/.test(t))
+  return{direct:true,category:'志願服務',title:'志工要向誰登記：個人志工不用向縣府登記，由運用單位辦理備案、訓練、發證和登錄系統',
+  summary:'志願服務法沒有要求個別志工要向縣府登記。法規要求的是運用單位（例如協會）這一端：\n1. 運用志工前，要檢具志願服務計畫及立案登記證書影本，送主管機關及目的事業主管機關備案（志願服務法第7條第3項）。\n2. 對志工辦理基礎訓練和特殊訓練（第9條）。\n3. 發給志願服務證及服務紀錄冊（第12條；管理辦法第2條），並把紀錄冊內容（訓練、保險、服務日期時數與內容等）登錄到全國志願服務資訊整合系統（管理辦法第4條）。\n所以志工要找的是您要服務的運用單位，由單位幫您辦理；運用單位如果沒有依規定備案或備查，目的事業主管機關應不予經費補助（第7條第5項）。\n細節請洽縣府社會處承辦人員，縣府總機 08-7320415。',
+  statutes:[VS(7),VS(9),VS(12),VC(2),VC(4)],notes:[],actions:acts};
+ if(/(招募|召募|徵求|找|招收|徵)(新)?(志工|義工)/.test(t)&&/(注意|要留意|要準備|要做什麼|要做哪些|有什麼要做|要做的|有什麼要求|有什麼規定|流程|步驟|需要什麼|要先做)/.test(t)&&!/(備案|報備|時數|保險|薪|錢|費)/.test(t))
+  return{direct:true,category:'志願服務',title:'協會招募志工要注意什麼：先訂志願服務計畫、備案，招募時公告，再辦訓練、保險',
+  summary:'協會招募志工，法規有明文的重點是：\n1. 先訂志願服務計畫，內容要包括志工的召募、訓練、管理、運用、輔導、考核及服務項目（志願服務法第7條第2項）。\n2. 運用前，要把志願服務計畫和立案登記證書影本送縣政府及目的事業主管機關備案（第7條第3項）。\n3. 召募時，要把志願服務計畫公告（第6條第1項）。\n4. 志工要辦基礎訓練和特殊訓練（第9條），並確保服務環境安全衛生（第10條）。\n5. 要為志工辦理意外事故保險（第16條），訓練完成後發給志願服務證及服務紀錄冊（第12條）。\n志工的年齡等召募條件，由協會在志願服務計畫中自己訂。細節請洽縣府社會處承辦人員，縣府總機 08-7320415。',
+  statutes:[VS(6),VS(7),VS(9),VS(10),VS(12),VS(16)],notes:[],actions:acts};
+ return null;
+}
 function patrolR239(t){
  const G=n=>({title:'公益勸募條例第'+n+'條',source:LAW+'D0050138'});
  const acts=[{label:'聯絡承辦',view:'contact',sub:''}];
@@ -13338,6 +13363,7 @@ function verifiedRoundAnswer(q,ctx){
  if(!x)try{x=cross1127r13(norm(q))}catch(e){x=null}
  if(!x&&!verifiedRoundAnswer._r12)try{x=cross1127r12(norm(q),ctx)}catch(e){x=null} /* 導向既有答案時不再進第12輪規則，避免「名譽理事長可以投票嗎」這類導向題自我遞迴 */
  if(x&&x.__redir12){const R=x.__redir12;x=null;let a=null;verifiedRoundAnswer._r12=true;try{a=verifiedRoundAnswer(normalizeQuestion(R.q),ctx)}catch(e){a=null}finally{verifiedRoundAnswer._r12=false}if(a&&a.summary&&R.re.test(a.title||''))x=Object.assign({},a,{direct:true,questionState:R.fl},R.ext?R.ext(a):{});}
+ if(!x) try{x=patrolR240(norm(q))}catch(e){x=null}
  if(!x) try{x=patrolR239(norm(q))}catch(e){x=null}
  if(!x) try{x=patrolR238(norm(q))}catch(e){x=null}
  if(!x) try{x=patrolR234(norm(q))}catch(e){x=null}
