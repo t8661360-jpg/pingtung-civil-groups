@@ -1594,6 +1594,8 @@ async function ask(q){
   if(withdrawElection){renderAnswer(q,withdrawElection);return;}
   const charterAddress=typeof window.verifiedCharterAddress==="function"?window.verifiedCharterAddress(q):null;
   if(charterAddress){renderAnswer(q,charterAddress);return;}
+  const independent=typeof window.verifiedIndependentClauses==="function"?window.verifiedIndependentClauses(q):null;
+  if(independent){financeMeetingPlanner=null;renderAnswer(q,independent);return;}
   const verifiedMixed=typeof window.verifiedMixedQuestionAnswer==="function"?window.verifiedMixedQuestionAnswer(q):null;
   if(verifiedMixed){renderAnswer(q,verifiedMixed);return;}
   const shownQ=q;const prevQ=convo.length?convo[convo.length-1].q:"";
@@ -1988,6 +1990,7 @@ touch();
 <script src="association-volunteer-insurance.js?v=1"></script>
 <script src="association-overdue-term-signing.js?v=1"></script>
 <script src="association-expulsion-agenda-guild-collection.js?v=1"></script>
+<script src="verified-clause-routing.js?v=1"></script>
 <script src="association-finance-report-kind.js?v=1"></script>
 <script src="association-decision-audit.js?v=1"></script>
 <script src="association-chair-vote.js?v=1"></script>
