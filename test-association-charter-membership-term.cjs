@@ -1,0 +1,18 @@
+'use strict';
+const a=require('node:assert/strict');
+const {route}=require('./association-charter-membership-term');
+const first=route('協會章程不准會員退會，理事會又想把他除名，這兩件事都可以由理事會決定嗎？');
+a.match(first.steps[0][1],/結社自由包含不參與.*保留送達/);
+a.match(first.steps[1][1],/危害團體情節重大.*過半數出席.*三分之二/);
+a.match(first.steps[2][1],/事務年度終.*預告期間不得超過6個月/);
+a.match(route('協會理事會可先把會員除名嗎？章程又說不准退會。').steps[0][0],/^除名/);
+const next=route('協會修改理事長任期已經過大會，但忘了報縣府；這一屆能直接適用新任期嗎？');
+a.match(next.steps[0][1],/30日內報主管機關核備.*沒有報送不等於當然無效/);
+a.match(next.steps[1][1],/不是|不能把任期長度和連任/);
+const [newTerm,later]=next.choices.map(c=>route(c.question));
+a.match(newTerm.summary,/同次改選產生的新一屆/);
+a.match(later.summary,/次屆適用/);
+a.ok(!newTerm.choices&&!later.choices);
+a.equal(route('合作社章程不准社員退會，理事會又要除名，可以嗎？'),null);
+a.equal(route('協會修章延長任期已完成核備，本屆可用嗎？'),null);
+a.equal(route('協會理事會想除名，會費和退會費怎麼算？'),null);
