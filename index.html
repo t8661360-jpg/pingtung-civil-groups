@@ -1629,6 +1629,8 @@ async function ask(q){
   if(saleFundraising){renderAnswer(q,saleFundraising);return;}
   const inKind=typeof window.verifiedInKindDonationAnswer==="function"?window.verifiedInKindDonationAnswer(q):null;
   if(inKind){renderAnswer(q,inKind);return;}
+  const addressMeeting=typeof window.verifiedAssociationAddressMeetingChange==="function"?window.verifiedAssociationAddressMeetingChange(q):null;
+  if(addressMeeting){financeMeetingPlanner=null;renderAnswer(q,addressMeeting);return;}
   const noticeDispatch=typeof window.verifiedAssociationNoticeDispatch==="function"?window.verifiedAssociationNoticeDispatch(q):null;
   if(noticeDispatch){financeMeetingPlanner=null;renderAnswer(q,noticeDispatch);return;}
   const convening=typeof window.verifiedMeetingConveningAnswer==="function"?window.verifiedMeetingConveningAnswer(q):null;
@@ -2066,6 +2068,7 @@ touch();
 <script src="member-death-kind-clarification.js?v=1"></script>
 <script src="community-cooperative-pause.js?v=1"></script>
 <script src="association-event-private-contact.js?v=1"></script>
+<script src="association-address-meeting-change.js?v=20261127-move-meeting"></script>
 <script src="association-notice-dispatch-delivery.js?v=1"></script>
 <script src="association-deficit-personal-liability.js?v=1"></script>
 <script src="union-dues-social-donation-sale.js?v=20261127-union-sale"></script>

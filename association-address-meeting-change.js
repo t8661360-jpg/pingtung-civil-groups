@@ -1,0 +1,38 @@
+(function(root){
+'use strict';
+const law=(name,code,n)=>({title:name+'第'+n+'條',source:'https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode='+code+'&flno='+n});
+const address=law('人民團體會務輔導辦法','D0020094',8);
+const notice=law('人民團體會務輔導辦法','D0020094',10);
+const members=law('人民團體法','D0050091',26);
+const annual=law('人民團體法','D0050091',25);
+const elections=law('人民團體選舉罷免辦法','D0050093',21);
+const charter=law('人民團體法','D0050091',54);
+const advice={title:'內政部台內社字第8735076號函：會員大會延期後通知',source:'https://www.moi.gov.tw/News_Content.aspx?n=14119&s=220065'};
+function route(q){
+ const t=String(q??'').normalize('NFKC').replace(/\s/g,'');
+ const isAssembly=/會員(?:代表)?大會|代表大會/.test(t)&&!/不是會員(?:代表)?大會/.test(t);
+ const isBoard=/理事會|監事會|理監事聯席/.test(t)&&!/不是.{0,3}(?:理事會|監事會)/.test(t);
+ const kind=isAssembly&&!isBoard?'assembly':isBoard&&!isAssembly?'board':'unknown';
+ if(!t||t.length>240||!/會址|辦公室(?:也)?搬|協會搬家|登記地址|辦公室遷/.test(t)||!/改期|延期|延後|改(?:開會)?地點|改場地|換(?:開會)?地點|換場地|改日期|改時間|換.{0,9}場地|改到別處/.test(t)||(!isAssembly&&!isBoard&&!/開會|會議|寄給會員|通知.{0,6}寄/.test(t))||/合作社|社員|公會|工會|股東會|宗教團體|立案查詢|名冊|年度決算/.test(t))return null;
+ const venueOnly=/(?:會址|登記地址|辦公室).{0,9}(?:沒變|未變|不變|沒搬|不搬|沒有變|沒有搬)|不是.{0,7}(?:搬會址|變更會址|改登記地址)|只(?:有|是)?(?:改|換)(?:開會)?(?:地點|場地)/.test(t)&&!/會址(?:也)?搬|會址也要搬|登記地址(?:也)?要變|辦公室(?:也)?搬家/.test(t);
+ const sent=/已(?:向縣府報送|通知會員|發出通知|寄出通知|公告改期|寄發)|已經(?:通知|寄出|寄了)|先前.{0,5}(?:通知|寄出)|原通知.{0,8}(?:已寄|已發)/.test(t);
+ const pending=/還沒通知|尚未通知|未寄出|沒寄出|通知還沒寄/.test(t);
+ const repeat=/幾次|次數|可以一直延期/.test(t);
+ const site=['登記會址異動是獨立程序','人民團體會務輔導辦法第8條：會址設置或異動，先經理事會決議通過，再報主管機關備查。若新址涉及章程原文也要變動，另提大會依法修章，章程變更後依人民團體法第54條在30日內報主管機關核備；不是任何搬家都要修章，也不把30日直接當成會址備查期限。'];
+ const room=['只換大會場地，不等於登記會址搬家','登記會址沒變，就不用僅因大會換地方而辦會址異動。改開會地點仍須把正確的時間、地點、會議種類及議程通知應出席者。'];
+ const change=['大會改期、換地點，先確定新時間與地點再通知','若一般大會改期，內政部函釋指出，仍應以改定的開會時間守15日前通知應出席者的規定；不是拿原通知當成新日期的通知。若已發出舊通知，應更正並重新通知，保留發送紀錄。未發出者按確認後的正確資料通知。僅因原時地不方便或通知來不及，不當然適用緊急臨時會議例外。'];
+ const county=['原本有報請縣府派員時，另處理縣府端','人民團體法第26條另有報請主管機關派員列席之規定。曾報送舊日期或地點就儘速向原受理窗口更正，確認屏東縣府需要的文件或通報方式；不假定一律重送特定表單，也不以通知會員取代縣府端程序。'];
+ const board=['理事會、監事會換時地：一般是七日前通知','依會務輔導辦法第11條，一般理事會或監事會須在七日前把正確時間、地點、種類與議程通知應出席者。已發的舊通知要更正並保留紀錄；只有因緊急事故召開且開會前一日確實送達，才可能適用緊急例外。'];
+ const frequency=['改期次數和開會期限是兩件事','不能把查無統一改期次數上限解讀成可以一直拖。人民團體法第25條規定定期會員大會每年召開一次；如果是改選，依法在任期屆滿前一個月內改選，確有困難須申請主管機關核准，延長不得超過三個月。若章程另有更嚴規定，仍要遵守。'];
+ const basis=venueOnly?[room]:[site,room];
+ const baseRefs=venueOnly?[]:[address,charter];
+ const stat=(venueOnly?'登記會址沒變，只換場地，不用辦會址異動。':'登記會址與會議通知分開辦，不能只等會址備查而錯過開會通知。');
+ const state=pending?'未發舊通知，就按確定的新時地和期限通知。':sent?'已發舊通知，要以修正後的時地重新通知。':'';
+ const suffix=venueOnly?'登記地址沒變，只換開會地點。':'登記會址也要搬。';
+ const status=pending?'通知還沒寄出。':sent?'通知已經寄出。':'';
+ return {direct:true,category:'人民團體會務｜會址與會議異動',title:kind==='assembly'?'登記會址變更和大會改期，分兩件事辦':kind==='board'?'登記會址變更和理事會或監事會改期，分兩件事辦':'先分辨登記會址與會議地點，再選會議類型',summary:stat+state+(kind==='unknown'?' 會議類型還不確定，先選會員大會或理事會／監事會。':''),steps:kind==='assembly'?[...basis,change,county,...(repeat?[frequency]:[])]:kind==='board'?[...basis,board]:basis,refs:kind==='assembly'?[...baseRefs,notice,members,advice,...(repeat?[annual,elections]:[])]:kind==='board'?[...baseRefs,law('人民團體會務輔導辦法','D0020094',11)]:baseRefs,questionState:{focus:'compound'},...(kind==='unknown'?{choiceHeading:'要改期的是哪一種會議？',choices:[{label:'會員（代表）大會',question:'協會會員大會要改期。'+suffix+status},{label:'理事會或監事會',question:'協會理事會或監事會要改期。'+suffix+status}]}:{})};
+
+}
+if(typeof module!=='undefined'&&module.exports){module.exports={route};return;}
+root.verifiedAssociationAddressMeetingChange=route;
+})(typeof window!=='undefined'?window:globalThis);
