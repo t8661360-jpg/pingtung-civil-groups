@@ -1,0 +1,13 @@
+const a=require('node:assert/strict');
+const {associationMembershipIdentity:fn,answerMixed}=require('./verified-mixed-questions.js');
+const text=q=>JSON.stringify(answerMixed(q));
+a.match(text('加入已立案的協會，依法一定要填國民身分證字號嗎？'),/不是依法一律要填身分證字號/);
+a.match(text('入會要不要給身份證字號'),/不是依法一律要填身分證字號/);
+a.match(text('協會為了編會員大會名冊要身分證正反面影本，可以只出示嗎？'),/沒有規定一定要附身分證影本.*只出示、不留存/);
+a.match(text('協會新會員要填身分證統一編號，還要交正反面影本，都一定要嗎？'),/沒有通用規定.*填身分證字號或交影本/);
+a.equal(fn('成立新協會的發起人是否要附身分證影本？'),null);
+a.equal(fn('信用合作社社員的名冊要有身分證字號嗎'),null);
+a.equal(fn('投票當天沒帶身分證可以投票嗎'),null);
+a.equal(fn('協會可以把含身分證字號的會員名冊公開上網嗎'),null);
+const modes=fn('協會叫我給身分證影本一定要嗎？').choices;
+a.equal(modes.length,3);a.ok(fn(modes[0].question));a.ok(fn(modes[1].question));a.equal(fn(modes[2].question),null);

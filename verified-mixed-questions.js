@@ -1268,7 +1268,37 @@ function coopChairAndShare(q){
  ...(choices?{choiceHeading:'您只辭職，還是也已另行申請退社？',choices}:{})};
 }
 
+function associationMembershipIdentity(q){
+ const t=String(q||'').normalize('NFKC').replace(/\s/g,'').replace(/身份證/g,'身分證');
+ if(t.length>165||!/身分證|身分證明文件|身分證明/.test(t)||/工會|公會|合作社|農會|漁會|基金會|改選證明|印鑑|轉帳|銀行|申辦補助|登記為法人|選任職員簡歷|投票時|投票當天/.test(t))return null;
+ const join=/入會|加入.{0,12}(?:協會|社團|團體)|成為會員|新會員|會員申請/.test(t);
+ const roster=/名冊|會籍|會員大會.{0,9}(?:留|收|查|驗)/.test(t);
+ const entity=/協會|社團|團體|會員/.test(t);
+ const founder=/發起人|籌組|(?:成立|新設|設立).{0,8}(?:新)?(?:協會|社團|人民團體)/.test(t);
+ if(!join&&!roster&&!entity)return null;
+ if(!join&&/委託書|代理出席|政府補助/.test(t))return null;
+ if(founder&&!join)return null;
+ if(/上網|公開(?:發布|張貼|名冊)|分享名冊|貼到群組/.test(t)&&!join)return null;
+ const wantsNumber=/字號|統一編號|證號|證件號/.test(t);
+ const wantsCopy=/影本|掃描|影印|正反面|照片|拍照|留存/.test(t);
+ const wantsCheck=/只出示|出示|核驗|核對身分|看正本|驗證|不留存/.test(t);
+ const mixed=wantsNumber&&(wantsCopy||wantsCheck);
+ const rocLaw=n=>law('個人資料保護法','I0050021',n);
+ const record=['會員大會名冊不是身分證檔案','人民團體會務輔導辦法第10條：會員（會員代表）大會前的審定名冊列姓名、聯絡電話、地址及權利義務受限制情形，沒有要求寫身分證字號或附身分證影本。選舉罷免辦法第5條的選務名冊也未列字號或影本。'];
+ const id=['填字號與交影本，應分別說明必要性','國民身分證統一編號是個人的身分證字號，不是協會的統一編號。加入已立案的一般協會時，依章程核對入會資格；不能把名冊條文當作強制收身分證字號或正反面影本的依據。若協會因其他特定目的要收資料，依個人資料保護法第5、19條，要有適法事由、限於必要範圍；能少收就不多收，不能認為同意就可不限用途。'];
+ const show=['可以提出只出示、不留影本','若只需要核對本人身分，可請對方確認是否能當面出示正本或提供其他必要證明，不抄錄完整字號、不留影本。若對方仍要留存，請它說明依據、用途及為何不能用較少資料處理；不能一律保證每個程序都接受只出示。'];
+ const notice=['交資料前先問清楚','除依法免告知外，蒐集前應依個人資料保護法第8條告知蒐集者、目的、資料種類、利用期間／地區／對象／方式、可行使的權利；資料可自由選擇提供時，也應說明不提供的影響。請不要把真實身分證字號或證件照片貼在聊天框或群組。'];
+ const split=['別把發起人籌組文件當成一般入會文件','籌組新團體的發起人是另一個程序，人民團體法第8條及主管機關辦理籌組的書表適用；請看最新籌組文件清單，別把這項要求套在已立案協會的每位新會員身上。'];
+ const choices=!join&&!roster?[{label:'加入已立案的一般協會',question:'加入已立案的協會，依法一定要填國民身分證字號或交影本嗎？'},{label:'編會員大會的名冊',question:'協會編會員大會名冊要身分證影本，可以只出示不留存嗎？'},{label:'籌組新協會的發起人',question:'成立新協會的發起人是否要附身分證影本？'}]:null;
+ return {direct:true,category:'人民團體會務說明',title:'協會會員資料：身分證字號、影本和出示用途不同',
+ summary:choices?'要看索取用途。一般入會、編會員名冊和籌組發起人是不同程序；請先選情境，不必在這裡提供資料。':roster?'只為編會員大會名冊，法規沒有要求填身分證字號，也沒有規定一定要附身分證影本。'+(wantsCheck?'若只為核對身分，可先請對方確認是否接受只出示、不留存。':''):mixed?'加入已立案的一般協會，沒有通用規定要求一律填身分證字號或交影本。若協會要留資料，應說明用途與必要性。':wantsNumber?'加入已立案的一般協會，不是依法一律要填身分證字號。若協會另有需要，應說明適法事由和用途。':'已立案協會的一般入會，沒有規定一定要附身分證影本；驗證身分和留存影本是兩件事。',
+ steps:[record,id,show,notice,split],
+ refs:[law('人民團體會務輔導辦法','D0020094',10),law('人民團體選舉罷免辦法','D0050093',5),association(8),association(12),rocLaw(5),rocLaw(8),rocLaw(19)],
+ ...(choices?{choiceHeading:'這是入會、會員名冊，還是籌組新團體？',choices}:{})};
+}
+
 function answerMixed(q){
+ const memberIdentity=associationMembershipIdentity(q);if(memberIdentity)return memberIdentity;
  const coopChair=coopChairAndShare(q);if(coopChair)return coopChair;
  const redeemCreditShare=creditCoopShareRedemption(q);if(redeemCreditShare)return redeemCreditShare;
  const coopRepresentatives=coopRepresentativeAssembly(q);if(coopRepresentatives)return coopRepresentatives;
@@ -1321,6 +1351,6 @@ function answerMixed(q){
     keys.includes('creditor')?'合作社清算：就任後公告與終結報告，分別計算':isCoop?'合作社清算報告與股息上限，分開看':'協會入會資格與會員除名，分開看',
   summary:keys.length===1?topics[keys[0]].line[1]:'你問了兩件事，分別如下。',steps:keys.length>1?keys.map(k=>topics[k].line):[],refs:keys.flatMap(k=>topics[k].laws)};
 }
-if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy,changedMeetingVenue,familyAssemblyProxy,dualBoardVacancies,coopBoardVacancies,creditCooperativeVacancy,schoolParentFiling,associationRegisteredAddress,inspectAndPublishBoardMinutes,temporaryMeetingNotice,withdrawalAndAssemblyRoll,memberMeetingExpenseFunding,missedSupervisorNotice,duesAndAssemblyRights,coopWithdrawalAndAssembly,designatedMeetingConvener,assemblyRepresentativeParticipation,formerMemberGiftReturn,preschoolParentFiling,associationVotingRollDisclosure,associationDirectorsQuorum,creditCoopDepositsAndDividends,associationElectionObjection,associationDelegateReplacement,commerceDelegateReplacement,industryDelegateReplacement,outsideCounterNoiseReferral,deityAssociationManagerReferral,volunteerTravelMealTax,associationStampDuty,coopRepresentativeAssembly,creditCoopShareRedemption,coopChairAndShare};return;}
+if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy,changedMeetingVenue,familyAssemblyProxy,dualBoardVacancies,coopBoardVacancies,creditCooperativeVacancy,schoolParentFiling,associationRegisteredAddress,inspectAndPublishBoardMinutes,temporaryMeetingNotice,withdrawalAndAssemblyRoll,memberMeetingExpenseFunding,missedSupervisorNotice,duesAndAssemblyRights,coopWithdrawalAndAssembly,designatedMeetingConvener,assemblyRepresentativeParticipation,formerMemberGiftReturn,preschoolParentFiling,associationVotingRollDisclosure,associationDirectorsQuorum,creditCoopDepositsAndDividends,associationElectionObjection,associationDelegateReplacement,commerceDelegateReplacement,industryDelegateReplacement,outsideCounterNoiseReferral,deityAssociationManagerReferral,volunteerTravelMealTax,associationStampDuty,coopRepresentativeAssembly,creditCoopShareRedemption,coopChairAndShare,associationMembershipIdentity};return;}
 root.verifiedMixedQuestionAnswer=answerMixed;
 })(typeof window!=='undefined'?window:globalThis);
