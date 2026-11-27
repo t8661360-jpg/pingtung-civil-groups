@@ -1,11 +1,10 @@
 /**
  * 反饋收集模塊 (Feedback Collector)
- * 用途: 在前端收集用戶反饋，存儲到 localStorage，待同步到 GitHub
+ * 用途: 在這個瀏覽器暫存回饋表單，不會送出
  * 
  * 使用方法:
  *   const collector = new FeedbackCollector();
  *   collector.init(); // 在 DOMContentLoaded 後調用
- *   collector.submitFeedback('error', '問題描述');
  */
 
 class FeedbackCollector {
@@ -30,11 +29,14 @@ class FeedbackCollector {
    * 生成匿名 Session ID
    */
   generateSessionId() {
-    const stored = localStorage.getItem('session_id');
-    if (stored) return stored;
-    
     const sessionId = `session_${Date.now()}_${Math.random().toString(36).substring(7)}`;
-    localStorage.setItem('session_id', sessionId);
+    try {
+      const stored = localStorage.getItem('session_id');
+      if (stored) return stored;
+      localStorage.setItem('session_id', sessionId);
+    } catch {
+      // Keep the form usable even if this browser blocks storage.
+    }
     return sessionId;
   }
 
@@ -43,14 +45,14 @@ class FeedbackCollector {
    */
   injectFeedbackUI() {
     const html = `
-<div id="feedback-fab" class="feedback-fab" title="提交反饋">
+<div id="feedback-fab" class="feedback-fab" title="儲存回饋草稿">
   <span class="feedback-fab-icon">💬</span>
 </div>
 
 <div id="feedback-modal" class="feedback-modal hidden">
   <div class="feedback-modal-content">
     <div class="feedback-modal-header">
-      <h3>您的反饋幫助我們改進</h3>
+      <h3>儲存回饋草稿</h3>
       <button class="feedback-close-btn">✕</button>
     </div>
     
@@ -86,15 +88,15 @@ class FeedbackCollector {
       </div>
 
       <div class="feedback-form-info">
-        <small>✓ 完全匿名，不收集個人資訊  |  反饋資料用於改進系統</small>
+        <small>這個表單只會將內容儲存在此瀏覽器，不會送出。請勿填寫個人資料。</small>
       </div>
 
       <div class="feedback-form-actions">
-        <button type="submit" class="feedback-btn-submit">提交反饋</button>
+        <button type="submit" class="feedback-btn-submit">儲存草稿</button>
         <button type="reset" class="feedback-btn-cancel">取消</button>
       </div>
 
-      <div id="feedback-status" class="feedback-status hidden"></div>
+      <div id="feedback-status" class="feedback-status hidden" role="status" aria-live="polite"></div>
     </form>
   </div>
 </div>
@@ -303,6 +305,7 @@ class FeedbackCollector {
 
     // 打開表單
     fab.addEventListener('click', () => {
+      this.clearStatus();
       modal.classList.remove('hidden');
       // 自動填入當前答案（如果存在）
       this.prefillCurrentAnswer();
@@ -353,42 +356,31 @@ class FeedbackCollector {
       return;
     }
 
-    // 添加到隊列
-    this.addFeedback(feedback);
-    this.showStatus('success', '感謝您的反饋！我們會盡快檢查并改進。');
-
-    // 清空表單
+    if (!this.addFeedback(feedback)) {
+      this.showStatus('error', '未能儲存草稿，內容尚未送出。請先複製您的文字，再試一次。');
+      return;
+    }
     form.reset();
-
-    // 3 秒後關閉表單
-    setTimeout(() => {
-      document.getElementById('feedback-modal').classList.add('hidden');
-      this.clearStatus();
-    }, 2000);
+    this.showStatus('success', '回饋已儲存在此瀏覽器，尚未送出。');
   }
 
   /**
-   * 添加反饋到隊列
+   * 僅在本機寫入成功後，才更新記憶體中的佇列。
    */
   addFeedback(feedback) {
-    this.feedbackQueue.push(feedback);
-    
-    // 限制隊列大小
-    if (this.feedbackQueue.length > this.maxQueueSize) {
-      this.feedbackQueue.shift();
-    }
-
-    this.saveQueue();
+    const nextQueue = [...this.feedbackQueue, feedback].slice(-this.maxQueueSize);
+    if (!this.saveQueue(nextQueue)) return false;
+    this.feedbackQueue = nextQueue;
+    return true;
   }
 
-  /**
-   * 保存隊列到 localStorage
-   */
-  saveQueue() {
+  saveQueue(queue = this.feedbackQueue) {
     try {
-      localStorage.setItem(this.storageKey, JSON.stringify(this.feedbackQueue));
+      localStorage.setItem(this.storageKey, JSON.stringify(queue));
+      return true;
     } catch (e) {
       console.error('[反饋系統] 保存失敗:', e);
+      return false;
     }
   }
 
@@ -398,7 +390,8 @@ class FeedbackCollector {
   loadQueue() {
     try {
       const data = localStorage.getItem(this.storageKey);
-      this.feedbackQueue = data ? JSON.parse(data) : [];
+      const parsed = data ? JSON.parse(data) : [];
+      this.feedbackQueue = Array.isArray(parsed) ? parsed : [];
     } catch (e) {
       console.error('[反饋系統] 加載失敗:', e);
       this.feedbackQueue = [];
