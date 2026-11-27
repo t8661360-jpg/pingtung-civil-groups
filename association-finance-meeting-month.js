@@ -309,4 +309,5 @@ function createPlanner({board,showAnswer}){
 }
 if(typeof module!=='undefined'&&module.exports){module.exports={noticeOnlyStart,noticeOnlyAnswer,cooperativeNotice,meetingType,dateOf,linkedDates,optionsFor,start,answer,annualPeriod,noticeRule,pairedAnswers,createPlanner,noticePlanDate};return;}
 root.createFinanceMeetingPlanner=createPlanner;
+root.associationFinanceDateOf=dateOf;
 })(typeof window!=='undefined'?window:globalThis);

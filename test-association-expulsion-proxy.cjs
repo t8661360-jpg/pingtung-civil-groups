@@ -17,3 +17,13 @@ const b=route('協會除名有爭議，還能拿委託書在大會上投票嗎�
 a.equal(b.choices,undefined);
 a.match(b.summary,/先確認除名/);
 console.log('expulsion timing and proxy choices passed');
+const three=route('我們是協會。有會員被提案除名還沒表決：可以書面委託同會會員投另一案修章嗎？如果同一場先除名生效再投修章，前面的委託還能用嗎？自己的除名案本來就能由代理投嗎？');
+a.match(three.summary,/仍是會員.*書面委託.*原委託書不能再代投/);
+a.match(flat(three),/另一項章程議案不是本人除名案.*每人限代理一人.*已失去會員資格.*不得代理他人表決/);
+const different=route('我們是一般協會，有會員被理事長說要除名，還沒表決；同一場有另一案修改章程，這位會員能不能書面委託投那一案？');
+a.match(different.summary,/輪到|修章案表決時/);
+a.doesNotMatch(flat(different),/不得代理他人表決/);
+const notice=route('協會除名要不要通知本人？');
+a.match(flat(notice),/第26條十五日前/);
+a.doesNotMatch(flat(notice),/第25條/);
+a.match(route('如果原本先投協會另一案更改章程，但主席臨時把已生效的除名議案放前面，原委託票有效嗎？').summary,/原委託書不能再代投/);
