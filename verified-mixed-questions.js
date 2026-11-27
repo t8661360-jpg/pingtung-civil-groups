@@ -998,7 +998,31 @@ function commerceDelegateReplacement(q){
   refs:[commerce(16),commerce(17),commerce(20),commerce(25),{title:'內政部函釋：商業團體代表改派與理監事資格',source:'https://www.moi.gov.tw/News_Content.aspx?n=14143&s=219428'}],
   actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
 }
+function industryDelegateReplacement(q){
+ const t=String(q??'').normalize('NFKC').replace(/\s/g,'');
+ if(t.length>170||!/工業同業公會/.test(t)||/工業會|商業同業公會|職業公會|合作社|工會|聯合會|上級|下級/.test(t))return null;
+ if(!/代表/.test(t)||!/改派|改推|續派|更換|更替|換代表|換人|換.{0,8}負責人|新代表|舊代表|資格喪失/.test(t)
+  ||!/理事|監事|理監事|出席|投票|選舉|會前|大會|順位|期限/.test(t))return null;
+ const pending=/還沒.{0,8}(?:改派|派定)|尚未.{0,8}(?:改派|派定|生效)|未.{0,5}書面改派|只換.{0,9}負責人/.test(t);
+ const assembly=/大會|會前|出席|投票/.test(t);
+ const office=/理事|監事|理監事/.test(t);
+ const rank=/候補|順位|跳過/.test(t);
+ const replacing=law('工業團體法施行細則','D0050104',15);
+ const act=n=>law('工業團體法','D0050103',n), rule=n=>law('工業團體法施行細則','D0050104',n);
+ const change=['工廠改派要以書面通知工業同業公會','依工業團體法施行細則第15條，工廠指派或改派代表，應以書面通知公會。請核對書面改派及其生效情形，並確認原代表是否仍是合資格的負責人、經理人或現任職員。只更換工廠負責人，不等於代表已改派，也不能因此就認定原代表一定可留任或已解任。'];
+ const congress=['這一次大會能不能出席、投票，先查核備名冊','依細則第14條，公會應於會員大會一個月前發書面通知，會員應在大會二十日前書面聲明續派或改派，未聲明視為放棄續派或改派的權利。依第16條，公會應在大會十五日前將會員及代表名冊報主管機關核備。例如只剩十天才提出，已晚於通常的前置時點；請公會核對之前是否有依限聲明、有效名冊及這次異動，不可只拿當日通知就認定新代表一定能投票。'];
+ const limited=['公會理事、監事的缺額由候補依次遞補','依工業團體法第20條，理監事由會員代表在會員大會互選。原理事或監事如果喪失會員代表資格，依第25條第1款應即解任，理事缺額由候補理事、監事缺額由候補監事分別依次遞補。新代表不會自動接任；即使也在候補名單上，仍須依原順位及資格辦理。'];
+ return {direct:true,category:'工業團體會務',title:'工業同業公會：改派代表、出席資格和理監事遞補分開',
+  summary:pending?'只換工廠負責人，不能直接判定原代表已解任。先核對是否已書面改派，以及原代表是否仍符合資格。':
+   rank?'不能跳過原候補順位。新代表不因改派而自動接任理事或監事。':
+   assembly&&!office?'不能只憑工廠今天通知，就讓新代表直接出席投票。先核對公會的書面續派／改派期限、代表資格及該次大會核備名冊。':
+   '原理事或監事因改派失去會員代表資格時，應即解任，由當屆候補理事或候補監事依次遞補，不由新代表直接接任。',
+  steps:assembly&&!office?[congress,change]:[...(pending?[change,limited]:[limited,change]),...(assembly?[congress]:[])],
+  refs:[act(16),act(17),replacing,...(assembly?[rule(14),rule(16),act(18)]:[]),...(office?[act(20),act(25)]:[])],
+  actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
+}
 function answerMixed(q){
+ const industryDelegate=industryDelegateReplacement(q);if(industryDelegate)return industryDelegate;
  const commerceDelegate=commerceDelegateReplacement(q);if(commerceDelegate)return commerceDelegate;
  const delegateReplacement=associationDelegateReplacement(q);if(delegateReplacement)return delegateReplacement;
  const electionObjection=associationElectionObjection(q);if(electionObjection)return electionObjection;
@@ -1043,6 +1067,6 @@ function answerMixed(q){
     keys.includes('creditor')?'合作社清算：就任後公告與終結報告，分別計算':isCoop?'合作社清算報告與股息上限，分開看':'協會入會資格與會員除名，分開看',
   summary:keys.length===1?topics[keys[0]].line[1]:'你問了兩件事，分別如下。',steps:keys.length>1?keys.map(k=>topics[k].line):[],refs:keys.flatMap(k=>topics[k].laws)};
 }
-if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy,changedMeetingVenue,familyAssemblyProxy,dualBoardVacancies,coopBoardVacancies,creditCooperativeVacancy,schoolParentFiling,associationRegisteredAddress,inspectAndPublishBoardMinutes,temporaryMeetingNotice,withdrawalAndAssemblyRoll,memberMeetingExpenseFunding,missedSupervisorNotice,duesAndAssemblyRights,coopWithdrawalAndAssembly,designatedMeetingConvener,assemblyRepresentativeParticipation,formerMemberGiftReturn,preschoolParentFiling,associationVotingRollDisclosure,associationDirectorsQuorum,creditCoopDepositsAndDividends,associationElectionObjection,associationDelegateReplacement,commerceDelegateReplacement};return;}
+if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy,changedMeetingVenue,familyAssemblyProxy,dualBoardVacancies,coopBoardVacancies,creditCooperativeVacancy,schoolParentFiling,associationRegisteredAddress,inspectAndPublishBoardMinutes,temporaryMeetingNotice,withdrawalAndAssemblyRoll,memberMeetingExpenseFunding,missedSupervisorNotice,duesAndAssemblyRights,coopWithdrawalAndAssembly,designatedMeetingConvener,assemblyRepresentativeParticipation,formerMemberGiftReturn,preschoolParentFiling,associationVotingRollDisclosure,associationDirectorsQuorum,creditCoopDepositsAndDividends,associationElectionObjection,associationDelegateReplacement,commerceDelegateReplacement,industryDelegateReplacement};return;}
 root.verifiedMixedQuestionAnswer=answerMixed;
 })(typeof window!=='undefined'?window:globalThis);

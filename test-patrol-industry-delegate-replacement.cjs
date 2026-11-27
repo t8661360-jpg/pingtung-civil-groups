@@ -1,0 +1,10 @@
+const assert=require('node:assert/strict');const {answerMixed,industryDelegateReplacement:f}=require('./verified-mixed-questions');
+const a=answerMixed('工業同業公會會員代表改派後，原代表的理事席次由誰遞補？');
+assert.match(a.summary,/由當屆候補理事或候補監事依次遞補，不由新代表直接接任/);
+assert.ok(a.refs.some(x=>x.title==='工業團體法第25條'));
+const b=answerMixed('工業同業公會會員大會剩十天，工廠今天通知改派，新代表能直接出席投票嗎？');
+assert.match(b.summary,/不能只憑工廠今天通知/);
+assert.match(b.steps.flat().join(' '),/大會二十日前書面聲明.*大會十五日前/);
+assert.match(answerMixed('工業同業公會只換工廠負責人，還沒書面改派，原代表就不能續任理事嗎？').summary,/不能直接判定原代表已解任/);
+for(const q of ['商業同業公會會員代表改派能不能當理事？','工業同業公會家屬可以代理出席嗎？','工業同業公會監事會幾個月開一次','工業同業公會聯合會改派上級代表是否需解任理事？'])assert.equal(f(q),null,q);
+console.log('industry delegate replacement OK');
