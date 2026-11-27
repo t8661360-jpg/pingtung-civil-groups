@@ -12,6 +12,19 @@ function both(t){
  ['地政士：先辦開業登記、領照；實際執業前須加入該管公會','依地政士法第7、33條及施行細則第4條，持地政士證書向事務所所在地直轄市或縣（市）地政主管機關申請開業登記和執照，該條規定的文件不是醫師那套公會會員證明。登記後須加入該管地政士公會才能執業；所在地公會尚未成立前，另有第33條例外。']],
  refs:[ref(7),ref(33),landForms,med('醫師法','L0020001',8),med('醫師法','L0020001',9),med('醫事人員執業登記及繼續教育辦法','L0020181',4)],questionState:{focus:'compound'}};
 }
+function licenseAndRejection(q){
+ const t=String(q??'').normalize('NFKC').replace(/\s/g,'');
+ if(t.length>185||!/地政士|代書(?:的)?公會/.test(t)||!/入會|加入公會/.test(t)||!/拒絕|拒收|被拒|不讓加入/.test(t)
+ ||!/開業執照|開業登記/.test(t)||!/申請|送件|去哪|哪裡|怎麼|如何|哪個單位/.test(t)
+ ||/醫師|護理師|社工|工會|商業同業|工業同業|合作社|換照|換發|補發|延展|懲戒|罷免|過戶/.test(t))return null;
+ const rejected=['公會不得拒絕地政士加入','依地政士法第33條第2、3項，申請加入所在地公會遭拒絕時，保留入會申請及拒件紀錄，向人民團體主管機關請求認定會員資格；認定後才視同已入會，不是被拒當天就能執業。若只口頭拒絕，可先請公會提供拒件原因。'];
+ const license=['開業執照向事務所所在地地政主管機關申請','先取得內政部核發的地政士證書，再向事務所所在地直轄市或縣（市）地政主管機關申請開業登記與執照；事務所在屏東，就向屏東縣政府地政處確認送件。依地政士法第7條及施行細則第4條備件。地政士申請開業執照跟公會入會是不同程序，開業執照不是公會發的。'];
+ const timing=['領照仍須核對入會，才能實際執業','依地政士法第33條，登記後，原則要加入該管直轄市或縣（市）的地政士公會（或被拒後經主管機關認定視同入會），才能執業。當地公會尚未成立者，另有法定例外。'];
+ return {direct:true,category:'地政士｜公會拒收及開業執照',title:'地政士公會不得拒絕入會；開業執照向地政主管機關申請',
+  summary:'先分清公會入會和政府發照：遭拒可請人民團體主管機關認定會員資格；申請開業執照則找事務所所在地的縣市地政主管機關。',
+  steps:t.search(/開業執照|開業登記/)<t.search(/拒絕|拒收|被拒|不讓加入/)?[license,rejected,timing]:[rejected,license,timing],
+  refs:[ref(5),ref(7),ref(33),landForms],questionState:{focus:'compound'}};
+}
 function route(q){
  const t=String(q??'').normalize('NFKC').replace(/\s/g,'');
  const paired=t.length<=185?both(t):null;
@@ -28,6 +41,7 @@ function route(q){
   ['例外只適用於所在地公會尚未成立','同條第4項有例外。不要套成「先入會才能辦執業登記」的其他職業程序，也不是用商業同業公會的開業後一個月規則。']],
   refs,questionState:{focus:'compound'}};
 }
-if(typeof module!=='undefined'&&module.exports){module.exports={route};return;}
+if(typeof module!=='undefined'&&module.exports){module.exports={route,licenseAndRejection};return;}
 root.verifiedLandAgentGuildPractice=route;
+root.verifiedLandAgentLicenseAndRejection=licenseAndRejection;
 })(typeof window!=='undefined'?window:globalThis);

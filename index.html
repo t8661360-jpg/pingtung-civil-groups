@@ -1566,6 +1566,10 @@ async function ask(q){
   if(expulsionDisclosure){financeMeetingPlanner=null;renderAnswer(q,expulsionDisclosure);return;}
   const chairDateCharter=typeof window.verifiedChairDateCharter==="function"?window.verifiedChairDateCharter(q):null;
   if(chairDateCharter){financeMeetingPlanner=null;renderAnswer(q,chairDateCharter);return;}
+  const landLicenseAndRejection=typeof window.verifiedLandAgentLicenseAndRejection==="function"?window.verifiedLandAgentLicenseAndRejection(q):null;
+  if(landLicenseAndRejection){financeMeetingPlanner=null;renderAnswer(q,landLicenseAndRejection);return;}
+  const externalAudits=typeof window.verifiedAssociationExternalAudits==="function"?window.verifiedAssociationExternalAudits(q):null;
+  if(externalAudits){financeMeetingPlanner=null;renderAnswer(q,externalAudits);return;}
   const recordsAndTerm=typeof window.verifiedAssociationRecordsAndTerm==="function"?window.verifiedAssociationRecordsAndTerm(q):null;
   if(recordsAndTerm){financeMeetingPlanner=null;renderAnswer(q,recordsAndTerm);return;}
   const coopQuorumVolunteer=typeof window.verifiedAssociationCoopQuorumVolunteerGrant==="function"?window.verifiedAssociationCoopQuorumVolunteerGrant(q):null;
@@ -2167,7 +2171,8 @@ touch();
 <script src="cooperative-address-proof.js?v=1"></script>
 <script src="liquidation-creditor-notice.js?v=2"></script>
 <script src="director-absence-clarification.js?v=1"></script>
-<script src="association-records-and-term.js?v=1"></script>
+<script src="association-records-and-term.js?v=2"></script>
+<script src="association-external-audits.js?v=1"></script>
 <script src="association-coop-quorum-volunteer-grant.js?v=20261127-coop-formula"></script>
 <script src="association-postponed-proxy.js?v=1"></script>
 <script src="association-representative-quorum.js?v=1"></script>
@@ -2221,7 +2226,7 @@ touch();
 <script src="association-decision-audit.js?v=1"></script>
 <script src="association-chair-vote.js?v=2"></script>
 <script src="association-office-status.js?v=20261127-deprivation"></script>
-<script src="land-agent-guild-practice.js?v=20261127-license-comparison"></script>
+<script src="land-agent-guild-practice.js?v=20261127-refusal-license"></script>
 <script src="guild-practice-registration.js?v=1"></script>
 <script src="association-quorum-withdrawal.js?v=1"></script>
 <script src="association-qr-donation.js?v=20261127-qr"></script>
