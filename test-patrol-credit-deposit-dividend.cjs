@@ -1,0 +1,11 @@
+const assert=require('node:assert/strict');
+const {answerMixed,creditCoopDepositsAndDividends:f}=require('./verified-mixed-questions');
+assert.match(answerMixed('信用合作社的股息跟銀行存款利息一樣嗎？').summary,/不一樣.*存款利息依存款契約計算.*無盈餘不得分配/);
+assert.match(answerMixed('我在信用合作社有存定存也有入股，虧損時兩種利息都不會給嗎？').summary,/不能發社股股息；存款利息仍依存款契約/);
+assert.match(answerMixed('如果不是社員，只在信用合作社開存款帳戶，會分股息嗎？').summary,/不會因此分到社股股息/);
+const d=answerMixed('信用合作社定存利息是多少？');
+assert.match(d.summary,/沒有通用的定存利率/);
+assert.ok(!d.refs.some(x=>x.title==='信用合作社法第23條'));
+assert.match(answerMixed('信用合作社定存怎麼算利息，跟社員股息有什麼差別？').steps.flat().join(' '),/固定或機動利率.*先彌補累積虧損/);
+for(const q of ['一般合作社的股息是固定百分之十嗎？','信用合作社股息怎麼分配？','信用合作社存款有存款保險嗎？','信用合作社的股金要如何退還？'])assert.equal(f(q),null,q);
+console.log('credit deposit and dividend OK');

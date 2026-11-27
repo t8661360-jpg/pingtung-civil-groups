@@ -904,7 +904,30 @@ function associationDirectorsQuorum(q){
   refs:[association(29),association(31),guide(9),guide(16),law('人民團體選舉罷免辦法','D0050093',17),...(absence?[{title:'內政部函釋：理事請假與出席基準',source:'https://www.moi.gov.tw/News_Content.aspx?n=14119&s=256686&sms=12360'}]:[])],
   actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
 }
+function creditCoopDepositsAndDividends(q){
+ const t=String(q??'').normalize('NFKC').replace(/\s/g,'');
+ if(t.length>165||!/信用合作社|信合社/.test(t)||/存款保險|倒閉|清算|股金退還|退股|貸款|借款|貸放|扣繳|所得稅|儲蓄互助社|一般合作社|農會|漁會/.test(t))return null;
+ const account=/定期存款|定期儲蓄存款|定存|活存|活期存款|存款|存戶|存錢|存單/.test(t);
+ const share=/股息|社股|股金|入股|認股|入社.{0,5}分紅|社員.{0,5}分紅/.test(t);
+ const money=/利息|利率|計息|收益|賺|多少|發息|股息/.test(t);
+ if(!account||(!share&&!money))return null;
+ const nonMember=/非社員|不是社員|沒(?:有)?入社|沒(?:有)?入股|只(?:在|有|開|存).{0,15}(?:帳戶|存款|定存)/.test(t);
+ const loss=/虧損|沒(?:有)?盈餘|無盈餘|沒(?:有)?賺|賠錢/.test(t);
+ const ref=n=>law('信用合作社法','G0380058',n);
+ const deposit=['存款利息依存款契約與產品條件','定存是存款，不是認購社股。利息依金額、存期、開立時約定的固定或機動利率、計息及付息方式計算；提前解約另依約定處理。請核對存單或開戶約定、該社利率表及適用日期，不能用股息比例算定存。'];
+ const dividends=['社股股息來自可分配盈餘','依信用合作社法第23條，稅後盈餘先彌補累積虧損，再依法提列法定盈餘公積，之後才談分配社股股息。當年度無盈餘不得分配；第24條是符合法定條件時的公積提撥規則，不是存款利率。要查實際股息，請向該社核對該年度盈餘分配資料。'];
+ const different=['同一人同時有兩種身分','一個人可以同時是存戶和持有社股的社員。沒有盈餘不發社股股息，不等於存款契約的利息也因當年未獲利就取消。未持有社股、只有存款，也不因開戶而取得社股股息。'];
+ const contact=['要查利率或實收金額','請先確認是哪一家信用合作社、存款種類與期別，再直接核對該社牌告或存單條款；各社、各期間不一定一樣，不能以一般合作社的股息上限代替。'];
+ return {direct:true,category:'信用合作社財務',title:share?'信用合作社的存款利息與社股股息不同':'信用合作社定存利息：看該社的存期與約定利率',
+ summary:!share?'沒有通用的定存利率。先看是哪一家信用合作社、存款期別，以及開立時約定的利率與計息方式。':
+  nonMember?'只開存款帳戶、沒有持有社股，不會因此分到社股股息；有息存款仍依存款契約計息。':
+  loss?'兩者要分開。當年度無盈餘，不能發社股股息；存款利息仍依存款契約，不是用當年度盈餘決定。':
+  '不一樣。存款利息依存款契約計算；社股股息是持有社股才可能分到的盈餘分配，當年度無盈餘不得分配。',
+ steps:share?[deposit,dividends,different,contact]:[deposit,contact],
+ refs:[ref(15),...(share?[ref(23),ref(24)]:[]),{title:'信用合作社的定期存款契約條款範例：花蓮第一信用合作社',source:'https://www.hua215.com.tw/public/deal/%E5%AE%9A%E6%9C%9F%E6%80%A7%E5%AD%98%E6%AC%BE%E7%B4%84%E5%AE%9A%E4%BA%8B%E9%A0%85.pdf'}]};
+}
 function answerMixed(q){
+ const creditDeposits=creditCoopDepositsAndDividends(q);if(creditDeposits)return creditDeposits;
  const votingRoll=associationVotingRollDisclosure(q);if(votingRoll)return votingRoll;
  const giftReturn=formerMemberGiftReturn(q);if(giftReturn)return giftReturn;
  const coopWithdrawal=coopWithdrawalAndAssembly(q);if(coopWithdrawal)return coopWithdrawal;
@@ -945,6 +968,6 @@ function answerMixed(q){
     keys.includes('creditor')?'合作社清算：就任後公告與終結報告，分別計算':isCoop?'合作社清算報告與股息上限，分開看':'協會入會資格與會員除名，分開看',
   summary:keys.length===1?topics[keys[0]].line[1]:'你問了兩件事，分別如下。',steps:keys.length>1?keys.map(k=>topics[k].line):[],refs:keys.flatMap(k=>topics[k].laws)};
 }
-if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy,changedMeetingVenue,familyAssemblyProxy,dualBoardVacancies,coopBoardVacancies,creditCooperativeVacancy,schoolParentFiling,associationRegisteredAddress,inspectAndPublishBoardMinutes,temporaryMeetingNotice,withdrawalAndAssemblyRoll,memberMeetingExpenseFunding,missedSupervisorNotice,duesAndAssemblyRights,coopWithdrawalAndAssembly,designatedMeetingConvener,assemblyRepresentativeParticipation,formerMemberGiftReturn,preschoolParentFiling,associationVotingRollDisclosure,associationDirectorsQuorum};return;}
+if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy,changedMeetingVenue,familyAssemblyProxy,dualBoardVacancies,coopBoardVacancies,creditCooperativeVacancy,schoolParentFiling,associationRegisteredAddress,inspectAndPublishBoardMinutes,temporaryMeetingNotice,withdrawalAndAssemblyRoll,memberMeetingExpenseFunding,missedSupervisorNotice,duesAndAssemblyRights,coopWithdrawalAndAssembly,designatedMeetingConvener,assemblyRepresentativeParticipation,formerMemberGiftReturn,preschoolParentFiling,associationVotingRollDisclosure,associationDirectorsQuorum,creditCoopDepositsAndDividends};return;}
 root.verifiedMixedQuestionAnswer=answerMixed;
 })(typeof window!=='undefined'?window:globalThis);

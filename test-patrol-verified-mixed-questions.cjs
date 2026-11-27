@@ -53,7 +53,7 @@ const regularFirst='合作社沒結餘能發股息嗎？如果是信用合作社
 assert.match(lines(creditFirst),/信用合作社：.*當年度沒有盈餘也不得分配[\s\S]*一般合作社：.*百分之十/);
 assert.match(lines(regularFirst),/一般合作社：.*沒有結餘不能發息[\s\S]*信用合作社：.*法定盈餘公積/);
 assert.ok(answer(creditFirst).refs.some(x=>x.title==='合作社法第3-1條'));
-assert.equal(answer('信用合作社的股息跟銀行存款利息一樣嗎？'),null);
+assert.match(answer('信用合作社的股息跟銀行存款利息一樣嗎？').summary,/存款利息依存款契約計算.*當年度無盈餘不得分配/);
 const proxy='協會會員可以把大會委託書交給另一名會員；理事開理事會也能比照嗎？';
 assert.match(lines(proxy),/書面委託其他會員.*最多代理一人[\s\S]*不得委託他人代理/);
 assert.match(lines('協會理事會可以委託代出席嗎？會員大會可以書面委託嗎？'),/理事會或監事會：.*不得委託他人代理[\s\S]*書面委託其他會員/);
