@@ -1,0 +1,13 @@
+const a=require('node:assert/strict');
+const j=require('./association-joint-final-accounts.js').route;
+const c=require('./cooperative-heir-shares.js').route;
+const x=j('我們理事都到了，監事只有一位到，聯席會議可以先通過決算嗎？');
+a.match(x.summary,/理事全到也不能補監事人數.*至少2位才過半/);
+a.match(x.steps.flat().join(' '),/不等於監事出缺.*仍須大會追認後才正式報備/);
+a.match(j('協會聯席會的決算，監事應到5位實到2位，理事全到可以通過嗎？').summary,/至少3位才過半.*未達監事出席門檻/);
+a.match(j('協會聯席會的決算，監事應到5位出席3位，理事全到可以通過嗎？').summary,/還須核對理事出席、召集及表決/);
+a.equal(j('合作社社員大會，理監事聯席，理事都到可以通過決算嗎？'),null);
+const y=c('合作社社員在年度結束前過世，家屬想繼承社員資格；股金又是另一件事嗎？');
+a.match(y.summary,/不會因繼承就自動成為社員.*不用等到年度結束/);
+a.match(y.steps.flat().join(' '),/第20條.*第11、14條.*退還其股金.*第30條/);
+a.equal(c('信用合作社社員過世，家屬想繼承股金怎麼辦？'),null);
