@@ -99,8 +99,67 @@ function noticePlanDate(kind,f){
  const safer=new Date(Date.UTC(f.y,f.m-1,f.d-n-1));
  return '為預留完整通知期間，可以安排在'+safer.getUTCFullYear()+'年'+(safer.getUTCMonth()+1)+'月'+safer.getUTCDate()+'日或更早發送；這是保守的安排日，不是個案法定最後一天。若章程規定更長或要求特定方式，應依章程。';
 }
+const rescheduleSource={title:'內政部函釋：定期會員大會延期後的通知',source:'https://www.moi.gov.tw/News_Content.aspx?n=14119&s=220065'};
+const dispatchSource={title:'內政部會務輔導辦法逐條說明：一般通知與緊急送達',source:'https://gazette.nat.gov.tw/EG_FileManager/eguploadpub/eg029116/ch02/type3/gov10/num4/Eg.pdf'};
+const coopNoticeSource=law('合作社法','D0050112',46);
+function cooperativeNotice(t){
+ if(!/社員(?:代表)?大會/.test(t)||!/通知/.test(t)||!/15[天日]|十五[天日]|7[天日]|七[天日]|幾天|幾日|多久|提前|又怎麼算/.test(t)||/信用合作社|信合社|保險合作社|聯合社|選舉|罷免|改選|改期|解散|已開會|無效|紙本|退信|送達/.test(t))return null;
+ const ordinary=/社員大會/.test(t), representative=/社員代表大會/.test(t);
+ if(!representative)return null;
+ const steps=[];
+ if(ordinary)steps.push(['社員大會：不是照協會的十五日','依合作社法第46條，由理事會召集，應於七日前用書面通知社員，並載明召集事由及提議事項。']);
+ steps.push(['社員代表大會：先確認社別及現行章程','合作社法第46條明定的是社員大會；不能只憑名稱，就把協會十五日規定或第46條直接當作所有社員代表大會的通知期限。合作社法施行細則有提到社員代表大會，但未在該處統一訂通知期限。請備妥社別、章程及會議議程，向主管機關核對適用規定；涉及選舉時另查選舉通知規則。']);
+ return {direct:true,category:'合作社會務｜開會通知',title:'社員大會與社員代表大會的通知分開確認',summary:ordinary?'一般合作社社員大會是七日前書面通知；您也問到社員代表大會，需另外核對社別與章程。':'社員代表大會的通知，先核對社別及現行章程，不直接套用協會的十五日。',steps,refs:[coopNoticeSource,{title:'合作社法施行細則',source:'https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050113'},{title:'合作社選舉罷免辦法',source:'https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050022'}],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
+}
+function noticeOnlyStart(q,now){
+ const t=clean(q);
+ if(t.length>180||!/通知|幾號.{0,6}(?:寄|發|送)/.test(t)||!/幾號|哪天|哪一天|何時|怎麼算|幾天|幾日|提前|什麼時候/.test(t)||!/開會|會議|大會|理事會|監事會|理監事/.test(t))return null;
+ if(/財報|決算|收支|財務|會計|成立|創立|籌備|選舉|改選|罷免|除名|會址|場地|地點|章程|公告|補助|已寄|已送|寄了|退信|未收到|沒收到|電子郵件|寄錯|緊急|前一天|前一日|勞資|股東|公司|合作社|社員|公會|工會|農會|漁會|縣府|聯絡|不是(?:會員(?:代表)?大會|理事會|監事會)|能不能.{0,8}同一天|可不可以.{0,8}同一天|可否.{0,8}同一天/.test(t))return null;
+ const rescheduled=/改到|改為|改成|延期|延到|改期|挪到/.test(t);
+ const both=!rescheduled&&/會員(?:代表)?大會/.test(t)&&/理事會|監事會|理監事/.test(t)&&/兩種|兩場|兩個|各自|分別|各要|都幾|各幾/.test(t);
+ let kind=meetingType(t);
+ const needsSolar=lunarDate.test(t);
+ let linked=needsSolar?{map:{},loose:[],found:[]}:linkedDates(t,now);
+ let date=null;
+ if(!needsSolar&&rescheduled){
+  const tail=t.match(/(?:改到|改為|改成|延到|挪到|延期至|改期至|延後到)([^，,；;。？！?]+)/)?.[1];
+  if(tail){
+   const newDate=dateOf(tail,now);
+   if(newDate){date=newDate;linked={map:{},loose:[date],found:[date]};}
+   else linked={map:{},loose:[],found:[]};
+  }else linked={map:{},loose:[],found:[]};
+ }else if(!needsSolar&&!both){
+  const candidates=kind?optionsFor({linked},kind):uniqueDates(linked.found);
+  if(candidates.length===1)date=candidates[0];
+  if(!date&&linked.found.length===1)date=linked.found[0];
+  if(date&&!Object.keys(linked.map).length)linked.loose=[date];
+ }
+ if(!needsSolar&&!rescheduled&&!linked.found.length&&!/日期未定|還沒定|哪種|哪類/.test(t))return null;
+ const boardKind=/理監事聯席|理事監事聯席/.test(t)?'joint':/理事會/.test(t)&&!/監事會/.test(t)?'board':/監事會/.test(t)&&!/理事會/.test(t)?'supervisor':'boards';
+ const same=both&&/同一天|同日|同一日/.test(t)?uniqueDates(linked.found):[];
+ const aDate=both&&(same.length===1?same[0]:optionsFor({linked},'assembly')[0]);
+ const bDate=both&&(same.length===1?same[0]:optionsFor({linked},boardKind)[0]);
+ const pair=both&&uniqueDates(linked.map.assembly??[]).length<=1&&uniqueDates(linked.map[boardKind]??[]).length<=1&&aDate?.y&&aDate?.d&&bDate?.y&&bDate?.d?[[ 'assembly',aDate ],[boardKind,bDate]]:null;
+ return {q,kind,date,linked,needsSolar,notice:true,mixedNotice:false,noticeOnly:true,rescheduled,pair};
+}
+function noticeOnlyAnswer(s){
+ const pairs=s.pair??[[s.kind,s.date]];
+ const refs=[dispatchSource];
+ const steps=pairs.map(([k,f])=>{
+  const rule=noticeRule(k);refs.push(...rule.refs);
+  const heading=types[k]+'｜'+labelDate(f)+'開會';
+  return [heading,rule.text+' '+noticePlanDate(k,f)+(k==='assembly'?' 另應報請主管機關派員列席，不能用報縣府代替通知會員。':'')];
+ });
+ if(s.rescheduled){
+  steps.unshift(['改期以新的開會日安排通知','舊通知所寫日期不再適用。若已寄出，宜由召集方用正確時地通知應出席人員並保留紀錄；定期大會改期不會自動變成緊急臨時會。若原先已報縣府，請向原受理窗口確認更正方式。']);
+  if(s.kind==='assembly')refs.push(rescheduleSource);
+ }
+ if(s.pair)steps.push(['同日不等於同一種會議','通知分開算；若會員名冊審定、預算編造或決算審核須在大會前完成，不可等到大會當天才首次處理。是否能同日召開，仍須核對章程及其他相關程序。']);
+ return {direct:true,category:'人民團體會務｜會議通知日期',title:s.pair?'同日或不同日開兩種會議，通知分開算':types[s.kind]+'：依'+(s.rescheduled?'改期後':'提供')+'的日期安排通知',summary:'以下按一般協會的規則計算保守發送安排日，不是個案法定最後一天，也不是一律要求這天送達。一般通知以可證明的發送時點安排；章程如有更長期限或指定方式，須依章程。',steps,refs:[...new Map(refs.map(r=>[r.source,r])).values()]};
+}
 function start(q,now=new Date()){
  const t=clean(q);
+ const noticeOnly=noticeOnlyStart(q,now);if(noticeOnly)return noticeOnly;
  const mixedNotice=/協會|社會團體/.test(t)&&/(?:決算|期中收支|財報|會計報告).{0,16}(?:及|和|跟|以及|還有|另問).{0,9}(?:開會)?通知|(?:開會)?通知.{0,14}(?:及|和|跟|以及|還有|另問).{0,9}(?:決算|期中收支|財報|會計報告)/.test(t)&&!/沒收到|未收到|退信|送達|電子郵件|重寄|遲寄|前一天|議案|調漲|會費|臨時動議|改期|(?:今年|本年度|當年度|上上年度|前年度|兩年前|[0-9]{2,4}年)(?:的)?(?:年度)?決算/.test(t);
  if(!mixedNotice&&!/期中收支|收支報告|收支報表|收支決算|會計報告|財務報告|財務報表|財報|年度決算|決算(?:要做|做到|做哪|要準備)|準備決算/.test(t))return null;
  if(!/開會|會議|大會|理事會|監事會|理監事|召開/.test(t))return null;
@@ -174,34 +233,35 @@ function createPlanner({board,showAnswer}){
   b.addEventListener('click',fn);return b;
  }
  function result(s){
-  active=null;const a=answer(s);showAnswer(s.q,a);
+  active=null;const a=s.noticeOnly?noticeOnlyAnswer(s):answer(s);showAnswer(s.q,a);
   const actions=board.querySelector('.actions');
   if(actions)actions.prepend(button('更改會議類型或日期',()=>{active={...s};draw(true,true);}));
  }
  function draw(forceType=false,forceDate=false,err=''){
   if(!active)return;
   const s=active;
-  if(s.kind&&s.date?.d&&!forceType&&!forceDate){result(s);return;}
+  if(s.kind&&s.date?.d&&(!s.noticeOnly||s.date?.y)&&!forceType&&!forceDate){result(s);return;}
   const top=el('div');top.className='qline';const who=el('span','您問');who.className='who';top.append(who,el('b',s.q));
   const title=el('h2',!s.kind||forceType?'先選這次要開哪種會議':'這次預計哪一天開會？');title.className='atitle';title.tabIndex=-1;
-  const section=el('section');section.className='sec';section.setAttribute('aria-label','會議收支報告指引');
+  const section=el('section');section.className='sec';section.setAttribute('aria-label',s.noticeOnly?'開會通知日期指引':'會議收支報告指引');
   board.replaceChildren(top,title,section);
-  section.append(el('h3',s.date?.d?'已提供開會日期：'+labelDate(s.date):'先確認年度決算期間'),el('p',annualPeriod(forceType?null:s.date?.y)),
+  if(s.noticeOnly){section.append(el('p',s.rescheduled?'以改期後的新日期為準，不用原日期計算。':'先選會議類型，再確認完整開會日期。'),el('p','以一般協會為例，大會一般十五日前；理事會、監事會或聯席會一般七日前。其他團體先確認適用規定。'))}
+  else section.append(el('h3',s.date?.d?'已提供開會日期：'+labelDate(s.date):'先確認年度決算期間'),el('p',annualPeriod(forceType?null:s.date?.y)),
    el('p','若問的是今年的實際收支，可另外做期中表，以已完成結帳的期間為準，這不是法定截止日。選定開會日期後，可以再看期間範例。'));
-  if(s.needsSolar)section.append(el('p','農曆日期不能直接當作國曆。請提供國曆開會日期，再看對應的報表期間。'));
-  if(s.mixedNotice&&!s.kind&&s.date?.m)section.append(el('p','已知道：'+labelDate(s.date)+'；先選會議類型，不必再說一次月份。'));
+  if(s.needsSolar)section.append(el('p',s.noticeOnly?'農曆日期不能直接當作國曆。請提供國曆開會日期。':'農曆日期不能直接當作國曆。請提供國曆開會日期，再看對應的報表期間。'));
+  if((s.mixedNotice||s.noticeOnly)&&!s.kind&&s.date?.m)section.append(el('p','已知道：'+labelDate(s.date)+'；先選會議類型，不必再說一次月份。'));
  const rule=s.notice&&!forceType?noticeRule(s.kind):null;
   if(rule)section.append(el('h3','開會通知'),el('p',rule.text));
   else if(s.notice)section.append(el('p','開會通知的提前天數要看會議類型。請先選下面的會議類型。'));
   if(s.mixedNotice&&rule)section.append(el('p','已知道會議類型；補上確切日期，就可看報表範例與建議的通知安排日。'));
   const sources=el('p','依據：');
-  [refs[0],refs[1],...(rule?.refs??[])].forEach((ref,i)=>{
+  (s.noticeOnly?(rule?.refs??noticeRule('assembly').refs):[refs[0],refs[1],...(rule?.refs??[])]).forEach((ref,i)=>{
    if(i)sources.append('、');
    const link=el('a',ref.title);link.href=ref.source;link.target='_blank';link.rel='noopener noreferrer';sources.append(link);
   });
   section.append(sources);
   if(!s.kind||forceType){
-   section.append(el('p','會議類型不同，編製、審核及通過報表的角色也不同。'));
+   section.append(el('p',s.noticeOnly?'會議類型不同，通知期限不同。':'會議類型不同，編製、審核及通過報表的角色也不同。'));
    const row=el('div');row.className='actions';
    for(const k of ['assembly','board','supervisor','joint']){
     const opts=optionsFor(s,k);
@@ -216,9 +276,9 @@ function createPlanner({board,showAnswer}){
    const form=el('form'),label=el('label','開會日期'),date=el('input'),row=el('div');row.className='actions';
    date.type='date';date.id='finance-meeting-date';date.min='1912-01-01';date.max='2199-12-31';label.htmlFor=date.id;
    if(s.date?.y&&s.date?.d)date.value=[s.date.y,String(s.date.m).padStart(2,'0'),String(s.date.d).padStart(2,'0')].join('-');
-   const go=el('button','查看報表期間');go.type='submit';go.className='btn';
+   const go=el('button',s.noticeOnly?'查看建議通知日':'查看報表期間');go.type='submit';go.className='btn';
    row.append(go,button('更改會議類型',()=>draw(true,true)));
-   if(s.date?.m)row.append(button(s.date?.d?'使用已提供的日期':'日期未定，先看這個月份',()=>result(s)));
+   if(s.date?.m&&(!s.noticeOnly||s.date?.y&&s.date?.d))row.append(button(s.date?.d?'使用已提供的日期':'日期未定，先看這個月份',()=>result(s)));
    const dateChoices=optionsFor(s,s.kind);
    if(dateChoices.length>1){
     const picks=el('div');picks.className='actions';
@@ -234,18 +294,19 @@ function createPlanner({board,showAnswer}){
   title.focus({preventScroll:true});
  }
  return function handle(q){
-  const next=start(q);if(next){active=next;const paired=pairedAnswers(next);if(paired){active=null;showAnswer(q,paired);}else draw();return true;}
+  const coop=cooperativeNotice(clean(q));if(coop){active=null;showAnswer(q,coop);return true;}
+  const next=start(q);if(next){active=next;if(next.pair){active=null;showAnswer(q,noticeOnlyAnswer(next));return true;}const paired=next.noticeOnly?null:pairedAnswers(next);if(paired){active=null;showAnswer(q,paired);}else draw();return true;}
   if(!active)return false;
   const t=clean(q),kind=meetingType(q),f=dateOf(q);
   if(/^(?:開會日期(?:是|為)?|日期(?:是|為)?|預計|在)?(?:農曆|陰曆|舊曆)(?:閏)?(?:[0-9一二三四五六七八九十]+月|正月|臘月)/.test(t)&&t.length<26){active.needsSolar=true;active.date=null;draw();return true;}
-  if(kind&&/^(?:是|要開|這次是|開)?(?:會員[（(]?代表[）)]?大會|會員大會|大會|理事會|監事會|理監事聯席會議|理監事會議)(?=[，,。！!？?]|$|(?:預計|在)?(?:(?:民國)?[0-9]|[一二三四五六七八九十]+月|今年|本年|明年|去年|後年|前年))/.test(t)){if(kind!==active.kind){const opts=optionsFor(active,kind);active.date=opts.length===1?opts[0]:null;}active.kind=kind;if(f){active.date=withKnownYear(f,active.date,active.mixedNotice);active.needsSolar=false;}draw();return true;}
+  if(kind&&/^(?:是|要開|這次是|開)?(?:會員[（(]?代表[）)]?大會|會員大會|大會|理事會|監事會|理監事聯席會議|理監事會議)(?=[，,。！!？?]|$|(?:預計|在)?(?:(?:民國)?[0-9]|[一二三四五六七八九十]+月|今年|本年|明年|去年|後年|前年))/.test(t)){if(kind!==active.kind){const opts=optionsFor(active,kind);active.date=opts.length===1?opts[0]:null;}active.kind=kind;if(f){active.date=withKnownYear(f,active.date,(active.mixedNotice||active.noticeOnly));active.needsSolar=false;}draw();return true;}
   if(/^(?:開會日期(?:是|為)?|日期(?:是|為)?|開會(?:是|在)?|民國|預計|定在|在)?(?:國曆|陽曆)?(?:\d|[一二三四五六七八九十]+月|(?:今年|本年|明年|去年|後年|前年)(?:\d|[一二三四五六七八九十]))/.test(t)&&t.length<34){
-   if(f){active.date=withKnownYear(f,active.date,active.mixedNotice);active.needsSolar=false;draw();}else draw(false,false,'日期無效。請輸入有效的開會日期，例如「115年8月15日」。');return true;
+   if(f){active.date=withKnownYear(f,active.date,(active.mixedNotice||active.noticeOnly));active.needsSolar=false;draw();}else draw(false,false,'日期無效。請輸入有效的開會日期，例如「115年8月15日」。');return true;
   }
-  if(active.kind&&active.date?.m&&/^(?:日期未定|只有月份|先看這個月份)/.test(t)){result(active);return true;}
+  if(!active.noticeOnly&&active.kind&&active.date?.m&&/^(?:日期未定|只有月份|先看這個月份)/.test(t)){result(active);return true;}
   active=null;return false;
  };
 }
-if(typeof module!=='undefined'&&module.exports){module.exports={meetingType,dateOf,linkedDates,optionsFor,start,answer,annualPeriod,noticeRule,pairedAnswers,createPlanner,noticePlanDate};return;}
+if(typeof module!=='undefined'&&module.exports){module.exports={noticeOnlyStart,noticeOnlyAnswer,cooperativeNotice,meetingType,dateOf,linkedDates,optionsFor,start,answer,annualPeriod,noticeRule,pairedAnswers,createPlanner,noticePlanDate};return;}
 root.createFinanceMeetingPlanner=createPlanner;
 })(typeof window!=='undefined'?window:globalThis);
