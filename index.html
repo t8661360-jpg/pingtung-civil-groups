@@ -1623,6 +1623,8 @@ async function ask(q){
   if(saleFundraising){renderAnswer(q,saleFundraising);return;}
   const inKind=typeof window.verifiedInKindDonationAnswer==="function"?window.verifiedInKindDonationAnswer(q):null;
   if(inKind){renderAnswer(q,inKind);return;}
+  const noticeDispatch=typeof window.verifiedAssociationNoticeDispatch==="function"?window.verifiedAssociationNoticeDispatch(q):null;
+  if(noticeDispatch){financeMeetingPlanner=null;renderAnswer(q,noticeDispatch);return;}
   const convening=typeof window.verifiedMeetingConveningAnswer==="function"?window.verifiedMeetingConveningAnswer(q):null;
   if(convening){renderAnswer(q,convening);return;}
   const crossRoster=typeof window.verifiedCoopInspectionAssociationRoster==="function"?window.verifiedCoopInspectionAssociationRoster(q):null;
@@ -2058,6 +2060,7 @@ touch();
 <script src="member-death-kind-clarification.js?v=1"></script>
 <script src="community-cooperative-pause.js?v=1"></script>
 <script src="association-event-private-contact.js?v=1"></script>
+<script src="association-notice-dispatch-delivery.js?v=1"></script>
 <script src="association-deficit-personal-liability.js?v=1"></script>
 <script src="cooperative-activity-grant-route.js?v=1"></script>
 <script src="association-representative-candidate.js?v=1"></script>
