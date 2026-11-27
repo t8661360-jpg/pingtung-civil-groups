@@ -1529,6 +1529,8 @@ async function ask(q){
   if(dissolutionNotice){financeMeetingPlanner=null;renderAnswer(q,dissolutionNotice);return;}
   const decisionAudit=typeof window.verifiedAssociationDecisionAudit==="function"?window.verifiedAssociationDecisionAudit(q):null;
   if(decisionAudit){financeMeetingPlanner=null;renderAnswer(q,decisionAudit);return;}
+  const reportKind=typeof window.verifiedAssociationFinanceReportKind==="function"?window.verifiedAssociationFinanceReportKind(q):null;
+  if(reportKind){financeMeetingPlanner=null;renderAnswer(q,reportKind);return;}
   if(financeMeetingPlanner&&financeMeetingPlanner(q))return;
   const creditCustody=typeof window.verifiedCreditCooperativeCustody==="function"?window.verifiedCreditCooperativeCustody(q,window.verifiedAssociationAccountSeal):null;
   if(creditCustody){financeMeetingPlanner=null;renderAnswer(q,creditCustody);return;}
@@ -1981,6 +1983,7 @@ touch();
 <script src="credit-cooperative-funds-custody.js?v=1"></script>
 <script src="association-volunteer-insurance.js?v=1"></script>
 <script src="association-overdue-term-signing.js?v=1"></script>
+<script src="association-finance-report-kind.js?v=1"></script>
 <script src="association-decision-audit.js?v=1"></script>
 <script src="association-chair-vote.js?v=1"></script>
 <script src="association-office-status.js?v=1"></script>
