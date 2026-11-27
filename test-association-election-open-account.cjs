@@ -1,0 +1,11 @@
+const assert=require('node:assert/strict');
+const {associationAccountSeal:a}=require('./association-account-seal.js');
+const x=a('社區發展協會改選完還沒報縣府，可不可以由新理事長先開銀行戶頭？如果用原戶頭要不要換印鑑？');
+assert.match(x.summary,/不能保證能先開戶.*留存印鑑異動/);
+assert.match(x.steps.flat().join(' '),/接受先送件.*不要借用私人戶.*新任可一人提款.*30日內/);
+const y=a('協會剛改選還沒報縣府，新任理事長可以先到郵局開戶嗎？');
+assert.match(y.steps[0][1],/郵局的非法人團體戶可併列負責人與團體名稱/);
+assert.ok(y.refs.some(r=>r.title.includes('115年')));
+assert.match(a('沒有向縣府核備前，先開協會銀行帳戶可以嗎？我們剛改選理事長').title,/要看代表權證明/);
+assert.equal(a('信用合作社改選還沒報縣府，新理事長可以開銀行戶頭嗎？'),null);
+assert.match(a('我們是協會，前理事長個人帳戶原用來收款，新任可以改印鑑嗎？').title,/不能當作協會團體戶更印/);
