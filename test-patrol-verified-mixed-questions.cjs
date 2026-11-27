@@ -57,5 +57,6 @@ assert.equal(answer('信用合作社的股息跟銀行存款利息一樣嗎？')
 const proxy='協會會員可以把大會委託書交給另一名會員；理事開理事會也能比照嗎？';
 assert.match(lines(proxy),/書面委託其他會員.*最多代理一人[\s\S]*不得委託他人代理/);
 assert.match(lines('協會理事會可以委託代出席嗎？會員大會可以書面委託嗎？'),/理事會或監事會：.*不得委託他人代理[\s\S]*書面委託其他會員/);
-for(const x of ['協會會員大會可以委託家人代理嗎？','職業團體會員大會可委託代理，那理事會也可以嗎？','合作社社員大會可以委託代理，理事會呢？'])assert.equal(answer(x),null,x);
+for(const x of ['職業團體會員大會可委託代理，那理事會也可以嗎？','合作社社員大會可以委託代理，理事會呢？'])assert.equal(answer(x),null,x);
+assert.match(answer('協會會員大會可以委託家人代理嗎？').summary,/不是就不能代理/);
 console.log('verified mixed questions OK');

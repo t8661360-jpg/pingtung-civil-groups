@@ -379,7 +379,36 @@ function changedMeetingVenue(q){
   summary:assembly?'要把新地點通知應出席的會員或會員代表，不能只跟縣府說。':'要把新地點通知各應出席人員。這是會議地點變動，不是協會登記會址變更。',
   steps:[schedule,...(assembly?[assemblyStep]:[]),...(board?[boardStep]:[]),short],refs,actions};
 }
+function familyAssemblyProxy(q){
+ const t=String(q??'').normalize('NFKC').replace(/\s/g,'');
+ const trade=/商業同業公會/.test(t);
+ if(t.length>145||/合作社|工會|農會|漁會|基金會|管委會|里民大會|理事會|監事會|理監事會|通訊選舉|出席門檻|委託書格式|選票怎麼填/.test(t))return null;
+ if(!trade&&(!/協會|社會團體/.test(t)||/公會|職業團體/.test(t)))return null;
+ const explicitAssembly=/會員(?:[(]?代表[)]?)?大會|(?:協會|公會)大會|出席大會/.test(t);
+ const relatives=/太太|先生|妻子|丈夫|老公|老婆|配偶|夫妻|家屬|家人|親友|朋友|女兒|兒子/.test(t);
+ const representative=trade||/會員代表大會/.test(t);
+ const negative=representative?/(?<!是)不是(?:本會|同一公會的?)?會員代表|非會員代表|沒有會員代表資格/.test(t):
+  /(?<!是)不是(?:本會|該協會的?)?會員(?!代表)|非會員(?!代表)|沒有會員資格|不是同一(?:個)?協會的會員/.test(t);
+ const both=/夫妻.{0,9}(?:同是|都是|皆是|均為|同為).{0,9}會員|兩人.{0,7}(?:同是|都是|皆是|均為).{0,9}會員/.test(t)&&!representative
+  || representative&&/夫妻.{0,9}(?:同是|都是|皆是|均為|同為).{0,9}會員代表/.test(t);
+ if(!explicitAssembly&&!(both&&/投票|選舉|表決/.test(t)))return null;
+ if((!relatives&&!negative)||!/委託|代理|代為|代替|代.{0,8}(?:出席|投票|表決|簽到)|代簽|代投|旁聽/.test(t))return null;
+ const observe=/旁聽|只列席|只想列席/.test(t);
+ const role=representative?'會員代表':'會員';
+ const group=trade?'同一商業同業公會':'同一協會';
+ const refs=[trade?law('商業團體法','D0050100',19):association(42)];
+ const steps=[['合法的代理方式','不能親自出席時，可書面委託'+group+'的其他'+role+'代理；每位受託人只能代理一人。'+(trade?'商業同業公會的代理總人數還不得超過親自出席人數的二分之一。':'有同一團體的有效身分才符合這項資格，夫妻或親友關係本身不能代替資格。')]];
+ if(!trade&&/投票|選舉|改選|罷免/.test(t)){
+  steps.push(['選舉或罷免','若是會員大會的選舉或罷免，也須書面委託同一團體有資格的人；若會員或會員代表有類別限制，應委託同一類別。']);
+  refs.push(law('人民團體選舉罷免辦法','D0050093',7));
+ }
+ if(observe)steps.push(['旁聽不是代理出席','能不能以訪客身分旁聽，請看協會會議規則或詢問主辦單位；代理出席的規定並未授予訪客旁聽權。即使准許，旁聽也不算代理出席，不能代簽到、計入出席名額或表決。']);
+ if(/簽到|代簽/.test(t))steps.push(['簽到須反映實際到場與委託','不要把非會員簽到當作會員本人或有效代理出席。']);
+ return {direct:true,category:trade?'職業團體':'人民團體會務說明',title:observe?'親友旁聽不等於代理出席':negative?'非'+role+'不能代理出席會員大會':'配偶或親友能不能代理，要看是否為同一團體的'+role,
+  summary:observe?'只去旁聽要先問主辦單位；即使准許旁聽，也不能替會員簽到或投票。':negative?'不可以。未具這場大會所需的'+role+'資格的人不能代理；配偶或親友關係及委託書都不能代替資格。':both?'可以。兩人都是'+group+'具資格的'+role+'時，可用書面委託；每個人至多代理一人。':'先確認受託人是不是'+group+'有資格的'+role+'；不是就不能代理，是才可用書面委託。',steps,refs};
+}
 function answerMixed(q){
+ const familyProxy=familyAssemblyProxy(q);if(familyProxy)return familyProxy;
  const venue=changedMeetingVenue(q);if(venue)return venue;
  const arrears=formerMemberArrearsPrivacy(q);if(arrears)return arrears;
  const resign=resignationAndMeeting(q);if(resign)return resign;
@@ -401,6 +430,6 @@ function answerMixed(q){
     keys.includes('creditor')?'合作社清算：就任後公告與終結報告，分別計算':isCoop?'合作社清算報告與股息上限，分開看':'協會入會資格與會員除名，分開看',
   summary:keys.length===1?topics[keys[0]].line[1]:'你問了兩件事，分別如下。',steps:keys.length>1?keys.map(k=>topics[k].line):[],refs:keys.flatMap(k=>topics[k].laws)};
 }
-if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy,changedMeetingVenue};return;}
+if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy,changedMeetingVenue,familyAssemblyProxy};return;}
 root.verifiedMixedQuestionAnswer=answerMixed;
 })(typeof window!=='undefined'?window:globalThis);
