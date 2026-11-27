@@ -100,8 +100,14 @@
     if (parts.length !== 2) return null;
     const p1 = (parts[0].bg || '') + parts[0].ask; let p2 = (parts[1].bg || '') + parts[1].ask + (parts[1].tail || '');
     if (p1.length < 5 || p2.length < 5) return null;
+    /* 第3輪：後半換成另一種團體（「…，協會理事長又是怎樣」「…，合作社社員也有戶籍限制嗎」）是在問第二件事，不是承接前半 */
+    const ty1 = typesOf(p1), ty2 = typesOf(p2), diffType = ty1.length === 1 && ty2.length === 1 && ty1[0] !== ty2[0];
+    const SUF3 = /(又是怎樣|又是怎麼樣|又是如何|又怎樣|又怎麼樣|又如何|也一樣嗎|也是嗎|也是這樣嗎|也相同嗎|也是一樣嗎)$/;
+    if (diffType && SUF3.test(p2) && p2.length < 16) { const k = p1.search(/怎麼|如何|可以|可不可以|能不能|幾|多久|多少|誰|要不要|需不需要|有沒有|會不會|一定要/); const subj = p2.replace(SUF3, '').replace(/的$/, '');
+      if (k >= 2 && subj.length >= 2) { const re1 = TYPES.find(x => x[0] === ty1[0])[1], re2 = TYPES.find(x => x[0] === ty2[0])[1];
+        p2 = subj.replace(new RegExp(re2.source, 'g'), '') ? subj + p1.slice(k) : p1.replace(new RegExp(re1.source), subj); } }
     if (/呢$/.test(p2) && p2.length < 12) { const k = p1.search(/怎麼|如何|可以|可不可以|能不能|幾|多久|多少|誰|要不要|需不需要|有沒有|會不會/); const subj = p2.replace(/呢$/, ''); if (k < 2 || subj.length < 2) return null; p2 = subj + p1.slice(k); }
-    if (/^.{0,8}(也|一樣|同樣)/.test(p2) && p2.length < 14) return null; // 「監事會也可以嗎」這種承接問法，照原本整句回答
+    if (/^.{0,8}(也|一樣|同樣)/.test(p2) && p2.length < 14 && !diffType) return null; // 「監事會也可以嗎」這種承接問法，照原本整句回答
     if (/^(如果|假如|要是|萬一)/.test(p1) && !/嗎|呢/.test(parts[0].ask)) return null; // 條件句照原本整句回答
     const A = resolvePart(withType(p1));
     /* 後半句常省略主詞：依序試「代名詞換成前半的職稱」「補上前半的職稱」「原句」「補上前半的開頭」，第一個答得出來的為準 */
@@ -134,11 +140,19 @@
       }
       /* 整句配到第三則答案：保留原答案，把它沒談到的那一半補在後面 */
       if (!a.summary || (a.steps && a.steps.length)) return null;
+      /* 第3輪：兩半問的是不同種團體，原答案卻只談到其中一種 → 兩半分開回答 */
+      if (diffType) { const wt3 = textOf(a); if (![ty1[0], ty2[0]].every(n => TYPES.find(x => x[0] === n)[1].test(n === '協會' ? wt3.replace(/社區發展協會|社區協會/g, '＿') : wt3)))
+        return merge([A, B], { category: A.category === B.category ? A.category : '人民團體會務說明', title: '您問了兩件事，小屏分開回答',
+          summary: '您一次問了兩件事，小屏分開回答。\n\n' + block('一', A) + '\n\n' + block('二', B), steps: [], docs: [], laws: [], actions: A.actions || [] }); }
       const tOnly = { title: a.title }; const cA = covRate(tOnly, A), cB = covRate(tOnly, B); // 整句配到第三則：只拿標題比，內文太長容易誤判成「有談到」
       if (Math.max(cA, cB) < 0.3) return merge([A, B], { category: A.category === B.category ? A.category : '人民團體會務說明', title: '您問了兩件事，小屏分開回答',
         summary: '您一次問了兩件事，小屏分開回答。\n\n' + block('一', A) + '\n\n' + block('二', B), steps: [], docs: [], laws: [], actions: A.actions || [] }); // 原答案兩半都沒談到
       if (!(Math.max(cA, cB) >= 0.4 && Math.min(cA, cB) < 0.3)) return null;
-      const add = [cA < cB ? A : B];
+      const qRate = part => { const wt = NFK(a.title); const segs = NFK(part).replace(/[^一-鿿0-9a-z]/gi, '').split(new RegExp(STOPW.source, 'g')).filter(x => x && x.length >= 2);
+        const g = []; for (const sg of segs) for (let k = 0; k < sg.length - 1; k++) g.push(sg.slice(k, k + 2)); return g.length ? g.filter(x => wt.includes(x)).length / g.length : 1; };
+      const rA = qRate(parts[0].ask), rB = qRate(parts[1].ask);
+      /* 第3輪：標題用字像前半、內文其實在答後半（「會員入會要理事會通過嗎？入會費可以收多少？」配到「會費、入會費由誰決定」）→ 補的應該是前半 */
+      const add = [(cA < cB ? (rA - rB >= 0.25 ? B : A) : (rB - rA >= 0.25 ? A : B))];
       const lost = add[0] === A ? parts[0].ask : parts[1].ask;
       return merge([a, add[0]], { ...a, summary: a.summary + '\n\n您還問了「' + lost + '」，小屏另外回答：' + add[0].title + '\n' + add[0].summary });
     }
@@ -163,6 +177,7 @@
   const DETAILS = [
     group(['颱風', '停班', '停課', '天災', '地震', '豪雨', '停電', '淹水'], ['颱風', '停班', '停課', '天災', '地震', '豪雨', '停電', '淹水', '不可抗力', '緊急事故', '延期', '延後', '改期']),
     group(['住院', '中風', '開刀', '失智', '昏迷', '重病', '病倒'], ['住院', '中風', '開刀', '失智', '昏迷', '重病', '生病', '因故', '不能視事', '不能執行', '無法執行', '不能行使', '出缺', '請假', '代理', '代行', '辭職', '監護', '輔助宣告']),
+    group(['典禮', '儀式', '布達', '剪綵', '揭牌']),
     group(['便當', '餐盒', '誤餐', '餐費'], ['便當', '餐盒', '誤餐', '餐費', '餐點', '膳']),
     group(['被罰', '罰款', '罰錢', '罰鍰', '受罰', '會罰', '開罰', '處罰'], ['罰', '處分', '警告', '撤銷', '限期', '整理', '廢止', '解散', '撤免', '停權', '沒有規定', '沒有明文', '註銷', '繳回', '追繳', '收回', '停止補助', '不予補助'])
   ];
@@ -171,7 +186,7 @@
     ['配偶', '親屬', '三等親', '三親等', '親戚', '夫妻', '老婆', '太太', '先生', '兒子', '女兒', '家人'], ['會址', '地址', '遷址', '搬家', '搬遷'], ['改名', '名稱', '會名', '名字', '更名'], ['收據'], ['捐款', '捐贈', '捐錢', '捐助'],
     ['剩餘財產', '剩下的錢', '賸餘', '剩餘', '餘款', '剩的錢'], ['解散', '清算'], ['章程'], ['通知'], ['出席', '到場', '法定人數', '流會'], ['委託', '代理出席', '委託書'], ['補選', '遞補', '候補'], ['辭職', '請辭'], ['改選', '選舉', '投票', '選票'],
     ['會費', '入會費', '常年會費', '年費'], ['補助', '核銷'], ['統編', '統一編號'], ['開戶', '帳戶', '存摺'], ['法人', '法院'], ['理事長'], ['常務理事'], ['常務監事'], ['監事', '理監事'], ['理事', '理監事'], ['會員大會', '社員大會', '大會'], ['理事會', '監事會', '理監事會'],
-    ['圖記', '印信', '印章'], ['立案證書', '證書'], ['預算', '決算', '財務報表', '報表'], ['工作計畫', '工作報告'], ['薪水', '薪資', '酬勞', '車馬費', '出席費'], ['罷免'], ['除名', '開除', '退會', '出會'], ['入會', '加入'], ['成立', '籌組', '籌備', '設立', '立案'], ['視訊', '線上', '遠距'], ['紀錄', '記錄'], ['勸募', '募款'], ['股金', '股息', '盈餘', '結餘'], ['分會', '分支'], ['查帳', '查核', '稽核', '看帳', '審核帳'], ['稅']
+    ['圖記', '印信', '印章'], ['立案證書', '證書'], ['預算', '決算', '財務報表', '報表'], ['工作計畫', '工作報告'], ['薪水', '薪資', '酬勞', '車馬費', '出席費'], ['罷免'], ['除名', '開除', '退會', '出會'], ['入會', '加入'], ['成立', '籌組', '籌備', '設立', '立案'], ['視訊', '線上', '遠距'], ['紀錄', '記錄'], ['勸募', '募款'], ['股金', '股息', '盈餘', '結餘'], ['分會', '分支'], ['查帳', '查核', '稽核', '看帳', '審核帳'], ['稅'], ['名下', '登記在誰', '登記誰', '誰的名字', '過戶', '所有權'], ['土地', '房地', '不動產', '房子', '房屋', '購置']
   ].map(g => ({ name: g[0], re: new RegExp(g.map(esc).sort((x, y) => y.length - x.length).join('|')) }));
   const ACTIONS = [['會址', '地址', '遷址', '搬家', '搬遷'], ['改名', '名稱', '會名', '名字', '更名'], ['圖記', '印信'], ['立案證書'], ['統編', '統一編號'], ['開戶', '銀行帳戶', '存摺'], ['法人登記', '社團法人'], ['解散'], ['理事長變更', '換理事長', '理事長換人', '新理事長']]
     .map(g => ({ name: g[0], re: new RegExp(g.map(esc).join('|')) }));
@@ -250,9 +265,52 @@
     return null;
   }
   if (typeof window !== 'undefined') window.__understandingGuard2 = understandingGuard;
+  /* ── 理解把關第3輪（2026-11-27）──
+     A. 不是本櫃檯對象、本站也沒有已核對分流資料的組織（農會、漁會、農田水利會、公司的董事股東）：答案沒有在談它，
+        就不拿協會的答案硬配，用固定用語。一般勞資糾紛（不是協會自己的員工）列出相近題讓民眾選。
+     B. 條件加例外（「如果…但是他是理事，還能出席理事會嗎」）：最後真正在問的那一句，答案要有談到；沒談到就出選單。
+     每個條件都用 scripts/site-smoke.mjs 全部 CHECKS 驗證過不會擋掉已答對的題目。 */
+  const OOS3 = [
+    { ask: /農會|漁會|農田水利會|水利會/, ans: /農會|漁會|水利會/ },
+    { ask: /(公司|股份有限|有限公司).{0,12}(董事|監察人|股東|資本額|公司登記)|(董事|監察人|股東會|資本額).{0,12}(公司|股份有限)/, ans: /公司|董事|股東/ }
+  ];
+  const LABOR3 = { ask: /勞資(糾紛|爭議|調解|問題)|勞資雙方/, ans: /勞資|勞工主管|勞動/ };
+  const COND3 = /(如果|假如|要是|萬一|假設|雖然).{2,40}?(但是|可是|不過|但|卻)/;
+  const STOP3 = /可不可以|可以|能不能|能否|是否|怎麼辦|怎麼|如何|怎樣|什麼|甚麼|要不要|需不需要|有沒有|會不會|還能|還要|還可以|還是|還有|的話|這樣|那樣|請問|幾|多少|多久|嗎|呢|或|和|跟|與|的|了|要|是|又|也|他|她|還|能|會|就/;
+  const rate3 = (part, wt) => { const segs = NFK(part).replace(/[^一-鿿0-9a-z]/gi, '').split(new RegExp(STOP3.source, 'g')).filter(x => x && x.length >= 2);
+    const g = []; for (const sg of segs) for (let k = 0; k < sg.length - 1; k++) g.push(sg.slice(k, k + 2)); return g.length >= 2 ? g.filter(x => wt.includes(x)).length / g.length : 1; };
+  function understandingGuard3(q, a) {
+    if (!a || !a.title || a.unanswered || a.guarded) return null;
+    if (/您是不是要問|難倒小屏|想先確認|暫時無法回覆|兩件事/.test(a.title)) return null;
+    const fs = a.questionState && a.questionState.focus;
+    if (fs === 'guard-menu' || fs === 'keyword-menu' || fs === 'clarify') return null;
+    if (a.category === '業務分流' || a.category === '打招呼') return null;
+    const raw = NFK(q); if (raw.length < 5) return null;
+    const at = answerText(a);
+    for (const o of OOS3) if (o.ask.test(raw) && !o.ans.test(at)) return fixedPhrase2(q, []);
+    if (LABOR3.ask.test(raw) && !LABOR3.ans.test(at)) return menu2(q, similar(q, 6), '');
+    if ((a.groups && a.groups.length) || a.category === '團體查詢') return null;
+    /* C. 前後兩句各問一種團體（「社區發展協會可以收會費嗎，合作社也是嗎」），答案只談到其中一種 → 選單 */
+    const cl = String(q || '').normalize('NFKC').split(/[，,；;。？?！!]+/).map(x => NFK(x)).filter(x => x.length >= 3);
+    if (cl.length >= 2 && !/兩件事|分別|分開/.test(a.title)) {
+      const t1 = typesOf(cl[0]), k = cl.findIndex((x, i) => i > 0 && QMARK.test(x) && typesOf(x).length === 1 && t1.length === 1 && typesOf(x)[0] !== t1[0] && !/改成|變成|轉型|轉成|改制|加入|合併|成立|籌組|申請/.test(x));
+      if (k > 0 && QMARK.test(cl[0])) { const need = [t1[0], typesOf(cl[k])[0]];
+        if (!need.every(n => TYPES.find(x => x[0] === n)[1].test(n === '協會' ? at.replace(/社區發展協會|社區協會/g, '＿') : at))) return menu2(q, [...similar(cl[0], 3), ...similar(cl[k], 3), ...similar(q, 4)], '您一次問了兩種團體，小屏怕只答到其中一種。'); }
+    }
+    const m = raw.match(COND3);
+    if (m && raw.length >= 14) {
+      const tail = raw.slice(m.index + m[0].length);
+      const asks = tail.split(/[，,；;。？?！!]+/).filter(x => x.length >= 4 && QMARK.test(x));
+      const last = asks[asks.length - 1];
+      if (last && rate3(last, at) < 0.5) return menu2(q, [...similar(last, 3), ...similar(q, 6)], '');
+    }
+    return null;
+  }
+  if (typeof window !== 'undefined') window.__understandingGuard3 = understandingGuard3;
   function guard(q, a) {
     try { const c = compareGuard(q, a) || compareTopic(q, a) || compound(q, a); if (c) return c; } catch (e) {}
     try { const u = understandingGuard(q, a); if (u) return u; } catch (e) {}
+    try { const u3 = understandingGuard3(q, a); if (u3) return u3; } catch (e) {}
     try {
       if (!a || a.direct || a.questionState || a.unanswered || !a.title) return null;
       if ((typeof exactArticleAnswer === 'function' && exactArticleAnswer(q)) || (typeof focusedQuestionAnswer === 'function' && focusedQuestionAnswer(q))) return null; // 會被其他已核對答案取代

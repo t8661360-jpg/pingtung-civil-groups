@@ -24,6 +24,17 @@ function normalizeQuestionU2(s){
  if(/捐/.test(s)&&!/合作社|社員/.test(s))s=s.replace(/抵(?:多少|掉|到|得了|得到|一些|一點|所得|綜所|個人所得)+稅/g,'抵稅').replace(/抵稅(?:額|金)?(?:多少|上限)/g,'抵稅');
  return s;
 }
+/* 理解把關第3輪（根源）：
+   1. 「當理事有沒有錢可以領／有錢拿嗎／是做義務的嗎」＝理事有沒有薪水（原本整句對不上，被答成難倒小屏）。
+   2. 「協會…沒在運作了…想重新弄起來／再搞起來／重新開始」＝很久沒運作想恢復運作（原本長篇情境裡的「幾個老會員」被當成問理監事名額）。 */
+function normalizeQuestionU3(s){
+ s=String(s||'');
+ if(/(理事|監事|理監事|理事長)/.test(s)&&!/合作社|社員|員工|工作人員|總幹事|秘書|會計|出納|志工|補助|出席費|車馬費|交通費/.test(s))
+  s=s.replace(/(?:有沒有|有無|是否有|會不會有|會有|有)(?:錢|薪水|酬勞)(?:可以|能|可)?(?:領|拿)(?:嗎)?/g,'有沒有薪水').replace(/是(?:做|當)義務的嗎/g,'有沒有薪水');
+ if(/(沒在運作|沒運作|沒有運作|沒在動|停擺|沒活動|沒開會|荒廢)/.test(s)&&!/合作社|社員/.test(s))
+  s=s.replace(/(?:想|要|打算|準備)(?:再|重新)?(?:把它|把協會|把會)?(?:重新)?(?:弄|搞|做|辦|動|活)起來|(?:想|要|打算|準備)重新(?:開始|出發|來過|整理|整頓)/g,'想恢復運作');
+ return s;
+}
 function fixTyposU1(q){
  return String(q||'').replace(/理是長|裡事長|里事長|理市長|李事長/g,'理事長').replace(/理監是|理間事|裡監事/g,'理監事').replace(/常務監是/g,'常務監事').replace(/監是會|鑑事會/g,'監事會').replace(/理是會|裡事會|里事會/g,'理事會').replace(/總幹是|總幹士|總幹市/g,'總幹事').replace(/會原大會|會圓大會|會員大匯/g,'會員大會').replace(/改撰|改癬/g,'改選').replace(/會廢/g,'會費').replace(/辭值|詞職|辭直/g,'辭職');
 }
@@ -52,7 +63,7 @@ function normalizeQuestion222(s){
  return s;
 }
 function normalizeQuestion(q){
- return normalizeQuestion222(normalizeQuestion221(normalizeQuestion216(normalizeQuestion215(normalizeQuestion214(normalizeQuestion212(normalizeQuestion210(normalizeQuestion209(normalizeQuestion208(normalizeQuestion207(normalizeQuestion206(normalizeQuestion202(normalizeQuestion201(normalizeQuestion200(normalizeQuestion194(normalizeQuestion193(normalizeQuestion192(normalizeQuestion191(normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(normalizeQuestionU2(fixTyposU1(q))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
+ return normalizeQuestion222(normalizeQuestion221(normalizeQuestion216(normalizeQuestion215(normalizeQuestion214(normalizeQuestion212(normalizeQuestion210(normalizeQuestion209(normalizeQuestion208(normalizeQuestion207(normalizeQuestion206(normalizeQuestion202(normalizeQuestion201(normalizeQuestion200(normalizeQuestion194(normalizeQuestion193(normalizeQuestion192(normalizeQuestion191(normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(normalizeQuestionU3(normalizeQuestionU2(fixTyposU1(q)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
 }
 /* 第200輪（根源）：入會退會與會員資格換問法——
    「忘記繳／忘了繳／漏繳會費」＝沒繳會費（原本「忘記繳會費會被退會嗎」被當成退費）；
@@ -2560,7 +2571,7 @@ function chairElectionMethod(t){
 function officerNumbers(t){
  if(!/(理事|監事|理監事|候補)/.test(t))return null;
  if(!/(幾個(?!月)|幾人|幾名|幾位|多少人|多少個|名額|選幾個|選幾位|選幾名|選幾人)/.test(t)&&!(/候補/.test(t)&&/(是什麼|什麼意思|做什麼|幹嘛)/.test(t)))return null;
- if(/修改章程|修章|章程修|章程改|改章程|常務|副理事長|召集人|出席|職權|查核|委託|代理|開會|才能|通知|走了|辭|罷免|同意|決議|解任|不夠|不足|[一二兩三四五六七八九十]人|圈|選票|連任|合作社|社員|社區|任期|不足|出缺|剩|最少|至少|\d/.test(t))return null;
+ if(/修改章程|修章|章程修|章程改|改章程|常務|副理事長|召集人|出席|職權|查核|委託|代理|開會|才能|通知|走了|辭|罷免|同意|決議|解任|不夠|不足|[一二兩三四五六七八九十]人|圈|選票|連任|合作社|社員|社區|任期|不足|出缺|剩|最少|至少|\d|沒在運作|沒運作|沒有運作|停擺|散了|重新弄|重新運作|恢復運作|幾個.{0,3}(?:會員|人想|朋友|同好)/.test(t))return null;
  const sub=/候補/.test(t);
  return{direct:true,category:'人民團體會務說明',title:sub?'候補理事、候補監事：正式理監事出缺時依序遞補，名額不超過理監事的三分之一':'理事、監事的名額：理事9到15人、監事至少3人且不超過理事的三分之一，人數要是奇數',
  summary:(sub?'候補理事、候補監事是「備取」：選舉時依得票多寡排在正式當選人後面（人民團體選舉罷免辦法第15條），等理事、監事出缺時，依次遞補（第17條）。候補的名額不得超過理事、監事名額的三分之一（人民團體法第17條）。\n\n':'')+'理事、監事的名額由章程決定，但有上下限：\n• 下限：理事至少9人，監事至少3人，而且人數要定額、是奇數（人民團體會務輔導辦法第9條）。\n• 理事上限：縣（市）以下的團體不得超過15人（人民團體法第17條）。\n• 監事上限：不得超過理事名額的三分之一。\n• 候補理事、候補監事：可以設，名額不得超過理事、監事名額的三分之一。\n\n舉例：理事訂9人的話，監事最多3人。候補名額的算法（合計或分開算）條文沒有寫明，請洽承辦人員確認。',
@@ -3189,7 +3200,7 @@ function lectureFaq(t){
  if(/候補理事/.test(t)&&!/候補監事/.test(t)&&/(至多|最多|幾名|幾位|幾人|幾個)/.test(t)&&/(\d|九|五|七|十)/.test(t))return{direct:true,category:'會務選務常見問題',title:"理事有9位，候補理事最多可以有幾位？",summary:"最多3位。人民團體可以置候補理事、候補監事，名額不得超過理事、監事名額的三分之一（人民團體法第17條第1項第5款）。理事9位的三分之一是3位。",statutes:[P(17)],notes:[],actions:[]};
  if(/候補監事/.test(t)&&!/候補理事/.test(t)&&/(至多|最多|幾名|幾位|幾人|幾個)/.test(t)&&/(\d|九|五|七|三)/.test(t))return{direct:true,category:'會務選務常見問題',title:"監事有5位，候補監事最多可以有幾位？",summary:"最多1位。候補監事名額不得超過監事名額的三分之一（人民團體法第17條第1項第5款），5的三分之一不到2，所以只能置1位。\n另外，監事名額本身也不得超過理事名額的三分之一（同條第4款），監事要有5位，理事至少要15位；理事、監事人數也要定額並為奇數（人民團體會務輔導辦法第9條）。",statutes:[P(17),G(9)],notes:[],actions:[]};
  if(/應出席/.test(t)&&/(認定|是誰|哪些人|定義|怎麼算|如何)/.test(t))return{direct:true,category:'會務選務常見問題',title:"會員大會的應出席人員要怎麼認定？",summary:"以理事會審定的會員（會員代表）名冊為準。理事會要在召開會員大會十五日前，審定應出席會員的資格，造具名冊，載明姓名、聯絡電話、地址及權利義務受限制情形，提供會員閱覽；出席會員大會的人員，以經理事會審定名冊上的人員為限（人民團體會務輔導辦法第10條第2項、第4項）。\n理事會、監事會的應出席人員，就是現任的理事、監事。",statutes:[G(10)],notes:[],actions:[]};
- if(/(沒繳|未繳|沒有繳|不繳|欠繳)/.test(t)&&/會費/.test(t)&&/(通知|開會|出席|大會)/.test(t))return{direct:true,category:'會務選務常見問題',title:"會員沒繳常年會費，開會員大會還要通知他嗎？",summary:"要看章程對未繳會費會員的權利限制怎麼規定，法規沒有直接寫「沒繳會費就停權」。\n理事會在大會十五日前審定會員名冊時，要載明「權利義務受限制情形」，出席大會的人員以審定名冊上的人員為限（人民團體會務輔導辦法第10條）。所以章程規定未繳會費要停權、且理事會審定時已註明不具出席資格的會員，就不列為應出席人員；章程沒有這樣規定的，仍是應出席人員，要照常通知。",statutes:[G(10)],notes:[],actions:[]};
+ if(/(沒繳|未繳|沒有繳|不繳|欠繳)/.test(t)&&/會費/.test(t)&&/(通知|開會|出席|大會)/.test(t)&&!/理事會|監事會|理監事會|(?:他|她|本身|同時|也|又)是(?:理事|監事|理監事|常務)|(?:理事|監事|理監事)(?:沒繳|未繳|沒有繳|不繳|欠繳)/.test(t))return{direct:true,category:'會務選務常見問題',title:"會員沒繳常年會費，開會員大會還要通知他嗎？",summary:"要看章程對未繳會費會員的權利限制怎麼規定，法規沒有直接寫「沒繳會費就停權」。\n理事會在大會十五日前審定會員名冊時，要載明「權利義務受限制情形」，出席大會的人員以審定名冊上的人員為限（人民團體會務輔導辦法第10條）。所以章程規定未繳會費要停權、且理事會審定時已註明不具出席資格的會員，就不列為應出席人員；章程沒有這樣規定的，仍是應出席人員，要照常通知。",statutes:[G(10)],notes:[],actions:[]};
  if(/聯席/.test(t)&&/(出席|有效|成會|過半)/.test(t))return{direct:true,category:'會務選務常見問題',title:"理監事聯席會議出席多少人才算有效？",summary:"理事和監事要「各自」過半數出席，不是合計過半數。理監事聯席會議應有理事及監事各過半數的出席，決議各以出席理事或監事過半數或較多數的同意行之（人民團體會務輔導辦法第11條第4項）。\n例如理事9人、監事3人，合計出席7人，還要看組成：理事至少5人、監事至少2人出席才算成會；如果是理事6人、監事1人，監事沒有過半，聯席會議就不成立。",statutes:[G(11)],notes:[],actions:[]};
  if(/(三等親|三親等|親屬|配偶|親戚|夫妻|兒子|女兒)/.test(t)&&/(會計|出納|總幹事|工作人員|秘書)/.test(t))return{direct:true,category:'會務選務常見問題',title:"理事長和會計可以是三等親嗎？",summary:"不可以，除非是理事長接任前就已經聘僱的。社會團體不得聘僱現任理事長的配偶及三親等以內血親、姻親為工作人員；但在該理事長接任前已聘僱的，不在此限（社會團體工作人員管理辦法第5條）。會計屬於工作人員，適用這條規定。",statutes:[SW(5)],notes:[],actions:[]};
  if(/(三等親|三親等)/.test(t)&&/監事/.test(t)&&/理事長/.test(t)&&!/(會計|出納|總幹事|工作人員)/.test(t))return{direct:true,category:'會務選務常見問題',title:"理事長和常務監事可以是三等親嗎？",summary:"人民團體法及選舉罷免辦法、會務輔導辦法都沒有禁止理事長和常務監事是親屬。\n法規限制親屬的是「工作人員」：社會團體不得聘僱現任理事長的配偶及三親等以內血親、姻親為工作人員（社會團體工作人員管理辦法第5條）。選任的理事、監事由會員選舉產生，章程另有限制的從章程。",statutes:[SW(5)],notes:[],actions:[]};
