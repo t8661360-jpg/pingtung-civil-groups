@@ -194,18 +194,18 @@ async function handleUnderstand(req, env, cors) {
       method: "POST",
       headers: { "x-api-key": env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json" },
       body: JSON.stringify({
-        model: env.CLAUDE_MODEL || "claude-haiku-5-5", max_tokens: 300,
+        model: env.CLAUDE_MODEL || "claude-haiku-5-5", max_tokens: 4096, // 模型會先思考再輸出，思考也算在 max_tokens 內；設太小會只剩思考、沒有輸出
         system: [{ type: "text", text: UNDERSTAND_SYSTEM }, bank],
         messages: [{ role: "user", content: `<q>${q}</q>` }],
       }),
-      signal: AbortSignal.timeout(15000),
+      signal: AbortSignal.timeout(25000),
     });
     if (!r.ok) return none("claude-" + r.status);
     const j = await r.json();
     const text = (j.content || []).map(c => c.text || "").join("");
     const picks = parsePicks(text, cands.length).map(i => cands[i - 1]);
     // 只記在 Workers Logs 供調校用（問題已由網頁遮罩個資），不回傳給網頁
-    console.log("understand", JSON.stringify({ q, out: text.slice(0, 200), picks: picks.length, usage: j.usage }));
+    console.log("understand", JSON.stringify({ q, out: text.slice(0, 200), picks: picks.length, stop: j.stop_reason, usage: j.usage }));
     return new Response(JSON.stringify({ ok: true, picks, why: picks.length ? "" : "no-match" }), { headers: J });
   } catch (e) {
     return none("error");

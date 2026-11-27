@@ -24,7 +24,7 @@
       box.textContent='小屏正在想您問的是哪一題…';
       const actions=host.querySelector('.actions');
       host.insertBefore(box,actions||null);
-      const ctl=new AbortController();const to=setTimeout(()=>ctl.abort(),20000);
+      const ctl=new AbortController();const to=setTimeout(()=>ctl.abort(),30000);
       fetch(base+'/understand',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({q:clean}),signal:ctl.signal})
         .then(r=>r.ok?r.json():null)
         .then(j=>{
