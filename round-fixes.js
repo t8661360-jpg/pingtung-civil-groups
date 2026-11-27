@@ -9,8 +9,12 @@ const norm=s=>String(s||'').normalize('NFKC').replace(/\s+/g,'');
 const SIMP='册冊劝勸协協会會员員长長补補办辦县縣么麼请請谁誰吗嗎记記财財务務选選举舉开開议議变變为為与與对對决決时時条條规規实實额額种種过過还還钱錢据據发發师師门門题題问問说說该該给給样樣这這够夠续續资資产產经經营營业業团團体體设設动動执執关關联聯报報备備审審数數须須处處录錄书書终終销銷许許费費万萬届屆节節汇匯账帳项項户戶转轉买買卖賣现現认認证證评評讨討论論统統计計订訂调調复復电電话話号號码碼东東区區楼樓层層领領参參愿願务務队隊险險伤傷车車获獲义義红紅监監帐帳';
 const SIMPRE=new RegExp('['+SIMP.split('').filter((c,i)=>i%2===0).join('')+']');
 function simp2trad(s){if(!SIMPRE.test(s))return s;let o='';for(const c of s){const i=SIMP.indexOf(c);o+=(i>=0&&i%2===0)?SIMP[i+1]:c}return o}
+/* 理解強化第1輪：常見同音錯字先改回正字，後面的規則才認得（理是長＝理事長、監是會＝監事會、總幹是＝總幹事） */
+function fixTyposU1(q){
+ return String(q||'').replace(/理是長|裡事長|里事長|理市長|李事長/g,'理事長').replace(/理監是|理間事|裡監事/g,'理監事').replace(/常務監是/g,'常務監事').replace(/監是會|鑑事會/g,'監事會').replace(/理是會|裡事會|里事會/g,'理事會').replace(/總幹是|總幹士|總幹市/g,'總幹事').replace(/會原大會|會圓大會|會員大匯/g,'會員大會').replace(/改撰|改癬/g,'改選').replace(/會廢/g,'會費').replace(/辭值|詞職|辭直/g,'辭職');
+}
 function normalizeQuestion(q){
- return normalizeQuestion216(normalizeQuestion215(normalizeQuestion214(normalizeQuestion212(normalizeQuestion210(normalizeQuestion209(normalizeQuestion208(normalizeQuestion207(normalizeQuestion206(normalizeQuestion202(normalizeQuestion201(normalizeQuestion200(normalizeQuestion194(normalizeQuestion193(normalizeQuestion192(normalizeQuestion191(normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(q))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
+ return normalizeQuestion216(normalizeQuestion215(normalizeQuestion214(normalizeQuestion212(normalizeQuestion210(normalizeQuestion209(normalizeQuestion208(normalizeQuestion207(normalizeQuestion206(normalizeQuestion202(normalizeQuestion201(normalizeQuestion200(normalizeQuestion194(normalizeQuestion193(normalizeQuestion192(normalizeQuestion191(normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(fixTyposU1(q)))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
 }
 /* 第200輪（根源）：入會退會與會員資格換問法——
    「忘記繳／忘了繳／漏繳會費」＝沒繳會費（原本「忘記繳會費會被退會嗎」被當成退費）；
@@ -1067,7 +1071,7 @@ function normalizeQuestion160(s){
  s=s.replace(/要(辦|舉辦|召集)(哪些|什麼|哪幾種|哪幾個|幾種|哪種)(會議|會)/,'要開哪些會議');
  if(/(協會|社團|團體)/.test(s)&&/要開(哪些|什麼|哪幾種)會/.test(s)&&!/(每年|一年|年度|每一年|固定|定期|多久|幾次|每月|每個月|臨時|緊急)/.test(s))s=s.replace(/要開(哪些|什麼|哪幾種)會/,'每年要開$1會');
  if(/借(給|出|人)|借人/.test(s)&&/社區/.test(s)&&/(錢|經費|款|基金|公款)/.test(s))s=/(理事長|理事|會員|監事)/.test(s)?s.replace(/社區(發展)?(協會)?(的)?(錢|經費|款項|基金|公款)/,'協會的錢').replace(/社區(發展)?協會/,'協會'):'協會的錢可以借給別人嗎';
- if(/(協會|社團|團體)/.test(s)&&!/(開會|大會|理事|監事|出席|志工|會議|選|投票|簽到|連署|提案|會員代表|委託)/.test(s)&&/((一定|至少|最少|最低|起碼)要?有?(幾|多少)(個|位)?人|要有(幾|多少)(個|位)?人|(幾|多少)(個|位)?人(才能|才可以|才算|才行|才能夠)(成立|辦|運作|立案|組))/.test(s)&&!/(簽|同意|通過|決議|領|蓋|批|審|負責|管|投|選|表決|連署|聯名)/.test(s))s=s.replace(/社區(發展)?協會/,'協會').replace(/((一定|至少|最少|最低|起碼)要?有?(幾|多少)(個|位)?人|要有(幾|多少)(個|位)?人|(幾|多少)(個|位)?人(才能|才可以|才算|才行|才能夠)(成立|辦|運作|立案|組))/,'至少要幾個會員');
+ if(/(協會|社團|團體)/.test(s)&&!/(開會|大會|理事|監事|出席|志工|會議|選|投票|簽到|連署|提案|會員代表|委託)/.test(s)&&/((一定|至少|最少|最低|起碼)要?(?:有|找|找到|湊|湊到)?(幾|多少)(個|位)?人|要(?:有|找|找到|湊|湊到|湊滿)(幾|多少)(個|位)?人|(幾|多少)(個|位)?人(才能|才可以|才算|才行|才能夠)(成立|辦|運作|立案|組))/.test(s)&&!/(簽|同意|通過|決議|領|蓋|批|審|負責|管|投|選|表決|連署|聯名)/.test(s))s=s.replace(/社區(發展)?協會/,'協會').replace(/((一定|至少|最少|最低|起碼)要?(?:有|找|找到|湊|湊到)?(幾|多少)(個|位)?人|要(?:有|找|找到|湊|湊到|湊滿)(幾|多少)(個|位)?人|(幾|多少)(個|位)?人(才能|才可以|才算|才行|才能夠)(成立|辦|運作|立案|組))/,'至少要幾個會員');
  return s;
 }
 /* 第159輪（根源）：志工換問法——「請他走／叫他走／讓他走／不讓志工繼續服務」＝開除；
@@ -2581,6 +2585,7 @@ function dormantGroup(t){
 }
 function lookupRegistered(t){
  const generic=/(查|找)/.test(t)&&/(一個協會|一個團體|某個|哪裡可以查|哪裡查|去哪查|怎麼查|如何查|可以查到)/.test(t)&&/(協會|團體|理事長|資料|電話|地址)/.test(t);
+ if(/(成立|籌組|籌備|發起|設立|新創|創立)/.test(t)&&/找.{0,4}(幾|多少)(個|位)?(人|會員|發起人)/.test(t))return null;
  if(!generic&&!/(有沒有立案|是否立案|立案了沒|有立案嗎|合不合法|是不是合法|是真的嗎|存不存在|有沒有登記)/.test(t))return null;
  if(!/(查|協會|團體|公會|社團)/.test(t))return null;
  if(/合作社|社員/.test(t))return null;
@@ -2987,6 +2992,8 @@ function outOfScope(t){
  else if(/祭祀公業/.test(t))k=['祭祀公業','祭祀公業不是人民團體，適用的是祭祀公業條例，申報和管理由所在地的鄉鎮市公所（民政單位）受理。'];
  else if(/(宮廟|寺廟|神壇|廟)/.test(t)&&/(成立|登記|立案|協會|要不要|找誰)/.test(t))k=['宮廟、寺廟','寺廟的登記是民政業務，請洽縣府民政處或所在地的公所。信徒如果想另外成立一個宗教性的協會（社會團體）來辦活動，那才是依人民團體法向社會處申請，兩者是不同的登記。'];
  else if(/(工會|職業工會|產業工會|企業工會)/.test(t)&&/(找誰|成立|籌組|申請|加入|承辦|哪個單位|去哪|歸|管|屬於|社會處|主管)/.test(t)&&!/公會/.test(t))k=['工會','工會依工會法辦理，主管機關是勞工主管機關，不是社會處。在屏東縣請洽屏東縣政府勞動暨青年發展處，電話 08-7558048。'];
+ else if((/(公寓大廈|區分所有權人|區權會)/.test(t)||/(管委會|管理委員會|主委|主任委員)/.test(t)&&/(大樓|大廈|公寓|住戶|社區大樓|管理費)/.test(t))&&!/(協會|社團|公會|合作社|宮廟|寺廟|市場)/.test(t))k=['公寓大廈管理委員會（管委會）','公寓大廈的管理委員會，是依公寓大廈管理條例由區分所有權人選任住戶擔任管理委員所設立的組織（公寓大廈管理條例第3條），主任委員、管理委員怎麼選任、解任，是依區分所有權人會議的決議或規約（同條例第29條），不是依人民團體法立案的協會，不適用本站整理的改選、開會規定。本站沒有管委會的資料，請撥縣府總機 08-7320415，請總機轉接公寓大廈管理的承辦單位。'];
+ else if(/(低收入|中低收|低收戶|急難救助|急難紓困|老人津貼|敬老津貼|育兒津貼|身障補助|身心障礙(補助|津貼|手冊|證明)|租屋補助|租金補貼)/.test(t)&&!/(協會|社團|團體|公會|合作社|社區發展|本會|據點|活動|計畫|方案|志工|會員|物資|捐|募)/.test(t))k=['低收入戶、津貼等個人福利','個人申請的社會福利（例如低收入戶、中低收入戶、各種津貼或救助），不是這個櫃檯的業務，本站沒有這方面的資料，小屏不能亂回答。請撥縣府總機 08-7320415，請總機轉接辦理該項福利的單位。'];
  if(!k)return null;
  return{direct:true,category:'業務分流',title:k[0]+'不是這個櫃檯（人民團體）的業務，要找的單位不同',summary:k[1]+'\n\n這個櫃檯辦理的是屏東縣的社會團體（協會）、職業團體（公會）、社區發展協會和合作社。',statutes:[],notes:[]};
 }
@@ -5229,7 +5236,7 @@ function patrol13(t){
   summary:'人民團體法沒有名譽理事長、顧問的規定，要看章程。\n\n可以確定的是：\n• 會員大會：每一會員（會員代表）有一權（人民團體法第16條）。名譽理事長如果本身是會員，就和其他會員一樣，有一票。\n• 理事會：理事要親自出席並表決（人民團體法第29條、第31條），理事是由會員選舉出來的（第17條）。沒有經過選舉的名譽職務，不是理事，能不能列席、發言，要看章程。\n\n不確定時，請洽承辦人員。',
   statutes:[P(16),P(17),P(29),P(31)]});
  /* 理事長的配偶、家人能不能當監事 */
- if(/(理事長|理事)/.test(t)&&/(太太|老婆|妻子|丈夫|老公|先生|兒子|女兒|爸爸|媽媽|父親|母親|哥哥|弟弟|姊姊|妹妹|家人|親戚)/.test(t)&&/(監事|理事|理監事)/.test(t)&&!/(工作人員|員工|聘|總幹事|秘書|會計|出納|代理)/.test(t)){
+ if(/(理事長|理事)/.test(t)&&/(太太|老婆|妻子|丈夫|老公|先生|兒子|女兒|爸爸|媽媽|父親|母親|哥哥|弟弟|姊姊|妹妹|家人|親戚)/.test(t)&&/(監事|理事|理監事)/.test(t)&&!/(工作人員|員工|聘|總幹事|秘書|會計|出納|代理|繼承|頂替|接班|(過世|出缺|往生|去世|死亡|走了).*(接任|接手|接下|代替|遞補))/.test(t)){
   const a=relativesAsOfficers(t.replace(/太太|老婆|妻子|丈夫|老公|先生|兒子|女兒|爸爸|媽媽|父親|母親|哥哥|弟弟|姊姊|妹妹|家人|親戚/g,'配偶'));
   if(a)return a;
  }
@@ -7223,7 +7230,7 @@ function patrol73(t){
   summary:'補助作業要點只規定核銷要附四樣資料：核准補助文件影本、領款收據、實際支用明細表和各項支用的單據（第8點），沒有寫要由誰簽章、蓋哪一種章。\n\n建議核銷前先向承辦人員確認用印方式，避免被退件。'+tel,
   statutes:[GR(8)]});
  // 補助款入帳記帳
- if(/(入帳|記帳|列帳|記到帳|記在帳|帳上|做帳|收入|帳要|的帳|帳怎麼|帳該|怎麼記|怎麼入|科目)/.test(t)&&/補助/.test(t)&&!/(利息|孳息)/.test(t))
+ if(/(入帳|記帳|列帳|記到帳|記在帳|帳上|做帳|收入|帳要|的帳|帳怎麼|帳該|怎麼記|怎麼入|科目)/.test(t)&&/補助/.test(t)&&!/(利息|孳息|低收入|中低收|低收)/.test(t))
   return Object.assign({},base,{category:'人民團體財務',title:'補助款入帳要不要記到協會帳上：要，是協會的收入，要存進協會帳戶並照實處理收支',
   summary:'要。補助款是協會的財務收入，要存入銀行、農會、漁會、信用合作社或郵局，不得存放個人，並以隨收隨存為原則（社會團體財務處理辦法第16條）。收支要照實處理，不得匿報或虛報，並要定期公告（第20條）。\n\n補助款要用在核准的計畫上，核銷時還要附實際支用明細表（補助作業要點第8點）。'+tel,
   statutes:[F(16),F(20),GR(8)]});
@@ -8900,7 +8907,7 @@ function patrol113(t){
  if(/候補/.test(t)&&/(通知|寄|發)/.test(t)&&meet.test(t)&&!/(遞補|辭職|缺額|出缺|補選|選舉)/.test(t))
   return mk('候補理事、候補監事要不要通知開會：理事會、監事會可以通知他們列席，不是一定要通知','人民團體理事會、監事會，「得」通知候補理事、候補監事列席（人民團體法第29條第1項），也就是可以通知、不是一定要通知。\n\n理事會、監事會的決議，是以理事、監事過半數之出席，出席人數過半數或較多數之同意作成（同條第2項）。他們要遞補成為理事、監事，是理事、監事出缺或視同辭職時依次遞補（人民團體法第31條；會務輔導辦法第9條第3項）。',[P(29),P(31),G(9)],'notice-deputy-113');
  /* 二、通知寄出去算不算到達 */
- if((meet.test(t)||/(通知書|通知單)/.test(t))&&/通知/.test(t)&&/(寄出去|寄出|寄到|寄了|寄丟|郵寄|掛號|簽收|算到達|到達|送到|送達|已讀|存證)/.test(t)&&!/(沒收到|未收到|沒寄到|沒送到|寄不到|送不到|漏寄|漏通知|晚寄|有效|無效|連署|臨時.{0,3}(理事|監事)會議|怎麼寄|如何寄)/.test(t))
+ if((meet.test(t)||/(通知書|通知單)/.test(t))&&/通知/.test(t)&&/(寄出去|寄出|寄到|寄了|寄丟|郵寄|掛號|簽收|算到達|到達|送到|送達|已讀|存證)/.test(t)&&!/(沒收到|未收到|沒寄到|沒送到|寄不到|送不到|漏寄|漏通知|晚寄|有效|無效|連署|臨時.{0,3}(理事|監事)會議|怎麼寄|如何寄|(幾|多少)(天|日)(以)?前|多久(以)?前|提前(幾|多)|提早(幾|多)|最晚|最慢|最遲|何時要|什麼時候要)/.test(t))
   return mk('開會通知寄出去算不算到達：法規沒有明文，只有緊急臨時會議才寫「送達」','法規對一般會議只寫要在期限前「通知」應出席的人（會員大會十五日前、理事會監事會七日前），沒有規定要用掛號或要對方簽收，也沒有寫「寄出」或「到達」哪一個才算（人民團體法第26條第1項；人民團體會務輔導辦法第10條第3項、第11條第1項）。\n\n只有因緊急事故召集臨時會議時，條文寫的是「於開會前一日送達通知」，這種情形要確實送到（人民團體法第26條第1項但書；輔導辦法第11條第1項但書）。\n\n章程如果訂了通知方式，要照章程。建議保留寄送紀錄、簽收或對話截圖，萬一有人說沒收到才有憑據（這是建議，不是法規要求）。',[P(26),G(10),G(11)],'notice-arrive-113');
  /* 二之一、一人代理幾個、受託人是不是理事長、要不要同類別 */
  if(/(委託|代理|代為|幫.{0,6}投票|替.{0,6}投票)/.test(t)&&/(大會|開會|出席|投票|選舉|會員|簽到)/.test(t)&&!/(理事會|監事會|理監事|公會|職業團體)/.test(t)&&!/(理事|監事|理事長).{0,6}(請|找|叫|讓|拜託|託)(別人|他人|其他人|人)/.test(t)){
