@@ -1576,6 +1576,8 @@ async function ask(q){
   if(feeTiming){financeMeetingPlanner=null;renderAnswer(q,feeTiming);return;}
   const charterApplicability=typeof window.verifiedAssociationCharterApplicability==="function"?window.verifiedAssociationCharterApplicability(q):null;
   if(charterApplicability){financeMeetingPlanner=null;renderAnswer(q,charterApplicability);return;}
+  const grantEstate=typeof window.verifiedAssociationDissolutionSubsidizedAssets==="function"?window.verifiedAssociationDissolutionSubsidizedAssets(q):null;
+  if(grantEstate){financeMeetingPlanner=null;renderAnswer(q,grantEstate);return;}
   const dissolutionNotice=typeof window.verifiedAssociationDissolutionNotice==="function"?window.verifiedAssociationDissolutionNotice(q):null;
   if(dissolutionNotice){financeMeetingPlanner=null;renderAnswer(q,dissolutionNotice);return;}
   const priorBalance=typeof window.verifiedAssociationPriorBalance==="function"?window.verifiedAssociationPriorBalance(q):null;
@@ -1599,6 +1601,8 @@ async function ask(q){
   if(termDeposit){financeMeetingPlanner=null;renderAnswer(q,termDeposit);return;}
   const directorBank=typeof window.verifiedAssociationDirectorBankChange==="function"?window.verifiedAssociationDirectorBankChange(q):null;
   if(directorBank){financeMeetingPlanner=null;renderAnswer(q,directorBank);return;}
+  const repEligibility=typeof window.verifiedCoopAssociationRepresentativeEligibility==="function"?window.verifiedCoopAssociationRepresentativeEligibility(q):null;
+  if(repEligibility){financeMeetingPlanner=null;renderAnswer(q,repEligibility);return;}
   const representative=typeof window.verifiedAssociationRepresentativeCandidate==="function"?window.verifiedAssociationRepresentativeCandidate(q):null;
   if(representative){financeMeetingPlanner=null;renderAnswer(q,representative);return;}
   const unionDues=typeof window.verifiedUnionDues==="function"?window.verifiedUnionDues(q):null;
@@ -2119,7 +2123,7 @@ touch();
 <script src="association-director-eligibility-bank-change.js?v=20261127-bank-director"></script>
 <script src="association-charter-written-after-quorum.js?v=20261127-written-quorum"></script>
 <script src="association-recall-address-agenda.js?v=20261127-recall-address"></script>
-<script src="association-address-meeting-change.js?v=20261127-coop-agenda"></script>
+<script src="association-address-meeting-change.js?v=20261127-venue-only"></script>
 <script src="association-notice-dispatch-delivery.js?v=1"></script>
 <script src="association-deficit-personal-liability.js?v=1"></script>
 <script src="union-dues-social-donation-sale.js?v=20261127-union-sale"></script>
@@ -2127,6 +2131,7 @@ touch();
 <script src="cooperative-exit-chair-share-timing.js?v=20261127-exit-share"></script>
 <script src="cooperative-equipment-grant-aftercare.js?v=20261127-grant-aftercare"></script>
 <script src="cooperative-activity-grant-route.js?v=20261127-coop-use"></script>
+<script src="coop-association-representative-eligibility.js?v=20261127-rep-eligibility"></script>
 <script src="association-representative-candidate.js?v=1"></script>
 <script src="association-designated-donation-cooperative-deficit.js?v=1"></script>
 <script src="association-cooperative-court-certificate.js?v=1"></script>
@@ -2151,6 +2156,7 @@ touch();
 <script src="association-withdrawal-election.js?v=20261127-coop-fees"></script>
 <script src="association-charter-address.js?v=1"></script>
 <script src="association-charter-applicability.js?v=1"></script>
+<script src="association-dissolution-subsidized-assets.js?v=20261127-grant-assets"></script>
 <script src="association-dissolution-financial-notice.js?v=1"></script>
 <script src="association-membership-suspension.js?v=20261127-member-rights"></script>
 <script src="meeting-quorum-kind-clarification.js?v=20261127-attendance-method"></script>
