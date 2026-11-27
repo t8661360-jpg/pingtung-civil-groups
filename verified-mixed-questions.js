@@ -353,7 +353,32 @@ function formerMemberArrearsPrivacy(q){
   summary:'即使已退'+(cooperative?'社':'會')+'，未確認合法依據前，不要公布可辨識個人的欠繳資料。',
   steps,refs:[law('個人資料保護法','I0050021',5),law('個人資料保護法','I0050021',20),cooperative?coop(19):law('社會團體財務處理辦法','D0050097',20)]};
 }
+function changedMeetingVenue(q){
+ const t=String(q??'').normalize('NFKC').replace(/\s/g,'');
+ if(t.length>155||/社員|合作社|工會|公會|農會|漁會|公司|基金會|管委會|里民大會|視訊|投開票所|籌備|成立大會|議程改了|(?:改|變更|更換).{0,2}(?:登記|立案|章程).{0,2}(?:會址|地址)|不是開會地點/.test(t))return null;
+ const assembly=/會員(?:[(]?代表[)]?)?大會|協會大會/.test(t);
+ const board=/理事會|監事會|理監事(?:聯席)?會/.test(t);
+ if(!assembly&&!board&&!/會議|開會/.test(t))return null;
+ if(!/(?:場地|會場|會議地點|開會地點|會議室|地點|地址)(?:有)?(?:改|換|異動|變更)|(?:換|更換|改|更改|變更)(?:了|個)?(?:場地|會場|會議地點|開會地點|會議室|地點|地址)|(?:換|移|挪|改)(?:到|去|至)[^，,。？?；;]{0,20}(?:會議室|會場|活動中心|禮堂|樓)/.test(t))return null;
+ const guide=n=>law('人民團體會務輔導辦法','D0020094',n);
+ const schedule=['只換地點：通知寫清楚','依章程或團體採用的通知方式，儘快把正確的新地點、原訂日期與時間，以及必要的議程或辨識資訊通知每一位應出席的人，並保留送達紀錄。若日期也變了，就不能當成只換地點處理。'];
+ const short=['離開會日不到法定通知期間怎麼辦？','上述條文規定一般的會前通知期間，但未另定只換地點是否一律重新起算，也不能說原通知一定有效。若已很接近開會日，更新通知後，請向主管機關確認能否照原日召開或須另訂日期；不要把臨時換地點直接當作緊急臨時會議。'];
+ const refs=[...(assembly||!board?[guide(10),association(26)]:[]),...(board||!assembly?[guide(11)]:[])];
+ const actions=[{label:'聯絡承辦',view:'contact',sub:''}];
+ if(!assembly&&!board) return {direct:true,category:'會議召集',title:'只換開會地點：請先選會議種類',
+  summary:'先把新地點通知應出席的人。一般人民團體的會員大會和理監事會，通知期間、對象和縣府列席程序不同。',
+  choices:['會員大會','理事會','監事會'].map(label=>({label,question:'協會'+label+'日期不變，只換地點，要怎麼通知？'})),
+  refs,actions};
+ const isSupervisor=/監事會/.test(t), isDirector=/理事會/.test(t);
+ const boardKind=/聯席/.test(t)||isSupervisor&&isDirector?'理事會、監事會或理監事聯席會議':isSupervisor?'監事會':isDirector?'理事會':'理監事會議';
+ const assemblyStep=['會員（代表）大會：通知應出席人員','一般應在開會十五日前通知應出席的會員或會員代表，並報請主管機關派員列席。若已報縣府，請更新新地點；只通知縣府，不能代替通知應出席人員。'];
+ const boardStep=[boardKind+'：通知應出席人員','原則上要在開會七日前通知各應出席人員。若是今天改成另一間會議室，也應讓各應出席人員收到正確地點；不要套用會員大會報請縣府派員列席的規定。'];
+ return {direct:true,category:'會議召集',title:'開會日期不變、只換地點：更新開會通知',
+  summary:assembly?'要把新地點通知應出席的會員或會員代表，不能只跟縣府說。':'要把新地點通知各應出席人員。這是會議地點變動，不是協會登記會址變更。',
+  steps:[schedule,...(assembly?[assemblyStep]:[]),...(board?[boardStep]:[]),short],refs,actions};
+}
 function answerMixed(q){
+ const venue=changedMeetingVenue(q);if(venue)return venue;
  const arrears=formerMemberArrearsPrivacy(q);if(arrears)return arrears;
  const resign=resignationAndMeeting(q);if(resign)return resign;
  const dues=changedAssociationDues(q);if(dues)return dues;
@@ -374,6 +399,6 @@ function answerMixed(q){
     keys.includes('creditor')?'合作社清算：就任後公告與終結報告，分別計算':isCoop?'合作社清算報告與股息上限，分開看':'協會入會資格與會員除名，分開看',
   summary:keys.length===1?topics[keys[0]].line[1]:'你問了兩件事，分別如下。',steps:keys.length>1?keys.map(k=>topics[k].line):[],refs:keys.flatMap(k=>topics[k].laws)};
 }
-if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy};return;}
+if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy,changedMeetingVenue};return;}
 root.verifiedMixedQuestionAnswer=answerMixed;
 })(typeof window!=='undefined'?window:globalThis);
