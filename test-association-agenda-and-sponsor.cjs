@@ -1,0 +1,16 @@
+const assert=require('node:assert/strict');
+const {route:f}=require('./association-year-end-dues-agenda.js');
+const {route:s}=require('./association-sponsor-ballot.js');
+const a=f('協會在12月開大會，要討論今年決算跟明年會費調漲，需要分成兩個議案嗎？');
+assert.match(a.summary,/同一場依法召集.*未結帳/);
+assert.match(a.steps.flat().join(' '),/三個月內.*監事會審核.*會費.*核備後.*三分之二|三個月內.*監事會審核.*會費.*核備後.*重大決議/);
+assert.doesNotMatch(f('調漲今年會費和去年度的決算，協會12月會員大會要分成兩個議案嗎？').summary,/未結帳/);
+assert.equal(f('合作社的決算和會費調漲可放同個議案嗎？'),null);
+assert.equal(f('一般協會會費漲價要補差額嗎？'),null);
+const b=s('協會章程寫可以收贊助會員，那贊助會員可以投票改章程，還能選理事嗎？');
+assert.equal(b.choices.length,2);
+assert.match(b.steps.flat().join(' '),/修章是表決權.*三分之二.*被選舉權/);
+const [denied,member]=b.choices.map(x=>s(x.question)); assert.match(denied.summary,/不能以該身分修章表決/);assert.match(member.summary,/不因同時有贊助紀錄就喪失權利/);
+assert.equal(s('普通協會章程說贊助會員無表決權，但不確定能不能選理事').choices.length,2);
+assert.equal(s('公證人公會贊助會員有表決權嗎？'),null);
+assert.equal(s('農會贊助會員可以投票選理事嗎？'),null);
