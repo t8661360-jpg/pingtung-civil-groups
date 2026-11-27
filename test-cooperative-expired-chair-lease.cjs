@@ -1,0 +1,12 @@
+const assert=require('node:assert/strict');
+const {route}=require('./cooperative-expired-chair-lease.js');
+const lines=r=>r.steps.flat().join(' ');
+let r=route('合作社理事會主席任期過了，可以先幫合作社簽新的租約嗎？如果搬了還要改社址嗎？');
+assert.match(lines(r),/互推一人或數人.*15日內召集互選.*社址確有變更.*一個月內/);
+assert.ok(r.refs.some(x=>x.title.includes('第9-1條')));
+r=route('搬社址的租約已經簽了，合作社前任主席任期已滿，還有效嗎？');
+assert.match(lines(r),/不能只憑任期判定有效或無效.*善意第三人/);
+r=route('合作社理事會主席任期到了，房東是理事，這份租約要誰簽？');
+assert.match(lines(r),/由監事代表合作社/);
+assert.equal(r.refs.some(x=>x.title.includes('第9-1條')),false);
+for(const q of ['信用合作社理事會主席任期過了，能簽租約嗎？','一般協會理事長任期過了，能簽租約嗎？','合作社換社址租約要附嗎？','合作社主席退社，任期到年底，可以領股金嗎？'])assert.equal(route(q),null,q);

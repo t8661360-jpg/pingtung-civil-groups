@@ -1599,6 +1599,8 @@ async function ask(q){
   if(unionDues){financeMeetingPlanner=null;renderAnswer(q,unionDues);return;}
   const soldDonation=typeof window.verifiedAssociationDonationSale==="function"?window.verifiedAssociationDonationSale(q):null;
   if(soldDonation){financeMeetingPlanner=null;renderAnswer(q,soldDonation);return;}
+  const coopLease=typeof window.verifiedCoopExpiredChairLease==="function"?window.verifiedCoopExpiredChairLease(q):null;
+  if(coopLease){financeMeetingPlanner=null;renderAnswer(q,coopLease);return;}
   const exitShareTiming=typeof window.verifiedCooperativeExitShareTiming==="function"?window.verifiedCooperativeExitShareTiming(q):null;
   if(exitShareTiming){financeMeetingPlanner=null;renderAnswer(q,exitShareTiming);return;}
   const equipmentGrant=typeof window.verifiedCooperativeEquipmentGrantAftercare==="function"?window.verifiedCooperativeEquipmentGrantAftercare(q):null;
@@ -2107,6 +2109,7 @@ touch();
 <script src="association-notice-dispatch-delivery.js?v=1"></script>
 <script src="association-deficit-personal-liability.js?v=1"></script>
 <script src="union-dues-social-donation-sale.js?v=20261127-union-sale"></script>
+<script src="cooperative-expired-chair-lease.js?v=20261127-lease"></script>
 <script src="cooperative-exit-chair-share-timing.js?v=20261127-exit-share"></script>
 <script src="cooperative-equipment-grant-aftercare.js?v=20261127-grant-aftercare"></script>
 <script src="cooperative-activity-grant-route.js?v=20261127-coop-use"></script>
