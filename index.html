@@ -1674,7 +1674,10 @@ async function ask(q){
   const verifiedMixed=typeof window.verifiedMixedQuestionAnswer==="function"?window.verifiedMixedQuestionAnswer(q):null;
   if(verifiedMixed){renderAnswer(q,verifiedMixed);return;}
   const shownQ=q;const prevQ=convo.length?convo[convo.length-1].q:"";
-  if(typeof normalizeQuestion==="function")q=normalizeQuestion(typeof withContext==="function"?withContext(q,prevQ):q);
+  if(typeof normalizeQuestion==="function"){
+    try{q=normalizeQuestion(typeof withContext==="function"?withContext(q,prevQ):q);}
+    catch{q=shownQ;} // Optional wording layers can load without their dependency; keep the original question.
+  }
   busy=true;touch();nudge.classList.remove("show");clerkPrompt.classList.remove("show");
   if(!$("#v-home").classList.contains("on"))location.hash="home";
   $("#qno").textContent=String(++qcount).padStart(4,"0");
