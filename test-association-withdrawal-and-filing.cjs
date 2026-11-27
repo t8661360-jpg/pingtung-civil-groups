@@ -1,0 +1,18 @@
+'use strict';
+const a=require('node:assert/strict');
+const {route}=require('./association-withdrawal-and-filing');
+const w=route('協會理事會不決議收我的退會書，我還能去大會投票嗎？會員名冊怎麼處理？');
+a.match(w.summary,/有沒有送達及退會是否生效/);
+a.match(w.steps[1][1],/仍有效者.*核對大會出席資格、名冊/);
+a.match(w.steps[2][1],/大會15日前審定/);
+const [received,effective]=w.choices.map(c=>route(c.question));
+a.match(received.summary,/已收到退會書.*核對有沒有生效/);
+a.match(effective.summary,/已確認退會生效，不再以舊會員身分投票/);
+a.equal(received.choices,undefined);a.equal(effective.choices,undefined);
+const m=route('協會的章程修改後還沒報縣府，會址也跟著搬了，可以只報新會址不報章程嗎？');
+a.match(m.summary,/章程異動要核備.*會址異動.*報備查/);
+a.match(m.steps[0][1],/異動後30日內/);
+const n=route('協會會址搬了，章程已改還沒報，會員大會舊通知已發，三件事一起辦嗎？');
+a.match(n.steps[2][1],/先確認.*會場有沒有跟著變/);
+a.equal(route('協會章程沒改、也沒搬會址，只換會議地點，要報縣府嗎？'),null);
+a.equal(route('合作社拒收退會書，還能投票嗎？'),null);
