@@ -1568,6 +1568,8 @@ async function ask(q){
   if(writtenCharter){financeMeetingPlanner=null;renderAnswer(q,writtenCharter);return;}
   const recallAddress=typeof window.verifiedAssociationRecallAddressAgenda==="function"?window.verifiedAssociationRecallAddressAgenda(q):null;
   if(recallAddress){financeMeetingPlanner=null;renderAnswer(q,recallAddress);return;}
+  const filingBeforeAssembly=typeof window.verifiedAssociationFilingBeforeAssembly==="function"?window.verifiedAssociationFilingBeforeAssembly(q):null;
+  if(filingBeforeAssembly){financeMeetingPlanner=null;renderAnswer(q,filingBeforeAssembly);return;}
   const yearEndDues=typeof window.verifiedAssociationYearEndDuesAgenda==="function"?window.verifiedAssociationYearEndDuesAgenda(q):null;
   if(yearEndDues){financeMeetingPlanner=null;renderAnswer(q,yearEndDues);return;}
   const sponsorBallot=typeof window.verifiedAssociationSponsorBallot==="function"?window.verifiedAssociationSponsorBallot(q):null;
@@ -1615,6 +1617,8 @@ async function ask(q){
   if(coopLease){financeMeetingPlanner=null;renderAnswer(q,coopLease);return;}
   const exitShareTiming=typeof window.verifiedCooperativeExitShareTiming==="function"?window.verifiedCooperativeExitShareTiming(q):null;
   if(exitShareTiming){financeMeetingPlanner=null;renderAnswer(q,exitShareTiming);return;}
+  const grantDividend=typeof window.verifiedCoopGrantAndDividend==="function"?window.verifiedCoopGrantAndDividend(q):null;
+  if(grantDividend){financeMeetingPlanner=null;renderAnswer(q,grantDividend);return;}
   const equipmentGrant=typeof window.verifiedCooperativeEquipmentGrantAftercare==="function"?window.verifiedCooperativeEquipmentGrantAftercare(q):null;
   if(equipmentGrant){financeMeetingPlanner=null;renderAnswer(q,equipmentGrant);return;}
   const grantChange=typeof window.verifiedCooperativeGrantChange==="function"?window.verifiedCooperativeGrantChange(q):null;
@@ -2103,6 +2107,7 @@ touch();
 <script src="member-roster-access.js?v=20261127-election-copy"></script>
 <script src="association-fee-charter.js?v=1"></script>
 <script src="association-sponsor-ballot.js?v=20261127-sponsor"></script>
+<script src="association-filing-before-assembly.js?v=20261127-filing-order"></script>
 <script src="association-year-end-dues-agenda.js?v=20261127-year-end"></script>
 <script src="association-fee-timing.js?v=1"></script>
 <script src="cooperative-address-proof.js?v=1"></script>
@@ -2131,6 +2136,7 @@ touch();
 <script src="union-dues-social-donation-sale.js?v=20261127-union-sale"></script>
 <script src="cooperative-expired-chair-lease.js?v=20261127-lease"></script>
 <script src="cooperative-exit-chair-share-timing.js?v=20261127-exit-share"></script>
+<script src="cooperative-grant-and-dividend.js?v=20261127-no-restricted-dividend"></script>
 <script src="cooperative-equipment-grant-aftercare.js?v=20261127-grant-aftercare"></script>
 <script src="cooperative-activity-grant-route.js?v=20261127-coop-use"></script>
 <script src="coop-association-representative-eligibility.js?v=20261127-rep-eligibility"></script>

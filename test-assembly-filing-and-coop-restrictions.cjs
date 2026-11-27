@@ -1,0 +1,15 @@
+const a=require('node:assert/strict');
+const f=require('./association-filing-before-assembly.js').route;
+const g=require('./cooperative-grant-and-dividend.js').route;
+const s=f('協會沒開大會，但理事會和監事會都開過，可以先報縣府備查嗎？還需要補會員大會嗎？');
+a.equal(s.choices.length,2);
+const [x,y]=s.choices.map(q=>f(q.question));
+a.match(x.summary,/正式報備要等會員大會追認/);
+a.match(x.steps.flat().join(' '),/只是兩會開過.*不等於通過/);
+a.match(y.summary,/原則自行保存.*依法應送件的特定決議/);
+a.equal(f('合作社沒開大會，理事會和監事會開過，年度決算可以先報縣府嗎？'),null);
+const z=g('合作社把補助結餘拿去發社員股息，就算公益金還有剩也可以嗎？');
+a.match(z.steps.flat().join(' '),/第8點之一.*繳回.*第23條公益金.*不得移作他用.*第22條/);
+a.match(g('公益金還有剩，合作社能不能發給社員配息？').summary,/不得挪作社員股息/);
+a.equal(g('信用合作社公益金可以發股息嗎？'),null);
+a.equal(g('合作社平常社股股息上限多少？'),null);
