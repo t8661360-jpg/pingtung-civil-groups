@@ -141,8 +141,25 @@ function normalizeQuestionR225(s){
  s=s.replace(/解散(?:案)?議決/g,'解散決議').replace(/議決解散/g,'決議解散');
  return s;
 }
+/* 第227輪（根源，入會退會換問法）：
+   1. 「要多久才能成為（正式）會員」＝入會審查要多久（原本整句對不上，被答成難倒小屏）。
+   2. 「入會…身分證字號／號碼／身份證」＝入會要不要附身分證（原本只認「影本」）。
+   3. 「協會能不能設會員資格限制」＝入會資格可不可以限制（原本沒有「學歷、職業」等詞，被答成難倒小屏）。 */
+function normalizeQuestionR227(s){
+ s=String(s||'');
+ if(/合作社|社員|股金|工會|公會|社區|公司|政黨|基金會|成立|籌組|籌備|發起|立案/.test(s))return s;
+ if(/(多久|多長時間|多長|幾天|多少時間).{0,3}(才|才能|才可以|才會|可以|能).{0,3}(當|成為|變成|算|正式)(正式)?會員|(成為|變成|當).{0,2}(正式)?會員.{0,3}(要|需要|得).{0,2}(等|多久|多長)/.test(s)&&!/(新會員入會後|投票|選舉|被選舉|理事)/.test(s))
+  return '入會審查要多久';
+ if(/(入會|加入|會員資料|申請書).{0,8}(身分證|身份證|證件號|身分證字號|身分證號)/.test(s)&&/(要|需要|需|得|必須|一定|寫|填|給|附|提供)/.test(s)&&!/(縣府|縣政府|社會處|主管機關|選舉)/.test(s))
+  return '入會要附身分證影本嗎';
+ if(/(協會|社團|本會|團體)/.test(s)&&/(會員資格|入會資格|入會條件|會員條件)/.test(s)&&/(限制|限定|設條件|訂條件|設限|門檻)/.test(s)&&/(能|可以|可不可以|能不能|行不行|可否|合法)/.test(s)&&!/(學歷|職業|年齡|性別|地區)/.test(s))
+  return '會員資格可以限定某些職業嗎';
+ if(/(會員|會籍)(?:的)?資料/.test(s)&&/(要|需要|應|該|得).{0,3}(寫|記|載|有|填|登記|建立)/.test(s)&&/(哪些|什麼|甚麼|那些|哪幾)/.test(s)&&!/(發起|籌組|選舉|理事|監事|縣府|縣政府|閱覽|給誰|提供給|影本|身分證|身份證|入會|名冊)/.test(s))
+  return '會員名冊要寫什麼';
+ return s;
+}
 function normalizeQuestion(q){
- return normalizeQuestionR225(normalizeQuestionR223(normalizeQuestion223(normalizeQuestion222(normalizeQuestion221(normalizeQuestion216(normalizeQuestion215(normalizeQuestion214(normalizeQuestion212(normalizeQuestion210(normalizeQuestion209(normalizeQuestion208(normalizeQuestion207(normalizeQuestion206(normalizeQuestion202(normalizeQuestion201(normalizeQuestion200(normalizeQuestion194(normalizeQuestion193(normalizeQuestion192(normalizeQuestion191(normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(normalizeQuestionU5(normalizeQuestionU3(normalizeQuestionU4(normalizeQuestionU2(normalizeQuestionU6(fixTyposU1(q)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
+ return normalizeQuestionR227(normalizeQuestionR225(normalizeQuestionR223(normalizeQuestion223(normalizeQuestion222(normalizeQuestion221(normalizeQuestion216(normalizeQuestion215(normalizeQuestion214(normalizeQuestion212(normalizeQuestion210(normalizeQuestion209(normalizeQuestion208(normalizeQuestion207(normalizeQuestion206(normalizeQuestion202(normalizeQuestion201(normalizeQuestion200(normalizeQuestion194(normalizeQuestion193(normalizeQuestion192(normalizeQuestion191(normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(normalizeQuestionU5(normalizeQuestionU3(normalizeQuestionU4(normalizeQuestionU2(normalizeQuestionU6(fixTyposU1(q))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
 }
 /* 第200輪（根源）：入會退會與會員資格換問法——
    「忘記繳／忘了繳／漏繳會費」＝沒繳會費（原本「忘記繳會費會被退會嗎」被當成退費）；
@@ -12385,9 +12402,26 @@ function patrolR226(t){
   statutes:[{title:'志願服務法第16條',source:LAW+'D0050131'},{title:'志願服務法第3條',source:LAW+'D0050131'},{title:'志願服務法第15條',source:LAW+'D0050131'}],notes:[],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
  return null;
 }
+/* 第227輪（入會退會換問法）：退會書交給誰、怎麼證明是會員、會員名冊記載哪些。依據（已對 statutes.json.gz 原文核對）：人民團體法§12第7款、§54；人民團體會務輔導辦法§10。 */
+function patrolR227(t){
+ if(/(合作社|社員|股金|工會|公會|社區|公司|政黨|基金會)/.test(t))return null;
+ const GU=n=>({title:'人民團體會務輔導辦法第'+n+'條',source:LAW+'D0020094'});
+ const PT=n=>({title:'人民團體法第'+n+'條',source:LAW+'D0050091'});
+ const A=(title,summary,statutes)=>({direct:true,category:'人民團體會務說明',title,summary,statutes,notes:[],actions:[{label:'聯絡承辦',view:'contact',sub:''}]});
+ if(/(退會|退出|離開協會|退社)/.test(t)&&!/(費|金|基金|款|退還|退錢)/.test(t)&&(/(書|單|申請|聲明|通知|信)/.test(t)&&/(交給誰|給誰|交誰|交到哪|交哪|送哪|送到哪|寄哪|寄到哪|遞給誰|向誰|跟誰|報給誰|哪裡交|在哪交|要交給|要給誰|交去哪)/.test(t)||/(交|送|遞|寄|提出).{0,3}(理事長|協會|理事會|總幹事|秘書).{0,4}還是.{0,3}(縣府|縣政府|社會處|主管機關)/.test(t)||/(交|送|遞|寄|提出).{0,3}(縣府|縣政府|社會處).{0,4}還是.{0,3}(理事長|協會|理事會|總幹事|秘書)/.test(t)))
+  return A('退會書要交給誰：交給您參加的協會，不是縣府；實際窗口看協會章程',
+  '人民團體法沒有規定退會書要交給誰，也沒有規定退會的手續；「會員入會、出會與除名」是章程要載明的事項（人民團體法第12條第7款），所以請先看您協會的章程怎麼寫。\n一般的做法是用書面向自己參加的協會表示退會（常見是交給理事長，或協會的秘書處、總幹事），由協會更新會籍資料（人民團體會務輔導辦法第10條）。\n法規沒有規定會員退會要通知縣府；協會立案後要在三十日內報縣府核備的，是章程、選任職員簡歷冊或負責人名冊的異動（人民團體法第54條）。\n建議退會書留一份副本或收件紀錄，日後比較有憑據。\n各協會做法不同，有疑問可洽縣府總機 08-7320415。',
+  [PT(12),GU(10),PT(54)]);
+ if(/(會員|會籍)/.test(t)&&/(怎麼|如何|怎樣|要怎麼|要如何|可以怎麼)/.test(t)&&/(證明|證實|證實自己|拿什麼證)/.test(t)&&/(我是|自己是|我的|我有|身分|身份|資格|是會員|為會員)/.test(t)&&!/(退會|除名|成立|入會費|繳費|繳了|付了)/.test(t))
+  return A('怎麼證明自己是會員：看協會的會籍資料；要不要發會員證由協會自己決定',
+  '人民團體法和會務輔導辦法沒有規定證明會員身分的方式。協會要建立會員會籍資料並隨時更新（人民團體會務輔導辦法第10條），所以是不是會員，以協會的會籍資料為準。\n開會員大會時，出席的人要是理事會在開會十五日前審定、列在會員名冊上的會員（人民團體會務輔導辦法第10條）。\n要不要發會員證，法規沒有規定一定要發，由協會依章程或理事會決議決定；需要證明時，請向您的協會洽詢，請協會依會籍資料確認。\n各協會做法不同，有疑問可洽縣府總機 08-7320415。',
+  [GU(10),PT(12)]);
+ return null;
+}
 function verifiedRoundAnswer(q,ctx){
  let x=null;
- try{x=patrolR226(norm(q))}catch(e){x=null}
+ try{x=patrolR227(norm(q))}catch(e){x=null}
+ if(!x){try{x=patrolR226(norm(q))}catch(e){x=null}}
  if(!x){try{x=patrolR225(norm(q))}catch(e){x=null}}
  if(!x){try{x=patrolR224b(norm(q))}catch(e){x=null}}
  if(!x){try{x=patrolR224(norm(q))}catch(e){x=null}}
