@@ -551,19 +551,20 @@ function temporaryMeetingNotice(q){
  const raw=String(q??'').trim(),t=raw.normalize('NFKC').replace(/\s/g,'');
  if(t.length>145||/合作社|社員大會|工會|公會|農會|漁會|管委會|公司|基金會|家長會|改選|選舉|罷免|成立|籌備|議程|收支|財報|決算|章程|委託|視訊/.test(t))return null;
  if(!/臨時|緊急事故|緊急會議/.test(t)||!/通知|送達|寄出|寄開會|發函/.test(t)
-    ||!/最晚|多久|幾天|幾日|前一(?:天|日)|提前|什麼時候|哪一天|改期|來不及|昨晚|當天/.test(t))return null;
- if(!/協會|社會團體|人民團體|理事|監事|會員大會|會員代表大會|臨時會議/.test(t))return null;
- const assembly=/會員(?:[(]?代表[)]?)?大會|協會大會/.test(t);
+    ||!/最晚|多久|幾天|幾日|前一(?:天|日)|提前|什麼時候|哪一天|改期|來不及|昨晚|當天|(?:[一七]|十五|1|7|15)(?:天|日)/.test(t))return null;
+ if(!/協會|社會團體|人民團體|理事|監事|會員大會|會員代表大會|(?:開|召開)臨時會|臨時會議/.test(t))return null;
+ const assembly=/會員(?:[(]?代表[)]?)?(?:臨時)?大會|協會(?:臨時)?大會/.test(t);
  const combined=/理監事(?:聯席)?會議?/.test(t);
  const director=/理事會/.test(t),supervisor=/監事會/.test(t),board=combined||director||supervisor;
  const deferred=/改期|延期|延後|挪日|換日期/.test(t);
- const notEmergency=/沒有緊急|並非緊急|不是緊急|不是因為緊急|只是.{0,12}(?:排不出|改期|延後|喬時間)/.test(t);
+ const notEmergency=/沒有緊急|並非緊急|不是緊急|不是因為緊急|非因緊急|非緊急|不緊急|不急|沒(?:有)?急事|只是.{0,12}(?:排不出|改期|延後|喬時間)|(?:忘了|忘記).{0,8}(?:發|寄|通知)/.test(t);
  const associationRef=association(26);
  const guideRef=law('人民團體會務輔導辦法','D0020094',11);
  if(!assembly&&!board){
-  return {direct:true,category:'會議召集',title:'臨時會議通知：請先選會議種類',
-   summary:'會員大會和理事會、監事會的通知期限不同。即使叫做臨時會議，能否在開會前一日送達，要看是不是因緊急事故召集。',
-   choices:['會員大會','理事會','監事會'].map(label=>({label,question:'協會'+label+'：'+raw})),
+  return {direct:true,category:'會議召集',questionState:{focus:'compound'},title:notEmergency?'不是緊急事故，不能只提前一天通知':'臨時會議通知：請先選會議種類',
+   summary:notEmergency?'不可以。沒有緊急事故，不能用前一日送達的例外。若是一般人民團體，會員大會原則上十五日前通知；理事會、監事會和理監事聯席會議原則上七日前通知。':'臨時會不等於緊急事故。若是一般人民團體，會員大會原則上十五日前通知；理事會、監事會和理監事聯席會議原則上七日前通知。只有因緊急事故召集且開會前一日已送達，才適用例外。',
+   choiceHeading:'請先選會議種類',
+   choices:['會員大會','理事會','監事會','理監事聯席會議'].map(label=>({label,question:'協會'+label+'：'+raw})),
    refs:[associationRef,guideRef]};
  }
  const boardName=combined?'理監事聯席會議':director&&supervisor?'理事會、監事會':director?'理事會':'監事會';
@@ -573,8 +574,8 @@ function temporaryMeetingNotice(q){
   ['緊急事故才有例外','因緊急事故召集臨時會議，通知須於開會前一日送達；只在前一天寄出、沒有送達，不算符合例外。排程來不及或單純改期，不當然是緊急事故。']
  ];
  if(deferred)steps.push(['日期已經改了','請依會議種類，以新會議日期安排通知，不能只因延期就改用前一日。'+(assembly?'若會員大會已報主管機關列席，請更新日期。':'')+'若情形是否符合緊急例外不明，向主管機關確認。']);
- return {direct:true,category:'會議召集',title:assembly&&board?'會員大會與理監事會：分開看通知期限':'臨時'+(assembly?'會員大會':boardName)+'：不是一律前一天通知',
- summary:notEmergency?'沒有緊急事故，不能用前一日送達的例外，應遵守原有的通知期限。':'一般臨時會議仍適用原通知期限；因緊急事故召集，才有前一日送達的例外。',
+ return {direct:true,category:'會議召集',questionState:{focus:'compound'},title:assembly&&board?'會員大會與理監事會：分開看通知期限':'臨時'+(assembly?'會員大會':boardName)+'：不是一律前一天通知',
+ summary:notEmergency?'不可以。沒有緊急事故，不能用前一日送達的例外，應遵守原有的通知期限。':'臨時會不等於緊急事故。一般臨時會議仍適用原通知期限；因緊急事故召集，才有前一日送達的例外。',
  steps,refs:[...(assembly?[associationRef]:[]),...(board?[guideRef]:[]),...(deferred&&assembly?[{title:'內政部函釋：會員大會延期與通知',source:'https://www.moi.gov.tw/News_Content.aspx?n=14119&s=220065&sms=12360'}]:[])]};
 }
 function withdrawalAndAssemblyRoll(q){
