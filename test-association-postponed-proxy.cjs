@@ -1,0 +1,13 @@
+'use strict';
+const assert=require('node:assert/strict');
+const {route}=require('./association-postponed-proxy');
+const both=route('協會會員代表大會從3月改到4月，之前簽好的委託書能照用嗎？如果另一位代表已經換人要不要重審名冊？');
+assert.match(both.summary,/改期本身不使所有原委託書失效.*另一位代表.*另審定/);
+assert.match(both.steps[1][1],/15日前由理事會重新審定/);
+const limited=route('協會會員大會延期但代表一個都沒換，舊委託書寫只限原本日期，能在新日期用嗎？');
+assert.match(limited.summary,/不能直接在新會期使用/);
+assert.match(limited.steps[1][1],/並未要求只因延期就重審一次/);
+const reminder=route('協會大會延期時名冊和委託書沒變，但重新通知會員代表仍要提前15天嗎？');
+assert.match(reminder.steps[2][1],/新會議日期15日前通知.*報請主管機關列席/);
+assert.equal(route('合作社社員大會延期，有委託書能繼續用嗎？'),null);
+assert.equal(route('一般協會會員大會的委託書要去哪裡下載？'),null);
