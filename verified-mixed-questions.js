@@ -209,7 +209,25 @@ function coopRegistryPrivacy(q){
   steps:[['如何查閱','可以向合作社提出查閱；合作社應備置社員名簿、章程、社員大會紀錄及規定的簿冊。查閱不等於有權取得可任意散布的整份副本。'],['電話或其他個資能否貼社群','不要把可識別個人資料貼上公開網站或轉傳給無權取得的人。向不特定人公開與原本查閱是兩回事；須另核對是否有合法依據。要說明人數，可用無法識別個人的統計。']],
   refs:[coop(35),coop(37),law('個人資料保護法','I0050021',20)]};
 }
+function yearEndAuditVacancy(q){
+ const t=String(q??'').normalize('NFKC').replace(/\s/g,'');
+ if(t.length>165||!/協會|社會團體/.test(t)||!/決算|年度會計報告/.test(t)||!/監事/.test(t)
+   ||/合作社|公會|工會|基金會|公司|政黨|外國|監察人|補助|核銷|報稅|勸募|成立大會/.test(t))return null;
+ const one=/只剩(?:下)?(?:一|1|壹)(?:位|名|個|人)?監事|監事(?:會)?(?:只|僅)?剩(?:下)?(?:一|1|壹)(?:位|名|個|人)|(?:一|1|壹)(?:位|名|個)監事.{0,7}(?:單獨|自己)/.test(t);
+ const leave=/請假|請公假|因公|因病/.test(t)&&/簽|代審|先審|能審|可以審/.test(t);
+ const early=/監事會(?:議)?(?:都|也|則|一直|目前|至今)*(?:還沒開|尚未開|沒開|未開|沒召開|來不及召開|開不了)/.test(t)&&/先.{0,8}(?:送|報)|逕.{0,5}(?:送|報)|直接.{0,5}(?:送|報)/.test(t);
+ if(!one&&!leave&&!early)return null;
+ const review=['年度決算的程序','理事會編造年度工作及會計報告；決算須先送監事會審核，連同審核結果提會員（代表）大會，通過後報主管機關。因故未能如期開大會時，可先由理事會及監事會，或理監事聯席會議通過，之後仍須提大會追認，再報主管機關備查。不能把尚未完成審核的決算直接當作已通過的決算送件。'];
+ const seats=['只有一名監事，怎麼處理','一般社會團體法定至少三名監事，監事會決議須有應出席監事過半數出席，不能把一名監事的簽章當作監事會審核。先確認辭職是否經監事會決議生效；確有缺額，由候補監事依次遞補。遞補後仍未達章程所訂名額三分之二時，應補選足額。若監事會不能依法召開，可向主管機關說明，依法由主管機關指定監事一人召集；指定召集不等於授權一人代作決議。'];
+ const absence=['有人請公假或病假','請假仍不是出缺，不能直接扣除請假人數、交由個人代簽。依法成會且依程序同意，才是監事會的審核。若實際有缺額，先處理遞補、補選或依法指定召集，不能把兩種情形混為一談。'];
+ const guide=n=>law('人民團體會務輔導辦法','D0020094',n);
+ return {direct:true,category:'人民團體財務',title:one?'只剩一名監事，不能以個人簽章代替年度決算審核':leave?'監事請假和出缺不同，決算仍要依法審核':'年度決算未經審核，不能當作已完成直接送件',
+  summary:one?'不能由一名監事單獨代替監事會審年度決算。':leave?'決算仍要經監事會；請假不能當成缺額，也不能只讓剩下的人先簽。':'先完成應有的決算審核程序，不能跳過監事會直接把決算送縣府備查。',
+  steps:[...(one?[seats]:[]),...(leave?[absence]:[]),review],
+  refs:[association(34),law('社會團體財務處理辦法','D0050097',11),law('社會團體財務處理辦法','D0050097',22),...(one||leave?[association(29),guide(9),law('人民團體選舉罷免辦法','D0050093',17)]:[]),...(one?[association(32)]:[]),...(leave?[{title:'內政部函釋：理監事會出席人數與請假',source:'https://www.moi.gov.tw/News_Content.aspx?n=14119&s=256686&sms=12360'}]:[])]};
+}
 function answerMixed(q){
+ const annual=yearEndAuditVacancy(q);if(annual)return annual;
  const coopRegistry=coopRegistryPrivacy(q);if(coopRegistry)return coopRegistry;
  const privacy=assemblyPrivacy(q);if(privacy)return privacy;
  const communications=assemblyCommunications(q);if(communications)return communications;
@@ -223,6 +241,6 @@ function answerMixed(q){
     keys.includes('creditor')?'合作社清算：就任後公告與終結報告，分別計算':isCoop?'合作社清算報告與股息上限，分開看':'協會入會資格與會員除名，分開看',
   summary:keys.length===1?topics[keys[0]].line[1]:'你問了兩件事，分別如下。',steps:keys.length>1?keys.map(k=>topics[k].line):[],refs:keys.flatMap(k=>topics[k].laws)};
 }
-if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy};return;}
+if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy};return;}
 root.verifiedMixedQuestionAnswer=answerMixed;
 })(typeof window!=='undefined'?window:globalThis);
