@@ -1,0 +1,14 @@
+const assert=require('node:assert/strict');
+const {answerMixed}=require('./verified-mixed-questions.js');
+const {coopShareAssociationFees}=require('./association-withdrawal-election.js');
+const a=answerMixed('我不是屏東人能加入協會嗎？會員除名是理事會決定嗎？');
+assert.equal(a.questionState.focus,'compound');assert.equal(a.steps.length,2);
+const b=answerMixed('我們協會理事會要把老會員除名，我是外縣市戶籍但實際住屏東能入會嗎？');
+assert.match(b.steps[0][0],/除名/);assert.match(b.steps[1][0],/入會/);
+const c=coopShareAssociationFees('合作社社員退社股金怎麼退，協會會員退會的話會費可以退嗎');
+assert.match(c.steps[0][1],/第30條/);
+assert.match(c.steps[1][1],/第14條/);
+assert.equal(c.refs[1].source,'https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=D0050112&flno=30');
+const d=coopShareAssociationFees('協會退會，會費到底怎麼退？另外合作社退出要退社股。');
+assert.match(d.steps[0][0],/協會/);
+assert.equal(coopShareAssociationFees('信用合作社社員退股，協會會費能退嗎？'),null);

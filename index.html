@@ -1613,6 +1613,12 @@ async function ask(q){
   if(courtCertificate){financeMeetingPlanner=null;renderAnswer(q,courtCertificate);return;}
   const pause=typeof window.verifiedCommunityCooperativePause==="function"?window.verifiedCommunityCooperativePause(q):null;
   if(pause){financeMeetingPlanner=null;renderAnswer(q,pause);return;}
+  const guildJoinLocation=typeof window.verifiedAssociationGuildJoinLocation==="function"?window.verifiedAssociationGuildJoinLocation(q):null;
+  if(guildJoinLocation){financeMeetingPlanner=null;renderAnswer(q,guildJoinLocation);return;}
+  const admissionExpulsion=typeof window.verifiedAssociationAdmissionAndExpulsion==="function"?window.verifiedAssociationAdmissionAndExpulsion(q):null;
+  if(admissionExpulsion){financeMeetingPlanner=null;renderAnswer(q,admissionExpulsion);return;}
+  const shareAndFees=typeof window.verifiedCoopShareAssociationFees==="function"?window.verifiedCoopShareAssociationFees(q):null;
+  if(shareAndFees){financeMeetingPlanner=null;renderAnswer(q,shareAndFees);return;}
   const agendaCollection=typeof window.verifiedAssociationAgendaGuildCollection==="function"?window.verifiedAssociationAgendaGuildCollection(q):null;
   if(agendaCollection){financeMeetingPlanner=null;renderAnswer(q,agendaCollection);return;}
   const withdrawalRoll=typeof window.verifiedWithdrawalAndAssemblyRoll==="function"?window.verifiedWithdrawalAndAssemblyRoll(q):null;
@@ -2075,7 +2081,7 @@ touch();
 <script src="liquidation-creditor-notice.js?v=2"></script>
 <script src="director-absence-clarification.js?v=1"></script>
 <script src="association-finance-meeting-month.js?v=6"></script>
-<script src="verified-mixed-questions.js?v=20261127-assembly-roll-order"></script>
+<script src="verified-mixed-questions.js?v=20261127-mixed-refund"></script>
 <script src="association-wages-and-signing.js?v=1"></script>
 <script src="association-admission-equality.js?v=1"></script>
 <script src="association-account-seal.js?v=3"></script>
@@ -2085,7 +2091,8 @@ touch();
 <script src="member-death-kind-clarification.js?v=1"></script>
 <script src="community-cooperative-pause.js?v=1"></script>
 <script src="association-event-private-contact.js?v=1"></script>
-<script src="association-county-funding-election-checks.js?v=20261127-county-checks"></script>
+<script src="association-guild-join-location.js?v=20261127-join-location"></script>
+<script src="association-county-funding-election-checks.js?v=20261127-election-objection"></script>
 <script src="association-term-deposit-authority.js?v=20261127-term-deposit"></script>
 <script src="association-director-eligibility-bank-change.js?v=20261127-bank-director"></script>
 <script src="association-charter-written-after-quorum.js?v=20261127-written-quorum"></script>
@@ -2113,7 +2120,7 @@ touch();
 <script src="association-quorum-withdrawal.js?v=1"></script>
 <script src="charity-sale-fundraising.js?v=1"></script>
 <script src="donation-receipt-identity.js?v=1"></script>
-<script src="association-withdrawal-election.js?v=1"></script>
+<script src="association-withdrawal-election.js?v=20261127-coop-fees"></script>
 <script src="association-charter-address.js?v=1"></script>
 <script src="association-charter-applicability.js?v=1"></script>
 <script src="association-dissolution-financial-notice.js?v=1"></script>

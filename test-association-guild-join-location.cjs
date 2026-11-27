@@ -1,0 +1,10 @@
+const assert=require('node:assert/strict');
+const {route}=require('./association-guild-join-location.js');
+const a=route('非屏東人可以加入協會嗎？如果是公會也一樣嗎？');
+assert.match(a.summary,/先核對章程/);assert.equal(a.choices.length,3);
+const [biz,factory,licensed]=a.choices.map(c=>route(c.question));
+assert.match(biz.summary,/公司或行號/);
+assert.match(factory.summary,/工廠登記/);
+assert.match(licensed.summary,/專法與執業地/);
+assert.match(route('想問醫師公會跟協會是不是一樣，我住屏東但戶籍在外縣市，可以加入嗎？').summary,/專法與執業地/);
+for(const q of ['非屏東人可以加入協會嗎？','工會和協會，外縣市戶籍能加入嗎？','外縣市戶籍可不可以加入合作社和一般協會？'])assert.equal(route(q),null,q);

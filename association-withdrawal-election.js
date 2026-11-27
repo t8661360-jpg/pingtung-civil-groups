@@ -1,7 +1,19 @@
 (function(root){
 'use strict';
 const law=(name,code,n)=>({title:name+'第'+n+'條',source:'https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode='+code+'&flno='+n});
+function coopShareAssociationFees(q){
+ const t=String(q??'').normalize('NFKC').replace(/\s/g,'');
+ if(t.length>205||!/合作社/.test(t)||!/協會|社會團體/.test(t)||/信用合作社|信合社|保險合作社|聯合社|工會|公會|強制執行|抵債|股金扣抵|股金抵債|退費救濟/.test(t))return null;
+ const shares=/(?:合作社|社員).{0,20}(?:退社|退股|出社|退出).{0,15}(?:股金|社股)|(?:退還|退|領回).{0,4}(?:股金|社股)/.test(t);
+ const fee=/(?:協會|社會團體|會員).{0,20}(?:退會|出會|退出).{0,20}(?:會費|入會費|年費)|(?:會費|入會費|年費).{0,8}(?:能退|要退|可以退|怎麼退)/.test(t);
+ if(!shares||!fee)return null;
+ const comp=['合作社退社：按章程處理社股與股金','自請退社原則於營業年度終了，依第27條應於三個月前提出書面請求，章程可在法定限度內延長預告。出社社員依第30條及章程可請求退還部分或全部股金，原則以營業年度終了財產計算；章程另有規定從其規定。退社生效不以已領到股金為前提，也不是一退社就保證原額全退。'];
+ const assoc=['協會退會：會費要不要退，看章程及退費原則','依社會團體財務處理辦法第14條，入會費、常年會費及繳納方式訂入章程；如需退費，由理事會擬退費原則，經會員（代表）大會通過後辦理。沒有一律全退或一律不退，不套合作社股金計算。核對繳款期、退會日及該會已通過的原則。'];
+ const first=t.indexOf('合作社')<t.search(/協會|社會團體/);
+ return {direct:true,category:'合作社與協會｜退社股金和退會費',title:'合作社退股金與協會會費，分開辦理',summary:'合作社股金與協會會費不是同一種款項。股金依合作社法及章程計算；協會會費查章程及大會通過的退費原則，不能互套。',steps:first?[comp,assoc]:[assoc,comp],refs:[law('合作社法','D0050112',27),law('合作社法','D0050112',30),law('社會團體財務處理辦法','D0050097',14)],questionState:{focus:'compound'}};
+}
 function withdrawalElection(q){
+ const compound=coopShareAssociationFees(q);if(compound)return compound;
  const raw=String(q||'').trim(),t=raw.normalize('NFKC').replace(/\s/g,'');
  if(t.length>195||/信用合作社|信合社|工會|農會|漁會|公會|基金會|公司|股東|開除|除名|解散|罷免|欠會費/.test(t))return null;
  const fee=/(?:會費|年費|入會費|已繳的費用).{0,14}(?:退|返還|拿回)|(?:退|拿回|返還).{0,8}(?:會費|年費|入會費)/.test(t);
@@ -14,7 +26,7 @@ function withdrawalElection(q){
   return {direct:true,category:'合作社及協會財務',questionState:{focus:'compound'},title:'合作社股金、社員年費與協會會費，不適用同一條',
    summary:'先把合作社股金與年費分開。退還股金有合作社法規定；另繳的年費不能直接跟股金一起算。一般協會的會費則依另一套規則。',
    steps:[['一般合作社：股金是出資，不是年費','依合作社法第30條，出社社員可依章程請求退還部分或全部股金，股金按營業年度終結時的財產計算，章程另有規定則依其規定。這不表示另外收取的社員年費也會一併退還；應核對收據科目、收費依據和章程的退費約定。不是信用合作社的一律三個月說法。'],feeStep],
-   refs:[law('合作社法','D0050109',30),financial]};
+   refs:[law('合作社法','D0050112',30),financial]};
  }
  if(!memberLeaves||!election)return null;
  const director=/現任理事|原理事|原本是(?:協會)?理事|(?:他是|她是|我是)理事|(?:^|[，,。；;])理事(?:說|想|還|才|已|在)|理事.{0,5}(?:說想|想|提出|申請|已(?:經)?)退會/.test(t);
@@ -35,6 +47,7 @@ function withdrawalElection(q){
   steps:[eligibility,...(effective?[change,check]:[check,change]),...(fee?[feeStep]:[])],
   refs:[p(12),p(17),p(23),law('民法','B0000001',54),law('人民團體會務輔導辦法','D0020094',10),...(fee?[financial]:[])],...(choices.length?{choiceHeading:'這位理事的退會是否已生效？',choices}:{})};
 }
-if(typeof module!=='undefined'&&module.exports){module.exports={withdrawalElection};return;}
+if(typeof module!=='undefined'&&module.exports){module.exports={withdrawalElection,coopShareAssociationFees};return;}
 root.verifiedWithdrawalElection=withdrawalElection;
+root.verifiedCoopShareAssociationFees=coopShareAssociationFees;
 })(typeof window!=='undefined'?window:globalThis);

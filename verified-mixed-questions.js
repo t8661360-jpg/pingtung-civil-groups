@@ -1381,14 +1381,18 @@ function answerMixed(q){
  const vacancy=chairVacancy(q);if(vacancy)return vacancy;
  const caseGrant=dissolutionAndGrant(q);if(caseGrant)return caseGrant;
  const comparison=verifiedComparison(q);if(comparison)return comparison;
- const keys=identify(q);if(!keys)return null;
+ return identifiedAnswer(identify(q));
+}
+function identifiedAnswer(keys){
+ if(!keys)return null;
  const isCoop=keys.includes('report');
  return {direct:true,category:isCoop?'合作社財務':'人民團體會務說明',
   title:keys.includes('companyInterest')?(isCoop?'股份有限公司股息與合作社清算報告，分開看':'股份有限公司股息依公司法，不是合作社社股年息'):
     keys.includes('creditor')?'合作社清算：就任後公告與終結報告，分別計算':isCoop?'合作社清算報告與股息上限，分開看':'協會入會資格與會員除名，分開看',
-  summary:keys.length===1?topics[keys[0]].line[1]:'你問了兩件事，分別如下。',steps:keys.length>1?keys.map(k=>topics[k].line):[],refs:keys.flatMap(k=>topics[k].laws)};
+  ...(keys.includes('admission')&&keys.includes('expulsion')?{questionState:{focus:'compound'}}:{}),summary:keys.length===1?topics[keys[0]].line[1]:'你問了兩件事，分別如下。',steps:keys.length>1?keys.map(k=>topics[k].line):[],refs:keys.flatMap(k=>topics[k].laws)};
 }
 if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy,changedMeetingVenue,familyAssemblyProxy,dualBoardVacancies,coopBoardVacancies,creditCooperativeVacancy,schoolParentFiling,associationRegisteredAddress,inspectAndPublishBoardMinutes,temporaryMeetingNotice,withdrawalAndAssemblyRoll,memberMeetingExpenseFunding,missedSupervisorNotice,duesAndAssemblyRights,coopWithdrawalAndAssembly,designatedMeetingConvener,assemblyRepresentativeParticipation,formerMemberGiftReturn,preschoolParentFiling,associationVotingRollDisclosure,associationDirectorsQuorum,creditCoopDepositsAndDividends,associationElectionObjection,associationDelegateReplacement,commerceDelegateReplacement,industryDelegateReplacement,outsideCounterNoiseReferral,deityAssociationManagerReferral,volunteerTravelMealTax,associationStampDuty,coopRepresentativeAssembly,creditCoopShareRedemption,coopChairAndShare,associationMembershipIdentity,coopAssociateMemberAssembly};return;}
 root.verifiedMixedQuestionAnswer=answerMixed;
+root.verifiedAssociationAdmissionAndExpulsion=function(q){const keys=identify(q);return keys&&keys.includes("admission")&&keys.includes("expulsion")?identifiedAnswer(keys):null;};
 root.verifiedWithdrawalAndAssemblyRoll=withdrawalAndAssemblyRoll;
 })(typeof window!=='undefined'?window:globalThis);
