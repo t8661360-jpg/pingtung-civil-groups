@@ -1021,7 +1021,33 @@ function industryDelegateReplacement(q){
   refs:[act(16),act(17),replacing,...(assembly?[rule(14),rule(16),act(18)]:[]),...(office?[act(20),act(25)]:[])],
   actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
 }
+function outsideCounterNoiseReferral(q){
+ const t=String(q??'').normalize('NFKC').replace(/\s/g,'');
+ if(t.length>150||/協會|社會團體|理監事|理事會|監事會|會員大會|議事|主席|會場|選舉|公會|合作社|工會|噪音車|改裝車/.test(t))return null;
+ if(!/噪音|吵|喧嘩|很大聲|低頻|聲響/.test(t)||!/檢舉|陳情|報警|要找|找誰|誰處理|怎麼辦|怎麼處理|哪.{0,5}(?:窗口|單位|部門)|跟誰/.test(t))return null;
+ const home=/鄰居|住戶|樓上|樓下|隔壁|近鄰|社區住家|犬吠|狗叫|住家|我家/.test(t);
+ const business=/工地|營建|施工|工廠|營業|商家|店家|餐廳|冷卻水塔|抽風機|排風機|空調機組|機具|機械/.test(t);
+ if(!home&&!business)return null;
+ const explicitHome=/鄰居|住戶|犬吠|狗叫|深夜.{0,8}(?:喧嘩|吵鬧)|半夜.{0,8}(?:喧嘩|吵鬧|唱歌)|敲打|跑跳/.test(t);
+ const uncertain=!explicitHome&&!business;
+ const nonCounty=/高雄|台南|臺南|台北|臺北|新北|花蓮|台東|臺東|台中|臺中|宜蘭|桃園|新竹|基隆|嘉義|苗栗|彰化|雲林|南投|澎湖|金門|連江/.test(t)&&!/屏東/.test(t);
+ const police=['鄰居、樓上住戶或犬吠','人聲、跑跳、犬吠等不持續或不易量測、且妨害安寧的聲音，由警察依相關規定處理。噪音正在發生且需要員警到場，可撥110或洽轄區派出所。若是大樓，也可先請管委會協助溝通並記下時段，避免自行起衝突。'];
+ const env=['工地、工廠或營業機具','持續、可量測的工地施工機具或營業場所噪音，可向所在地環保局或全國公害陳情專線 0800-066-666 反映，由權責機關依音源、時段和規定判斷。'+(nonCounty?'':'如果在屏東縣，環保局報案中心是 08-7351928。')];
+ const docs=['向權責機關說明','可準備大概地點、發生日期、時段、音源及頻率；是否違規由權責機關判斷。不需把住址或他人個資輸入這個櫃檯。'];
+ return {direct:true,category:'其他機關業務指引',title:'住家噪音去哪反映？先看是鄰居吵鬧還是施工營業',
+  summary:uncertain?'這不是人民團體櫃檯受理的事項。若是鄰居吵鬧，找轄區派出所；若是工地、工廠或商家持續噪音，找環保局。先選最接近的音源。':
+   business&&!explicitHome?'持續可量測的施工、工廠或營業機具噪音，請向所在地環保局或全國公害陳情專線反映。':
+   explicitHome&&!business?'鄰居吵鬧等不易量測、影響安寧的聲音，請洽轄區派出所。若正在發生、需要員警到場，可撥110。':
+   '兩種音源要分開：鄰居吵鬧找警察，持續可量測的工地或營業機具聲找環保局。',
+  ...(uncertain?{choiceHeading:'這次是什麼音源？',choices:[
+   {label:'鄰居吵鬧或犬吠',question:'樓上鄰居半夜吵鬧，現在要請哪個單位處理？'},
+   {label:'工地、工廠或店家機具',question:nonCounty?'住家旁工地每天機具很吵，要向哪個單位陳情？':'住家旁工地每天機具很吵，屏東要向誰陳情？'}
+  ]}:{}),
+  steps:[...(explicitHome||uncertain?[police]:[]),...(business||uncertain?[env]:[]),docs],
+  refs:[{title:'噪音管制法第6條與第9條',source:'https://oaout.moenv.gov.tw/Law/LawContent.aspx?id=FL015471'},{title:'環境部：近鄰噪音與環境噪音分流',source:'https://www.moenv.gov.tw/affairs/atmospheric-environment/noise-vibration-and-non-ionizing-radiation/noise-control-and-reporting-of-noisy-vehicles/1674.html'},...(business||uncertain?[{title:'環境部：各縣市環保報案中心電話',source:'https://ww3.moenv.gov.tw/Public/Tel_list.aspx'}]:[])]};
+}
 function answerMixed(q){
+ const noiseReferral=outsideCounterNoiseReferral(q);if(noiseReferral)return noiseReferral;
  const industryDelegate=industryDelegateReplacement(q);if(industryDelegate)return industryDelegate;
  const commerceDelegate=commerceDelegateReplacement(q);if(commerceDelegate)return commerceDelegate;
  const delegateReplacement=associationDelegateReplacement(q);if(delegateReplacement)return delegateReplacement;
@@ -1067,6 +1093,6 @@ function answerMixed(q){
     keys.includes('creditor')?'合作社清算：就任後公告與終結報告，分別計算':isCoop?'合作社清算報告與股息上限，分開看':'協會入會資格與會員除名，分開看',
   summary:keys.length===1?topics[keys[0]].line[1]:'你問了兩件事，分別如下。',steps:keys.length>1?keys.map(k=>topics[k].line):[],refs:keys.flatMap(k=>topics[k].laws)};
 }
-if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy,changedMeetingVenue,familyAssemblyProxy,dualBoardVacancies,coopBoardVacancies,creditCooperativeVacancy,schoolParentFiling,associationRegisteredAddress,inspectAndPublishBoardMinutes,temporaryMeetingNotice,withdrawalAndAssemblyRoll,memberMeetingExpenseFunding,missedSupervisorNotice,duesAndAssemblyRights,coopWithdrawalAndAssembly,designatedMeetingConvener,assemblyRepresentativeParticipation,formerMemberGiftReturn,preschoolParentFiling,associationVotingRollDisclosure,associationDirectorsQuorum,creditCoopDepositsAndDividends,associationElectionObjection,associationDelegateReplacement,commerceDelegateReplacement,industryDelegateReplacement};return;}
+if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy,changedMeetingVenue,familyAssemblyProxy,dualBoardVacancies,coopBoardVacancies,creditCooperativeVacancy,schoolParentFiling,associationRegisteredAddress,inspectAndPublishBoardMinutes,temporaryMeetingNotice,withdrawalAndAssemblyRoll,memberMeetingExpenseFunding,missedSupervisorNotice,duesAndAssemblyRights,coopWithdrawalAndAssembly,designatedMeetingConvener,assemblyRepresentativeParticipation,formerMemberGiftReturn,preschoolParentFiling,associationVotingRollDisclosure,associationDirectorsQuorum,creditCoopDepositsAndDividends,associationElectionObjection,associationDelegateReplacement,commerceDelegateReplacement,industryDelegateReplacement,outsideCounterNoiseReferral};return;}
 root.verifiedMixedQuestionAnswer=answerMixed;
 })(typeof window!=='undefined'?window:globalThis);
