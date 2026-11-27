@@ -2286,7 +2286,10 @@ try {
   }
   // 1. 桌機問答
   const page = await browser.newPage({ viewport: { width: 1400, height: 900 } });
-  const errs = [];
+  const errs = [  ['協會被縣府命令解散，接下來要怎麼辦？', ['應予解散','辦清算','訴願法第14條']],
+  ['會員都跑光了協會會自動解散嗎', ['不會自動解散','會員減少或沒人運作']],
+  ['我想退出協會跟協會解散不一樣吧', ['退會和解散不一樣','退會：是您個人離開協會']],
+];
   page.on('pageerror', e => errs.push(String(e)));
   await page.goto(BASE + bust, { waitUntil: 'load', timeout: 60000 });
   await page.waitForTimeout(4000);

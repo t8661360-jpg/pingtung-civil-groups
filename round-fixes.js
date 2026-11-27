@@ -211,8 +211,22 @@ function normalizeQuestionR229(s){
   return '章程跟法律衝突怎麼辦';
  return s;
 }
+/* 第232輪（根源，解散與清算換問法）：
+   ①「解算人／解算要多久」是「清算」的錯字；
+   ②「會員都跑光／散了／全部不來了／沒會員了」＋協會會不會自動解散／還在嗎／消失＝會員都走光了協會會自動解散嗎
+     （既有規則只認「走光、都退」，「跑光」被當成不確定而出選單）；
+   ③「被命令／勒令／責令解散」＝被縣府解散（既有規則只認「強制解散」，被答成自己開大會解散的流程） */
+function normalizeQuestionR232(s){
+ s=String(s||'');
+ if(/合作社|社員|工會|公會|政黨|基金會|宗教|寺廟|宮廟/.test(s))return s;
+ s=s.replace(/解算(?=人|要|完|期|報告|多久|程序|時)/g,'清算');
+ if(/(協會|社團|團體|本會)/.test(s)&&/(會員|成員)/.test(s)&&/(跑光|散光|散了|散掉|都不來了|全部不來|全都不來|全不來|都不見了|一個不剩|沒會員了|沒有會員了|會員.{0,2}沒了|零會員|都沒了)/.test(s)&&/(自動|算不算|算解散|算是解散|還在|還存在|消失|不見|解散)/.test(s)&&!/(開會|大會|會費|繳|理事|監事|活動|出席|簽到|投票|退會|除名|名冊|資格)/.test(s))
+  return '會員都走光了協會會自動解散嗎';
+ s=s.replace(/(?:(?:被|遭)(?:縣府|縣政府|政府|主管機關|社會處)?|(?:縣府|縣政府|政府|主管機關|社會處))(?:命令|勒令|責令)(?:我們)?(?:協會|團體|本會)?解散/g,'被縣府解散');
+ return s;
+}
 function normalizeQuestion(q){
- return normalizeQuestionR229(normalizeQuestionR228(normalizeQuestionR227(normalizeQuestionR225(normalizeQuestionR223(normalizeQuestion223(normalizeQuestion222(normalizeQuestion221(normalizeQuestion216(normalizeQuestion215(normalizeQuestion214(normalizeQuestion212(normalizeQuestion210(normalizeQuestion209(normalizeQuestion208(normalizeQuestion207(normalizeQuestion206(normalizeQuestion202(normalizeQuestion201(normalizeQuestion200(normalizeQuestion194(normalizeQuestion193(normalizeQuestion192(normalizeQuestion191(normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(normalizeQuestionU5(normalizeQuestionU3(normalizeQuestionU4(normalizeQuestionU2(normalizeQuestionU6(normalizeQuestionU8(normalizeQuestionU7(fixTyposU1(q))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
+ return normalizeQuestionR232(normalizeQuestionR229(normalizeQuestionR228(normalizeQuestionR227(normalizeQuestionR225(normalizeQuestionR223(normalizeQuestion223(normalizeQuestion222(normalizeQuestion221(normalizeQuestion216(normalizeQuestion215(normalizeQuestion214(normalizeQuestion212(normalizeQuestion210(normalizeQuestion209(normalizeQuestion208(normalizeQuestion207(normalizeQuestion206(normalizeQuestion202(normalizeQuestion201(normalizeQuestion200(normalizeQuestion194(normalizeQuestion193(normalizeQuestion192(normalizeQuestion191(normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(normalizeQuestionU5(normalizeQuestionU3(normalizeQuestionU4(normalizeQuestionU2(normalizeQuestionU6(normalizeQuestionU8(normalizeQuestionU7(fixTyposU1(q)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
 }
 /* 第200輪（根源）：入會退會與會員資格換問法——
    「忘記繳／忘了繳／漏繳會費」＝沒繳會費（原本「忘記繳會費會被退會嗎」被當成退費）；
@@ -12659,9 +12673,26 @@ function patrolR228(t){
   [LB(22),LB(23),W(7),W(6),LB(11),LB(16),LB(17)]);
  return null;
 }
+/* 第232輪：被縣府解散或廢止許可之後、退會與解散的差別（人團法§12、27、58、59；會務輔導辦法§27；訴願法§14） */
+function patrolR232(t){
+ if(/(合作社|社員|工會|公會|公司|政黨|基金會|農會|漁會|社區發展)/.test(t))return null;
+ const PT=n=>({title:'人民團體法第'+n+'條',source:LAW+'D0050091'});
+ const G=n=>({title:'人民團體會務輔導辦法第'+n+'條',source:LAW+'D0020094'});
+ const A=(title,summary,statutes)=>({direct:true,category:'人民團體會務說明',title,summary:summary+'\n\n其他細節請洽縣府社會處承辦人員，縣府總機 08-7320415。',statutes,notes:[],actions:[{label:'聯絡承辦',view:'contact',sub:''}]});
+ if(/(退會|退出)/.test(t)&&/解散/.test(t)&&/(不一樣|不同|差別|差在|差異|有什麼分別|一樣嗎|是不是一樣|有差嗎|有差別嗎|是同一件事|同一件事)/.test(t)&&!/(理事|監事|除名|開除)/.test(t))
+  return A('退會和解散不一樣：退會是個人離開，解散是整個協會結束',
+  '不一樣。\n• 退會：是您個人離開協會，協會還是繼續存在、繼續運作。入會、出會怎麼辦，要看協會章程怎麼訂（人民團體法第12條第7款規定章程要載明「會員入會、出會與除名」）。\n• 解散：是整個協會結束。要經會員（會員代表）大會過半數出席、出席人數三分之二以上同意（人民團體法第27條第5款），或發生第59條列的情形（許可被廢止、破產、合併或分立、限期整理未如期完成），之後還要辦清算（人民團體會務輔導辦法第27條）。\n會員減少、甚至都退會了，本身不是第59條列的解散原因，仍要依規定辦解散。',
+  [PT(12),PT(27),PT(59),G(27)]);
+ if(/((被|遭)(縣府|縣政府|政府|主管機關|社會處)?(命令|勒令|責令)?(解散|廢止許可)|(許可|立案)(被|遭)(縣府|縣政府|主管機關)?(廢止|撤銷|註銷)|限期整理.{0,6}(沒完成|未完成|沒做完|來不及|沒如期|未如期)|命令解散)/.test(t)&&/(怎麼辦|怎麼處理|做什麼|做甚麼|要辦什麼|接下來|後續|然後|之後|清算)/.test(t)&&!/(不服|訴願|救濟|財產|剩餘|錢|員工|稅|印章|圖記|證書|帳|名冊|會員資格|理事長|補助|勸募)/.test(t))
+  return A('被縣府解散或廢止許可之後：團體要辦清算，不服處分可以提起訴願',
+  '被主管機關廢止許可，或限期整理沒有如期完成，依法就是「應予解散」（人民團體法第59條第1項第1款、第4款）。縣府要走到這一步，前提是團體有違反法令、章程或妨害公益的情形，而且限期改善後屆期未改善或情節重大（第58條）。\n接下來有兩件事：\n1. 辦清算：沒有法人登記的，依章程或會員（會員代表）大會決議辦理；章程沒規定或大會開不成時，由理事長或章程所定代理人擔任清算人；清算人也產生不了時，由縣府選任。有法人登記的，依民法的規定（人民團體會務輔導辦法第27條）。\n2. 不服處分：可以提起訴願，期限是處分送達次日起30日內（訴願法第14條第1項），做法請看「被縣府廢止許可或解散後不服怎麼辦」。\n縣府的處分書會寫明理由和處理方式，收到後建議儘快洽承辦人員。',
+  [PT(58),PT(59),G(27),{title:'訴願法第14條',source:LAW+'A0030020'}]);
+ return null;
+}
 function verifiedRoundAnswer(q,ctx){
  let x=null;
- try{x=patrolR228(norm(q))}catch(e){x=null}
+ try{x=patrolR232(norm(q))}catch(e){x=null}
+ if(!x) try{x=patrolR228(norm(q))}catch(e){x=null}
  if(!x){try{x=patrolR227(norm(q))}catch(e){x=null}}
  if(!x){try{x=patrolR226(norm(q))}catch(e){x=null}}
  if(!x){try{x=patrolR225(norm(q))}catch(e){x=null}}
