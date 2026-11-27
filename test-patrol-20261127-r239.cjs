@@ -1,0 +1,21 @@
+/* 第239輪：勸募與補助 */
+const r=require('./round-fixes.js');
+const A=q=>r.verifiedRoundAnswer(r.normalizeQuestion(q),{});
+let bad=0;
+const pos=(qs,k)=>qs.forEach(q=>{const a=A(q);const t=a&&a.title||'';if(!t.includes(k)){bad++;console.log('✗',q,'=>',t||'(無)','期望',k)}});
+const neg=(qs,k)=>qs.forEach(q=>{const a=A(q);const t=a&&a.title||'';if(t.includes(k)){bad++;console.log('✗反',q,'=>',t)}});
+pos(['會員繳的會費算勸募嗎','會員繳的常年會費算不算募款','會員交會費是不是勸募','會員繳入會費算募款嗎'],'會員繳的會費不算勸募');
+pos(['勸募所得可以分給會員嗎','勸募的錢可以分給理監事嗎','募款募到的錢能不能平分給會員','勸募款項可以發給會員嗎'],'勸募所得可以分給會員嗎');
+neg(['辦活動想跟民眾收捐款要經過許可嗎','辦活動向路人收捐款要申請嗎','義賣想向大家收捐款要經過許可嗎','舉辦活動向民眾募款要經過許可嗎'],'協會辦活動要報備嗎');
+pos(['辦活動想跟民眾收捐款要經過許可嗎','辦活動向路人收捐款要申請嗎','義賣想向大家收捐款要經過許可嗎'],'要先申請許可');
+neg(['辦活動要經過許可嗎'],'募款');
+pos(['慕款要申請嗎','慕款要先經過許可嗎','要慕款要找誰申請','勸慕要申請嗎'],'募款');
+['勸募許可證要怎麼申請','勸募許可證去哪裡申請','勸募許可函要怎麼辦','勸募的許可證要向誰申請'].forEach(q=>{const a=A(q);const t=a&&a.title||'';if(!/(申請|許可)/.test(t)||/出示/.test(t)){bad++;console.log('✗',q,'=>',t||'(無)')}});
+pos(['協會可以申請政府補助嗎','協會能申請政府補助嗎','我們協會有資格申請縣府補助嗎','協會可不可以申請補助'],'不予補助');
+pos(['申請補助要不要先立案','申請補助需要先立案嗎','申請補助要先立案才行嗎'],'申請補助要先立案嗎');
+neg(['清算人要不要立案'],'申請補助要先立案嗎');
+const st=JSON.parse(require('zlib').gunzipSync(require('fs').readFileSync(__dirname+'/data/statutes.json.gz')));
+const P=st.laws.D0050091.articles[33];['入會費','常年會費','會員捐款','提經會員'].forEach(k=>{if(!P.includes(k)){bad++;console.log('✗人團§33',k)}});
+const G=st.laws.D0050138.articles;[[8,'社會福利事業'],[19,'不得移作他用'],[17,'必要支出'],[3,'募集財物或接受捐贈'],[5,'公益性社團法人']].forEach(([n,k])=>{if(!G[n].includes(k)){bad++;console.log('✗勸募§'+n)}});
+if(bad)throw new Error('r239 失敗 '+bad);
+console.log('r239 ok');

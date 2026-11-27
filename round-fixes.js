@@ -226,7 +226,7 @@ function normalizeQuestionR232(s){
  return s;
 }
 function normalizeQuestion(q){
- return normalizeQuestionR235(normalizeQuestionR234(normalizeQuestionR233(normalizeQuestionR232(normalizeQuestionR229(normalizeQuestionR228(normalizeQuestionR227(normalizeQuestionR225(normalizeQuestionR223(normalizeQuestion223(normalizeQuestion222(normalizeQuestion221(normalizeQuestion216(normalizeQuestion215(normalizeQuestion214(normalizeQuestion212(normalizeQuestion210(normalizeQuestion209(normalizeQuestion208(normalizeQuestion207(normalizeQuestion206(normalizeQuestion202(normalizeQuestion201(normalizeQuestion200(normalizeQuestion194(normalizeQuestion193(normalizeQuestion192(normalizeQuestion191(normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(normalizeQuestionU5(normalizeQuestionU3(normalizeQuestionU4(normalizeQuestionU2(normalizeQuestionU6(normalizeQuestionU8(normalizeQuestionU7(normalizeQuestionR237(normalizeQuestionR238(fixTyposU1(q))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
+ return normalizeQuestionR235(normalizeQuestionR234(normalizeQuestionR233(normalizeQuestionR232(normalizeQuestionR229(normalizeQuestionR228(normalizeQuestionR227(normalizeQuestionR225(normalizeQuestionR223(normalizeQuestion223(normalizeQuestion222(normalizeQuestion221(normalizeQuestion216(normalizeQuestion215(normalizeQuestion214(normalizeQuestion212(normalizeQuestion210(normalizeQuestion209(normalizeQuestion208(normalizeQuestion207(normalizeQuestion206(normalizeQuestion202(normalizeQuestion201(normalizeQuestion200(normalizeQuestion194(normalizeQuestion193(normalizeQuestion192(normalizeQuestion191(normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(normalizeQuestionU5(normalizeQuestionU3(normalizeQuestionU4(normalizeQuestionU2(normalizeQuestionU6(normalizeQuestionU8(normalizeQuestionU7(normalizeQuestionR237(normalizeQuestionR238(normalizeQuestionR239(fixTyposU1(q)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
 }
 /* 第200輪（根源）：入會退會與會員資格換問法——
    「忘記繳／忘了繳／漏繳會費」＝沒繳會費（原本「忘記繳會費會被退會嗎」被當成退費）；
@@ -3026,7 +3026,7 @@ function assocTravel(t){
 function activityReport(t){
  if(!/(活動|辦理|舉辦)/.test(t)||!/活動/.test(t))return null;
  if(!/(報備|報縣府|報社會處|要報|核准|許可|事先申請|要申請|備查|通知縣府|通知主管)/.test(t))return null;
- if(/合作社|社員|勸募|募款|補助|核銷|魅力|取消/.test(t))return null;
+ if(/合作社|社員|勸募|募款|捐款|捐贈|收錢|補助|核銷|魅力|取消/.test(t))return null;
  return{direct:true,category:'人民團體會務說明',title:'協會辦活動要報備嗎：一般活動不用逐場報縣府社會處，但有幾種情形要另外辦',
  summary:'不一定。協會依章程的宗旨辦理一般的活動，例如會員聯誼、公益服務、講座，不需要每一場都向縣府社會處報備。\n\n但下面幾種情形，各有要辦的手續：\n• 會員大會：開會15日前通知會員，並報請主管機關派員列席（人民團體法第26條）；會議紀錄在閉會後30日內報縣府備查（人民團體會務輔導辦法第12條）。\n• 理事會、監事會：開會7日前通知，紀錄自行留存；決議的事項依法令要報核的，再檢附文件辦理（同辦法第11條、第12條）。\n• 公開向社會大眾募款或募物資：要先取得勸募許可（公益勸募條例第7條）。\n• 使用道路、公園、廣場或大型的戶外活動：要向場地或道路的管理機關申請。\n• 用政府補助辦的活動：依補助計畫和核定函的條件辦理，計畫有變更要先報准。\n\n要提醒的是：不用向社會處報備，不代表其他機關的許可也可以省略。',
  statutes:[P(26),G(12),G(11),CHR(7)],notes:['活動最好列入年度工作計畫，年度結束後寫進工作報告，提會員大會通過（社會團體財務處理辦法第11條）。']};
@@ -10302,7 +10302,7 @@ function patrol134(t){
   '要分兩種：\n1. 辦研習、參訪、觀摩活動租場地的場地費：屬於可以申請的項目（屏東縣政府對民間團體補助經費作業要點第5點），但仍要經審查，實際以核准的計畫為準。\n2. 協會長期的辦公室、會址房租：第5點列出的可補助項目裡沒有這一項，不要自己決定，要寫進計畫、經縣府核准才能列；沒有先核准就支付，可能被認為沒有依用途使用，要追繳（第10點）。\n\n另外，會員大會、理監事會議和例行會議的費用不予補助（第5點）。',
   [GR(5),GR(10)]);
  /* 4 立案、資格 */
- if(/(立案證書|立案證|已立案|有立案|沒立案|未立案|還沒立案|立案了|立案後|立案才)/.test(t)&&/(申請|可以|能|需要|要先|一定)/.test(t)&&!/(未滿|半年|幾個月|一年)/.test(t))
+ if(/(立案證書|立案證|已立案|有立案|沒立案|未立案|還沒立案|立案了|立案後|立案才|先立案|要立案|需立案|須立案|得立案)/.test(t)&&/(申請|可以|能|需要|要先|一定)/.test(t)&&!/(未滿|半年|幾個月|一年)/.test(t))
   return mk('申請補助要先立案嗎：要，補助對象是經主管機關立案的團體；立案未滿一年不予補助',
   '要。可以申請縣府補助的「民間團體」，是指經主管機關立案的團體、非營利組織、社會福利機構和財團法人；政治團體不在補助之列（屏東縣政府對民間團體補助經費作業要點第2點）。\n\n立案之後還要滿一年才能申請：立案未滿一年的，不予補助（第5點）。另外，一年沒開會員（代表）大會或董事會、任期屆滿沒改選、被限期整理、財務資料沒有依規定陳報，也不予補助（第5點）。',
   [GR(2),GR(5)]);
@@ -12884,6 +12884,33 @@ function patrolR238(t){
  return null;
 }
 /* 缺席／不參加活動除名：只在既有規則都沒有答案時補上（既有的「不來開會算退會嗎」等規則優先） */
+/* 第239輪（根源）：勸募與補助。
+   1. 「慕款」「勸慕」是「募款」「勸募」的錯字（原本整句難倒小屏）。
+   2. 「勸募許可證怎麼申請」＝勸募要怎麼申請許可（原本被答成勸募時要出示許可文件）。
+   3. 「辦活動向民眾收捐款要經過許可嗎」＝向民眾募款要先申請許可（原本被「協會辦活動要報備嗎」搶答）。
+   4. 「協會可以申請政府／縣府補助嗎」沒有入口，原本落到選單，選單第一題就是它自己。 */
+function normalizeQuestionR239(s){
+ s=String(s||'');
+ if(/慕款|勸慕|慕捐/.test(s))s=s.replace(/慕款/g,'募款').replace(/勸慕/g,'勸募').replace(/慕捐/g,'募捐');
+ if(/勸募/.test(s)&&/許可(證|函|文件|文號)?/.test(s)&&/(怎麼|如何|要怎樣|怎樣|去哪|哪裡|哪邊|向誰|跟誰|找誰|在哪)/.test(s)&&/(申請|領|拿|取得|去哪)/.test(s)&&!/(放|出示|掛|印|載明|收據|宣傳|工作證|撤銷|廢止|到期|過期|延期|展延|忘記|逾期|補辦|變更|沒申請|未申請|被|不核|不准)/.test(s))return '勸募要怎麼申請許可';
+ if(/(辦活動|辦理活動|舉辦活動|活動時|活動中|義賣|園遊會)/.test(s)&&/(跟|向|對)(民眾|大家|路人|外界|別人|不特定|社會大眾|一般人).{0,4}(收|要|募)(捐款|捐錢|錢|款)/.test(s)&&!/(會員|補助|報名費|門票)/.test(s))return '向民眾募款要先申請許可嗎';
+ if(/^(請問)?(協會|社團|本會|我們協會|我們)(可以|能|可不可以|能不能|有沒有資格|有資格|可否)申請/.test(s)&&/(可以|能|可不可以|能不能|有沒有資格|有資格|可否)申請(縣府|縣政府|政府|公家|屏東縣|縣)?(的)?補助(款|經費)?(嗎|呢)?[？?]?$/.test(s)&&!/(中央|內政部|衛福部|教育部|文化部|勞動部|農業部|鄉鎮|公所|新成立|剛成立|沒立案|未立案|魅力|社區|托嬰|設備|人事|旅遊|活動|計畫)/.test(s))return '是不是所有的協會，都可以申請縣府的補助？';
+ return s;
+}
+function patrolR239(t){
+ const G=n=>({title:'公益勸募條例第'+n+'條',source:LAW+'D0050138'});
+ const acts=[{label:'聯絡承辦',view:'contact',sub:''}];
+ if(/(合作社|社員|公會|工會|政黨|基金會|寺廟|宗教)/.test(t))return null;
+ if(/(會員|會友).{0,3}(繳|交|收|付).{0,3}(的)?(入會費|常年會費|會費)/.test(t)&&/(算|是|屬於|等於).{0,3}(勸募|募款|募捐)/.test(t)&&!/(不特定|民眾|路人)/.test(t))
+  return{direct:true,category:'人民團體財務',title:'會員繳的會費不算勸募：入會費、常年會費是協會法定的經費來源',
+  summary:'人民團體法把「入會費」「常年會費」「會員捐款」列為協會的經費來源（第33條第1項第1款、第2款、第4款）；這些費用的繳納數額和方式，要提經會員（會員代表）大會通過，並報請主管機關核備後才能實施（第33條第2項）。\n\n公益勸募條例管的是「基於公益目的，募集財物或接受捐贈」的勸募行為（第3條），並且只有公立學校、行政法人、公益性社團法人、財團法人這幾種勸募團體可以發起（第5條）。依章程向會員收的會費，是協會的經費來源，不是向外界公開募款；個案怎麼認定，請洽縣府社會處承辦人員，縣府總機 08-7320415。',
+  statutes:[{title:'人民團體法第33條',source:LAW+'D0050091'},G(3),G(5)],notes:[],actions:acts};
+ if(/(勸募|募款|募捐)/.test(t)&&/(所得|的錢|款項|募到|收入|募來)/.test(t)&&/(分|發|平分|分配|分紅)(給|配)?(會員|成員|理監事|理事|大家|會友)/.test(t))
+  return{direct:true,category:'公益勸募',title:'勸募所得可以分給會員嗎：不可以，只能用在許可的使用計畫和法定用途',
+  summary:'不可以。勸募所得的財物，用途以社會福利事業、教育文化事業、社會慈善事業、援外或國際人道救援，以及主管機關認定的其他事業為限（公益勸募條例第8條）；而且要依主管機關許可的使用計畫使用，不得移作他用（第19條第1項）。\n\n辦理勸募活動的必要支出，可以在比例上限內從勸募所得支應（第17條）。除此以外，把募到的錢分給會員或理監事，不在許可的用途內。\n\n其他細節請洽縣府社會處承辦人員，縣府總機 08-7320415。',
+  statutes:[G(8),G(19),G(17)],notes:[],actions:acts};
+ return null;
+}
 function patrolR238b(t){
  if(!/(會員|協會|社團|除名|開除)/.test(t))return null;
  if(/(合作社|社員|公會|工會|政黨|基金會|理事|監事|幹部|代表|魅力|社區發展)/.test(t))return null;
@@ -13268,6 +13295,7 @@ function verifiedRoundAnswer(q,ctx){
  if(!x)try{x=cross1127r13(norm(q))}catch(e){x=null}
  if(!x&&!verifiedRoundAnswer._r12)try{x=cross1127r12(norm(q),ctx)}catch(e){x=null} /* 導向既有答案時不再進第12輪規則，避免「名譽理事長可以投票嗎」這類導向題自我遞迴 */
  if(x&&x.__redir12){const R=x.__redir12;x=null;let a=null;verifiedRoundAnswer._r12=true;try{a=verifiedRoundAnswer(normalizeQuestion(R.q),ctx)}catch(e){a=null}finally{verifiedRoundAnswer._r12=false}if(a&&a.summary&&R.re.test(a.title||''))x=Object.assign({},a,{direct:true,questionState:R.fl},R.ext?R.ext(a):{});}
+ if(!x) try{x=patrolR239(norm(q))}catch(e){x=null}
  if(!x) try{x=patrolR238(norm(q))}catch(e){x=null}
  if(!x) try{x=patrolR234(norm(q))}catch(e){x=null}
  if(!x) try{x=patrolR233(norm(q))}catch(e){x=null}
