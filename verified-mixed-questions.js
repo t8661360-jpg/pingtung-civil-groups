@@ -455,7 +455,24 @@ function coopBoardVacancies(q){
  steps:[...(chair?[chairStep]:[]),...(dual||!chair?[seat]:[]),effective,...(filing||dual?[meeting]:[])],
  refs:[rule(7),rule(8),...(filing||dual?[coop(46),coop(48),rule(18),rule(29)]:[])],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
 }
+function creditCooperativeVacancy(q){
+ const t=String(q??'').normalize('NFKC').replace(/\s/g,'');
+ if(t.length>155||!/信用合作社/.test(t)||/這和一般合作社|和一般合作社|跟一般合作社|協會|工會|公會|股金|股息|改選結果|徵求候選|登記候選|新當選|就任前|主席|經理人|請假|請公假/.test(t))return null;
+ if(!/理事|監事|理監事/.test(t)||!/出缺|缺額|只剩|僅剩|剩下|各剩|夠不夠|未達|無人|沒(?:有)?監事|補選|遞補/.test(t))return null;
+ if(!/指派|指定|代行|補足|補人|補選|遞補|成會|派人/.test(t))return null;
+ const central=/指派|指定|代行|補足|補人|派人/.test(t);
+ const directorsWorking=/理事會(?:還能|仍能|可以正常|照常|正常|沒有問題)(?:開|開會|運作|成會)?/.test(t);
+ const onlySupervisor=/監事.{0,3}(?:只|僅)?剩(?:下)?(?:一|1)(?:個|位|名|人)|只剩(?:一|1)(?:位|個|名|人)監事/.test(t);
+ const empty=/監事無人|監事(?:全)?沒(?:有)?人|沒有(?:任何)?監事|監事全部出缺/.test(t);
+ const summary=central?(directorsWorking&&onlySupervisor&&!empty?'不會只因還有一位監事就由金管會派人。只剩一位，不等於監事無人。':'理事未達三人且不能成會，或監事無人時，金管會可以依法指派，但不是一定會派。'):'先看候補遞補，再以章程名額判斷補選；不能只報縣府就視為補選完成。';
+ const delegation=['中央指派是暫代，不是補選','理事未達三人且無法成會，或已沒有任何監事時，中央主管機關是金融監督管理委員會（金管會），得指派必要人員暫代職權，期限到補選完成為止。只剩一名監事不等於監事無人；即使符合任一條件，也不是自動指派。'];
+ const replace=['缺額及補選怎麼算','設有候補者依次遞補；專業理事缺額須由有同項資格的候補理事遞補，並按規定報地方主管機關備查。一般理事或監事遞補後若仍未達各自章程規定名額的一半，應自出缺日起二個月內舉行補選；涉及辦法第9條資格的缺額，須另外計算並依第39條辦理。'];
+ return {direct:true,category:'信用合作社',title:'信用合作社理監事出缺：遞補、補選與金管會暫代',
+  summary,steps:central?[delegation,replace]:[replace,delegation],
+  refs:[law('信用合作社社員代表理事監事經理人應具備資格條件及選聘辦法','G0380069',44),law('信用合作社法','G0380058',5)]};
+}
 function answerMixed(q){
+ const creditVacancy=creditCooperativeVacancy(q);if(creditVacancy)return creditVacancy;
  const coopVacancy=coopBoardVacancies(q);if(coopVacancy)return coopVacancy;
  const dual=dualBoardVacancies(q);if(dual)return dual;
  const familyProxy=familyAssemblyProxy(q);if(familyProxy)return familyProxy;
@@ -480,6 +497,6 @@ function answerMixed(q){
     keys.includes('creditor')?'合作社清算：就任後公告與終結報告，分別計算':isCoop?'合作社清算報告與股息上限，分開看':'協會入會資格與會員除名，分開看',
   summary:keys.length===1?topics[keys[0]].line[1]:'你問了兩件事，分別如下。',steps:keys.length>1?keys.map(k=>topics[k].line):[],refs:keys.flatMap(k=>topics[k].laws)};
 }
-if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy,changedMeetingVenue,familyAssemblyProxy,dualBoardVacancies,coopBoardVacancies};return;}
+if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy,changedMeetingVenue,familyAssemblyProxy,dualBoardVacancies,coopBoardVacancies,creditCooperativeVacancy};return;}
 root.verifiedMixedQuestionAnswer=answerMixed;
 })(typeof window!=='undefined'?window:globalThis);
