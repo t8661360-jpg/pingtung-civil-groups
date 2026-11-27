@@ -13,32 +13,37 @@ function meetingType(q){
  if(assembly&&(joint||broad||board||supervisor))return null;
  return assembly?'assembly':joint?'joint':broad||(board&&supervisor)?'boards':supervisor?'supervisor':board?'board':null;
 }
-function dateOf(q){
+const taipeiCalendar=new Intl.DateTimeFormat('en',{timeZone:'Asia/Taipei',year:'numeric'});
+const relativeYears={今年:0,本年:0,明年:1,去年:-1,後年:2,前年:-2};
+function dateOf(q,now=new Date()){
  const t=clean(q);
  const full=t.match(/(?:民國)?(\d{2,4})年(\d{1,2}|十[一二]?|[一二三四五六七八九])月(?:(\d{1,2})[日號])?/) ||
              t.match(/(?:^|[^0-9])(\d{2,4})[-/](\d{1,2})[-/](\d{1,2})(?!\d)/);
+ const relative=t.match(/(今年|本年|明年|去年|後年|前年)(\d{1,2}|十[一二]?|[一二三四五六七八九])月(?:(\d{1,2})[日號])?/);
  const monthOnly=t.match(/(?:^|[^0-9])(\d{1,2}|十[一二]?|[一二三四五六七八九])月(?:(\d{1,2})[日號])?/);
- if(!full&&!monthOnly)return null;
- let y=full?Number(full[1]):null;
+ if(!full&&!relative&&!monthOnly)return null;
+ const useRelative=relative&&(!full||relative.index<full.index);
+ const qualified=useRelative?relative:full;
+ let y=useRelative?Number(taipeiCalendar.format(now))+relativeYears[relative[1]]:full?Number(full[1]):null;
  if(y!==null&&y<1000)y+=1911;
- const raw=full?full[2]:monthOnly[1], rawDay=full?full[3]:monthOnly[2];
+ const raw=qualified?qualified[2]:monthOnly[1], rawDay=qualified?qualified[3]:monthOnly[2];
  const m=/^\d+$/.test(raw)?Number(raw):chinese.indexOf(raw);
  const d=rawDay?Number(rawDay):null;
  if(m<1||m>12||(y!==null&&(y<1912||y>2199))||(d!==null&&(d<1||d>days(y??2000,m))))return null;
  return {y,m,d};
 }
 function days(y,m){return new Date(Date.UTC(y,m,0)).getUTCDate();}
-function linkedDates(q){
+function linkedDates(q,now=new Date()){
  // Keep each meeting date attached to the meeting stated immediately before or after it.
  const t=clean(q);
- const stamp=/(?:(?:民國)?\d{2,4}年)?(?:\d{1,2}|十[一二]?|[一二三四五六七八九])月(?:\d{1,2}[日號])?|\d{2,4}[-/]\d{1,2}[-/]\d{1,2}/g;
+ const stamp=/(?:(?:民國)?\d{2,4}年|今年|本年|明年|去年|後年|前年)?(?:\d{1,2}|十[一二]?|[一二三四五六七八九])月(?:\d{1,2}[日號])?|\d{2,4}[-/]\d{1,2}[-/]\d{1,2}/g;
  const exactKind='會員(?:[（(]?代表[）)]?)?大會|會員代表會議|理監事聯席會議|理事監事聯席會議|理事會(?:議)?|監事會(?:議)?|理監事會議|大會';
  const next=new RegExp('^(?:(?:要|將|預計|才|再|當天)*(?:召開|開|舉行))?(?:的)?('+exactKind+')');
  const prev=new RegExp('('+exactKind+')(?:開會日期|日期|開會|預定|預計|訂於|排在|定在|安排在|安排|定於|在|是|為)*$');
  const map={}, loose=[], found=[];
  for(const clause of t.split(/[，,。；;？！?!]/)){
   for(const m of clause.matchAll(stamp)){
-   const f=dateOf(m[0]);if(!f)continue;
+   const f=dateOf(m[0],now);if(!f)continue;
    found.push(f);
    const before=clause.slice(0,m.index),after=clause.slice(m.index+m[0].length);
    const right=after.match(next),left=before.match(prev);
@@ -58,17 +63,17 @@ function optionsFor(state,kind){
  if(Object.keys(state.linked?.map??{}).length)return [];
  return uniqueDates(state.linked?.loose??[]);
 }
-function start(q){
+function start(q,now=new Date()){
  const t=clean(q);
- if(!/收支報告|收支報表|收支決算|會計報告|財務報告|財務報表|財報|年度決算|決算(?:要做|做到|做哪|要準備)|準備決算/.test(t))return null;
+ if(!/期中收支|收支報告|收支報表|收支決算|會計報告|財務報告|財務報表|財報|年度決算|決算(?:要做|做到|做哪|要準備)|準備決算/.test(t))return null;
  if(!/開會|會議|大會|理事會|監事會|理監事|召開/.test(t))return null;
- if(!dateOf(t)&&!/什麼時候|哪時|何時|多久前|做到|算到|哪一年|哪年度|哪一年度|哪段|哪一期|哪個期間|起訖|從哪|幾月|哪天|哪個月|什麼日期/.test(t))return null;
+ if(!dateOf(t,now)&&!/什麼時候|哪時|何時|多久前|做到|算到|哪一年|哪年度|哪一年度|哪段|哪一期|哪個期間|起訖|從哪|幾月|哪天|哪個月|什麼日期/.test(t))return null;
  if(/合作社|社員|公會|工會|商業團體|農會|漁會|財團法人|公司|股東|基金會|國際性|成立大會|第一次會員大會|補助|核銷|勸募|報稅|所得稅|公告|格式|下載|解散/.test(t))return null;
  const budget=/預算/.test(t)&&/明年|下年度|次年度/.test(t);
  if(/預算/.test(t)&&!budget)return null;
  const timing='何時|幾天|幾日|什麼時候|哪天|哪一日|多久|哪時';
  const notice=new RegExp('通知(?:單|書)?(?:又|也|還)?(?:要|須|應|應該|需要|最晚|最遲|提前)*(?:'+timing+')(?:之前|以前|前)?(?:寄|發|送|通知|寄發|前|[？?。！!，,]|$)|(?:'+timing+'|提前).{0,8}(?:寄|發|送)(?:開會|會議|大會)?通知').test(t);
- const kind=meetingType(q),linked=linkedDates(q);
+ const kind=meetingType(q),linked=linkedDates(q,now);
  const state={q,kind,date:null,linked,notice,budget};
  const options=kind?optionsFor(state,kind):uniqueDates(Object.keys(linked.map).length?[]:linked.loose);
  state.date=options.length===1?options[0]:null;
@@ -100,7 +105,7 @@ function answer({kind,date:f,notice=false,budget=false}){
   joint:'如果是因故不能如期開會員（代表）大會，理監事聯席會議可先通過上年度報告與決算，之後仍應提大會追認，再報主管機關備查。聯席會議不會把上年度決算變成今年的期中報告。',
   boards:'若開的是理事會，由理事會編造報告；若開的是監事會，由監事會審核年度決算。審核結果要與決算併提會員（代表）大會，不能把其中一次會議當成大會通過。若大會不能如期開，依規定可先由理事會及監事會，或由理監事聯席會議通過，再提大會追認。'
  };
- const currentInfo=cut?'若本次要報告今年的實際收支，可另做期中表。例如已結帳至'+cut+'，就可列'+current+'1月1日至'+cut+'。':'若本次要報告今年的實際收支，可另做期中表，列到當年度最近已完成結帳且早於會議的日期；若尚未有已結帳期間，不必假設已有完整月份。';
+ const currentInfo=cut?'若本次要報告會議當年度的實際收支，可另做期中表。例如已結帳至'+cut+'，就可列'+current+'1月1日至'+cut+'。':'若本次要報告會議當年度的實際收支，可另做期中表，列到當年度最近已完成結帳且早於會議的日期；若尚未有已結帳期間，不必假設已有完整月份。';
  const steps=[general,process[kind],currentInfo+' 這是報表範例，不是法定申報截止日，也不取代正式的年度決算。'];
  const sources=[...refs];
  if(notice){
@@ -111,7 +116,7 @@ function answer({kind,date:f,notice=false,budget=false}){
  if(budget){
   steps.push(['明年預算','如果「明年」是指會議當年度的下一年，預算應做'+(f.y?(f.y+1)+'年度':'會議的下一年度')+'，由理事會在該會計年度開始前編造工作計畫與收支預算表。這是未來年度的計畫，不是前一年度的實際決算。']);
  }
- return {direct:true,category:'人民團體財務',title:labelDate(f)+' '+types[kind]+'：年度決算與期中收支要分開',summary:'年度決算做上年度；今年實際收支另外列期中表。',steps,refs:sources};
+ return {direct:true,category:'人民團體財務',title:labelDate(f)+' '+types[kind]+'：年度決算與期中收支要分開',summary:'年度決算做會議的上年度；會議當年度的實際收支另外列期中表。',steps,refs:sources};
 }
 function pairedAnswers(s){
  if(!/各要|各自|各是|各需要|分別|兩場|兩次|兩個會議/.test(clean(s.q)))return null;
@@ -190,8 +195,8 @@ function createPlanner({board,showAnswer}){
   const next=start(q);if(next){active=next;const paired=pairedAnswers(next);if(paired){active=null;showAnswer(q,paired);}else draw();return true;}
   if(!active)return false;
   const t=clean(q),kind=meetingType(q),f=dateOf(q);
-  if(kind&&/^(?:是|要開|這次是|開)?(?:會員[（(]?代表[）)]?大會|會員大會|大會|理事會|監事會|理監事聯席會議|理監事會議)(?=[，,。！!]|$|(?:預計|在)?(?:民國)?[0-9])/.test(t)){if(kind!==active.kind){const opts=optionsFor(active,kind);active.date=opts.length===1?opts[0]:null;}active.kind=kind;if(f)active.date=f;draw();return true;}
-  if(/^(?:日期(?:是|為)?|開會(?:是|在)?|民國|預計|定在|在)?\d|^(?:[一二三四五六七八九十]+)月/.test(t)&&t.length<34){
+  if(kind&&/^(?:是|要開|這次是|開)?(?:會員[（(]?代表[）)]?大會|會員大會|大會|理事會|監事會|理監事聯席會議|理監事會議)(?=[，,。！!]|$|(?:預計|在)?(?:(?:民國)?[0-9]|今年|本年|明年|去年|後年|前年))/.test(t)){if(kind!==active.kind){const opts=optionsFor(active,kind);active.date=opts.length===1?opts[0]:null;}active.kind=kind;if(f)active.date=f;draw();return true;}
+  if(/^(?:日期(?:是|為)?|開會(?:是|在)?|民國|預計|定在|在)?(?:\d|(?:今年|本年|明年|去年|後年|前年)(?:\d|[一二三四五六七八九十]))|^(?:[一二三四五六七八九十]+)月/.test(t)&&t.length<34){
    if(f){active.date=f;draw();}else draw(false,false,'日期無效。請輸入完整的年月日，例如「115年8月15日」。');return true;
   }
   if(active.kind&&active.date?.m&&/^(?:日期未定|只有月份|先看這個月份)/.test(t)){result(active);return true;}
