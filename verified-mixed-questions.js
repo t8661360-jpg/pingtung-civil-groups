@@ -1136,14 +1136,14 @@ function associationStampDuty(q){
 
 function coopRepresentativeAssembly(q){
  const t=String(q||'').normalize('NFKC').replace(/\s/g,'');
- if(t.length>175||!/合作社|信合社/.test(t)||!/代表/.test(t)||/儲蓄互助社|農會|漁會|公會|合作社聯合社|保險合作社|初選|出缺|補選|候補|辭職|辭任|股息|股金|清算|解散|合併|轉型|查詢名冊|有幾家/.test(t))return null;
+ if(t.length>175||!/合作社|信合社/.test(t)||!/代表/.test(t)||/儲蓄互助社|農會|漁會|公會|合作社聯合社|保險合作社|初選|出缺|補選|候補|辭職|辭任|股息|股金|社股|退股|退還|退款|清算|解散|合併|轉型|查詢名冊|有幾家/.test(t))return null;
  const creditRe=/信用合作社|信合社/;
  const regularRe=/(?:一般(?:的)?|普通|消費|生產|運銷|勞動|住宅|員生|交通)合作社/;
  const credit=creditRe.test(t), regular=regularRe.test(t.replace(/信用合作社/g,''));
  const proxy=credit&&/代理|委託|把票交給|代投/.test(t)&&/大會|投票|表決|選舉|缺席|出席/.test(t);
  const isElection=/選(?:舉|理事|監事|理監事|社員代表)|改選/.test(t);
  const ordinaryMotion=/一般議案|議案表決|一般表決|通過議案|例行議案/.test(t);
- const seat=/幾(?:席|個|名|位)(?:社員)?代表|代表.{0,9}(?:幾個|幾名|幾位|幾席|幾人|多少|人數|名額|任期|任幾年|當幾年)|(?:選|推選|選出)(?:多少|幾|[0-9,]+)(?:個|名|位|席)?(?:社員)?代表|代表大會.{0,7}(?:嗎|能|可|嗎)|(?:能|可|要|能否|得否)(?:不)?(?:以|夠)?(?:召)?開(?:社員)?代表大會|代表大會.{0,18}(?:多少|幾年|幾人)|(?:代表制|代表大會).{0,15}(?:門檻|條件|章程|人數|怎麼選|怎麼開|怎麼辦)|(?:能|可)(?:不)?(?:以|夠)?選(?:出)?(?:社員)?代表/.test(t);
+ const seat=/幾(?:席|個|名|位)(?:社員)?代表|代表.{0,9}(?:幾個|幾名|幾位|幾席|幾人|多少|人數|名額|任期|任幾年|當幾年)|(?:選|推選|選出)(?:多少|幾|[0-9,]+)(?:個|名|位|席)?(?:社員)?代表|代表大會(?:是否|可以|能不能|能否|可不可以)(?:開|舉行|召開)|(?:能|可|要|能否|得否)(?:不)?(?:以|夠)?(?:召)?開(?:社員)?代表大會|代表大會.{0,18}(?:多少|幾年|幾人)|(?:代表制|代表大會).{0,15}(?:門檻|條件|章程|人數|怎麼選|怎麼開|怎麼辦)|(?:能|可)(?:不)?(?:以|夠)?選(?:出)?(?:社員)?代表/.test(t);
  if(!seat&&!proxy)return null;
  if(!proxy&&/代表.*(?:報備|函報|會議紀錄|通知何時|寄通知|開會通知|監事會|理事席次)/.test(t)&&!/幾(?:席|個|名|位|人)|多少|任期/.test(t))return null;
  const creditLaw=n=>law('信用合作社法','G0380058',n);
@@ -1193,7 +1193,43 @@ function coopRepresentativeAssembly(q){
  ...(choices?{choiceHeading:typeMissing?'您問的是哪一類合作社？':'這次是選舉還是一般議案？',choices}:{})};
 }
 
+function creditCoopShareRedemption(q){
+ const t=String(q||'').normalize('NFKC').replace(/\s/g,'');
+ const isCredit=/信用合作社|信合社/.test(t);
+ const regularOnly=!isCredit&&/一般合作社|普通合作社|消費合作社|勞動合作社/.test(t)&&/決議.{0,10}(?:三|3)個月/.test(t)&&/股金|社股|退股|股款/.test(t)&&/退還|退款|退股|返還/.test(t);
+ if(t.length>190||(!isCredit&&!regularOnly)||/除名|罷免|死亡|繼承|贈與|轉讓|出質|清算|倒閉|解散|變更.{0,5}商業銀行|農會|漁會|儲蓄互助社|保險合作社|信用部/.test(t))return null;
+ const withdrawal=/退社|出社|退出(?:合作社|信合社|社員身分)?|退掉(?:會籍|社員身分)/.test(t);
+ const reduction=/減少(?:認繳|認購|所持|我的|自己的)?(?:股金|持股|股數|社股)|減(?:持|資)|少持|減掉.{0,7}(?:股|持股)|只退(?:一部分|部分|幾股)|不退社|不退出/.test(t);
+ const refund=/退股|股金|社股|持股|股款|每股|退錢|返還|退款|退還|淨值/.test(t);
+ if(!regularOnly&&(!(withdrawal||reduction||/退股|股金.{0,8}(?:退還|返還|退款|領回|領還|拿回)|(?:退還|返還|領回|拿回).{0,8}股金/.test(t))||!refund))return null;
+ if(/股息|股利/.test(t)&&!/退股|退還|領回|返還|退款/.test(t))return null;
+ if(/(?:只|僅)辭職|(?:只|僅)辭(?:去|掉)主席/.test(t)&&!reduction&&!withdrawal)return null;
+ const compare=/一般合作社|普通合作社|消費合作社|勞動合作社/.test(t);
+ const deposit=/定存|定期存款|活期存款|存摺|存單/.test(t);
+ const vague=!withdrawal&&!reduction;
+ const credit=n=>law('信用合作社法','G0380058',n);
+ const filing=['退社申請是另一個時間點','依信用合作社法第12條之1，社員得在年度終了時退社，原則上要在年度終了三個月前提出請求書；章程可延長到六個月，社員是法人時可延長到一年。退社後依章程請求退還股金。'];
+ const less=['只想減少持股，不一定要退出','依信用合作社法第12條之1末項，申請減少股金，準用前五項，包括時點、核算及返還規則。先查章程及該社認購社股下限，向該社確認應留股數及書面程序，不是到櫃檯就能把部分股份當存款領出。'];
+ const timing=['返還的三個月從哪天算？','應在社員代表大會決議通過後三個月內退還股金。起算點是社員代表大會決議通過日，不是送出退社申請書日，也不是年底當天。可請信合社確認決議日期和退款方式。'];
+ const face=t.match(/每股面額(?:為|是)?(\d+(?:\.\d+)?)元/),net=t.match(/淨值(?:除以股數)?(?:後)?(?:每股)?(?:為|是)?(\d+(?:\.\d+)?)元/);
+ const example=face&&net?'依您給的假設數字，兩者取低，每股退'+Math.min(+face[1],+net[1])+'元。':'例如，每股面額100元，決算每股淨值120元，最高退100元；淨值若為80元，依80元計。';
+ const amount=['每股退多少：淨值不得超過面額上限','以營業年度終了、經社員代表大會決議通過的決算淨值除以股數，計算每股應退股金，不得超過每股面額。決議前須確認已依會計師查核簽證提足相關評價準備。'+example];
+ const depositRow=['定期存款和社股分開','定存按存款契約處理，到期提領或提前解約的條件與利息應看存單；若有質借、設定擔保或其他限制，也要先向存款機構確認。退社的股金返還期限不是領定存的期限。'];
+ const regular=['一般合作社不套用這個三個月','一般合作社依合作社法第27、30條及章程辦理退社與股金；年度終了財產是原則上的計算基準，章程另有規定從其規定。這兩條未規定「社員代表大會決議後三個月內返還」，那是這裡的信用合作社規則。'];
+ if(regularOnly)return {direct:true,category:'合作社財務',title:'一般合作社不能套信合社的三個月期限',summary:'不一定。一般合作社不能直接套用社員代表大會決議通過後三個月內返還的信用合作社期限。',steps:[regular,['先看退社與章程','社員原則上在年度終了時退社，須於年度終了三個月前提出請求書，章程可延長。出社後，依章程請求退還股金的一部或全部，請該社說明章程的計算及返還方式。']],refs:[coop(27),coop(30),credit('12-1')]};
+ const choices=vague&&!deposit&&!compare?[
+  {label:'我要退社，申請返還股金',question:'信用合作社社員要退社並領回股金，怎麼算、什麼時候退？'},
+  {label:'我要減少持股，仍保留社員身分',question:'信用合作社社員不退社、只減少持股，股金怎麼算、什麼時候退？'}
+ ]:null;
+ return {direct:true,category:'信用合作社財務',title:deposit?'信合社退股與定期存款是兩件事':compare?'一般合作社與信合社：退股期限不同':reduction?'信合社減少持股：退還規則準用信用合作社法':'信合社退還股金：不是從申請日起算三個月',
+ summary:deposit?'要把定存和社股分開。定存依契約，社股則在社員代表大會決議通過後三個月內返還。':compare?'信用合作社有決議通過後三個月內退還的期限；一般合作社不能直接套用。':'信用合作社退還股金，應在社員代表大會決議通過後三個月內辦理；每股以決算淨值計算，且不得超過每股面額。',
+ steps:[timing,amount,...(reduction?[less]:[]),...(!reduction||withdrawal&&!/不退社|不退出/.test(t)?[filing]:[]),...(deposit?[depositRow]:[]),...(compare?[regular]:[])],
+ refs:[credit('12-1'),...(reduction?[credit(12)]:[]),...(deposit?[credit(15)]:[]),...(compare?[coop(27),coop(30)]:[])],
+ ...(choices?{choiceHeading:'您是要退社，還是只減少持股？',choices}:{})};
+}
+
 function answerMixed(q){
+ const redeemCreditShare=creditCoopShareRedemption(q);if(redeemCreditShare)return redeemCreditShare;
  const coopRepresentatives=coopRepresentativeAssembly(q);if(coopRepresentatives)return coopRepresentatives;
  const stampDuty=associationStampDuty(q);if(stampDuty)return stampDuty;
  const volunteerTax=volunteerTravelMealTax(q);if(volunteerTax)return volunteerTax;
@@ -1244,6 +1280,6 @@ function answerMixed(q){
     keys.includes('creditor')?'合作社清算：就任後公告與終結報告，分別計算':isCoop?'合作社清算報告與股息上限，分開看':'協會入會資格與會員除名，分開看',
   summary:keys.length===1?topics[keys[0]].line[1]:'你問了兩件事，分別如下。',steps:keys.length>1?keys.map(k=>topics[k].line):[],refs:keys.flatMap(k=>topics[k].laws)};
 }
-if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy,changedMeetingVenue,familyAssemblyProxy,dualBoardVacancies,coopBoardVacancies,creditCooperativeVacancy,schoolParentFiling,associationRegisteredAddress,inspectAndPublishBoardMinutes,temporaryMeetingNotice,withdrawalAndAssemblyRoll,memberMeetingExpenseFunding,missedSupervisorNotice,duesAndAssemblyRights,coopWithdrawalAndAssembly,designatedMeetingConvener,assemblyRepresentativeParticipation,formerMemberGiftReturn,preschoolParentFiling,associationVotingRollDisclosure,associationDirectorsQuorum,creditCoopDepositsAndDividends,associationElectionObjection,associationDelegateReplacement,commerceDelegateReplacement,industryDelegateReplacement,outsideCounterNoiseReferral,deityAssociationManagerReferral,volunteerTravelMealTax,associationStampDuty,coopRepresentativeAssembly};return;}
+if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy,changedMeetingVenue,familyAssemblyProxy,dualBoardVacancies,coopBoardVacancies,creditCooperativeVacancy,schoolParentFiling,associationRegisteredAddress,inspectAndPublishBoardMinutes,temporaryMeetingNotice,withdrawalAndAssemblyRoll,memberMeetingExpenseFunding,missedSupervisorNotice,duesAndAssemblyRights,coopWithdrawalAndAssembly,designatedMeetingConvener,assemblyRepresentativeParticipation,formerMemberGiftReturn,preschoolParentFiling,associationVotingRollDisclosure,associationDirectorsQuorum,creditCoopDepositsAndDividends,associationElectionObjection,associationDelegateReplacement,commerceDelegateReplacement,industryDelegateReplacement,outsideCounterNoiseReferral,deityAssociationManagerReferral,volunteerTravelMealTax,associationStampDuty,coopRepresentativeAssembly,creditCoopShareRedemption};return;}
 root.verifiedMixedQuestionAnswer=answerMixed;
 })(typeof window!=='undefined'?window:globalThis);

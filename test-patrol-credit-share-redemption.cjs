@@ -1,0 +1,16 @@
+const a=require('node:assert/strict');
+const {creditCoopShareRedemption:fn,answerMixed}=require('./verified-mixed-questions.js');
+const text=q=>JSON.stringify(answerMixed(q));
+a.match(text('信用合作社的社員退社，決議通過多久要還股金？'),/社員代表大會決議通過後三個月內.*不得超過每股面額/);
+a.match(text('信合社今年年底才退社，送出退社申請三個月就能拿到股金嗎？'),/不是送出退社申請書日.*年度終了三個月前/);
+a.match(text('我在信用合作社只想減少持股，不退出，返還錢的期限和每股上限怎麼算？'),/申請減少股金，準用前五項/);
+a.doesNotMatch(text('我在信用合作社只想減少持股，不退出，返還錢的期限和每股上限怎麼算？'),/退社申請是另一個時間點/);
+a.match(text('信用合作社退股，假設每股面額100元、年底淨值除以股數每股120元，每股退多少，多久退？'),/依您給的假設數字，兩者取低，每股退100元/);
+a.match(text('信用合作社退股，每股面額130元、淨值每股90元，退多少？'),/每股退90元/);
+a.match(text('信用合作社退社兩件事：我銀行定存還能領嗎？社股什麼時候退？'),/定存按存款契約處理/);
+a.match(text('一般合作社可以跟信用合作社一樣在決議後三個月內退股金嗎？'),/一般合作社不能直接套用/);
+a.match(text('一般消費合作社社股退款，也一定在代表大會決議後三個月內嗎？'),/一般合作社不能直接套用/);
+const c=fn('信合社退股要多久？').choices;
+a.equal(c.length,2);
+for(const x of c)a.ok(fn(x.question));
+for(const q of ['信用合作社定存利息是多少？','信用合作社社員過世股金怎麼退？','信用合作社清算後股金怎麼退？','信用合作社股息和利息一樣嗎？'])a.equal(fn(q),null,q);
