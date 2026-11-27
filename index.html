@@ -1521,6 +1521,8 @@ async function ask(q){
   if(financeMeetingPlanner&&financeMeetingPlanner(q))return;
   const inKind=typeof window.verifiedInKindDonationAnswer==="function"?window.verifiedInKindDonationAnswer(q):null;
   if(inKind){renderAnswer(q,inKind);return;}
+  const convening=typeof window.verifiedMeetingConveningAnswer==="function"?window.verifiedMeetingConveningAnswer(q):null;
+  if(convening){renderAnswer(q,convening);return;}
   const verifiedMixed=typeof window.verifiedMixedQuestionAnswer==="function"?window.verifiedMixedQuestionAnswer(q):null;
   if(verifiedMixed){renderAnswer(q,verifiedMixed);return;}
   const shownQ=q;const prevQ=convo.length?convo[convo.length-1].q:"";
@@ -1908,6 +1910,7 @@ touch();
 <script src="association-finance-meeting-month.js?v=3"></script>
 <script src="verified-mixed-questions.js?v=5"></script>
 <script src="in-kind-donation-distinction.js?v=1"></script>
+<script src="meeting-convening-distinction.js?v=1"></script>
 <script src="answer-arbiter.js?v=20261127-251"></script>
 <script src="question-understanding.js?v=20261127-251"></script>
 <script src="counter-upgrade.js?v=20261127-251"></script>
