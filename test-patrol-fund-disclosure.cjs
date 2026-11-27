@@ -1,0 +1,10 @@
+const assert=require('node:assert/strict');
+const {answerMixed:A,fundraisingDisclosure:F}=require('./verified-mixed-questions');
+const all=a=>[a.summary,...a.steps.flat(),...a.refs.map(x=>x.title)].join(' ');
+assert.match(all(A('我們協會有公益勸募許可，公開徵信時捐款人不想具名，還需要公開姓名嗎？')),/可以不揭示全名.*不是把整筆捐款刪除.*次日起三十日內.*收據編號.*第6條附件二/);
+assert.match(all(A('捐款人要求匿名，協會可以不列入公益勸募徵信和縣府備查嗎？')),/仍要依法徵信.*不是把整筆捐款刪除/);
+assert.doesNotMatch(all(A('協會被動收捐款，捐款人反對公開全名，還有徵信義務嗎？')),/期滿的次日起三十日內/);
+assert.match(all(A('協會被動收捐款，捐款人反對公開全名，還有徵信義務嗎？')),/至少每六個月一次.*年度終了後五個月內/);
+assert.match(all(A('捐款人不同意具名，公益勸募的收據跟公開版可以寫一樣嗎？')),/不等於可以省掉依法開立的收據.*不冒填姓名/);
+for(const q of ['公益勸募活動期滿後多久內公開徵信？','財團法人公開徵信有人匿名可以嗎？','協會會員的繳費名單要公開嗎？','公益勸募期滿後匿名捐款要退款嗎？'])assert.equal(F(q),null,q);
+console.log('public fundraising disclosure opt-outs differ from records and receipts');

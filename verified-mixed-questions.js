@@ -274,7 +274,25 @@ function publishDocumentPrivacy(q){
  return {direct:true,category:'人民團體會務說明',title:finance?'公告協會收支，不必公開每位會員的繳費資料':'公開會議紀錄，不等於公開簽名與個資',
   summary:finance?'公布年度收支和揭露每名會員的繳費資料，是兩件事。':'一般規定沒有要求上網公開會議紀錄的簽名。供會員查閱與依法送主管機關，是不同的義務。',steps,refs};
 }
+function fundraisingDisclosure(q){
+ const t=String(q??'').normalize('NFKC').replace(/\s/g,'');
+ if(t.length>150||!/公益勸募|徵信|勸募許可/.test(t))return null;
+ if(!/捐(?:贈|助|款)(?:者|人)?/.test(t)||!/(?:不(?:想|要|願|同意|希望)|反對|拒絕).{0,8}(?:全名|姓名|具名|揭露|公開)|匿名|不具名|不公開(?:姓名|全名)/.test(t))return null;
+ if(/財團法人|政府專戶|政府機關|政治獻金|選舉|退費|退款|返還|冒名|別人名義|不實|逾期.{0,6}收到/.test(t))return null;
+ const passive=/被動|主動捐贈|主動送來|外界主動|不曾對外募集/.test(t)&&!/已有許可|有公益勸募許可|已許可/.test(t);
+ const fund=n=>law('公益勸募條例','D0050138',n), rule=n=>law('公益勸募條例施行細則','D0050146',n);
+ const release=['公開版可以怎麼做','勸募團體辦理公開徵信時，若捐贈者已表示反對刊登姓名，依施行細則第6條附件二，可以不揭示全名。建議留存反對紀錄，公開版只處理姓名的揭示，不是把整筆捐款刪除，也不是免除公告與公開徵信。'];
+ const records=['收據、備查和公開是三件事','捐贈者反對網站具名，不等於可以省掉依法開立的收據或留存、備查資料。應依法處理收據；若屬許可勸募，依施行細則第14條送主管機關備查的捐贈資料還須載明收據編號。若對方未提供身分、或報送欄位格式不明，請先向主管機關確認，不冒填姓名。'];
+ const course=passive?['被動受贈仍可能有徵信義務','依法屬勸募團體而接受民眾主動捐贈時，依條例第6條仍須辦理公開徵信。一般至少每六個月一次；其他勸募團體並應在年度終了後五個月內函報辦理情形及收支決算，公立學校為兩個月。重大災害或國際人道救援的徵信頻率另有規範。若是一般協會而非法定勸募團體，不直接套第6條，仍依法辦理財務收支公告，且不是一律公開捐款人清冊。']:
+  ['已有公益勸募許可','依條例第18條，許可勸募活動期滿的次日起三十日內，仍須公告、公開徵信並報主管機關備查。公告內容包括捐贈資料、勸募所得及收支報告。'];
+ const explicit=/許可|期滿|活動/.test(t);
+ const general=['先分勸募還是被動受贈','如果是已許可的對外勸募，活動期滿次日起三十日內辦理公告與備查。若是勸募團體被動受贈，按條例第6條定期公開徵信與年度函報，不能把前述三十日期限照套。'];
+ return {direct:true,category:'公益勸募',title:'公益勸募徵信：捐贈者反對具名，可以不揭示全名',
+  summary:passive?'如果依法屬於勸募團體，捐贈者反對具名仍須辦理徵信，但公開版可以不揭示全名。':'不必一律公開捐贈者全名，但仍要依法徵信、留存及送主管機關備查。',steps:passive?[course,release,records]:[release,explicit?course:general,records],
+  refs:[{title:'公益勸募條例施行細則第6條附件二：勸募團體的捐贈清冊與徵信',source:'https://law.moj.gov.tw/LawClass/LawGetFile.ashx?FileId=0000257384&lan=C'},rule(6),rule(14),rule(9),fund(16),...(passive?[fund(6)]:explicit?[fund(18)]:[fund(6),fund(18)])]};
+}
 function answerMixed(q){
+ const donationDisclosure=fundraisingDisclosure(q);if(donationDisclosure)return donationDisclosure;
  const docs=publishDocumentPrivacy(q);if(docs)return docs;
  const fund=overdueFundraising(q);if(fund)return fund;
  const annual=yearEndAuditVacancy(q);if(annual)return annual;
@@ -291,6 +309,6 @@ function answerMixed(q){
     keys.includes('creditor')?'合作社清算：就任後公告與終結報告，分別計算':isCoop?'合作社清算報告與股息上限，分開看':'協會入會資格與會員除名，分開看',
   summary:keys.length===1?topics[keys[0]].line[1]:'你問了兩件事，分別如下。',steps:keys.length>1?keys.map(k=>topics[k].line):[],refs:keys.flatMap(k=>topics[k].laws)};
 }
-if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy};return;}
+if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure};return;}
 root.verifiedMixedQuestionAnswer=answerMixed;
 })(typeof window!=='undefined'?window:globalThis);
