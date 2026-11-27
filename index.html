@@ -1524,6 +1524,8 @@ async function ask(q){
   const decisionAudit=typeof window.verifiedAssociationDecisionAudit==="function"?window.verifiedAssociationDecisionAudit(q):null;
   if(decisionAudit){financeMeetingPlanner=null;renderAnswer(q,decisionAudit);return;}
   if(financeMeetingPlanner&&financeMeetingPlanner(q))return;
+  const farmerRepresentative=typeof window.verifiedFarmerRepresentative==="function"?window.verifiedFarmerRepresentative(q):null;
+  if(farmerRepresentative){renderAnswer(q,farmerRepresentative);return;}
   const publicElection=typeof window.verifiedAssociationPublicElection==="function"?window.verifiedAssociationPublicElection(q):null;
   if(publicElection){renderAnswer(q,publicElection);return;}
   const politicalDonation=typeof window.verifiedAssociationPoliticalDonation==="function"?window.verifiedAssociationPoliticalDonation(q):null;
@@ -1960,6 +1962,7 @@ touch();
 <script src="association-public-election.js?v=1"></script>
 <script src="association-ledger-loss.js?v=1"></script>
 <script src="association-political-donation.js?v=1"></script>
+<script src="farmer-association-representative.js?v=1"></script>
 <script src="in-kind-donation-distinction.js?v=1"></script>
 <script src="meeting-convening-distinction.js?v=1"></script>
 <script src="answer-arbiter.js?v=20261127-295"></script>
