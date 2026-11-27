@@ -1562,6 +1562,8 @@ let financeMeetingPlanner;
 async function ask(q){
   q=String(q||"").trim();if(!q||busy)return;
   if(!financeMeetingPlanner&&typeof window.createFinanceMeetingPlanner==="function")financeMeetingPlanner=window.createFinanceMeetingPlanner({board,showAnswer:renderAnswer});
+  const rosterElectionExceptions=typeof window.verifiedAssociationRosterElectionExceptions==="function"?window.verifiedAssociationRosterElectionExceptions(q):null;
+  if(rosterElectionExceptions){financeMeetingPlanner=null;renderAnswer(q,rosterElectionExceptions);return;}
   const countyChecks=typeof window.verifiedAssociationCountyFundingElection==="function"?window.verifiedAssociationCountyFundingElection(q):null;
   if(countyChecks){financeMeetingPlanner=null;renderAnswer(q,countyChecks);return;}
   const writtenCharter=typeof window.verifiedAssociationCharterWrittenAfterQuorum==="function"?window.verifiedAssociationCharterWrittenAfterQuorum(q):null;
@@ -2125,6 +2127,7 @@ touch();
 <script src="cooperative-address-proof.js?v=1"></script>
 <script src="liquidation-creditor-notice.js?v=2"></script>
 <script src="director-absence-clarification.js?v=1"></script>
+<script src="association-roster-election-exceptions.js?v=1"></script>
 <script src="association-finance-meeting-month.js?v=20261127-notice-calendar"></script>
 <script src="verified-mixed-questions.js?v=20261127-mixed-refund"></script>
 <script src="association-wages-and-signing.js?v=1"></script>
