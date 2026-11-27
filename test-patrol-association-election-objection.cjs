@@ -1,0 +1,11 @@
+const assert=require('node:assert/strict');
+const {answerMixed,associationElectionObjection:f}=require('./verified-mixed-questions');
+const sample='會員大會選舉開票發現選票比領票人數多，這次選舉算不算數';
+let a=answerMixed(sample);assert.match(a.summary,/不能直接判定選舉有效或無效.*十五日內書面向團體/);
+assert.ok(a.refs.some(x=>x.title==='人民團體選舉罷免辦法第26條'));
+assert.match(answerMixed('協會理事選舉發出83張但票匭開出86張，主席已宣布結果，我要跟誰提異議？').steps.flat().join(' '),/十五日內，書面向協會提出.*協會收到異議書之日起十五日內/);
+assert.match(answerMixed('協會收了異議書15天沒回，縣府能直接宣布重選嗎？').summary,/不等於縣府可直接宣布重選.*法院/);
+assert.match(answerMixed('協會理監事選舉票多3張，還沒宣布當選，我要先找縣府嗎？').summary,/先向主席或主持人提出異議/);
+assert.match(answerMixed('協會的理事選舉票數不符，還在查，可把選票銷毀嗎？').summary,/不要銷毀/);
+for(const q of ['合作社社員選舉票數不符，可以找縣府重選嗎？','商業同業公會會員大會發現票數不符，是否重選？','我們協會理事長任期還有三個月，可以改選嗎？','會費異議書協會收完，怎麼辦？'])assert.equal(f(q),null,q);
+console.log('association election objection OK');

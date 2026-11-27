@@ -926,7 +926,34 @@ function creditCoopDepositsAndDividends(q){
  steps:share?[deposit,dividends,different,contact]:[deposit,contact],
  refs:[ref(15),...(share?[ref(23),ref(24)]:[]),{title:'信用合作社的定期存款契約條款範例：花蓮第一信用合作社',source:'https://www.hua215.com.tw/public/deal/%E5%AE%9A%E6%9C%9F%E6%80%A7%E5%AD%98%E6%AC%BE%E7%B4%84%E5%AE%9A%E4%BA%8B%E9%A0%85.pdf'}]};
 }
+function associationElectionObjection(q){
+ const t=String(q??'').normalize('NFKC').replace(/\s/g,'');
+ if(t.length>190||/合作社|公會|工會|農會|漁會|公司|社區管委會|股東|董事會|總統|里長|鄉長|股東會|國立|家長會|神明會|祭祀|直選理事長/.test(t))return null;
+ const dispute=/選舉.{0,20}(?:異議|爭議)|異議書|選舉結果.{0,15}(?:異議|不服)/.test(t);
+ const discrepancy=/(?:選票|票數|票匭|開(?:出)?票|選舉票).{0,20}(?:領票|票數不符|不符|對不上|多出|多[0-9一二三四五六七八九幾]|少[0-9一二三四五六七八九幾])|(?:領票|發票|發出|發了).{0,18}(?:開出|票匭|選票|票數)/.test(t);
+ const social=/協會|社會團體|人民團體|會員大會|理監事/.test(t);
+ if(!social||(!discrepancy&&!dispute)||(!discrepancy&&!/選舉|選票|重選|開票|領票/.test(t)))return null;
+ if(!/異議|爭議|算不算|有效|無效|作廢|重選|決定|縣府|銷毀|保管|超過|沒回|退件|怎麼辦/.test(t))return null;
+ const late=/逾期|沒(?:有)?回|未回|不回|不理|收.{0,5}異議書.{0,15}(?:15|十五)/.test(t);
+ const now=/還沒宣布|未宣布|還未宣布|正在開票|當場|剛開到/.test(t);
+ const keep=/銷毀|丟掉|保管|留下|包封/.test(t);
+ const reg=n=>law('人民團體選舉罷免辦法','D0050093',n);
+ const preserve=['先保存選票與核對紀錄','把配發、領票簽名或章、未使用票、票匭清點及開票紀錄分開核對，並記錄異常與當場異議。依第26條，紙本票開票宣布後須包封，封面由主席與監票員驗簽、交團體妥善保管；有爭議時先不要銷毀。無爭訟也要到任期屆滿且改選完畢後，才依規定銷毀。'];
+ const how=['參加選舉的人，向誰提異議','如發現程序違反法令、章程或團體選舉規定，參加該次選舉的會員或會員代表，可當場向主席或主持人提出，請記入紀錄；也可以從選舉結果宣布之日起十五日內，書面向協會提出，保留送達證明。不要只向縣府反映而漏掉向團體提出的期限。'];
+ const reply=['團體收件後另有十五日','協會收到異議書之日起十五日內，應查明並以書面回覆異議人。團體沒有按時回覆，或回覆後仍有爭議，可保留異議書、送達證明與選舉紀錄，找法律諮詢或向法院提起訴訟。'];
+ const validity=['不要只看票數差額就判定有效或無效','選票數量不符要查原因與影響，不等於一定有效、一定無效或必須重選。縣府的會務監督與向團體提出選舉異議，是不同程序；不能只因票數有差或協會逾期未回，就認定縣府一定可直接宣布重選。'];
+ return {direct:true,category:'選舉與改選',title:'協會選舉有爭議：先保全選票，再依期限向團體異議',
+  summary:late?'協會收件後十五日內應查明並書面回覆。逾期沒回，不等於縣府可直接宣布重選；仍有爭議可向法院提起訴訟。':
+   now?'還在現場時，參加選舉的會員或代表可先向主席或主持人提出異議、要求記錄，不必先去縣府。票數不符不等於自動無效。':
+   keep?'不要銷毀有爭議的選票。紙本選票依第26條包封、驗簽並交團體妥善保管。':
+   discrepancy?'票數對不上，不能直接判定選舉有效或無效。請先保全選票與紀錄；若已宣布結果，可在宣布之日起十五日內書面向團體提出異議。':
+   '參加選舉的會員或代表，可當場向主席或主持人提出異議，或在結果宣布之日起十五日內書面向團體提出。',
+  steps:late?[reply,validity,how,preserve]:now?[how,preserve,validity,reply]:keep?[preserve,how,reply,validity]:[validity,how,reply,preserve],
+  refs:[reg(25),reg(26),{title:'內政部：人民團體選舉、罷免與團體自治',source:'https://www.moi.gov.tw/News_Content.aspx?n=15255&s=216275'}],
+  actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
+}
 function answerMixed(q){
+ const electionObjection=associationElectionObjection(q);if(electionObjection)return electionObjection;
  const creditDeposits=creditCoopDepositsAndDividends(q);if(creditDeposits)return creditDeposits;
  const votingRoll=associationVotingRollDisclosure(q);if(votingRoll)return votingRoll;
  const giftReturn=formerMemberGiftReturn(q);if(giftReturn)return giftReturn;
@@ -968,6 +995,6 @@ function answerMixed(q){
     keys.includes('creditor')?'合作社清算：就任後公告與終結報告，分別計算':isCoop?'合作社清算報告與股息上限，分開看':'協會入會資格與會員除名，分開看',
   summary:keys.length===1?topics[keys[0]].line[1]:'你問了兩件事，分別如下。',steps:keys.length>1?keys.map(k=>topics[k].line):[],refs:keys.flatMap(k=>topics[k].laws)};
 }
-if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy,changedMeetingVenue,familyAssemblyProxy,dualBoardVacancies,coopBoardVacancies,creditCooperativeVacancy,schoolParentFiling,associationRegisteredAddress,inspectAndPublishBoardMinutes,temporaryMeetingNotice,withdrawalAndAssemblyRoll,memberMeetingExpenseFunding,missedSupervisorNotice,duesAndAssemblyRights,coopWithdrawalAndAssembly,designatedMeetingConvener,assemblyRepresentativeParticipation,formerMemberGiftReturn,preschoolParentFiling,associationVotingRollDisclosure,associationDirectorsQuorum,creditCoopDepositsAndDividends};return;}
+if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy,changedMeetingVenue,familyAssemblyProxy,dualBoardVacancies,coopBoardVacancies,creditCooperativeVacancy,schoolParentFiling,associationRegisteredAddress,inspectAndPublishBoardMinutes,temporaryMeetingNotice,withdrawalAndAssemblyRoll,memberMeetingExpenseFunding,missedSupervisorNotice,duesAndAssemblyRights,coopWithdrawalAndAssembly,designatedMeetingConvener,assemblyRepresentativeParticipation,formerMemberGiftReturn,preschoolParentFiling,associationVotingRollDisclosure,associationDirectorsQuorum,creditCoopDepositsAndDividends,associationElectionObjection};return;}
 root.verifiedMixedQuestionAnswer=answerMixed;
 })(typeof window!=='undefined'?window:globalThis);
