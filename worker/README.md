@@ -62,3 +62,26 @@ curl -s -X POST https://pingtung-unanswered.t8661360.workers.dev/draft \
 - 想換模型：改 `CF_MODEL`（或 `PROVIDER=groq`）。換模型前，請先用題庫實測中文法規的準確度。
 - 提醒：民眾的問題會送到 Cloudflare Workers AI 處理，請依縣府規定確認；並留意 Workers AI 的用量額度。
 - 緊急關閉：把 `index.html` 的 `ai-endpoint` 留空，網頁就不會呼叫 `/ask`。
+
+## AI 理解問題（POST /understand，使用 Claude API）
+小屏答不出來（難倒小屏）或不確定有沒有聽懂（把關選單）時，網頁會呼叫 `/understand`：Worker 把民眾的問題和已核對的題庫（`data/keyword-questions.json`，公開）交給 Claude，請它判斷「這句話最接近題庫裡的哪幾題」，網頁再把那幾題列成按鈕讓民眾點選。
+
+- **AI 只挑題目，不產生答案。** Worker 會逐一核對模型回的編號，不在題庫內的一律丟棄；網頁端再核對一次。民眾點下去看到的是題庫原本已核對的答案。
+- 題庫沒有相同意思的題目時回空清單，網頁維持原本的「難倒小屏」，問題照舊進待處理佇列（GitHub Issue）。
+- 任何失敗（金鑰沒設、逾時、API 錯誤、超過每日上限）都回空清單，網頁不受影響。
+
+啟用順序（順序不能反，舊版 Worker 沒有 `/understand`，會把呼叫當成無法回答回報）：
+1. Claude Console（platform.claude.com）→ API Keys → 建一把專用金鑰（建議另開一個 Workspace 並設每月花費上限）。
+2. Cloudflare → `pingtung-unanswered` → Settings → Variables and Secrets → 新增 **Secret** `ANTHROPIC_API_KEY`＝該金鑰（請自行貼上，勿貼到聊天或提交到倉庫）。
+3. Edit code → 把 `worker/unanswered-relay.js` 全部貼上覆蓋 → Deploy。
+4. 把 `index.html` 的 `<meta name="ai-understand-endpoint" content="">` 填入 Worker 網址（`https://pingtung-unanswered.t8661360.workers.dev`）後提交推送。
+
+選用變數：
+- `CLAUDE_MODEL`：預設 `claude-haiku-5-5`。
+- `UNDERSTAND_DAILY`：每日呼叫上限，預設 300（需綁 KV `RATE` 才會生效；同一 IP 每分鐘限 5 次）。
+- `UNDERSTAND_TOPK`：省費用模式。預設把整份題庫（約 2,500 題）交給模型並使用提示快取，理解最準但每次送出的文字較多；設成例如 `150` 時，只送字面最相近的前 150 題，費用低很多，但說法和題庫差很遠的問題可能挑不到。
+
+測試：`node test-ai-understand.cjs`（不會真的呼叫 Claude API）。
+
+提醒：民眾的問題（已遮罩電話、身分證字號、email）會送到 Anthropic 的 Claude API 處理，請依縣府規定確認。
+緊急關閉：把 `ai-understand-endpoint` 留空，或刪除 `ANTHROPIC_API_KEY`。
