@@ -1,0 +1,26 @@
+name: 語意把關離線實測（手動）
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  eval:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: 安裝
+        run: pip install --quiet torch --index-url https://download.pytorch.org/whl/cpu && pip install --quiet sentence-transformers numpy
+      - name: 實測（只用固定測試題）
+        run: python scripts/sem-eval.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sem-eval-result
+          path: sem-eval-result.md
