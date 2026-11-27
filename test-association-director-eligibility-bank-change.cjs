@@ -1,0 +1,13 @@
+const assert=require('node:assert/strict');
+const {route}=require('./association-director-eligibility-bank-change.js');
+const a=route('違反章程了，大會已散會，現在才發現一個理事不是會員，簽出去的銀行變更還能撤回嗎？');
+assert.match(a.summary,/如果是一般協會.*不能當然撤回/);
+assert.equal(a.choices.length,2);
+assert.match(route(a.choices[0].question).summary,/不要先靠補入會追認舊選任.*不能當然撤回/);
+assert.match(route(a.choices[1].question).summary,/任職後喪失會員資格.*不能當然撤回/);
+const n=route('協會理事還掛名但從未入會，銀行要變更印鑑；要先補入會還是重選？');
+assert.match(n.summary,/不要先靠補入會追認舊選任.*不要先送件/);
+assert.equal(n.choices,undefined);
+assert.match(JSON.stringify(n.steps),/日後補入會不能回填原選任時的資格/);
+assert.doesNotMatch(JSON.stringify(n.steps),/應即解任|不承諾銀行一定能撤件/);
+for(const q of ['股份有限公司董事不是股東，銀行改印鑑要誰簽？','合作社理事不是社員，銀行改印鑑要先補件？','協會理事或監事不是會員可以當嗎？','協會銀行帳戶變更印鑑需要什麼文件？'])assert.equal(route(q),null,q);

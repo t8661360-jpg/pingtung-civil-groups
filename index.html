@@ -1581,6 +1581,8 @@ async function ask(q){
   if(volunteerInsurance){financeMeetingPlanner=null;renderAnswer(q,volunteerInsurance);return;}
   const overdueTerm=typeof window.verifiedAssociationOverdueTerm==="function"?window.verifiedAssociationOverdueTerm(q):null;
   if(overdueTerm){financeMeetingPlanner=null;renderAnswer(q,overdueTerm);return;}
+  const directorBank=typeof window.verifiedAssociationDirectorBankChange==="function"?window.verifiedAssociationDirectorBankChange(q):null;
+  if(directorBank){financeMeetingPlanner=null;renderAnswer(q,directorBank);return;}
   const representative=typeof window.verifiedAssociationRepresentativeCandidate==="function"?window.verifiedAssociationRepresentativeCandidate(q):null;
   if(representative){financeMeetingPlanner=null;renderAnswer(q,representative);return;}
   const unionDues=typeof window.verifiedUnionDues==="function"?window.verifiedUnionDues(q):null;
@@ -2071,6 +2073,7 @@ touch();
 <script src="member-death-kind-clarification.js?v=1"></script>
 <script src="community-cooperative-pause.js?v=1"></script>
 <script src="association-event-private-contact.js?v=1"></script>
+<script src="association-director-eligibility-bank-change.js?v=20261127-bank-director"></script>
 <script src="association-address-meeting-change.js?v=20261127-coop-agenda"></script>
 <script src="association-notice-dispatch-delivery.js?v=1"></script>
 <script src="association-deficit-personal-liability.js?v=1"></script>
