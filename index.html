@@ -1580,6 +1580,10 @@ async function ask(q){
   if(admission){renderAnswer(q,admission);return;}
   const wages=typeof window.verifiedAssociationWagesAnswer==="function"?window.verifiedAssociationWagesAnswer(q):null;
   if(wages){renderAnswer(q,wages);return;}
+  const fundBorrow=typeof window.verifiedCooperativeFundAndBorrowing==="function"?window.verifiedCooperativeFundAndBorrowing(q):null;
+  if(fundBorrow){financeMeetingPlanner=null;renderAnswer(q,fundBorrow);return;}
+  const acctProof=typeof window.verifiedAssociationCompanyAccountProof==="function"?window.verifiedAssociationCompanyAccountProof(q):null;
+  if(acctProof){financeMeetingPlanner=null;renderAnswer(q,acctProof);return;}
   const ledgerLoss=typeof window.verifiedAssociationLedgerLoss==="function"?window.verifiedAssociationLedgerLoss(q):null;
   if(ledgerLoss){renderAnswer(q,ledgerLoss);return;}
   const accountSeal=typeof window.verifiedAssociationAccountSeal==="function"?window.verifiedAssociationAccountSeal(q):null;
@@ -1988,6 +1992,8 @@ touch();
 <script src="association-wages-and-signing.js?v=1"></script>
 <script src="association-admission-equality.js?v=1"></script>
 <script src="association-account-seal.js?v=3"></script>
+<script src="cooperative-fund-quorum-asset-borrowing.js?v=1"></script>
+<script src="association-company-bank-proof.js?v=1"></script>
 <script src="credit-cooperative-funds-custody.js?v=1"></script>
 <script src="association-volunteer-insurance.js?v=1"></script>
 <script src="association-overdue-term-signing.js?v=1"></script>
