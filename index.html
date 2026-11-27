@@ -1316,7 +1316,7 @@ function renderAnswer(q,a){
    ${laws.length?`<div class="sec"><h3>${ICON.law}法規依據</h3>${lawBox(laws)}</div>`:""}
    ${refs.length?`<div class="sec"><h3>${ICON.doc}函釋與參考資料</h3>${refBox(refs)}</div>`:""}
    ${notes.length?`<div class="sec"><h3>${ICON.note}注意事項</h3><ul class="anotes">${notes.map(n=>`<li>${esc(n)}</li>`).join("")}</ul></div>`:""}
-   ${(a.choices||[]).length?`<div class="sec"><h3>${ICON.note}請選擇會議種類</h3>${a.choices.map(x=>`<button type="button" class="qbtn" data-q="${esc(x.question)}">${esc(x.label)}</button>`).join("")}</div>`:""}
+   ${(a.choices||[]).length?`<div class="sec"><h3>${ICON.note}${esc(a.choiceHeading||"請選擇會議種類")}</h3>${a.choices.map(x=>`<button type="button" class="qbtn" data-q="${esc(x.question)}">${esc(x.label)}</button>`).join("")}</div>`:""}
    ${(a.related||[]).length?`<div class="sec"><h3>${ICON.note}您可能也想問</h3>${a.related.map(r=>`<button type="button" class="qbtn" data-q="${esc(r)}">${esc(r)}</button>`).join("")}</div>`:""}
    <div class="actions">${acts.map((x,i)=>`<button type="button" class="btn${i?" ghost":""}" data-go="${esc(x.view)}" data-sub="${esc(x.sub||"")}">${esc(x.label)}</button>`).join("")}<button type="button" class="btn ghost" data-home>回到常見問題</button></div>`;
   board.scrollIntoView({behavior:"smooth",block:"start"});
@@ -1910,7 +1910,7 @@ touch();
 <script src="liquidation-creditor-notice.js?v=2"></script>
 <script src="director-absence-clarification.js?v=1"></script>
 <script src="association-finance-meeting-month.js?v=4"></script>
-<script src="verified-mixed-questions.js?v=24"></script>
+<script src="verified-mixed-questions.js?v=25"></script>
 <script src="in-kind-donation-distinction.js?v=1"></script>
 <script src="meeting-convening-distinction.js?v=1"></script>
 <script src="answer-arbiter.js?v=20261127-264"></script>

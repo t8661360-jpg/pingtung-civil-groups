@@ -471,7 +471,39 @@ function creditCooperativeVacancy(q){
   summary,steps:central?[delegation,replace]:[replace,delegation],
   refs:[law('信用合作社社員代表理事監事經理人應具備資格條件及選聘辦法','G0380069',44),law('信用合作社法','G0380058',5)]};
 }
+function schoolParentFiling(q){
+ const t=String(q??'').normalize('NFKC').replace(/\s/g,'');
+ if(t.length>155||!/家長會|家長委員會/.test(t)||!/改選|換人|換了|改任|接任|異動|更換|補選|改聘/.test(t)
+    ||!/報|送哪|寄給|寄哪|交給|交哪|哪個單位|哪個窗口|找哪/.test(t))return null;
+ if(/家長協會|另(?:外|行)?立案|人民團體法|幼兒園|托兒所|基金會|台北|臺北|新北|高雄|台南|臺南|台中|臺中|桃園|花蓮/.test(t))return null;
+ const ministryRef={title:'教育部主管之高級中等學校學生家長會設置辦法第2條與第28條',source:'https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=H0000136'};
+ const schoolLaw={title:'國民教育法第48條',source:'https://edu.law.moe.gov.tw/LawContent.aspx?id=FL008927'};
+ const roster={title:'屏東縣政府教育處組織職掌：國民中小學家長會業務',source:'https://portal.ptc.edu.tw/personnel/rss2.php?ty=charge'};
+ const national=/教育部主管.{0,16}(?:學校|高級中等|高中|高工|高職)|國立.{0,15}(?:高級中等|高中|高職|高工|家商|女中)|屏東女中/.test(t);
+ const countyBasic=/(?:屏東縣立|屏東縣|屏東|縣立).{0,14}(?:國小|國中|國民中學|國民小學)|縣立國中小/.test(t);
+ const countySenior=/(?:縣立|縣府主管).{0,14}(?:高中|高職|高級中等)/.test(t);
+ const midterm=/任期中|學期中|中途|接任|辭職|只換會長|會長換人|換了會長/.test(t);
+ if(national&&!countySenior)return {direct:true,category:'教育業務分流',title:'教育部主管高中：由學校報國教署備查',
+  summary:'以國立屏東女中這類教育部主管高中為例，由學校報教育部國民及學前教育署（國教署），不是報屏東縣府社會處。',
+  steps:[['第一次會員代表大會後','每屆第一次會員代表大會開會後一個月內，由學校送會議紀錄及會長、副會長、家長委員與會務人員名冊，報國教署備查。'],['會長在任期中異動','第28條也適用會長異動。請先交本校家長會承辦人確認異動紀錄、名冊與報送時點，由學校報國教署。']],
+  refs:[ministryRef]};
+ if(countyBasic&&!national)return {direct:true,category:'教育業務分流',title:'屏東縣主管國中小：找學校或縣府教育處',
+  summary:'若是由屏東縣主管的國中或國小，請先找學校的家長會承辦人，也可向縣府教育處 08-7320415 轉 3621 詢問。',
+  steps:[[midterm?'任期中換會長':'本學年度改選',midterm?'請先確認這次是否只是會長異動，提供相關會議紀錄、更新後名冊向學校或教育處確認應附資料與送件期限；不直接套整屆改選規定。':'可先準備會議紀錄與改選後名冊，交學校承辦確認適用自治法規、報備文件及期限。不要用人民團體改選書表。']],refs:[schoolLaw,roster]};
+ if(countySenior&&!national)return {direct:true,category:'教育業務分流',title:'屏東縣立高中：先找校方及縣府教育處',
+  summary:'請找校方的家長會承辦人，或撥 08-7320415 請總機轉教育處的高中職業務。縣立高中不直接套用國立高中報國教署的程序。',
+  steps:[['確認本次異動','告知學校是年度改選、補選或任期中會長異動，確認主管機關、報備文件和期限。']],refs:[{title:'屏東縣政府教育處組織職掌',source:roster.source}]};
+ return {direct:true,category:'教育業務分流',title:'家長會改選報哪裡？先選學校主管機關',
+  summary:'學校家長會不是向社會處立案的協會。國立和縣立的學校，報備窗口可能不同。若不確定，由學校的家長會承辦人先確認主管機關。',
+  choiceHeading:'請選擇學校或團體類型',choices:[
+   {label:'屏東縣立國中小',question:'屏東縣立國小或國中家長會改選，要報哪裡？'},
+   {label:'屏東縣立高中',question:'屏東縣立高中家長會改選，要報哪裡？'},
+   {label:'教育部主管高中',question:'教育部主管高中家長會改選，要報哪裡？'},
+   {label:'另外立案的家長協會',question:'我們是另外立案的家長協會，理事長改選要報誰？'}
+  ],refs:[schoolLaw,ministryRef]};
+}
 function answerMixed(q){
+ const parent=schoolParentFiling(q);if(parent)return parent;
  const creditVacancy=creditCooperativeVacancy(q);if(creditVacancy)return creditVacancy;
  const coopVacancy=coopBoardVacancies(q);if(coopVacancy)return coopVacancy;
  const dual=dualBoardVacancies(q);if(dual)return dual;
@@ -497,6 +529,6 @@ function answerMixed(q){
     keys.includes('creditor')?'合作社清算：就任後公告與終結報告，分別計算':isCoop?'合作社清算報告與股息上限，分開看':'協會入會資格與會員除名，分開看',
   summary:keys.length===1?topics[keys[0]].line[1]:'你問了兩件事，分別如下。',steps:keys.length>1?keys.map(k=>topics[k].line):[],refs:keys.flatMap(k=>topics[k].laws)};
 }
-if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy,changedMeetingVenue,familyAssemblyProxy,dualBoardVacancies,coopBoardVacancies,creditCooperativeVacancy};return;}
+if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy,changedMeetingVenue,familyAssemblyProxy,dualBoardVacancies,coopBoardVacancies,creditCooperativeVacancy,schoolParentFiling};return;}
 root.verifiedMixedQuestionAnswer=answerMixed;
 })(typeof window!=='undefined'?window:globalThis);
