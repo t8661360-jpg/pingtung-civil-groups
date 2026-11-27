@@ -11647,8 +11647,53 @@ function patrol210(t){
  }
  return null;
 }
+/* 交叉巡檢 1127：一句話問兩件事時分流。只重組既有、已核對原文的答案，不新增事實。 */
+function cross1127(t,ctx){
+ const sub=q=>verifiedRoundAnswerCore(normalizeQuestion(q),ctx);
+ const merge=(title,qs)=>{
+  const as=qs.map(sub);
+  if(as.some(a=>!a||!a.summary))return null;
+  const seen={},st=[],notes=[];
+  as.forEach(a=>{(a.statutes||[]).forEach(x=>{const k=JSON.stringify(x);if(!seen[k]){seen[k]=1;st.push(x)}});(a.notes||[]).forEach(n=>{if(notes.indexOf(n)<0)notes.push(n)})});
+  const num=['一','二','三'];
+  return{direct:true,category:as[0].category,title:title,
+   summary:'您一次問了'+(as.length===2?'兩':'三')+'件事，分開說明：\n\n'+as.map((a,i)=>num[i]+'、'+a.title+'\n'+a.summary).join('\n\n'),
+   statutes:st,notes:notes,actions:as[0].actions,questionState:{focus:'cross-1127',domain:'social'}};
+ };
+ const coop=/(合作社|社員|股金|退社)/.test(t);
+ /* 理事長過世＋補選還是等改選：不是問遞補者的任期 */
+ if(!coop&&/理事長/.test(t)&&/(過世|死亡|往生|去世|病逝|死了)/.test(t)&&/(補選|改選|怎麼辦|怎麼處理|代理)/.test(t)&&!/(遞補上來|補上來|補選的人|補選上來|候補)/.test(t))
+  return sub('理事長過世要補選嗎');
+ /* 欠會費＋除名（不是問開會通知） */
+ if(!coop&&/(沒繳|未繳|沒有繳|不繳|欠繳|欠)/.test(t)&&/會費/.test(t)&&/(除名|開除|踢掉|踢出)/.test(t)&&!/(通知|名冊|公會|職業團體|工會|農會|漁會|多久|幾年|幾次|幾期|多少)/.test(t)&&/(大會|理事會|理事長|直接)/.test(t))
+  return sub('會員沒繳會費可以除名嗎');
+ /* 專業公會＋「跟一般協會一樣嗎」：先答公會自己的規定 */
+ if(/公會/.test(t)){
+  const m=t.replace(/[，,、 ]*(那)?(這)?(跟|和|與|同)(一般)?(的)?(協會|社團|社會團體|人民團體)(的)?(規定)?(是)?(不是)?(一樣|相同|不同|不一樣|有差|有什麼不同|有什麼不一樣)(嗎|呢)?[？?]*/,'');
+  if(m!==t&&m.length>3){
+   const a=sub(m);
+   if(a&&a.summary)return Object.assign({},a,{direct:true,notes:(a.notes||[]).concat(['這是公會依各自專法的規定，和一般協會（人民團體法）不一定相同，請不要混用。'])});
+  }
+ }
+ if(coop)return null;
+ /* 監事兼理事＋兼會計（工作人員） */
+ if(/(監事.{0,4}兼.{0,3}理事|理事.{0,4}兼.{0,3}監事)/.test(t)&&/兼.{0,3}(會計|出納|總幹事|秘書|幹事|工作人員)/.test(t.replace(/(監事.{0,4}兼.{0,3}理事|理事.{0,4}兼.{0,3}監事)/,'')))
+  return merge('理事和監事不能互兼，也不能兼任會計等工作人員',['監事可以兼任理事嗎','理事可以兼會計嗎']);
+ /* 里長當理事長＋出席費 */
+ if(/(里長|村長)/.test(t)&&/(理事長|理事|監事)/.test(t)&&/(可以當|能當|可以做|能做|擔任|兼任|可以兼|能兼)/.test(t)&&/(出席費|車馬費|交通費)/.test(t))
+  return merge('里長可以當理事長；出席費比照一般理監事的規定',[/社區/.test(t)?'里長可以當社區發展協會理事長嗎':'里長可以當理事長嗎','理事可以領出席費嗎']);
+ /* 退會＋會費退還＋投票權 */
+ if(/(退會|退出)/.test(t)&&/會費/.test(t)&&/(退|還)/.test(t.replace(/(退會|退出)/g,''))&&/(投票|表決|選舉權|出席)/.test(t))
+  return merge('退會後會費退不退看章程和退費原則；退會後不是會員，不能投票',['退會後會費可以退嗎','退會後還能投票嗎']);
+ /* 理事長辭職＋銀行印鑑 */
+ if(/理事長/.test(t)&&/(辭職|請辭|辭掉|辭了|不做了|不幹了)/.test(t)&&/(銀行|印鑑|存摺)/.test(t))
+  return merge('理事長辭職的程序，以及銀行印鑑變更',['理事長辭職了怎麼辦','理事長換人銀行印鑑要怎麼換']);
+ return null;
+}
 function verifiedRoundAnswer(q,ctx){
- return verifiedRoundAnswerCore(q,ctx);
+ let x=null;
+ try{x=cross1127(norm(q),ctx)}catch(e){x=null}
+ return x||verifiedRoundAnswerCore(q,ctx);
 }
 function verifiedRoundAnswerCore(q,ctx){
  const t=norm(q);
