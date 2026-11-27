@@ -1572,6 +1572,8 @@ async function ask(q){
   if(externalAudits){financeMeetingPlanner=null;renderAnswer(q,externalAudits);return;}
   const recordsAndTerm=typeof window.verifiedAssociationRecordsAndTerm==="function"?window.verifiedAssociationRecordsAndTerm(q):null;
   if(recordsAndTerm){financeMeetingPlanner=null;renderAnswer(q,recordsAndTerm);return;}
+  const coopRepresentativeSeats=typeof window.verifiedCoopRepresentativeSeats==="function"?window.verifiedCoopRepresentativeSeats(q):null;
+  if(coopRepresentativeSeats){financeMeetingPlanner=null;renderAnswer(q,coopRepresentativeSeats);return;}
   const coopQuorumVolunteer=typeof window.verifiedAssociationCoopQuorumVolunteerGrant==="function"?window.verifiedAssociationCoopQuorumVolunteerGrant(q):null;
   if(coopQuorumVolunteer){financeMeetingPlanner=null;renderAnswer(q,coopQuorumVolunteer);return;}
   const postponedProxy=typeof window.verifiedAssociationPostponedProxy==="function"?window.verifiedAssociationPostponedProxy(q):null;
@@ -2163,7 +2165,7 @@ touch();
 <script src="member-roster-access.js?v=20261127-election-copy"></script>
 <script src="association-fee-charter.js?v=1"></script>
 <script src="association-sponsor-ballot.js?v=20261127-sponsor"></script>
-<script src="association-finance-inventory-download.js?v=20261127-inventory-forms"></script>
+<script src="association-finance-inventory-download.js?v=20261127-roster-and-inventory"></script>
 <script src="association-joint-final-accounts.js?v=20261127-joint-audit"></script>
 <script src="association-filing-before-assembly.js?v=20261127-filing-order"></script>
 <script src="association-year-end-dues-agenda.js?v=20261127-year-end"></script>
@@ -2182,7 +2184,7 @@ touch();
 <script src="association-dues-grant-and-motion.js?v=1"></script>
 <script src="association-roster-election-exceptions.js?v=1"></script>
 <script src="association-finance-meeting-month.js?v=20261127-notice-calendar"></script>
-<script src="verified-mixed-questions.js?v=20261127-mixed-refund"></script>
+<script src="verified-mixed-questions.js?v=20261127-coop-seat-count"></script>
 <script src="association-wages-and-signing.js?v=1"></script>
 <script src="association-admission-equality.js?v=1"></script>
 <script src="association-chair-term-seal-filing.js?v=20261127-term-seal"></script>
