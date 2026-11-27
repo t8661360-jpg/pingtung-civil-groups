@@ -1,0 +1,16 @@
+const a=require('node:assert/strict');
+const b=require('./association-chair-term-seal-filing.js').route;
+const f=require('./association-finance-inventory-download.js').route;
+const x=b('協會的新任理事長已經選好，任期還沒開始，銀行印鑑可以先變更嗎？會員大會的改選紀錄要幾天內送？');
+a.match(x.summary,/新任代表權尚未生效.*從大會閉會算/);
+a.match(x.steps.flat().join(' '),/閉會後30日內.*異動後30日內.*就任後15日/);
+a.equal(b('協會已換好負責人，銀行新開帳戶要改印鑑嗎？'),null);
+const y=f('屏東協會有資產負債表，可以不交財產目錄嗎？決算到哪裡下載表格？');
+a.equal(y.choices.length,2);
+a.equal(y.actions[0].sub,'常年會');
+const [hi,lo]=y.choices.map(x=>f(x.question));
+a.match(hi.summary,/不能取代財產目錄/);
+a.match(lo.summary,/可以|可用附件二/);
+a.match(f('協會年度決算總收入剛好300萬元，資產負債表可以取代財產目錄？').summary,/可用附件二/);
+a.equal(f('協會年度決算總收入300萬元以上，資產負債表可以取代財產目錄？').choices.length,2);
+a.equal(f('合作社決算資產負債表和財產目錄都要嗎？'),null);

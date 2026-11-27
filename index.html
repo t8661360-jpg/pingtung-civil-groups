@@ -1568,6 +1568,8 @@ async function ask(q){
   if(writtenCharter){financeMeetingPlanner=null;renderAnswer(q,writtenCharter);return;}
   const recallAddress=typeof window.verifiedAssociationRecallAddressAgenda==="function"?window.verifiedAssociationRecallAddressAgenda(q):null;
   if(recallAddress){financeMeetingPlanner=null;renderAnswer(q,recallAddress);return;}
+  const financeInventory=typeof window.verifiedAssociationFinanceInventoryDownload==="function"?window.verifiedAssociationFinanceInventoryDownload(q):null;
+  if(financeInventory){financeMeetingPlanner=null;renderAnswer(q,financeInventory);return;}
   const jointAccounts=typeof window.verifiedAssociationJointFinalAccounts==="function"?window.verifiedAssociationJointFinalAccounts(q):null;
   if(jointAccounts){financeMeetingPlanner=null;renderAnswer(q,jointAccounts);return;}
   const filingBeforeAssembly=typeof window.verifiedAssociationFilingBeforeAssembly==="function"?window.verifiedAssociationFilingBeforeAssembly(q):null;
@@ -1709,6 +1711,8 @@ async function ask(q){
   if(lossKind){financeMeetingPlanner=null;renderAnswer(q,lossKind);return;}
   const ledgerLoss=typeof window.verifiedAssociationLedgerLoss==="function"?window.verifiedAssociationLedgerLoss(q):null;
   if(ledgerLoss){renderAnswer(q,ledgerLoss);return;}
+  const termSeal=typeof window.verifiedAssociationChairTermSealFiling==="function"?window.verifiedAssociationChairTermSealFiling(q):null;
+  if(termSeal){financeMeetingPlanner=null;renderAnswer(q,termSeal);return;}
   const accountSeal=typeof window.verifiedAssociationAccountSeal==="function"?window.verifiedAssociationAccountSeal(q):null;
   if(accountSeal){renderAnswer(q,accountSeal);return;}
   const withdrawal=typeof window.verifiedQuorumWithdrawal==="function"?window.verifiedQuorumWithdrawal(q):null;
@@ -2113,6 +2117,7 @@ touch();
 <script src="member-roster-access.js?v=20261127-election-copy"></script>
 <script src="association-fee-charter.js?v=1"></script>
 <script src="association-sponsor-ballot.js?v=20261127-sponsor"></script>
+<script src="association-finance-inventory-download.js?v=20261127-inventory-forms"></script>
 <script src="association-joint-final-accounts.js?v=20261127-joint-audit"></script>
 <script src="association-filing-before-assembly.js?v=20261127-filing-order"></script>
 <script src="association-year-end-dues-agenda.js?v=20261127-year-end"></script>
@@ -2124,6 +2129,7 @@ touch();
 <script src="verified-mixed-questions.js?v=20261127-mixed-refund"></script>
 <script src="association-wages-and-signing.js?v=1"></script>
 <script src="association-admission-equality.js?v=1"></script>
+<script src="association-chair-term-seal-filing.js?v=20261127-term-seal"></script>
 <script src="association-account-seal.js?v=20261127-change-rep"></script>
 <script src="cooperative-fund-quorum-asset-borrowing.js?v=1"></script>
 <script src="association-company-bank-proof.js?v=1"></script>
