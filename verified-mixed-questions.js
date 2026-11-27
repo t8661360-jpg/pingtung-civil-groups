@@ -125,6 +125,9 @@ function chairVacancy(q){
   related:stage==='unknown'?[lifeline+'不足六個月，要補選嗎？',lifeline+'至少六個月，要補選嗎？']:[],
   refs:coopOrg?[law('合作社選舉罷免辦法','D0050022',7)]:[...(comm?[law('商業團體法施行細則','D0050101',45),{title:'內政部函釋：商業同業公會理事長的補選與代理',source:'https://www.moi.gov.tw/News_Content.aspx?n=14119&s=219798'}]:[]),law('人民團體選舉罷免辦法','D0050093',17)]};
 }
+function meetingMinutesStep(board){
+ return ['閉會後：保存、查閱及報備',board?'理事會、監事會和理監事聯席會議紀錄由團體自行留存，提供會員（會員代表）查閱。依法須向主管機關或目的事業主管機關核辦的決議，另檢附文件送件，不套用大會紀錄通用的三十日期限。':'會員（代表）大會紀錄，須在閉會後三十日內報請主管機關備查；團體仍要自行留存並提供會員（會員代表）查閱。一般規定沒有要求逐一寄給每位會員；章程、其他適用規定另有要求時仍應遵守。'];
+}
 function assemblyCommunications(q){
  const t=String(q??'').normalize('NFKC').replace(/\s/g,'');
  if(t.length>155||!/協會|社團|人民團體|社會團體|商業同業公會/.test(t))return null;
@@ -148,7 +151,7 @@ function assemblyCommunications(q){
  if(trade)return {direct:true,category:'商業同業公會會務',title:'商業同業公會：會議紀錄分送各會員，並報主管機關',summary:'是分送各會員，不是只寄出席的會員代表。',steps:[['期限與對象','會員大會、理事會或監事會的會議紀錄，應於會議後十五日內分送各會員，同時報主管機關及目的事業主管機關備查。其他會議的決議涉及會員權益時，則通知相關會員。']],refs:[law('商業團體法施行細則','D0050101',25)]};
  const noticePeople=/會員代表|代表[）)]?大會/.test(t)?'若貴會依法採會員代表制，通知理事會審定、應出席的各會員代表，不是通知全體一般會員。':'一般會員大會要通知應出席的各會員；若依法採會員代表制，則通知審定應出席的各會員代表。';
  const pre=['開會前：通知與議程',noticePeople+' 原則上於開會十五日前通知，內容包含會議種類、時間、地點和議程，並報請主管機關派員列席。這些規定沒有一律要求另貼公告；章程或特別規定另有要求時應遵守，公告不能取代個別通知。僅緊急事故召集臨時會議且開會前一日已送達，才有期限例外。'];
- const post=['閉會後：保存、查閱及報備',subBoard?'理事會、監事會和理監事聯席會議紀錄由團體自行留存，提供會員（會員代表）查閱。依法須向主管機關或目的事業主管機關核辦的決議，另檢附文件送件，不套用大會紀錄通用的三十日期限。':'會員（代表）大會紀錄，須在閉會後三十日內報請主管機關備查；團體仍要自行留存並提供會員（會員代表）查閱。一般規定沒有要求逐一寄給每位會員；章程、其他適用規定另有要求時仍應遵守。'];
+ const post=meetingMinutesStep(subBoard);
  const steps=[...(notices?[pre]:[]),...(records?[post]:[])];
  if(generic)steps.push(pre,post);
  const refs=[...(notices||generic?[association(26),guide(10)]:[]),...(records||generic?[guide(12),{title:'內政部函釋：會議紀錄的留存與調閱',source:'https://www.moi.gov.tw/News_Content.aspx?n=14119&s=256756'}]:[])];
@@ -187,10 +190,27 @@ function assemblyPrivacy(q){
   else add('會員名冊','理事會審定大會出席資格所造的會員（代表）名冊，應提供會員閱覽。供會員閱覽，不等於可以拍照、轉傳，或張貼在任何人都看得到的地方。',guide(10));
   add('對外公開的個資界線','姓名、電話、地址等可識別資料涉及個資。無法確認有合法依據前，不要貼到公開網站或社群；如果只是要說明出席情形，可提供無法識別個人的人數摘要。',law('個人資料保護法','I0050021',20));
  }
- const summary=agenda&&privacy?'會前要通知議程，不等於要公開公告；會後也不必依法一律公開出席名單。':proxy&&privacy?'電子委託和公開名冊是兩件事，要各自看適用條件。':privacy?'給會員查閱不等於可以公開；先分清名冊種類和使用目的。':'視訊參與和委託出席不是同一件事。';
- return {direct:true,category:'人民團體會務說明',title:agenda&&privacy?'大會議程通知與出席名單公開，分開看':proxy&&privacy?'視訊大會的電子委託與名冊公開，分開看':privacy?'會員查閱名冊，不等於對外公開':'線上開會與委託出席',summary,steps,refs:[...new Map(refs.map(x=>[x.source,x])).values()]};
+ const filing=privacy&&(assembly||board)&&t.split(/[?!。；;]/).some(part=>/(?:會議|大會|會)紀錄|(?:會議|大會|會)記錄/.test(part)&&/報(?:送|縣府|主管機關|備)|備查|(?:寄|送|交)(?:給|到)?(?:縣府|主管機關|會員|代表)|逐一寄/.test(part));
+ if(filing){
+  const [label,value]=meetingMinutesStep(board);
+  const filingAt=t.search(/(?:會議|大會|會)紀錄|(?:會議|大會|會)記錄/);
+  const privacyAt=t.search(/出席名單|簽到(?:簿|表)|會員名冊|會員資料|會籍名冊|會員清冊|聯絡資料|名冊/);
+  if(filingAt<privacyAt)steps.unshift([label,value]);else steps.push([label,value]);
+  refs.push(guide(12));
+ }
+ const summary=filing?'要分開看：會議紀錄的報備／查閱，和名單能否對外公開，是兩件事。':agenda&&privacy?'會前要通知議程，不等於要公開公告；會後也不必依法一律公開出席名單。':proxy&&privacy?'電子委託和公開名冊是兩件事，要各自看適用條件。':privacy?'給會員查閱不等於可以公開；先分清名冊種類和使用目的。':'視訊參與和委託出席不是同一件事。';
+ return {direct:true,category:'人民團體會務說明',title:filing?'會議紀錄要不要報備，和名單能不能公開，分開看':agenda&&privacy?'大會議程通知與出席名單公開，分開看':proxy&&privacy?'視訊大會的電子委託與名冊公開，分開看':privacy?'會員查閱名冊，不等於對外公開':'線上開會與委託出席',summary,steps,refs:[...new Map(refs.map(x=>[x.source,x])).values()]};
+}
+function coopRegistryPrivacy(q){
+ const t=String(q??'').normalize('NFKC').replace(/\s/g,'');
+ if(t.length>140||!/合作社/.test(t)||!/社員(?:名冊|名簿)|社籍名冊/.test(t)||!/閱覽|查閱|調閱|公開|公布|拍照|貼|轉傳|上傳|對外/.test(t))return null;
+ if(/信用合作社|保險合作社|協會|人民團體|社會團體|工會|公會|選舉|改選|罷免|候選|名冊公告|準社員|強制執行|討債/.test(t))return null;
+ return {direct:true,category:'合作社會務',title:'合作社社員和債權人可查閱社員名簿，不等於可以公開',summary:'一般合作社依法備置社員名簿；社員及合作社債權人可查閱。單純外人不能主張這條的查閱權。',
+  steps:[['如何查閱','可以向合作社提出查閱；合作社應備置社員名簿、章程、社員大會紀錄及規定的簿冊。查閱不等於有權取得可任意散布的整份副本。'],['電話或其他個資能否貼社群','不要把可識別個人資料貼上公開網站或轉傳給無權取得的人。向不特定人公開與原本查閱是兩回事；須另核對是否有合法依據。要說明人數，可用無法識別個人的統計。']],
+  refs:[coop(35),coop(37),law('個人資料保護法','I0050021',20)]};
 }
 function answerMixed(q){
+ const coopRegistry=coopRegistryPrivacy(q);if(coopRegistry)return coopRegistry;
  const privacy=assemblyPrivacy(q);if(privacy)return privacy;
  const communications=assemblyCommunications(q);if(communications)return communications;
  const vacancy=chairVacancy(q);if(vacancy)return vacancy;
@@ -203,6 +223,6 @@ function answerMixed(q){
     keys.includes('creditor')?'合作社清算：就任後公告與終結報告，分別計算':isCoop?'合作社清算報告與股息上限，分開看':'協會入會資格與會員除名，分開看',
   summary:keys.length===1?topics[keys[0]].line[1]:'你問了兩件事，分別如下。',steps:keys.length>1?keys.map(k=>topics[k].line):[],refs:keys.flatMap(k=>topics[k].laws)};
 }
-if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy};return;}
+if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy};return;}
 root.verifiedMixedQuestionAnswer=answerMixed;
 })(typeof window!=='undefined'?window:globalThis);
