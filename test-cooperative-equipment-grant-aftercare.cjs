@@ -1,0 +1,12 @@
+const assert=require('node:assert/strict');
+const {route}=require('./cooperative-equipment-grant-aftercare.js');
+assert.match(route('合作社停業滿一年還沒解散，內政部補助買的設備還在使用年限內，可以自己留著嗎？').summary,/不能自行留下.*停頓滿一年.*移交當地主管機關/);
+assert.match(route('合作社暫停營業八個月，內政部補助購置的設備還在使用年限，現在一定要交縣府嗎？').summary,/尚未達到/);
+assert.match(route('合作社停業11個月、內政部補助設備的使用期24個月，目前仍在使用年限，要交主管機關嗎？').summary,/尚未達到/);
+assert.match(route('合作社停業12個月、內政部補助設備的使用期24個月，目前仍在使用年限，要交主管機關嗎？').summary,/不能自行留下/);
+assert.match(route('合作社已收到內政部剔除設備核銷通知，多久可以補理由？和原本核銷期限一樣嗎？').summary,/文到十五日內.*完竣十五日內/);
+assert.match(route('如果合作社收到的設備補助已過使用年限，但停止營業14個月，還要送縣府保管嗎？').summary,/不符合這一目所指/);
+assert.match(route('合作社已辦理解散，內政部補助的辦公設備仍在使用年限，可以繼續用嗎？').summary,/不能自行留下/);
+assert.match(route('合作社停業滿一年，縣府自辦補助買的設備還在使用年限內，要交縣府嗎？').summary,/不能直接套內政部設備移交規定/);
+assert.equal(route('協會已收到縣府剔除設備核銷通知，可以提出異議嗎？'),null);
+assert.equal(route('合作社想申請內政部活動補助，還沒收到通知，要去哪裡申請？'),null);
