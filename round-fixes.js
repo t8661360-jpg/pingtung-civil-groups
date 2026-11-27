@@ -1903,11 +1903,11 @@ function branchOrgAccounting(t){
 
 // 13-8 理事長連任限制
 function chairmanReelectionLimit(t){
- if(/合作社|社員|理事主席/.test(t))return null;
+ if(/合作社|社員|理事主席|縣市合併|改制|升格|行政區域|行政區劃/.test(t))return null;
  if(/理事長|主席|理長/.test(t)&&/(連任|連選|幾次|幾任|幾屆|限制|能.{0,2}連|改選.{0,3}連)/.test(t)){
   const is_community=/社區|發展/.test(t);
   if(is_community) return null; /* 第四十輪：舊寫「不得連任」與人民團體法第20條不符（連任以一次為限），交給社區發展協會理事長連任規則 */
-  return {title:'協會理事長連任限制：以一次為限',summary:'協會（社會團體）理事長可以連任，但連任以一次為限，也就是最多可當兩屆（人民團體法第20條）。',statutes:[P(20)]};
+  return {title:'一般協會理事長：連任以一次為限',summary:'協會（社會團體）理事長可以連任，但連任以一次為限，也就是最多可當兩屆（人民團體法第20條）。',statutes:[P(20)]};
  }
  return null;
 }
@@ -2794,7 +2794,7 @@ function chairTermGeneral(t){
  statutes:intl?[P(20),ER(28)]:[P(20),ER(28)],notes:[],actions:[]};
 }
 function chairTermLimit(t){
- if(!/理事長/.test(t))return null;
+ if(!/理事長/.test(t)||/縣市合併|改制|升格|行政區域|行政區劃/.test(t))return null;
  if(!/(兩任|二任|兩屆|二屆|第三任|第三屆|三任|三屆|再選|再當|再做|再連任|還能選|還可以選|一直連任|一直做|連任有限制|連任限制|連任的限制|可以連任嗎|能連任嗎|做太久|做很久|當太久|當很久)/.test(t))return null;
  if(/合作社|社員|社區|公會|工會|國際/.test(t))return null;
  return{direct:true,category:'人民團體會務說明',title:'理事長連任以一次為限：連續做滿兩任，下一屆不能再當理事長',

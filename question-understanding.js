@@ -24,7 +24,7 @@
   const election=/改選|選舉|選理事|選監事|換屆/.test(q),term=/任期|任滿|到期|屆滿|屆期|期滿|當幾年|做幾年|一屆|每屆/.test(q);
   const timing=/多久|多早|何時|什麼時候|幾天|幾個月|多少|以前|之前|提前|期限|最晚|前要|前改選|後改選/.test(q);
   if(/通知|寄發|發通知/.test(q)&&/大會|會員|社員|理事會|監事會|改選|選舉|開會/.test(q))return{focus:'notice',domain,board:/理事會|監事會|理監事會/.test(q)};
-  if(/連任|連選|幾屆|兩屆/.test(q))return{focus:'reelection',domain,chair:/理事長|主席/.test(q)};
+  if(/連任|連選|幾屆|兩屆/.test(q)&&!/縣市合併|改制|升格|行政區域|行政區劃|改為直轄市|併入/.test(q))return{focus:'reelection',domain,chair:/理事長|主席/.test(q)};
   if(/起算|開始算|從.*算/.test(q)&&term)return{focus:'term-start',domain};
   if(/辭職|出缺|過世|死亡|補選|代理/.test(q)&&/理事長|理事|監事|主席|理監事/.test(q))return{focus:'vacancy',domain,chair:/理事長|主席|常務/.test(q)};
   if((/不改選|沒改選|未改選|未辦.*改選/.test(q)||(/過期|逾期/.test(q)&&/任期|改選|屆滿|理事|監事|理事長|會長/.test(q)))&&/怎樣|怎麼辦|處理|任期|到期|屆滿|超過|過期|逾期/.test(q))return{focus:'overdue',domain};
