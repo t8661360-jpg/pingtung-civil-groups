@@ -1633,6 +1633,8 @@ async function ask(q){
   if(agendaCollection){financeMeetingPlanner=null;renderAnswer(q,agendaCollection);return;}
   const withdrawalRoll=typeof window.verifiedWithdrawalAndAssemblyRoll==="function"?window.verifiedWithdrawalAndAssemblyRoll(q):null;
   if(withdrawalRoll){financeMeetingPlanner=null;renderAnswer(q,withdrawalRoll);return;}
+  const suspension=typeof window.verifiedAssociationMembershipSuspension==="function"?window.verifiedAssociationMembershipSuspension(q):null;
+  if(suspension){financeMeetingPlanner=null;renderAnswer(q,suspension);return;}
   const quorumKind=typeof window.verifiedMeetingQuorumKind==="function"?window.verifiedMeetingQuorumKind(q):null;
   if(quorumKind){financeMeetingPlanner=null;renderAnswer(q,quorumKind);return;}
   const lectureFee=typeof window.verifiedAssociationDirectorLectureFee==="function"?window.verifiedAssociationDirectorLectureFee(q):null;
@@ -2147,7 +2149,8 @@ touch();
 <script src="association-charter-address.js?v=1"></script>
 <script src="association-charter-applicability.js?v=1"></script>
 <script src="association-dissolution-financial-notice.js?v=1"></script>
-<script src="meeting-quorum-kind-clarification.js?v=20261127-decision-not-quorum"></script>
+<script src="association-membership-suspension.js?v=20261127-member-rights"></script>
+<script src="meeting-quorum-kind-clarification.js?v=20261127-attendance-method"></script>
 <script src="association-roster-handover.js?v=20261127-private-roster"></script>
 <script src="cooperative-roster-handover.js?v=1"></script>
 <script src="cooperative-inspection-association-roster.js?v=1"></script>

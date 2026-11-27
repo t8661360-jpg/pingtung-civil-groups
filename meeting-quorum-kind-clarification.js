@@ -5,8 +5,22 @@ const h=n=>({title:'人民團體會務輔導辦法第'+n+'條',source:'https://l
 const c=n=>({title:'合作社法第'+n+'條',source:'https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=D0050112&flno='+n});
 const boardSource={title:'內政部：人民團體法第29條出席基準函釋',source:'https://www.moi.gov.tw/News_Content.aspx?n=14119&s=256686&sms=12360'};
 const names={assembly:'會員大會',board:'理事會',audit:'監事會',joint:'理監事聯席會議',coopAssembly:'社員大會',coopJoint:'社務會',coopBoard:'理事會',coopAudit:'監事會'};
+const electionAttendance={title:'人民團體選舉罷免辦法第20條',source:'https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=D0050093&flno=20'};
+function attendanceMethod(t){
+ const question=/法定人數|開會.{0,5}算|人數.{0,8}(?:算|夠|過半)|現場.{0,6}人數|在場.{0,5}人數|出席.{0,6}(?:人數|算)|算.{0,6}出席|成會/.test(t);
+ const sign=/簽到|簽名|報到/.test(t),live=/現場|當時|在場|還在|離席|中途離開|退席|離開|走了|清點|清查/.test(t);
+ if(!question||!sign||!live||/合作社|社員|工會|公會|農會|漁會|管委會|公寓大廈|董事會|股東|財團法人|政黨|選舉人名冊|名冊.{0,7}(?:可看|影印)|停權|退會|除名|委託|代理|假簽到|代簽|沒有簽到|預算|通知|重開|已通過.{0,8}效力|決議.{0,6}(?:有效|撤銷)|只剩[0-9]|應到[0-9]|實到[0-9]/.test(t))return null;
+ const election=/改選|選舉|罷免|投選票/.test(t);
+ const steps=[['開始先看合資格的簽到或報到','依'+(election?'人民團體選舉罷免辦法第20條':'人民團體會務輔導辦法第16條')+'，出席人數以簽到或報到計算。應出席名冊是分母，簽到或報到是出席紀錄；不是所有在場來賓都算。要算最低幾人，還要知道會議是哪一種及應出席人數。'],
+  ['如有人離席，可提出清查動議','由出席人員提出清查，主席交付現場出席者表決，通過後清點仍在場的出席者。'+(election?'選舉或罷免依第20條，須經現場出席人員多數表決通過才清點。':'一般會議依第16條，以表決人數較多數同意後清點。')+'清查後達不到法定成會人數，主席應即宣布散會。簽到不代表離場者在後面的議案已投票。']];
+ if(!election)steps.push(['如果問的是選舉或罷免','另依人民團體選舉罷免辦法第20條；同樣以簽到或報到計出席，清查動議交由現場出席人員多數表決，通過才清點；清查不足法定人數要散會。其他類型團體則另看適用法規。']);
+ return {direct:true,category:'人民團體會務｜簽到與現場清查',title:'開會先按簽到或報到；依法清查時數現場出席者',
+  summary:(election?'一般人民團體的選舉或罷免：':'以一般人民團體會議為例，')+'開始以簽到或報到算出席。若提出清查動議並依程序通過，改清點現場出席者；清查不足即散會。',steps,refs:election?[electionAttendance]:[h(16),electionAttendance],questionState:{focus:'compound'}};
+}
 function scope(q){
  const t=String(q||'').normalize('NFKC').replace(/\s/g,'');
+ const method=t.length<=190?attendanceMethod(t):null;
+ if(method)return method;
  if(!t||t.length>190||!/開會|大會|議會|會議|理事會|監事會|社務會/.test(t)||!/多少人|幾個人|幾人|要幾位|出席.{0,7}(?:門檻|才|數)|(?:才|能不能).{0,5}(?:開會|成會)|成會門檻|出席門檻|法定人數|人數.{0,5}(?:一樣|不同|怎麼算|怎樣算)/.test(t))return null;
  // "理事長一人能不能決定開會" asks authority, not how many attendees.
  if(/理事長|會長|監事會召集人|常務監事/.test(t)&&/決定|說了算|想開才開|拒絕|不肯|不願|不想|擅自/.test(t)&&!/多少人|幾個人|幾人|要幾位|人數|應到|實到|出席|成會門檻/.test(t))return null;
