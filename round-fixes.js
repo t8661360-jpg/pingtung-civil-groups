@@ -90,6 +90,25 @@ function normalizeQuestionU6(s){
   s=(/社區發展協會|社區協會/.test(s)?'社區發展協會':'協會')+'的決算要給誰審';
  return s;
 }
+/* 理解把關第7輪（2026-11-27，根源）：
+   1. 「阮理事長講伊無欲做矣」「理事長說他不想做了」＝理事長不想做了（原本難倒小屏）；理事、監事同理。
+   2. 「理事會紀錄要寄給誰／交給誰」＝理事會紀錄要送縣府嗎（原本答成開會通知要通知誰）。
+   3. 「章程想全部重寫／整份重訂」＝修改章程要怎麼做（原本難倒小屏）。
+   4. 錯字「監是」＝監事。
+   5. 「跟農會、學校、廟、公所一起辦活動」＝協會可以跟其他團體合辦活動嗎（原本難倒小屏）。
+   6. 「理事長可以同時當兩個協會的總幹事」＝理事長可以兼別的協會的總幹事（原本答成工作人員資格）。 */
+function normalizeQuestionU7(s){
+ s=String(s||'');
+ s=s.replace(/(?<![總])監是(?![否不])/g,'監事');
+ if(!/合作社|社員|公會|工會|農會|漁會|選出來|選出|當選|選上|被選|剛選|參選|不選|連任|下屆|下一屆|改選|競選/.test(s)){
+  s=s.replace(/(理事長|理事|監事)(?:講|說|表示|講說|說他|講伊)?(?:伊|他|她)?(?:講|說)?(?:無欲|毋欲|毋|不想|不要|不願意|不肯|沒有要|無愛|不愛)(?:擱|再|繼續)?(?:做|作|當|幹)(?:矣|了|啦|囉|喔)?/,'$1不想做了');
+ }
+ s=s.replace(/(理事會|監事會|理監事會|理監事聯席會)(?:議)?(?:的)?(?:會議)?(?:紀錄|記錄)(?:要|需要|應該)?(?:寄|送|交|給|呈)(?:給)?(?:誰|哪裡|哪個單位)/,'$1紀錄要送縣府嗎');
+ if(!/合作社|社員|每年|每屆|定期|多久|需不需要|需要|一定要|是否|要不要/.test(s))s=s.replace(/(?:我們|本會|協會)?(?:的)?章程.{0,16}?(?:想|要|打算|準備)?(?:全部|整個|整份|全面|通通|重新)(?:重寫|重新寫|重訂|重新訂|改寫|翻修|大修|改過|修改|改|寫|訂)(?:一遍|一次|過)?.*$/,'修改章程要怎麼做');
+ if(!/合作社|社員/.test(s))s=s.replace(/^.*?(?:社區發展協會|社區協會|協會|社團|我們)?(?:可以|能不能|可不可以|能)?(?:跟|和|與)(農會|漁會|學校|國小|國中|廟|宮廟|教會|公所|村辦公處|里辦公處|鄉公所|其他協會|別的協會|其他社團|別的社團|其他團體|別的團體)(?:可以|能不能|可不可以|能)?(?:一起|共同|聯合|合作)?(?:合辦|辦|舉辦)(?:活動)(?:可以)?(?:嗎)?/,'協會可以跟其他團體合辦活動嗎');
+ s=s.replace(/(理事長|理事|監事)(?:可以|能不能|可不可以|能)?(?:同時)(?:當|擔任|兼|兼任|做)(?:兩個|二個|2個|好幾個|多個|別的|其他)(?:協會|團體|社團)(?:的)?(總幹事|秘書長|幹事|理事長|理事|監事)/,'$1可以兼別的協會的$2');
+ return s;
+}
 function fixTyposU1(q){
  return String(q||'').replace(/理是長|裡事長|里事長|理市長|李事長/g,'理事長').replace(/理監是|理間事|裡監事/g,'理監事').replace(/常務監是/g,'常務監事').replace(/監是會|鑑事會/g,'監事會').replace(/理是會|裡事會|里事會/g,'理事會').replace(/總幹是|總幹士|總幹市/g,'總幹事').replace(/會原大會|會圓大會|會員大匯/g,'會員大會').replace(/改撰|改癬/g,'改選').replace(/會廢/g,'會費').replace(/辭值|詞職|辭直/g,'辭職');
 }
@@ -183,7 +202,7 @@ function normalizeQuestionR229(s){
  return s;
 }
 function normalizeQuestion(q){
- return normalizeQuestionR229(normalizeQuestionR228(normalizeQuestionR227(normalizeQuestionR225(normalizeQuestionR223(normalizeQuestion223(normalizeQuestion222(normalizeQuestion221(normalizeQuestion216(normalizeQuestion215(normalizeQuestion214(normalizeQuestion212(normalizeQuestion210(normalizeQuestion209(normalizeQuestion208(normalizeQuestion207(normalizeQuestion206(normalizeQuestion202(normalizeQuestion201(normalizeQuestion200(normalizeQuestion194(normalizeQuestion193(normalizeQuestion192(normalizeQuestion191(normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(normalizeQuestionU5(normalizeQuestionU3(normalizeQuestionU4(normalizeQuestionU2(normalizeQuestionU6(fixTyposU1(q))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
+ return normalizeQuestionR229(normalizeQuestionR228(normalizeQuestionR227(normalizeQuestionR225(normalizeQuestionR223(normalizeQuestion223(normalizeQuestion222(normalizeQuestion221(normalizeQuestion216(normalizeQuestion215(normalizeQuestion214(normalizeQuestion212(normalizeQuestion210(normalizeQuestion209(normalizeQuestion208(normalizeQuestion207(normalizeQuestion206(normalizeQuestion202(normalizeQuestion201(normalizeQuestion200(normalizeQuestion194(normalizeQuestion193(normalizeQuestion192(normalizeQuestion191(normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(normalizeQuestionU5(normalizeQuestionU3(normalizeQuestionU4(normalizeQuestionU2(normalizeQuestionU6(normalizeQuestionU7(fixTyposU1(q)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
 }
 /* 第200輪（根源）：入會退會與會員資格換問法——
    「忘記繳／忘了繳／漏繳會費」＝沒繳會費（原本「忘記繳會費會被退會嗎」被當成退費）；
@@ -5171,8 +5190,8 @@ function patrol19(t){
  if(/(理事|監事|理監事)(?!長)/.test(t.replace(/理事長/g,''))&&/(小孩|孩子|兒子|女兒|太太|先生|老婆|老公|親戚|親屬|家人)/.test(t)&&/(幹事|工作人員|員工|上班|聘|會計|出納|總幹事|秘書)/.test(t))
   return Object.assign({},base,{title:'理事、監事的親屬可以當工作人員嗎：辦法只限制理事長的親屬，理監事本人不能兼任',
   summary:'社會團體工作人員管理辦法只禁止聘僱「現任理事長」的配偶及三親等以內親屬（第5條）；一般理事、監事的親屬，辦法沒有明文禁止，是否另有限制要看協會章程。\n但是理事、監事本人不能當工作人員，因為工作人員不得由選任之職員擔任（第4條）。',statutes:[sw(5),sw(4)]});
- /* 理監事兼任 */
- if(/(理事|監事|理監事|常務)(?!長)/.test(t.replace(/理事長/g,''))&&/(兼|當|做|擔任|領薪|薪水|上班|同時|又是|也是|同是|身兼|一人|是不是|可以是|能是|能不能是|可不可以是|成為|變成|轉任|轉成|改任)/.test(t)&&/(工作人員|幹事|總幹事|秘書|員工|會計|出納|職員)/.test(t))
+ /* 理監事兼任（第7輪：兼「別的協會、其他團體」的總幹事不是本會內兼任，交給 chairOtherGroupPosition） */
+ if(!/(其他|別的|另一個|另外|兩個|二個|多個|好幾個|其它)(協會|團體|社團|學會)/.test(t)&&/(理事|監事|理監事|常務)(?!長)/.test(t.replace(/理事長/g,''))&&/(兼|當|做|擔任|領薪|薪水|上班|同時|又是|也是|同是|身兼|一人|是不是|可以是|能是|能不能是|可不可以是|成為|變成|轉任|轉成|改任)/.test(t)&&/(工作人員|幹事|總幹事|秘書|員工|會計|出納|職員)/.test(t))
   return Object.assign({},base,{title:'理事、監事可以兼任工作人員嗎：不可以',
   summary:'不可以。工作人員不得由理事、監事擔任（社會團體工作人員管理辦法第4條：工作人員不得由選任之職員擔任），理事、監事都是選任職員，所以不能同時當總幹事、幹事、會計、出納等工作人員，也不能因此領工作人員的薪水。\n想請理事或監事來上班，必須先辭去理事、監事的職務。',statutes:[sw(4)]});
  /* 不通過可否解聘／解聘怎麼辦／開除 */

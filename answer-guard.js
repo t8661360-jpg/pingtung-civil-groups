@@ -284,7 +284,8 @@
      每個條件都用 scripts/site-smoke.mjs 全部 CHECKS 驗證過不會擋掉已答對的題目。 */
   const OOS3 = [
     /* 農會、漁會當成存錢、開戶的金融機構（「理事長換人了農會帳戶要怎麼辦」）時，問的是協會的帳戶，不是農會組織，不擋 */
-    { ask: /農會|漁會|農田水利會|水利會/, ans: /農會|漁會|水利會/, skip: /(農會|漁會).{0,4}(帳戶|戶頭|存款|存摺|印鑑|開戶|貸款|借)|(帳戶|戶頭|存款|存摺|開戶|存在|存到|存進|存放|貸款|借錢|借款).{0,6}(農會|漁會)/ },
+    { ask: /農會|漁會|農田水利會|水利會/, ans: /農會|漁會|水利會/, skip: /(農會|漁會).{0,4}(帳戶|戶頭|存款|存摺|印鑑|開戶|貸款|借)|(帳戶|戶頭|存款|存摺|開戶|存在|存到|存進|存放|貸款|借錢|借款).{0,6}(農會|漁會)|(協會|社團|我們).{0,12}(跟|和|與)(農會|漁會).{0,8}(一起|合辦|共同|聯合|合作)?(辦|舉辦)活動/ },
+    // 第7輪：skip 加上「協會跟農會合辦活動」（協會自己的事，有既有答案）
     { ask: /(公司|股份有限|有限公司).{0,12}(董事|監察人|股東|資本額|公司登記)|(董事|監察人|股東會|資本額).{0,12}(公司|股份有限)/, ans: /公司|董事|股東/ }
   ];
   const LABOR3 = { ask: /勞資(糾紛|爭議|調解|問題)|勞資雙方/, ans: /勞資|勞工主管|勞動/ };
@@ -329,6 +330,8 @@
       let last = asks[asks.length - 1];
       const cls4 = tail.split(/[，,；;。？?！!]+/).filter(Boolean);
       if (!last && cls4.length >= 2 && SHORT4.test(cls4[cls4.length - 1]) && cls4[cls4.length - 2].length >= 5) last = cls4[cls4.length - 2]; // 第4輪：「…但是大會決議延長一年，可以嗎」
+      { const cls7 = tail.split(/[，,；;。？?！!]+/).filter(Boolean), li = last ? cls7.lastIndexOf(last) : -1; // 第7輪：最後一句太短（「可以先送嗎」）抓不到關鍵詞時，連同前一句一起比對（「要報預算，可以先送嗎」）
+        if (li > 0 && rate3(last, '') === 1 && cls7[li - 1].length >= 3 && rate3(cls7[li - 1] + last, at) === 0) return menu2(q, [...similar(cls7[li - 1] + last, 3), ...similar(q, 6)], ''); } // 合起來完全沒談到才擋，避免「當天收到很多委託書，可以算嗎」這類已答對的題目被擋
       if (last && rate3(last, at) < 0.5) return menu2(q, [...similar(last, 3), ...similar(q, 6)], '');
     }
     return null;
@@ -438,12 +441,45 @@
     return { ...a, guarded: true, summary: '您一次問了兩件事。下面先回答「' + shown + '」的部分；「' + lost + '」這一部分小屏沒有把握，怕答錯，建議您電洽承辦人員，或把這一部分單獨再問一次。\n\n' + (a.summary || '') };
   }
   if (typeof window !== 'undefined') window.__understandingGuard6 = understandingGuard6;
+  /* ── 理解把關第7輪（2026-11-27）──
+     A. 「合作社的社員可以同時是協會的會員嗎」：跨兩種團體的「同時是／同時加入」，答案只談一種（或方向相反：協會加入合作社）→ 選單。
+     （「如果理事會開不成，但是要報預算，可以先送嗎」改修在第3輪的條件句把關：最後一句太短時連同前一句比對。）
+     C. 「協會成立三年了一直沒開大會」：已經成立的協會，答案卻是怎麼成立 → 選單。
+     D. 「會員大會可以收費嗎，入場要繳錢」：問開會收費，答案沒談到開會 → 選單。
+     E. 「我要申請房屋稅減免」：個人的稅，問句沒有提到任何團體 → 固定用語（不拿協會免稅的答案硬答）。
+     用 scripts/site-smoke.mjs 全部 CHECKS 驗證過不會擋掉已答對的題目。 */
+  const TAX7 = /房屋稅|地價稅|牌照稅|綜所稅|綜合所得稅|所得稅|遺產稅|贈與稅|土地增值稅|契稅|燃料費/;
+  function understandingGuard7(q, a) {
+    if (!a || !a.title || a.unanswered || a.guarded) return null;
+    if (/您是不是要問|難倒小屏|想先確認|暫時無法回覆|兩件事|兩種團體/.test(a.title)) return null;
+    const fs = a.questionState && a.questionState.focus;
+    if (fs === 'guard-menu' || fs === 'keyword-menu' || fs === 'clarify' || fs === 'compound') return null;
+    if (a.category === '業務分流' || a.category === '打招呼') return null;
+    const raw = NFK(q); if (raw.length < 5) return null;
+    const at = answerText(a), tt = NFK(a.title);
+    const cross7 = /(同時|也)(是|當|加入|參加|成為|具有)/.test(raw) && /合作社|社員/.test(raw) && /協會|社團/.test(raw);
+    if ((a.category === '團體查詢' || (a.groups && a.groups.length)) && !cross7) return null; // 第7輪：「我是合作社社員也可以同時是協會會員嗎」原本被當成名冊查詢
+    /* E */
+    if (TAX7.test(raw) && /^(我|我家|我的|我們家|自己|個人|本人|我爸|我媽)/.test(raw) && !/協會|社團|團體|公會|合作社|社區|會址|會館|本會|會所|理事|監事|會員|社員|捐/.test(raw)) return fixedPhrase2(q, []);
+    /* A */
+    if (cross7 && !(/合作社|社員/.test(tt) && /協會|社團/.test(tt.replace(/協會或法人可以加入合作社/, '')) && /同時|兩/.test(tt)))
+      return menu2(q, [...similar(q, 6), '一個人可以同時參加兩個協會嗎'], '您問到兩種團體的身分，小屏怕答錯方向。');
+    /* C */
+    if (/成立(?:了|已經)?(?:[0-9一二三四五六七八九十兩幾好多]+)(?:年|個月)/.test(raw) && /怎麼成立|成立.{0,4}(流程|步驟|程序)|籌組/.test(tt) && !/怎麼成立|如何成立|要怎麼申請成立/.test(raw))
+      return menu2(q, [...similar(raw.replace(/成立(?:了|已經)?(?:[0-9一二三四五六七八九十兩幾好多]+)(?:年|個月)(?:了)?/, ''), 6), '協會沒有依規定召開會員大會怎麼辦', '會員大會怎麼開'], '');
+    /* D */
+    if (/(會員大會|大會|開會|會議)/.test(raw) && /(收費|收錢|繳錢|交錢|付錢|入場費|報名費|門票|入場)/.test(raw) && !/會費|出席費|車馬費|便當|餐費|場地費|租金|講師費/.test(raw) && !/大會|開會|會議/.test(tt))
+      return menu2(q, similar(q, 7), '');
+    return null;
+  }
+  if (typeof window !== 'undefined') window.__understandingGuard7 = understandingGuard7;
   function guard(q, a) {
     try { const w4 = ghostwrite4(q, a); if (w4) return w4; } catch (e) {}
     try { const c = compareGuard(q, a) || compareTopic(q, a) || compound(q, a); if (c) return c; } catch (e) {}
     try { const u = understandingGuard(q, a); if (u) return u; } catch (e) {}
     try { const u3 = understandingGuard3(q, a); if (u3) return u3; } catch (e) {}
     try { const u4 = understandingGuard5(q, a); if (u4) return u4; } catch (e) {}
+    try { const u7 = understandingGuard7(q, a); if (u7) return u7; } catch (e) {}
     try { const u6 = understandingGuard6(q, a); if (u6) return u6; } catch (e) {}
     try {
       if (!a || a.direct || a.questionState || a.unanswered || !a.title) return null;
