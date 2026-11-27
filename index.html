@@ -1523,6 +1523,8 @@ async function ask(q){
   if(!financeMeetingPlanner&&typeof window.createFinanceMeetingPlanner==="function")financeMeetingPlanner=window.createFinanceMeetingPlanner({board,showAnswer:renderAnswer});
   const charterApplicability=typeof window.verifiedAssociationCharterApplicability==="function"?window.verifiedAssociationCharterApplicability(q):null;
   if(charterApplicability){financeMeetingPlanner=null;renderAnswer(q,charterApplicability);return;}
+  const dissolutionNotice=typeof window.verifiedAssociationDissolutionNotice==="function"?window.verifiedAssociationDissolutionNotice(q):null;
+  if(dissolutionNotice){financeMeetingPlanner=null;renderAnswer(q,dissolutionNotice);return;}
   const decisionAudit=typeof window.verifiedAssociationDecisionAudit==="function"?window.verifiedAssociationDecisionAudit(q):null;
   if(decisionAudit){financeMeetingPlanner=null;renderAnswer(q,decisionAudit);return;}
   if(financeMeetingPlanner&&financeMeetingPlanner(q))return;
@@ -1977,6 +1979,7 @@ touch();
 <script src="association-withdrawal-election.js?v=1"></script>
 <script src="association-charter-address.js?v=1"></script>
 <script src="association-charter-applicability.js?v=1"></script>
+<script src="association-dissolution-financial-notice.js?v=1"></script>
 <script src="meeting-quorum-kind-clarification.js?v=1"></script>
 <script src="association-roster-handover.js?v=1"></script>
 <script src="cooperative-roster-handover.js?v=1"></script>
