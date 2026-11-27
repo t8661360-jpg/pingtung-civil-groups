@@ -431,7 +431,32 @@ function dualBoardVacancies(q){
   summary:end?'不能由會員自行補選。先確認是否已解任、能否遞補；全體確已解任又無人可召集時，由主管機關依法判斷。':'不可以只報縣府就補選。先確認確實出缺，再分別處理理事、監事的候補遞補與補選。',
   steps,refs,actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
 }
+function coopBoardVacancies(q){
+ const t=String(q??'').normalize('NFKC').replace(/\s/g,'');
+ if(t.length>150||!/合作社/.test(t)||/信用合作社|協會|工會|公會|農會|漁會|銀行|公司|聯合社|社員代表出缺|清算|罷免|財報|決算/.test(t))return null;
+ if(!/理事|監事|理監事/.test(t)||!/出缺|缺額|辭職|請辭|遞補|各剩|只剩|請假|缺席/.test(t)||!/補選|遞補|召集|指定|開會|縣府|主管機關|選主席|選新主席|另外選/.test(t))return null;
+ const rule=n=>law('合作社選舉罷免辦法','D0050022',n);
+ const chair=/理事(?:會)?主席|監事(?:會)?主席/.test(t);
+ const absent=/請假|因病|因故缺席|未出席/.test(t)&&!/辭職|已出缺|確定出缺|解任/.test(t);
+ const dual=/理監事/.test(t)||/理事(?!會主席)/.test(t)&&/監事(?!會主席)/.test(t);
+ const filing=/報|縣府|主管機關/.test(t);
+ const detail=/補選|遞補/.test(t);
+ if(!absent&&!chair&&!dual&&!(filing&&detail))return null;
+ if(absent)return {direct:true,category:'合作社會務',title:'合作社理事或監事請假，不等於出缺',summary:'不可以把一次請假當成正式出缺，也不能因此辦補選。',steps:[
+   ['出席不足和席次空缺分開','合作社理事會、監事會必須分別達到應有理事或監事過半數出席，才可開會。單純請假是當次出席問題；如有正式空缺，才按選罷辦法遞補或補選。']
+ ],refs:[coop(53),coop(54),rule(7)]};
+ const remaining=/未滿六|不足六|不到半年|剩(?:下|餘)?(?:不滿|不到)?(?:[1-5一二兩三四五])個?月/.test(t);
+ const seat=['一般理事、監事出缺：先分別遞補','候補理事和候補監事各依次遞補。遞補後，只要有一組仍未達該組章程規定名額的半數，就應召開社員大會或依法設置的社員代表大會辦理該組補選。不要把兩組人數相加，也不能套用一般協會的三分之二。'];
+ const effective=['書面送達社址就生效','理事、監事或主席請辭須以書面提出；辭職書送達合作社社址所在地時即生效，不必等理事會或監事會批准。應完成交接，辭職和遞補情形應在會議提出報告。'];
+ const meeting=['報備不等於完成補選','仍應按規定召集、通知並辦理選舉。若現任人數太少、候補無法遞補或無法依法召集，請先備妥章程、現任和候補名單與相關紀錄，向合作社的主管機關確認可行程序；不要把函報當成已通過。'];
+ const chairStep=['主席職務出缺另看任期','理事會主席或監事會主席出缺，原則上自出缺日起一個月內，分別召開理事會或監事會補選；所遺任期未滿六個月時，得各由理事或監事互推一人代理。這與一般理監事席次的半數門檻不是同一件事。'];
+ return {direct:true,category:'合作社會務',title:chair&&!dual?'合作社主席出缺：補選或代理，看剩餘任期':'合作社理監事出缺：分別遞補，未達半數才補選',
+ summary:chair&&!dual?(remaining?'剩餘任期未滿六個月時，不是一定要立即補選，可以先由同一會的理事或監事互推一人代理。':'主席出缺原則一個月內由同一會補選；剩餘任期未滿六個月時，也可以互推一人代理。'):/(?:理事會|監事會)(?:批准|准辭|同意)|書面.{0,9}社址/.test(t)?'不必等理事會或監事會批准。書面辭職送達社址即生效，確有缺額後要先遞補，再看是否需要補選。':filing?'不能只報縣府就補選。先分別遞補，遞補後各自低於章程名額半數的組別才須補選。':'先由候補依序遞補，各組遞補後仍未達章程名額半數，才須補選。',
+ steps:[...(chair?[chairStep]:[]),...(dual||!chair?[seat]:[]),effective,...(filing||dual?[meeting]:[])],
+ refs:[rule(7),rule(8),...(filing||dual?[coop(46),coop(48),rule(18),rule(29)]:[])],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
+}
 function answerMixed(q){
+ const coopVacancy=coopBoardVacancies(q);if(coopVacancy)return coopVacancy;
  const dual=dualBoardVacancies(q);if(dual)return dual;
  const familyProxy=familyAssemblyProxy(q);if(familyProxy)return familyProxy;
  const venue=changedMeetingVenue(q);if(venue)return venue;
@@ -455,6 +480,6 @@ function answerMixed(q){
     keys.includes('creditor')?'合作社清算：就任後公告與終結報告，分別計算':isCoop?'合作社清算報告與股息上限，分開看':'協會入會資格與會員除名，分開看',
   summary:keys.length===1?topics[keys[0]].line[1]:'你問了兩件事，分別如下。',steps:keys.length>1?keys.map(k=>topics[k].line):[],refs:keys.flatMap(k=>topics[k].laws)};
 }
-if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy,changedMeetingVenue,familyAssemblyProxy,dualBoardVacancies};return;}
+if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy,changedMeetingVenue,familyAssemblyProxy,dualBoardVacancies,coopBoardVacancies};return;}
 root.verifiedMixedQuestionAnswer=answerMixed;
 })(typeof window!=='undefined'?window:globalThis);
