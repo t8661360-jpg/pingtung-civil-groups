@@ -1297,7 +1297,43 @@ function associationMembershipIdentity(q){
  ...(choices?{choiceHeading:'這是入會、會員名冊，還是籌組新團體？',choices}:{})};
 }
 
+function coopAssociateMemberAssembly(q){
+ const t=String(q||'').normalize('NFKC').replace(/\s/g,'');
+ if(t.length>175||!/合作社|信合社/.test(t)||!/準社員/.test(t)||/保險合作社|聯合社|農會|漁會|儲蓄互助社|工會|協會|偽造|解散|合併|除名|股金|股息/.test(t))return null;
+ const election=/選舉|選[理監]|參選|候選|投票選|被選|改選|票選|選社員代表/.test(t);
+ const roster=/名冊|清查|列冊|公告|更正|列(?:成|為)合格/.test(t);
+ const quorum=/成會|法定人數|出席人數|應出席|到場|能開|開得成|算人頭|算.{0,6}出席|人數.{0,5}(?:算|計)|計入|納入|門檻/.test(t);
+ const voting=/投票|表決|決議|幾票/.test(t);
+ const seating=/列席|旁聽|參加|可以出席|能出席/.test(t);
+ if(!election&&!roster&&!quorum&&!voting&&!seating)return null;
+ if(/信用合作社|信合社/.test(t)){
+  if(!election)return null;
+  return {direct:true,category:'合作社會務',title:'信合社中小企業準社員沒有選舉權或被選舉權',questionState:{focus:'compound'},summary:'信用合作社的中小企業準社員，不能以準社員身分參選社員代表，也不能以該身分投票選舉。',steps:[['用信合社專法，不用一般合作社規則','信用合作社法第11條第2項明定中小企業準社員沒有選舉權和被選舉權。這與一般社團會員、一般合作社準社員的法律條件不同；其他議案或出席資格不能只用這一句選舉條文判斷。']],refs:[law('信用合作社法','G0380058',11)]};
+ }
+ const totalMatches=[...t.matchAll(/(\d+)(?:名|位|個|人)?(?:合格|正式)社員|(?:合格|正式)社員(?:總數|人數|總共|共有|有|共|為|是)?(\d+)(?:名|位|個|人)?/g)].filter(m=>!m[1]||!/^有?(?:到場|出席)/.test(t.slice(m.index+m[0].length))).map(m=>Number(m[1]||m[2])).filter(n=>Number.isSafeInteger(n)&&n>0);
+ const totalSet=[...new Set(totalMatches)];
+ const total=totalSet.length===1?totalSet[0]:null;
+ const presentMatch=t.match(/(\d+)(?:名|位|個|人)?(?:合格|正式)社員(?:有)?(?:到場|出席)|(?:到場|出席|來了)([0-9]+)(?:名|位|個|人)(?:(?:合格|正式)?社員)?/);
+ let present=presentMatch?Number(presentMatch[1]||presentMatch[2]):null;
+ const subset=t.match(/(?:其中|包括|包含|裡面有|內含)(\d+)(?:名|位|個|人)?準社員/);
+ const explicitlyEligible=presentMatch&&(!!presentMatch[1]||/(?<!準)社員$/.test(presentMatch[0]));
+ const separateAttendance=presentMatch&&/^(?:、|，|,|。)?(?:(?:另外|另有|還有|加上|加)\d+)/.test(t.slice(presentMatch.index+presentMatch[0].length));
+ if(present!==null&&!explicitlyEligible){if(subset&&!/非社員|非社員來賓|其他來賓/.test(t))present-=Number(subset[1]);else if(!separateAttendance)present=null;}
+ if(!Number.isSafeInteger(present)||present<0||(total!==null&&present>total))present=null;
+ const min=total===null?null:Math.floor(total/2)+1;
+ const vote=present===null?null:Math.floor(present/2)+1;
+ const example=min===null?'過半數不是剛好一半；由正式名冊的合格社員計算。':present===null?'有'+total+'名合格社員時，至少'+min+'名合格社員出席才能成會；不要用準社員補足。請確認實際到場的合格社員有幾位，不要用全場人數判定。':present<min?'合格社員'+total+'名，至少要'+min+'名出席；只有'+present+'名合格社員出席，不能成會，準社員不能補足人數。':'合格社員'+total+'名，至少要'+min+'名出席；'+present+'名已達一般法定開會門檻。若是一般議案且無另定較高門檻，至少需'+vote+'名出席社員同意；不把準社員算入。';
+ const participation=['列席、成會、表決是三件事','依合作社法第11條，準社員沒有選舉權、被選舉權、罷免權與表決權，其他權利義務與社員同。按社員大會會前社籍清查及地方政府簽到表的作法，準社員可依會議安排列席，與應出席的合格社員分開登記；不把列席準社員計入法定成會人數，也不能投票。'];
+ const count=['一般社員大會怎麼算','合作社法第48條：全體合格社員須過半數出席，一般決議須出席社員過半數同意。'+example+'如有特別議案或章程合法規定較高門檻，另依其規則；這不是對個案決議效力的認定。'];
+ const listing=['名冊列錯，公告期間書面請求更正','依合作社法施行細則第12條之1，會前清查名冊，合格社員、出社社員及準社員要分冊，提經理事會通過後公告十五日並報主管機關備查；清查工作應於會前十五日完成。對社籍分類有異議，可在公告期間以書面向合作社請求更正並保留送達證明，先不以錯列名冊判定投票資格。'];
+ const elect=['選舉理事不能靠列席取得選舉權','準社員不能投票選理事或參選。依合作社選舉罷免辦法第3條，選舉會議是具出席資格者過半數，不用準社員補足；改選名冊依同辦法第12條。'];
+ return {direct:true,category:'合作社會務',title:'一般合作社社員大會：準社員列席不計入成會或表決',questionState:{focus:'compound'},
+ summary:roster&&!quorum&&!voting&&!election?'可在公告期間以書面向合作社請求更正，合格社員、出社社員和準社員不能混列。':quorum||voting&&!election?example:'準社員可依會議安排列席，但沒有選舉權或表決權，不能投票選理事。',steps:[participation,...(quorum||voting&&!election?[count]:[]),...(roster?[listing]:[]),...(election?[elect]:[])],
+ refs:[coop(11),coop(48),law('合作社法施行細則','D0050113','12-1'),...(election?[law('合作社選舉罷免辦法','D0050022',3),law('合作社選舉罷免辦法','D0050022',12)]:[]),{title:'雲林縣政府合作社會議範例：合格社員與準社員分開簽到',source:'https://ws.yunlin.gov.tw/Download.ashx?n=6Zuy5p6X57ij5ZCI5L2c56S%2BKOS4jeWQq%2Bi%2BsualreaAp%2BWQiOS9nOekvinovqbnkIbop6PmlaPmuIXnrpfnmbvoqJjmtYHnqIvlj4rnm7jpl5zooajku7bnr4TkvosoMS0xMCkt5b2Z5pW05qqULTExMi4xMi4xOeabtOaWsC5wZGY%3D&u=LzAwMS9VcGxvYWQvNDE0L3JlbGZpbGUvOTM0MC8yNjczNTEvMzEwMDIwYjUtYzgyZi00ZTQyLWJhZjUtMDc4MTU1MThmYzkzLnBkZg%3D%3D'}]};
+}
+
 function answerMixed(q){
+ const associateMember=coopAssociateMemberAssembly(q);if(associateMember)return associateMember;
  const memberIdentity=associationMembershipIdentity(q);if(memberIdentity)return memberIdentity;
  const coopChair=coopChairAndShare(q);if(coopChair)return coopChair;
  const redeemCreditShare=creditCoopShareRedemption(q);if(redeemCreditShare)return redeemCreditShare;
@@ -1351,6 +1387,6 @@ function answerMixed(q){
     keys.includes('creditor')?'合作社清算：就任後公告與終結報告，分別計算':isCoop?'合作社清算報告與股息上限，分開看':'協會入會資格與會員除名，分開看',
   summary:keys.length===1?topics[keys[0]].line[1]:'你問了兩件事，分別如下。',steps:keys.length>1?keys.map(k=>topics[k].line):[],refs:keys.flatMap(k=>topics[k].laws)};
 }
-if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy,changedMeetingVenue,familyAssemblyProxy,dualBoardVacancies,coopBoardVacancies,creditCooperativeVacancy,schoolParentFiling,associationRegisteredAddress,inspectAndPublishBoardMinutes,temporaryMeetingNotice,withdrawalAndAssemblyRoll,memberMeetingExpenseFunding,missedSupervisorNotice,duesAndAssemblyRights,coopWithdrawalAndAssembly,designatedMeetingConvener,assemblyRepresentativeParticipation,formerMemberGiftReturn,preschoolParentFiling,associationVotingRollDisclosure,associationDirectorsQuorum,creditCoopDepositsAndDividends,associationElectionObjection,associationDelegateReplacement,commerceDelegateReplacement,industryDelegateReplacement,outsideCounterNoiseReferral,deityAssociationManagerReferral,volunteerTravelMealTax,associationStampDuty,coopRepresentativeAssembly,creditCoopShareRedemption,coopChairAndShare,associationMembershipIdentity};return;}
+if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy,changedMeetingVenue,familyAssemblyProxy,dualBoardVacancies,coopBoardVacancies,creditCooperativeVacancy,schoolParentFiling,associationRegisteredAddress,inspectAndPublishBoardMinutes,temporaryMeetingNotice,withdrawalAndAssemblyRoll,memberMeetingExpenseFunding,missedSupervisorNotice,duesAndAssemblyRights,coopWithdrawalAndAssembly,designatedMeetingConvener,assemblyRepresentativeParticipation,formerMemberGiftReturn,preschoolParentFiling,associationVotingRollDisclosure,associationDirectorsQuorum,creditCoopDepositsAndDividends,associationElectionObjection,associationDelegateReplacement,commerceDelegateReplacement,industryDelegateReplacement,outsideCounterNoiseReferral,deityAssociationManagerReferral,volunteerTravelMealTax,associationStampDuty,coopRepresentativeAssembly,creditCoopShareRedemption,coopChairAndShare,associationMembershipIdentity,coopAssociateMemberAssembly};return;}
 root.verifiedMixedQuestionAnswer=answerMixed;
 })(typeof window!=='undefined'?window:globalThis);

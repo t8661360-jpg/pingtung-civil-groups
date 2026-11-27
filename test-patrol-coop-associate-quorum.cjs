@@ -1,0 +1,10 @@
+const a=require('node:assert/strict');
+const {coopAssociateMemberAssembly:fn,answerMixed}=require('./verified-mixed-questions.js');
+const text=q=>JSON.stringify(answerMixed(q));
+a.match(text('我們是一般合作社，合格社員40人，到場20名社員加5個準社員，今天可以開社員大會嗎？'),/至少要21名出席.*20名合格社員出席，不能成會/);
+a.match(text('合作社有40名正式社員，今天到場21名，還有5個準社員，決議要幾票才過？'),/21名已達一般法定開會門檻.*至少需11名/);
+a.match(text('一般合作社有40名正式社員，到場25名，其中5名準社員，今天能開會嗎？'),/20名合格社員出席，不能成會/);
+a.match(text('一般合作社的準社員能列席社員大會嗎？可以投票選理事嗎？'),/可依會議安排列席.*不能投票選理事或參選/);
+a.match(text('合作社準社員名冊被列成合格社員，可以在公告期間請求更正嗎？'),/公告期間以書面向合作社請求更正/);
+a.match(text('我們是信用合作社的中小企業準社員，能不能參選社員代表？'),/不能以準社員身分參選社員代表/);
+for(const q of ['社團成會要多少人？','合作社準社員幾歲可以加入？','合作社社員有2500名，要選幾名代表？','信合社準社員能表決一般議案嗎？'])a.equal(fn(q),null,q);
