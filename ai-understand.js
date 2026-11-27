@@ -6,6 +6,7 @@
   const meta=document.querySelector('meta[name="ai-understand-endpoint"]');
   const base=(meta&&meta.content||'').replace(/\/+$/,'');
   if(!base||typeof renderAnswer!=='function')return;
+  if(navigator.webdriver)return; // 自動檢查（每小時 smoke）不呼叫，避免耗用 API 額度
   const prev=renderAnswer;
   let seq=0;
   renderAnswer=function(q,a){

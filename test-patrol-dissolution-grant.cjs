@@ -1,0 +1,16 @@
+const assert=require('node:assert/strict');
+const {answerMixed,dissolutionAndGrant:answer}=require('./verified-mixed-questions');
+const q='協會要解散，可是縣府補助款還沒核銷，可以先解散嗎？';
+const a=answerMixed(q);
+assert.match(a.summary,/沒有寫一律要先核銷.*不能據此認定可以直接先解散/);
+assert.match(a.steps[0][1],/執行完竣後.*20日內.*剩餘補助經費應繳回/);
+assert.match(a.steps[2][1],/另看民法第57條.*不能憑此推定/);
+assert.equal(a.refs.length,5);
+const b=answer('縣府補助款還沒撥、活動也未辦，協會要解散，要先辦什麼？');
+assert.equal(b.steps[0][0],'未撥款且活動未辦');
+assert.match(b.steps[0][1],/撤案或結案.*沒有發生的支出/);
+const c=answer('高雄市補助款已經領了，協會解散還沒核銷，要繳回嗎？');
+assert.equal(c.refs.length,4);
+assert.doesNotMatch(c.steps.flat().join(' '),/20日內|08-7320415/);
+for(const x of ['協會不知道縣府補助怎麼辦核銷','協會要解散怎麼辦','合作社清算後補助款還沒核銷','協會解散後會員能否領補助','職業團體解散未核銷補助'])assert.equal(answer(x),null,x);
+console.log('dissolution and grant checks passed');

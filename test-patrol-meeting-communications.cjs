@@ -1,0 +1,13 @@
+const assert=require('node:assert/strict');
+const {answerMixed:A,assemblyCommunications:C}=require('./verified-mixed-questions');
+const full=a=>[a.title,a.summary,...a.steps.flat()].join(' ');
+const original='協會會員大會紀錄要寄給每個會員，還是只要送縣府？哪一天前要辦？';
+assert.match(full(A(original)),/閉會後三十日內.*提供會員（會員代表）查閱.*沒有要求逐一寄給每位會員/);
+assert.match(full(A('協會的會員代表會議要寄給全體會員嗎？只寄給代表是否也要公告？')),/不是通知全體一般會員.*開會十五日前.*沒有一律要求另貼公告.*不能取代個別通知/);
+assert.match(full(A('商業同業公會的會員大會紀錄，要寄會員代表，還是全部會員？')),/分送各會員.*會議後十五日內.*目的事業主管機關/);
+const a=A('協會會員大會的開會通知跟會議紀錄，要寄給誰？');
+assert.match(full(a),/開會十五日前.*閉會後三十日內/);
+let other=A('協會理事會紀錄要寄縣府備查嗎？');assert.match(full(other),/不套用大會紀錄通用的三十日期限/);
+other=A('協會會員大會的資料要寄給誰？');assert.equal(other.related.length,2);for(const q of other.related)assert.equal(A(q).related.length,0);
+for(const q of ['協會開大會前要公告議程嗎？大會結束後還要公布出席名單嗎？','協會8月開會員大會，財報怎麼算？開會通知要幾天？','理事會會員大會可以書面委託嗎？','合作社社員大會會議紀錄要寄給誰？','醫師公會會員大會會議紀錄要送誰？','協會選舉會議紀錄要在幾天內給縣府？'])assert.equal(C(q),null,q);
+console.log('meeting records and notices are distinct');
