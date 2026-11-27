@@ -530,7 +530,25 @@ function associationRegisteredAddress(q){
   summary:newChair?'會址變更和理事長異動是兩項程序，可以一併準備，不能用一項取代另一項。':exact?'章程寫的是舊門牌，搬家就涉及修章；除了理事會辦會址異動，也要走修章程序。':'您問的是協會的登記會址，不是開會通知。先經理事會決議通過，再報原立案主管機關備查。',
   steps:[office,...(newChair?[chair,combined]:[]),amended],refs,actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
 }
+function inspectAndPublishBoardMinutes(q){
+ const t=String(q??'').normalize('NFKC').replace(/\s/g,'');
+ if(t.length>155||!/協會|社會團體/.test(t)||/合作社|工會|公會|農會|漁會|基金會|開放政府|法院|勸募|選舉結果|董事會|管委會/.test(t))return null;
+ if(!/理事會.{0,6}(?:紀錄|記錄|議事錄|記要)|理事會的?會議.{0,6}(?:紀錄|記錄)/.test(t)||!/查閱|調閱|翻閱|查理事會|看理事會|看.{0,6}(?:紀錄|議事錄)|要求看/.test(t))return null;
+ if(!/監事|會員/.test(t)||!/公開|公布|公告|上網|網站|官網|貼.{0,6}網路|讓大家看/.test(t))return null;
+ if(/不要公開|不公開|沒有要公開|不打算公開|並非要公開/.test(t))return null;
+ const guide=n=>law('人民團體會務輔導辦法','D0020094',n);
+ const audit=/監事/.test(t);
+ const steps=[
+  ['依法在協會內部查閱','理事會紀錄應由團體自行留存，提供會員或會員代表查閱。'+(audit?'監事具有會員或會員代表身分時，也可依法查閱；屬監事會監察的經費收支或工作執行情形，理事會要送監事會監察。這跟一名監事自行對外公開資料不同。':'團體應安排查閱方式，原始紀錄不必因此上網。')],
+  ['查閱、報備和公開是三件事','理事會紀錄不是一律要報縣府或上網。理事會決議依法須報主管機關核辦時，才按規定送件；會員（代表）大會紀錄閉會後三十日內報備，是另一項義務。'],
+  ['上網前先確認個資使用依據','查閱權不等於可以轉傳或上網。可辨識的姓名、簽名、電話或個人發言等資料，須核對原蒐集目的、必要範圍及是否有目的外利用的合法事由；未確認前不公開。只想對外說明決議，可另製作無法辨識個人的摘要，原始紀錄仍要留存。']
+ ];
+ return {direct:true,category:'人民團體會務說明',title:'理事會紀錄：內部查閱與對外公開是兩件事',
+  summary:'可依規定在會內查閱，不代表可以把未遮蔽的理事會紀錄、簽到或名單貼上官網。',
+  steps,refs:[guide(12),...(audit?[guide(17)]:[]),law('個人資料保護法','I0050021',5),law('個人資料保護法','I0050021',20)]};
+}
 function answerMixed(q){
+ const boardMinutes=inspectAndPublishBoardMinutes(q);if(boardMinutes)return boardMinutes;
  const address=associationRegisteredAddress(q);if(address)return address;
  const parent=schoolParentFiling(q);if(parent)return parent;
  const creditVacancy=creditCooperativeVacancy(q);if(creditVacancy)return creditVacancy;
@@ -558,6 +576,6 @@ function answerMixed(q){
     keys.includes('creditor')?'合作社清算：就任後公告與終結報告，分別計算':isCoop?'合作社清算報告與股息上限，分開看':'協會入會資格與會員除名，分開看',
   summary:keys.length===1?topics[keys[0]].line[1]:'你問了兩件事，分別如下。',steps:keys.length>1?keys.map(k=>topics[k].line):[],refs:keys.flatMap(k=>topics[k].laws)};
 }
-if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy,changedMeetingVenue,familyAssemblyProxy,dualBoardVacancies,coopBoardVacancies,creditCooperativeVacancy,schoolParentFiling,associationRegisteredAddress};return;}
+if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy,changedMeetingVenue,familyAssemblyProxy,dualBoardVacancies,coopBoardVacancies,creditCooperativeVacancy,schoolParentFiling,associationRegisteredAddress,inspectAndPublishBoardMinutes};return;}
 root.verifiedMixedQuestionAnswer=answerMixed;
 })(typeof window!=='undefined'?window:globalThis);
