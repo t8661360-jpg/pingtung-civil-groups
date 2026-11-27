@@ -1562,6 +1562,8 @@ let financeMeetingPlanner;
 async function ask(q){
   q=String(q||"").trim();if(!q||busy)return;
   if(!financeMeetingPlanner&&typeof window.createFinanceMeetingPlanner==="function")financeMeetingPlanner=window.createFinanceMeetingPlanner({board,showAnswer:renderAnswer});
+  const coopQuorumVolunteer=typeof window.verifiedAssociationCoopQuorumVolunteerGrant==="function"?window.verifiedAssociationCoopQuorumVolunteerGrant(q):null;
+  if(coopQuorumVolunteer){financeMeetingPlanner=null;renderAnswer(q,coopQuorumVolunteer);return;}
   const postponedProxy=typeof window.verifiedAssociationPostponedProxy==="function"?window.verifiedAssociationPostponedProxy(q):null;
   if(postponedProxy){financeMeetingPlanner=null;renderAnswer(q,postponedProxy);return;}
   const charterTiming=typeof window.verifiedCharterMeetingDate==="function"?window.verifiedCharterMeetingDate(q):null;
@@ -2154,6 +2156,7 @@ touch();
 <script src="cooperative-address-proof.js?v=1"></script>
 <script src="liquidation-creditor-notice.js?v=2"></script>
 <script src="director-absence-clarification.js?v=1"></script>
+<script src="association-coop-quorum-volunteer-grant.js?v=1"></script>
 <script src="association-postponed-proxy.js?v=1"></script>
 <script src="association-representative-quorum.js?v=1"></script>
 <script src="coop-farm-verified-split.js?v=1"></script>

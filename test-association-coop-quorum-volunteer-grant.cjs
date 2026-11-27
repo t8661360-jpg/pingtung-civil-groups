@@ -1,0 +1,17 @@
+'use strict';
+const assert=require('node:assert/strict');
+const {route}=require('./association-coop-quorum-volunteer-grant');
+const mixed='合作社的社員代表大會跟協會會員代表大會都是過半開會嗎？我不知道要算誰。';
+assert.match(route(mixed).summary,/協會.*過半.*合作社.*不能直接套選舉門檻/);
+assert.equal(route(mixed).choices.length,2);
+assert.match(route(route(mixed).choices[0].question).steps[1][1],/第4條.*超過200人.*第3條.*不直接決定/);
+assert.match(route(route(mixed).choices[1].question).steps[1][1],/具當次出席資格者總數.*三分之一/);
+const regular=route('協會的全體會員過半才開嗎？另一邊是一般合作社社員大會，不是社員代表大會，兩個要怎麼算？');
+assert.match(regular.summary,/全體社員過半/);
+assert.match(regular.steps[1][1],/第48條/);
+const grant=route('協會辦活動請志工吃便當，可以從補助款報嗎，要附什麼單據');
+assert.match(grant.summary,/先看核定函及經費表/);
+assert.match(grant.steps[1][1],/第8點.*領款收據.*實際支用明細表.*各項支用單據.*通案未統一訂每人每餐上限/);
+assert.match(route(grant.choices[0].question).summary,/有列.*按核定用途/);
+assert.match(route(grant.choices[1].question).summary,/沒列.*不要先用補助款核銷/);
+for(const s of ['合作社社員大會要解散，出席過半就能嗎？','信合社社員代表大會選理監事的出席門檻？','協會的志工補助保險需要報什麼單據？','高雄市協會辦活動請志工吃便當，補助能報嗎？'])assert.equal(route(s),null,s);
