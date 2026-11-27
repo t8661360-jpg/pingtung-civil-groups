@@ -1562,6 +1562,8 @@ let financeMeetingPlanner;
 async function ask(q){
   q=String(q||"").trim();if(!q||busy)return;
   if(!financeMeetingPlanner&&typeof window.createFinanceMeetingPlanner==="function")financeMeetingPlanner=window.createFinanceMeetingPlanner({board,showAnswer:renderAnswer});
+  const meetingFinanceSequence=typeof window.verifiedAssociationMeetingFinanceSequence==="function"?window.verifiedAssociationMeetingFinanceSequence(q):null;
+  if(meetingFinanceSequence){financeMeetingPlanner=null;renderAnswer(q,meetingFinanceSequence);return;}
   const withdrawalAndFiling=typeof window.verifiedAssociationWithdrawalAndFiling==="function"?window.verifiedAssociationWithdrawalAndFiling(q):null;
   if(withdrawalAndFiling){financeMeetingPlanner=null;renderAnswer(q,withdrawalAndFiling);return;}
   const charterMembershipTerm=typeof window.verifiedAssociationCharterMembershipTerm==="function"?window.verifiedAssociationCharterMembershipTerm(q):null;
@@ -2191,7 +2193,8 @@ touch();
 <script src="cooperative-contract-representation.js?v=1"></script>
 <script src="election-staff-objection.js?v=2"></script>
 <script src="association-charter-membership-term.js?v=1"></script>
-<script src="association-withdrawal-and-filing.js?v=1"></script>
+<script src="association-withdrawal-and-filing.js?v=2"></script>
+<script src="association-meeting-finance-sequence.js?v=1"></script>
 <script src="association-coop-quorum-volunteer-grant.js?v=20261127-coop-formula"></script>
 <script src="association-postponed-proxy.js?v=1"></script>
 <script src="association-representative-quorum.js?v=20261127-315"></script>
