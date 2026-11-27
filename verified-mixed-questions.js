@@ -1100,7 +1100,42 @@ function volunteerTravelMealTax(q){
  ...(choices?{choiceHeading:'這筆錢是付給誰、怎麼發放？',choices}:{})};
 }
 
+function associationStampDuty(q){
+ const t=String(q||'').normalize('NFKC').replace(/\s/g,'');
+ if(t.length>185||!/印花|貼花/.test(t)||/漏繳|補繳|罰鍰|罰多少|行政救濟|合併契約|同一憑證/.test(t))return null;
+ const lease=/租約|租賃|租房|房東|租金|押金|租辦公室|租場地/.test(t);
+ const dues=/會費|入會費|年費/.test(t);
+ const event=/報名費|課程費|活動費/.test(t);
+ const purchase=/買東西|動產|採購|買.{0,5}(?:設備|器材|電腦)|承攬|印刷契約/.test(t);
+ const receipt=/收據|回執|收款證明/.test(t);
+ if(!lease&&!dues&&!event&&!purchase&&!(receipt&&/協會|社團|團體/.test(t)))return null;
+ const receiptSignal=t.replace(/(?:沒有|未曾|未|沒)(?:任何|另外|另行)?(?:收款簽收|收訖註記|簽收|開(?:立)?收據|收據)/g,'');
+ const hasStamp=/簽收|簽章註明|寫(?:了)?已收|收訖|蓋章收款|手寫已收|(?:房東|出租人)(?:有|另外|已)?開(?:了)?收據/.test(receiptSignal);
+ const plain=/只簽|單純|只有租約|只是簽|沒有收據|沒開收據|沒簽收/.test(t)&&!hasStamp;
+ const withdraw=lease&&/扣繳|扣稅|租金.{0,7}所得稅/.test(t);
+ const qualified=/(?:公益|慈善|教育|文化).{0,10}(?:財團|社團)法人|(?:財團|社團)法人.{0,10}(?:公益|慈善|教育|文化)/.test(t)&&!/不是|尚未登記|還沒登記|未辦法人/.test(t);
+ const cityOther=/台北|臺北|新北|桃園|台中|臺中|台南|臺南|高雄|基隆|新竹|宜蘭|花蓮|台東|臺東|苗栗|彰化|南投|雲林|嘉義|澎湖|金門|連江/.test(t)&&!/屏東/.test(t);
+ const stamp=n=>law('印花稅法','G0340091',n);
+ const local=['印花稅：找地方稅機關',cityOther?'請洽相關縣市的地方稅捐稽徵機關。印花稅是地方稅，不是租金所得扣繳。':'屏東請洽屏東縣政府財稅局印花稅窗口，08-7338086 轉 234 或 0800-877979。若憑證案件在外縣市，請洽當地地方稅機關。'];
+ const leaseRow=['單純租約與簽收欄不同','單純租賃契約本身不在印花稅課稅範圍。房東另立租金或押金收據，或在租約上寫明實收金額並簽收而代替收據時，原則由收款立據人按實收金額千分之四（4‰）繳納；如果適用法定免稅或屬營業發票性質，另按規定。只寫約定租金或押金，未表示收到，不等於簽收。'];
+ const dueRow=['入會費及常年會費有條件免稅','財政部台財稅第770266092號函：教育、文化、公益或慈善的財團或社團法人，向會員收取入會費或常年會費所開的收據，可比照印花稅法第6條第14款免貼印花稅票。僅有立案或名稱寫協會，不能直接認定符合。'];
+ const eventRow=['活動報名費不等於會費','不能把入會費及常年會費的函釋直接套用活動報名費。要核對憑證性質；一般銀錢收據由立據人按收款金額4‰繳納，但兼具營業發票性質或有法定免納事由則另論。'];
+ const purchaseRow=['先確認是不是買賣動產或承攬契據','依屏東縣政府財稅局，單純買賣動產契據每件新臺幣12元；若屬承攬（例如委託印刷完成工作），通常為合約金額1‰。由立約或立據人按憑證性質辦理。若只有廠商出具銀錢收據，原則是收錢開據的廠商繳納，不是付款的協會；統一發票不在銀錢收據的課稅範圍。若同一張兼有買賣與承攬，須依印花稅法第13條及契約內容判斷，不可只套12元。'];
+ const deductRow=['租金所得扣繳：另洽國稅局','若協會給付租金，應按房東身分確認扣繳。境內居住個人或在境內有固定營業場所的營利事業，原則按給付額10%扣繳；符合各類所得扣繳率標準第13條或第13條之1，每次應扣稅額不超過新臺幣2,000元可免扣，但免扣不等於免申報。境外或特殊身分另查規定。這部分可洽國稅局 0800-000-321。'];
+ const area=cityOther?(t.match(/台北|臺北|新北|桃園|台中|臺中|台南|臺南|高雄|基隆|新竹|宜蘭|花蓮|台東|臺東|苗栗|彰化|南投|雲林|嘉義|澎湖|金門|連江/)?.[0]||''):'';
+ const choices=lease&&!hasStamp&&!plain&&!withdraw?[
+  {label:'只簽租約，沒有收款簽收或收據',question:area+'協會租辦公室只簽租約，沒有收款簽收也沒開收據，要貼印花稅嗎？'},
+  {label:'房東有開收據，或在租約簽收',question:area+'協會租辦公室，房東在租約簽收租金和押金，要貼印花稅嗎？'}
+ ]:null;
+ const rows=[...(lease?[leaseRow]:[]),...(dues?[dueRow]:[]),...(event?[eventRow]:[]),...(purchase?[purchaseRow]:[]),local,...(withdraw?[deductRow]:[])];
+ const summary=withdraw?'兩種稅分開：房東收據的印花稅問地方稅機關；協會給付租金的所得扣繳問國稅局。':lease?(hasStamp?'租約簽收代替銀錢收據，或房東另立銀錢收據時，原則由房東按實收金額的4‰繳納印花稅。':plain?'只簽租約、不另立收據，也沒有收訖註記，單純租賃契約本身不在這份列舉的課稅範圍。':'租賃契約本身不在這份列舉的課稅範圍。若同時作為收據，就依銀錢收據判斷。'):dues&&event?'把會費和活動報名費分開，活動報名費不能直接套用會費免稅。':dues?(qualified?'符合教育、文化、公益或慈善的財團或社團法人資格者，入會費及常年會費收據可免貼印花稅票。':'要先確認是否屬於函釋所列的財團或社團法人；不因名為會費就一律免貼。'):purchase?'單純動產買賣契據每件12元；委外承攬原則按承攬金額1‰，要看憑證內容。':'銀錢收據原則按4‰繳納，應按收據性質及例外判斷。';
+ return {direct:true,category:'稅務',title:withdraw?'租金扣繳與收據印花稅：不同機關':'協會印花稅：看這張憑證的用途',summary,steps:rows,
+ refs:[stamp(5),stamp(6),stamp(7),...(lease?[{title:'財政部稅務入口網：租約作為收據及押金簽收',source:'https://www.etax.nat.gov.tw/etwmain/announcement/news/3WVWbVz'}]:[]),...(dues?[{title:'內政部：財政部會費收據免貼印花稅函釋',source:'https://www.moi.gov.tw/News_Content.aspx?n=14119&s=220048'}]:[]),...(purchase?[stamp(13),{title:'屏東縣政府財稅局：動產契據與承攬契據',source:'https://www.etax.nat.gov.tw/etwmain/announcement/news/WewNjKP'}]:[]),...(cityOther?[]:[{title:'屏東縣政府財稅局：印花稅窗口',source:'https://www.etax.nat.gov.tw/etwmain/announcement/news/bBA6pNj'}]),...(withdraw?[law('所得稅法','G0340003',88),law('所得稅法','G0340003',89),law('各類所得扣繳率標準','G0340028',2),law('各類所得扣繳率標準','G0340028',13),law('各類所得扣繳率標準','G0340028','13-1')]:[])],
+ ...(choices?{choiceHeading:'這份租約有沒有兼作收據？',choices}:{})};
+}
+
 function answerMixed(q){
+ const stampDuty=associationStampDuty(q);if(stampDuty)return stampDuty;
  const volunteerTax=volunteerTravelMealTax(q);if(volunteerTax)return volunteerTax;
  const deityManager=deityAssociationManagerReferral(q);if(deityManager)return deityManager;
  const noiseReferral=outsideCounterNoiseReferral(q);if(noiseReferral)return noiseReferral;
@@ -1149,6 +1184,6 @@ function answerMixed(q){
     keys.includes('creditor')?'合作社清算：就任後公告與終結報告，分別計算':isCoop?'合作社清算報告與股息上限，分開看':'協會入會資格與會員除名，分開看',
   summary:keys.length===1?topics[keys[0]].line[1]:'你問了兩件事，分別如下。',steps:keys.length>1?keys.map(k=>topics[k].line):[],refs:keys.flatMap(k=>topics[k].laws)};
 }
-if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy,changedMeetingVenue,familyAssemblyProxy,dualBoardVacancies,coopBoardVacancies,creditCooperativeVacancy,schoolParentFiling,associationRegisteredAddress,inspectAndPublishBoardMinutes,temporaryMeetingNotice,withdrawalAndAssemblyRoll,memberMeetingExpenseFunding,missedSupervisorNotice,duesAndAssemblyRights,coopWithdrawalAndAssembly,designatedMeetingConvener,assemblyRepresentativeParticipation,formerMemberGiftReturn,preschoolParentFiling,associationVotingRollDisclosure,associationDirectorsQuorum,creditCoopDepositsAndDividends,associationElectionObjection,associationDelegateReplacement,commerceDelegateReplacement,industryDelegateReplacement,outsideCounterNoiseReferral,deityAssociationManagerReferral,volunteerTravelMealTax};return;}
+if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy,changedMeetingVenue,familyAssemblyProxy,dualBoardVacancies,coopBoardVacancies,creditCooperativeVacancy,schoolParentFiling,associationRegisteredAddress,inspectAndPublishBoardMinutes,temporaryMeetingNotice,withdrawalAndAssemblyRoll,memberMeetingExpenseFunding,missedSupervisorNotice,duesAndAssemblyRights,coopWithdrawalAndAssembly,designatedMeetingConvener,assemblyRepresentativeParticipation,formerMemberGiftReturn,preschoolParentFiling,associationVotingRollDisclosure,associationDirectorsQuorum,creditCoopDepositsAndDividends,associationElectionObjection,associationDelegateReplacement,commerceDelegateReplacement,industryDelegateReplacement,outsideCounterNoiseReferral,deityAssociationManagerReferral,volunteerTravelMealTax,associationStampDuty};return;}
 root.verifiedMixedQuestionAnswer=answerMixed;
 })(typeof window!=='undefined'?window:globalThis);

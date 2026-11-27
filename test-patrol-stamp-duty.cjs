@@ -1,0 +1,14 @@
+const a=require('node:assert/strict');
+const {associationStampDuty:take,answerMixed:answer}=require('./verified-mixed-questions.js');
+const text=q=>JSON.stringify(answer(q));
+a.match(text('協會買東西要貼印花稅嗎？'),/每件12元/);
+a.match(text('只簽租約沒有收據要貼印花稅嗎'),/單純租賃契約本身不在/);
+a.match(text('屏東協會租房，房東在租約上簽名寫已收租金和押金，要貼印花稅嗎？'),/原則由房東按實收金額的4‰/);
+a.match(text('協會付房東租金要扣繳所得稅嗎？另外房東開收據的印花稅問誰？'),/地方稅機關.*國稅局/);
+a.match(text('我們是公益社團法人，開給會員入會費和每年會費的收據要貼印花稅嗎？'),/770266092/);
+a.match(text('協會辦活動的報名費收據，跟年費一樣可以免印花稅嗎？'),/活動報名費不能直接套用會費免稅/);
+a.doesNotMatch(text('高雄的協會租房子要貼印花稅嗎？'),/7338086/);
+const c=take('協會租房子要貼印花稅嗎？').choices;
+a.equal(c.length,2);a.match(take(c[0].question).summary,/只簽租約/);a.match(take(c[1].question).summary,/實收金額的4‰/);
+a.equal(take('協會付租金要扣繳所得稅嗎？'),null);
+a.equal(take('協會忘記貼印花稅怎麼補繳？'),null);
