@@ -1696,6 +1696,10 @@ async function ask(q){
   if(clanAssociation){renderAnswer(q,clanAssociation);return;}
   const coopCommercialGuild=typeof window.verifiedCooperativeCommercialGuild==="function"?window.verifiedCooperativeCommercialGuild(q):null;
   if(coopCommercialGuild){renderAnswer(q,coopCommercialGuild);return;}
+  const guildAndVenue=typeof window.verifiedGuildAndAssociationVenue==="function"?window.verifiedGuildAndAssociationVenue(q):null;
+  if(guildAndVenue){financeMeetingPlanner=null;renderAnswer(q,guildAndVenue);return;}
+  const factoryMembership=typeof window.verifiedIndustrialFactoryMembership==="function"?window.verifiedIndustrialFactoryMembership(q):null;
+  if(factoryMembership){financeMeetingPlanner=null;renderAnswer(q,factoryMembership);return;}
   const industrialMerger=typeof window.verifiedIndustrialGuildMerger==="function"?window.verifiedIndustrialGuildMerger(q):null;
   if(industrialMerger){renderAnswer(q,industrialMerger);return;}
   const industrialDoubleFactory=typeof window.verifiedIndustrialDoubleFactory==="function"?window.verifiedIndustrialDoubleFactory(q):null;
@@ -2185,7 +2189,7 @@ touch();
 <script src="association-director-eligibility-bank-change.js?v=20261127-bank-director"></script>
 <script src="association-charter-written-after-quorum.js?v=20261127-written-quorum"></script>
 <script src="association-recall-address-agenda.js?v=20261127-recall-address"></script>
-<script src="association-address-meeting-change.js?v=20261127-venue-negation"></script>
+<script src="association-address-meeting-change.js?v=20261127-guild-venue"></script>
 <script src="association-notice-dispatch-delivery.js?v=1"></script>
 <script src="association-deficit-personal-liability.js?v=1"></script>
 <script src="union-dues-social-donation-sale.js?v=20261127-union-sale"></script>
