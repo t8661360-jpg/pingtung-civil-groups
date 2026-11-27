@@ -156,7 +156,42 @@ function assemblyCommunications(q){
   summary:generic?'兩者的對象和期限不一樣。可以先看通則，再點選您要辦的項目。':notices&&records?'開會前通知應出席人；閉會後留存紀錄，大會紀錄另報備查。':notices?'要通知應出席的人；個別通知和公告不是同一件事。':'提供會員查閱和向主管機關報備，是不同的義務，不是二選一。',steps,refs,
   related:generic?['協會會員大會通知要寄給誰？','協會會員大會會議紀錄要寄給誰、多久要報備？']:[]};
 }
+function assemblyPrivacy(q){
+ const t=String(q??'').normalize('NFKC').replace(/\s/g,'');
+ if(t.length>170||!/協會|社會團體|人民團體/.test(t)||/合作社|工會|公會|農會|漁會|基金會|公司|管委會|成立大會|籌備|罷免書|答辯書|慈善勸募|補助核銷/.test(t))return null;
+ const assembly=/會員(?:[（(]?代表[）)]?)?大會|會員代表會議|開大會|大會結束/.test(t);
+ const board=/理事會|監事會|理監事會/.test(t);
+ if(assembly&&board)return null;
+ const data=/出席名單|簽到(?:簿|表)|會員名冊|會員資料|會籍名冊|會員清冊|聯絡資料|名冊/.test(t);
+ const publicUse=/公開|公布|對外|(?:上傳|貼到|張貼|放上).{0,8}(?:社群|官網|網站|網路)|(?:公告|張貼).{0,8}(?:出席|簽到|名冊)/.test(t);
+ const privacy=data&&publicUse;
+ const record=/出席名單|簽到(?:簿|表)/.test(t);
+ const agenda=assembly&&/議程/.test(t)&&/公告|公布|通知/.test(t);
+ const online=/視訊|線上|網路|通訊軟體|電子|LINE/i.test(t);
+ const proxy=online&&/委託|代理/.test(t)&&(assembly||board);
+ if(!privacy&&!proxy)return null;
+ const steps=[],refs=[];
+ const add=(label,body,...basis)=>{steps.push([label,body]);refs.push(...basis);};
+ const guide=n=>law('人民團體會務輔導辦法','D0020094',n);
+ if(agenda)add('會前議程','大會議程應連同會議種類、時間及地點，原則於會前十五日通知應出席的人。通知不是對外公告；一般規定沒有要求把議程另外公開，也不能用貼公告代替通知。章程或特別規定另有要求時應遵守。',association(26),guide(10));
+ if(proxy){
+  if(board)add('理事會或監事會','依法應親自出席，不能委託他人代理，即使全程視訊亦然。章程如果訂明可以視訊開會，理事或監事本人依規定參與是親自出席，不是委託代理。',association(29),association(31));
+  else {
+   const ordered='一般社會團體會員不能親自出席時，可以書面委託其他會員（會員代表），每位受託人最多代理一人。電子形式可用於適用電子簽章法且符合要件的書面委託：內容完整、可留存查驗，有相對人時也需符合其已同意或事前依法告知並給予反對機會等規定。先向協會確認章程及收件方式，不能只憑一句聊天訊息就認定有效。';
+   add('會員大會的電子委託',ordered,association(42),law('電子簽章法','J0080037',5));
+   if(/視訊|線上開|網路開|遠端開/.test(t))add('能否視訊開大會','須先看章程是否載明可以視訊開會。涉及選舉、補選或罷免時，不能以一般視訊會議方式取代選務程序；應依選舉罷免辦法及主管機關規定辦理。',association(25),{title:'內政部：人民團體視訊會議的辦理方式',source:'https://www.moi.gov.tw/News_Content.aspx?n=9&s=279373'});
+  }
+ }
+ if(privacy){
+  if(record)add('出席名單或簽到表','會議紀錄應記載出缺席狀況並留存供會員（會員代表）查閱，這不等於要把完整簽到表或出席名單對外公布。',guide(12));
+  else add('會員名冊','理事會審定大會出席資格所造的會員（代表）名冊，應提供會員閱覽。供會員閱覽，不等於可以拍照、轉傳，或張貼在任何人都看得到的地方。',guide(10));
+  add('對外公開的個資界線','姓名、電話、地址等可識別資料涉及個資。無法確認有合法依據前，不要貼到公開網站或社群；如果只是要說明出席情形，可提供無法識別個人的人數摘要。',law('個人資料保護法','I0050021',20));
+ }
+ const summary=agenda&&privacy?'會前要通知議程，不等於要公開公告；會後也不必依法一律公開出席名單。':proxy&&privacy?'電子委託和公開名冊是兩件事，要各自看適用條件。':privacy?'給會員查閱不等於可以公開；先分清名冊種類和使用目的。':'視訊參與和委託出席不是同一件事。';
+ return {direct:true,category:'人民團體會務說明',title:agenda&&privacy?'大會議程通知與出席名單公開，分開看':proxy&&privacy?'視訊大會的電子委託與名冊公開，分開看':privacy?'會員查閱名冊，不等於對外公開':'線上開會與委託出席',summary,steps,refs:[...new Map(refs.map(x=>[x.source,x])).values()]};
+}
 function answerMixed(q){
+ const privacy=assemblyPrivacy(q);if(privacy)return privacy;
  const communications=assemblyCommunications(q);if(communications)return communications;
  const vacancy=chairVacancy(q);if(vacancy)return vacancy;
  const caseGrant=dissolutionAndGrant(q);if(caseGrant)return caseGrant;
@@ -168,6 +203,6 @@ function answerMixed(q){
     keys.includes('creditor')?'合作社清算：就任後公告與終結報告，分別計算':isCoop?'合作社清算報告與股息上限，分開看':'協會入會資格與會員除名，分開看',
   summary:keys.length===1?topics[keys[0]].line[1]:'你問了兩件事，分別如下。',steps:keys.length>1?keys.map(k=>topics[k].line):[],refs:keys.flatMap(k=>topics[k].laws)};
 }
-if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications};return;}
+if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy};return;}
 root.verifiedMixedQuestionAnswer=answerMixed;
 })(typeof window!=='undefined'?window:globalThis);

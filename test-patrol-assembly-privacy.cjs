@@ -1,0 +1,10 @@
+const assert=require('node:assert/strict');
+const {answerMixed:A,assemblyPrivacy:P}=require('./verified-mixed-questions');
+const full=a=>[a.summary,...a.steps.flat(),...a.refs.map(r=>r.title)].join(' ');
+assert.match(full(A('協會開大會前要公告議程嗎？大會結束後還要公布出席名單嗎？')),/會前十五日.*沒有要求把議程另外公開.*不等於要把完整簽到表或出席名單對外公布.*個人資料保護法第20條/);
+assert.match(full(A('社區協會用視訊開會員大會，可以線上委託嗎？名冊可以公開嗎？')),/最多代理一人.*內容完整、可留存查驗.*須先看章程.*供會員閱覽，不等於可以拍照、轉傳/);
+assert.match(full(A('協會會員想看會籍名冊，可以拍照上傳到公開社群嗎？')),/不等於可以拍照.*無法識別個人的人數摘要/);
+assert.match(full(A('協會的理事會用視訊開會，可以線上委託其他理事嗎？')),/應親自出席，不能委託他人代理/);
+assert.match(full(A('協會要視訊開會員大會選舉，能線上委託嗎？')),/不能以一般視訊會議方式取代選務程序/);
+for(const q of ['協會會員大會開會通知要寄給誰','協會會員大會委託書可以給家人嗎','協會公開勸募收款要開收據嗎','合作社社員可以公開社員名冊嗎','公會選舉委託書要不要簽名'])assert.equal(P(q),null,q);
+console.log('assembly agenda, proxy and privacy checks passed');
