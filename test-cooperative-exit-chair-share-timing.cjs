@@ -9,3 +9,14 @@ const r=route('合作社社員退社已生效，但是還沒領到股金，算�
 assert.match(r.summary,/不用等股金到帳才出社/);
 assert.equal(r.steps.length,2);
 for(const q of ['信用合作社退社還沒領股金，要等到帳才算出社嗎？','協會會員退會後股金未領，才生效嗎？','合作社退社後怎麼計算股金？','合作社主席辭職沒有退社，股金一定要退嗎？'])assert.equal(route(q),null,q);
+const effective=route('合作社社員確定已經退社，不是只有送申請，股金還沒退；明天社員大會還可以投票嗎？股金要怎麼算，能要求現在就退嗎？');
+assert.match(effective.summary,/不能再以社員身分投票/);
+assert.equal(effective.choices,undefined);
+assert.match(JSON.stringify(effective.steps),/不是第30條規定的統一付款日/);
+const reverse=route('如果已經不是社員了，股金還放在合作社，明天能不能投票？');
+assert.match(reverse.summary,/不能再以社員身分投票/);
+const unknown=route('合作社先讓社員退社，股金還沒退，明天社員大會能不能投票？');
+assert.equal(unknown.choices.length,2);
+assert.match(route(unknown.choices[0].question).summary,/就可以投票/);
+assert.match(route(unknown.choices[1].question).summary,/不能再以社員身分投票/);
+for(const q of ['信用合作社社員已退社，股金還沒退，明天能投票嗎？','一般合作社社員已退社，股金未領，社員代表大會可以投票嗎？']) assert.equal(route(q),null,q);
