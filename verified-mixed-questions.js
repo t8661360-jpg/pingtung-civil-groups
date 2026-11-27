@@ -66,7 +66,26 @@ function verifiedComparison(q){
  }
  return null;
 }
+function dissolutionAndGrant(q){
+ const t=String(q??'').normalize('NFKC').replace(/\s/g,'');
+ const dissolve=/解散|清算|(?:結束|收掉)(?:協會|社團)|(?:協會|社團)(?:不做了|要收掉)/;
+ if(t.length>150||!dissolve.test(t)||!/(?:補助|補貼)(?:款|經費)?/.test(t))return null;
+ if(!/協會|社團|社會團體|人民團體/.test(t)||!/核銷|撥款|撥[了過]|已撥|未撥|沒撥|沒領|領到|領了|結案|繳回|剩餘|還沒用完|活動.{0,7}(?:未辦|沒辦|取消)/.test(t))return null;
+ if(/合作社|公會|工會|基金會|財團法人|公司|政黨|商業團體|職業團體/.test(t))return null;
+ const otherGrant=/(?:臺北|台北|新北|桃園|臺中|台中|臺南|台南|高雄|基隆|新竹|苗栗|彰化|南投|雲林|嘉義|宜蘭|花蓮|臺東|台東|澎湖|金門|連江)(?:市|縣|市府|縣府|市政府|縣政府)|(?:中央|內政部|文化部|教育部|衛福部)(?:的|核定的|核發的)?補助/.test(t);
+ const countyTitle='屏東縣政府對民間團體補助經費作業要點';
+ const countyURL='https://ptc.familyedu.moe.gov.tw/fileRename.aspx?fid=40994&kid=2&site_id=19&uid=3454';
+ const yes=['已撥款或已執行','盤點已收款、實際支出、原始憑證和剩餘款；依核定文件確認申報及繳回方式。'+(otherGrant?'各補助機關規則不同，不套用屏東縣的核銷期限。':'若適用屏東縣這份要點，計畫執行完竣後需於20日內辦理核銷，逾當年度未辦將註銷且不保留；第8點之一明定剩餘補助經費應繳回。')];
+ const no=['未撥款且活動未辦','先拿核定公文向原補助單位確認是否辦理撤案或結案、應備文件。不要為了核銷填列沒有發生的支出。若活動已辦但還未撥款，另確認是否仍可請款及期限。'];
+ const noFirst=/(?:尚未|未|還沒|沒|沒有)(?:撥款|撥|領到|領)|沒收到(?:補助|款)/.test(t);
+ return {direct:true,category:'會務與補助',title:'協會解散與補助核銷，要分別處理',summary:otherGrant?'補助沒核銷，不代表解散後就不用處理。先確認原補助機關的規定和核定文件；不能用屏東縣的規則替其他機關判定。':'屏東縣公開補助要點沒有寫一律要先核銷才能辦解散，也不能據此認定可以直接先解散。請先看核定公文，向補助承辦及會務承辦確認這一案的處理順序。',
+  steps:[...(noFirst?[no,yes]:[yes,no]),
+   ['解散與清算','自願解散應依法由會員（代表）大會決議，不是理事長單方決定。已登記為社團法人者，另看民法第57條；按第40條，清算人負責了結現務、收取債權和清償債務，但不能憑此推定清算人就能代辦該筆補助核銷。'],
+   ['確認下一步','備妥核定公文、是否已撥款與是否已執行的資料，向原補助承辦確認核銷、繳回或撤案的期限與經手人，再向團體主管機關確認解散送件。'+(otherGrant?'':'屏東縣府總機 08-7320415，可請轉相關承辦。')]],
+  refs:[...(otherGrant?[]:[{title:countyTitle+'第3點、第8點及第8點之一',source:countyURL}]),association(27),association(59),law('民法','B0000001',57),law('民法','B0000001',40)]};
+}
 function answerMixed(q){
+ const caseGrant=dissolutionAndGrant(q);if(caseGrant)return caseGrant;
  const comparison=verifiedComparison(q);if(comparison)return comparison;
  const keys=identify(q);if(!keys)return null;
  const isCoop=keys.includes('report');
@@ -75,6 +94,6 @@ function answerMixed(q){
     keys.includes('creditor')?'合作社清算：就任後公告與終結報告，分別計算':isCoop?'合作社清算報告與股息上限，分開看':'協會入會資格與會員除名，分開看',
   summary:keys.length===1?topics[keys[0]].line[1]:'你問了兩件事，分別如下。',steps:keys.length>1?keys.map(k=>topics[k].line):[],refs:keys.flatMap(k=>topics[k].laws)};
 }
-if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed};return;}
+if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant};return;}
 root.verifiedMixedQuestionAnswer=answerMixed;
 })(typeof window!=='undefined'?window:globalThis);
