@@ -14,7 +14,9 @@ permissions:
   issues: write
 concurrency:
   group: site-check-${{ github.event_name }}
-  cancel-in-progress: ${{ github.event_name == 'push' }}
+  # 2026-11-27：各排程幾分鐘就推送一次，完整檢查要四五十分鐘，push 檢查幾乎每次都被下一次推送取消、從來跑不完。
+  # 改成不取消正在跑的檢查；同一組排隊中的檢查，GitHub 只會保留最新的一個，所以跑完一輪後接著檢查最新的提交。
+  cancel-in-progress: false
 jobs:
   check:
     runs-on: ubuntu-24.04

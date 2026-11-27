@@ -301,7 +301,10 @@
     for (const o of OOS3) if (o.ask.test(raw) && !o.ans.test(at)) return fixedPhrase2(q, []);
     if (LABOR3.ask.test(raw) && !LABOR3.ans.test(at)) return menu2(q, similar(q, 6), '');
     /* 第4輪：問刑責要關多久、判幾年，不是本櫃檯能回答的事；答案沒有講到刑期就用固定用語 */
-    if (/(被|會|要)?(關|判)(多久|幾年|幾個月)|刑期(多久|多長|幾年)|(罰金|罰鍰)(多少|幾萬)/.test(raw) && /酒駕|肇事|打人|傷害|偷|竊|詐欺|詐騙|毒|賭|偽造|侵占|侵佔|背信|貪污|性騷|被抓|被捕|被起訴|犯罪|犯法/.test(raw) && !/(處|科)[^，。]{0,12}(以下|以上)(有期徒刑|罰金|拘役)|[0-9一二三四五六七八九十]+年以下有期徒刑/.test(at)) return fixedPhrase2(q, []);
+    if (/(被|會|要)?(關|判)(多久|幾年|幾個月)|刑期(多久|多長|幾年)|(罰金|罰鍰)(多少|幾萬)/.test(raw) && /酒駕|肇事|打人|傷害|偷|竊|詐欺|詐騙|毒|賭|偽造|侵占|侵佔|背信|貪污|性騷|被抓|被捕|被起訴|犯罪|犯法/.test(raw) && !/(處|科)[^，。]{0,12}(以下|以上)(有期徒刑|罰金|拘役)|[0-9一二三四五六七八九十]+年以下有期徒刑/.test(at))
+      return { direct: true, guarded: true, category: '業務分流', title: '刑事責任（會不會被關、判多久）不是這個櫃檯（人民團體）的業務',
+        summary: '會不會被關、判多久、罰金多少，是司法機關依個案認定的事，不是這個櫃檯的業務，本站沒有這方面的資料，小屏不能亂回答。\n\n如果您想知道的是理事長或理事、監事被判刑以後，在協會的職務怎麼處理，可以點下面的相關問題。\n\n這個櫃檯辦理的是屏東縣的社會團體（協會）、職業團體（公會）、社區發展協會和合作社。',
+        related: ['理事長被判刑還能當理事長嗎'], statutes: [], notes: [], steps: [], docs: [], laws: [], actions: [{ label: '回到常見問題', view: 'home', sub: '' }] };
     if ((a.groups && a.groups.length) || a.category === '團體查詢') return null;
     /* C. 前後兩句各問一種團體（「社區發展協會可以收會費嗎，合作社也是嗎」），答案只談到其中一種 → 選單 */
     const cl = String(q || '').normalize('NFKC').split(/[，,；;。？?！!]+/).map(x => NFK(x)).filter(x => x.length >= 3);
@@ -396,7 +399,18 @@
     return null;
   }
   if (typeof window !== 'undefined') window.__understandingGuard5 = understandingGuard5;
+  /* 第4輪（使用者決定）：「幫我寫一份企劃書／新聞稿」這類代寫請求，小屏答不出來時不只說難倒，改導到書表下載頁 */
+  const WRITE4 = /^(請問|請|可以|能不能|可不可以|麻煩)?(幫我|幫忙|請幫我|幫我們|代我|替我)(們)?(寫|擬|草擬|做|打|生|產生|準備|弄)(一|個|份|篇|封|張|下)?|代寫|幫寫/;
+  function ghostwrite4(q, a) {
+    if (!a || !WRITE4.test(NFK(q))) return null;
+    if (!(a.unanswered || /難倒小屏|查無符合資料/.test(a.title || ''))) return null; // 已經有對題答案的照原本回答
+    return { direct: true, guarded: true, category: '服務說明', title: '小屏沒辦法代寫文件，常用書表可以到「書表下載」頁下載',
+      summary: '小屏是回答人民團體會務問題的櫃檯，沒辦法幫您代寫企劃書、新聞稿、信件這類文件。\n\n縣府提供的常用書表（成立、改選、會員大會、解散等）放在本站的「書表下載」頁，可以下載後自己填寫；找不到合適的書表，或不確定該用哪一份，請電洽承辦人員，縣府總機 08-7320415。',
+      statutes: [], notes: [], steps: [], docs: [], laws: [], actions: [{ label: '到書表下載', view: 'forms', sub: '' }, { label: '聯絡承辦', view: 'contact', sub: '' }] };
+  }
+  if (typeof window !== 'undefined') window.__ghostwrite4 = ghostwrite4;
   function guard(q, a) {
+    try { const w4 = ghostwrite4(q, a); if (w4) return w4; } catch (e) {}
     try { const c = compareGuard(q, a) || compareTopic(q, a) || compound(q, a); if (c) return c; } catch (e) {}
     try { const u = understandingGuard(q, a); if (u) return u; } catch (e) {}
     try { const u3 = understandingGuard3(q, a); if (u3) return u3; } catch (e) {}
