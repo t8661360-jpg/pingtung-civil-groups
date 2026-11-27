@@ -857,6 +857,53 @@ function associationVotingRollDisclosure(q){
   refs:[elect(5),...privacy,...(resultOnly?[elect(25)]:[]),...(postal?[elect(23)]:[]),...(postal&&(decision||split)?[association(25),association(27)]:[]),...(!postal&&!resultOnly?[law('人民團體會務輔導辦法','D0020094',10)]:[])],
   actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
 }
+function associationDirectorsQuorum(q){
+ const t=String(q??'').normalize('NFKC').replace(/\s/g,'');
+ if(t.length>160||!/協會|社會團體/.test(t)||/合作社|工會|公會|農會|漁會|公司|自由職業團體|基金會|股東|聯席|監事會|兩個.{0,4}會議|補選|指定召集|出席費|會員大會|變更章程|修章/.test(t))return null;
+ if(!/理事/.test(t)||!/能.{0,4}(?:決議|開)|可以.{0,4}(?:開|決議|扣)|過半|成會|開得成|出席門檻|夠.{0,4}開|算.{0,4}出席/.test(t))return null;
+ const number='([0-9]{1,3}|[零〇一二兩三四五六七八九十]{1,4})';
+ const first=ps=>{
+  for(const p of ps){const raw=t.match(new RegExp(p.replace('{}',number)))?.[1];if(raw===undefined)continue;
+   if(/^\d+$/.test(raw))return Number(raw);
+   if(raw==='零'||raw==='〇')return 0;
+   const digit='零一二三四五六七八九', val=c=>c==='兩'?2:digit.indexOf(c);
+   if(raw.length===1)return raw==='十'?10:val(raw);
+   const m=raw.match(/^([一二兩三四五六七八九])?十([一二三四五六七八九])?$/);
+   if(m)return 10*(m[1]?val(m[1]):1)+(m[2]?val(m[2]):0);
+  }return null;
+ };
+ const charter=first(['章程(?:上|原本|原先|目前|規定|就|寫|訂|是|有|列|設|定|載明|本來|總共有|理事|名額|員額|定額){0,8}{}(?:席|位|名|人|個)','(?:理事名額|理事員額|理事定額)(?:原本|規定|是|為|有|共|合計){0,5}{}(?:席|位|名|人|個)']);
+ const current=first(['(?:只剩|剩下|現任|在任|現有|還有|實際剩)(?:有|下|僅|就|理事|共){0,5}{}(?:席|位|名|人|個)','{}(?:席|位|名|人|個)(?:理事)?(?:還|仍|尚)在任']);
+ const present=first(['{}(?:名|個|位|席)?(?:人|理事)?(?:有|實際|親自)?(?:到場|到會|出席|簽到|報到|到了|到[，,。？?]|到(?=能|可|有|要))','(?:現場|實際)?(?:出席|到場|到會|簽到|報到)(?:只|了|有|共|為|是|僅){0,4}{}(?:席|位|名|人|個)']);
+ const absence=/請(?:病|事|公)?假|因病|因公|臨時不能出席/.test(t);
+ if(charter===null&&current===null&&present===null&&!absence)return null;
+ const badCharter=charter!==null&&(charter<9||charter%2===0);
+ const guide=n=>law('人民團體會務輔導辦法','D0020094',n);
+ const half=n=>Math.floor(n/2)+1;
+ const inconsistent=(charter!==null&&current!==null&&current>charter)||(current!==null&&present!==null&&present>current)||(charter!==null&&present!==null&&present>charter);
+ const numbers=[charter!==null?'章程'+charter+'席':null,current!==null?'在任'+current+'人':null,present!==null?'到場'+present+'人':null].filter(Boolean).join('、');
+ const quorum=['成會和表決是兩道門檻','依人民團體法第29條，理事會須有應出席理事過半數出席；成會後，再依出席理事過半數或較多數同意判斷決議。理事應親自出席，不能委託他人；列席旁聽或候補未正式遞補都不因此成為出席理事。'];
+ const vacancy=['有真正出缺怎麼辦','先查辭職是否已依法生效、出缺紀錄及候補理事是否依序遞補。遞補後仍未達章程員額三分之二，應補選足額。剩餘在任人數不等於章程定額；若實際成會分母有爭議，請由原立案主管機關核對，不能靠擅自減少應出席人數通過決議。'];
+ const leave=['請假不能直接扣掉','理事因公、因病或因事請假，並未因此出缺，不能直接扣出應出席人數；到場人數另依簽到或報到計算。'];
+ const compared=charter!==null&&current!==null&&current<charter&&!absence&&!badCharter&&!inconsistent;
+ const certainlyTooFew=compared&&present!==null&&present<half(current);
+ const basedOnSeats=charter!==null&&!badCharter&&!inconsistent&&(absence||(current===charter));
+ const groups=compared?['分開試算，不把數字混用','即使暫以'+current+'名在任理事為計算基準，也至少要'+half(current)+'人；以章程'+charter+'席為基準，則至少要'+half(charter)+'人。這是兩種試算，不表示出缺就自動適用較低門檻。']:null;
+ const facts=['先核對三個數字',numbers?'您提供的是：'+numbers+'。章程定額、實際在任與到場，是不同數字。':'先確認章程定額、依法在任及實際到場人數。'];
+ const need=[];if(charter===null)need.push('章程所定理事席次');
+ if(!absence&&current===null)need.push('未到場者是請假、還是已正式出缺／遞補');
+ if(present===null&&!absence)need.push('實際到場人數');
+ const summary=inconsistent?'這幾個人數互相矛盾，請先核對章程席次、在任名冊及實際出席，不能用這組數字判定成會。':
+  badCharter?'一般協會的理事定額應為奇數且至少9人。'+(numbers?'您提供的是'+numbers+'；':'')+'請先核對現行核備章程及適用規定，不能用這個席次直接判定成會。':
+  certainlyTooFew?'不能成會。'+numbers+'；即使以'+current+'名在任理事試算也至少要'+half(current)+'人出席。':
+  basedOnSeats?(absence?'請假不能從應出席人數扣掉。':'先用已確認的應出席人數計算。')+'若應出席為章程'+charter+'席，至少要'+half(charter)+'人出席。'+(present===null?'':'這次'+present+'人'+(present<half(charter)?'未達成會門檻。':'達到人數門檻；其他召集與表決程序仍要符合規定。')):
+  compared?'已分清'+numbers+'。先處理出缺與遞補；若分母有爭議，不可只用較低試算逕作決議。':
+  '先不要只拿「剩幾人」或「來幾人」判定。'+(numbers?'已知'+numbers+'；':'')+(need.length?'還要確認'+need.join('、')+'。':'請核對在任及是否出缺。');
+ return {direct:true,category:'人民團體會務說明',title:'協會理事會：章程席次、在任、出席要分開算',
+  summary,steps:[facts,...(groups?[groups]:[]),...(absence?[leave]:[]),quorum,...(!basedOnSeats?[vacancy]:[])],
+  refs:[association(29),association(31),guide(9),guide(16),law('人民團體選舉罷免辦法','D0050093',17),...(absence?[{title:'內政部函釋：理事請假與出席基準',source:'https://www.moi.gov.tw/News_Content.aspx?n=14119&s=256686&sms=12360'}]:[])],
+  actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
+}
 function answerMixed(q){
  const votingRoll=associationVotingRollDisclosure(q);if(votingRoll)return votingRoll;
  const giftReturn=formerMemberGiftReturn(q);if(giftReturn)return giftReturn;
@@ -873,6 +920,7 @@ function answerMixed(q){
  const coopVacancy=coopBoardVacancies(q);if(coopVacancy)return coopVacancy;
  const dual=dualBoardVacancies(q);if(dual)return dual;
  const designated=designatedMeetingConvener(q);if(designated)return designated;
+ const directorsQuorum=associationDirectorsQuorum(q);if(directorsQuorum)return directorsQuorum;
  const representativeParticipation=assemblyRepresentativeParticipation(q);if(representativeParticipation)return representativeParticipation;
  const familyProxy=familyAssemblyProxy(q);if(familyProxy)return familyProxy;
  const venue=changedMeetingVenue(q);if(venue)return venue;
@@ -897,6 +945,6 @@ function answerMixed(q){
     keys.includes('creditor')?'合作社清算：就任後公告與終結報告，分別計算':isCoop?'合作社清算報告與股息上限，分開看':'協會入會資格與會員除名，分開看',
   summary:keys.length===1?topics[keys[0]].line[1]:'你問了兩件事，分別如下。',steps:keys.length>1?keys.map(k=>topics[k].line):[],refs:keys.flatMap(k=>topics[k].laws)};
 }
-if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy,changedMeetingVenue,familyAssemblyProxy,dualBoardVacancies,coopBoardVacancies,creditCooperativeVacancy,schoolParentFiling,associationRegisteredAddress,inspectAndPublishBoardMinutes,temporaryMeetingNotice,withdrawalAndAssemblyRoll,memberMeetingExpenseFunding,missedSupervisorNotice,duesAndAssemblyRights,coopWithdrawalAndAssembly,designatedMeetingConvener,assemblyRepresentativeParticipation,formerMemberGiftReturn,preschoolParentFiling,associationVotingRollDisclosure};return;}
+if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy,changedMeetingVenue,familyAssemblyProxy,dualBoardVacancies,coopBoardVacancies,creditCooperativeVacancy,schoolParentFiling,associationRegisteredAddress,inspectAndPublishBoardMinutes,temporaryMeetingNotice,withdrawalAndAssemblyRoll,memberMeetingExpenseFunding,missedSupervisorNotice,duesAndAssemblyRights,coopWithdrawalAndAssembly,designatedMeetingConvener,assemblyRepresentativeParticipation,formerMemberGiftReturn,preschoolParentFiling,associationVotingRollDisclosure,associationDirectorsQuorum};return;}
 root.verifiedMixedQuestionAnswer=answerMixed;
 })(typeof window!=='undefined'?window:globalThis);
