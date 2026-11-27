@@ -1562,6 +1562,8 @@ let financeMeetingPlanner;
 async function ask(q){
   q=String(q||"").trim();if(!q||busy)return;
   if(!financeMeetingPlanner&&typeof window.createFinanceMeetingPlanner==="function")financeMeetingPlanner=window.createFinanceMeetingPlanner({board,showAnswer:renderAnswer});
+  const countyChecks=typeof window.verifiedAssociationCountyFundingElection==="function"?window.verifiedAssociationCountyFundingElection(q):null;
+  if(countyChecks){financeMeetingPlanner=null;renderAnswer(q,countyChecks);return;}
   const feeTiming=typeof window.verifiedAssociationFeeTiming==="function"?window.verifiedAssociationFeeTiming(q):null;
   if(feeTiming){financeMeetingPlanner=null;renderAnswer(q,feeTiming);return;}
   const charterApplicability=typeof window.verifiedAssociationCharterApplicability==="function"?window.verifiedAssociationCharterApplicability(q):null;
@@ -2073,6 +2075,7 @@ touch();
 <script src="member-death-kind-clarification.js?v=1"></script>
 <script src="community-cooperative-pause.js?v=1"></script>
 <script src="association-event-private-contact.js?v=1"></script>
+<script src="association-county-funding-election-checks.js?v=20261127-county-checks"></script>
 <script src="association-director-eligibility-bank-change.js?v=20261127-bank-director"></script>
 <script src="association-address-meeting-change.js?v=20261127-coop-agenda"></script>
 <script src="association-notice-dispatch-delivery.js?v=1"></script>

@@ -1,0 +1,17 @@
+const assert=require('node:assert/strict');
+const {route}=require('./association-county-funding-election-checks.js');
+const a=route('會員大會選舉理事時，候選人可以自己監票嗎？');
+assert.match(a.summary,/沒有在相關條文明定候選人一律不得監票/);
+assert.match(a.summary,/建議候選人不要負責自己參選項目/);
+const b=route('協會可以用理事長的名字去申請補助嗎？');
+assert.match(b.summary,/用協會全名申請/);
+assert.match(JSON.stringify(b.steps),/不得存放於個人/);
+const c=route('理監事會議紀錄沒報縣府，補助會不會被取消？如果大會紀錄也還沒報呢？');
+assert.match(c.summary,/理監事會紀錄通常自存.*30日內/);
+assert.match(JSON.stringify(c.steps),/財務資料未依規定陳報.*不予補助/);
+assert.match(JSON.stringify(c.steps),/不能光因少一份紀錄就判已核定補助必然取消/);
+const d=route('屏東縣協會補助可用理事長的名字嗎？理監事會議紀錄也沒報，會不會影響申請？');
+assert.match(d.summary,/用協會全名申請.*理監事會紀錄通常自存/);
+const e=route('協會的理事候選人可以監票嗎？另外縣府補助能用理事長個人名義申請嗎？');
+assert.match(e.summary,/不得監票.*用協會全名申請/);
+for(const q of ['合作社社員大會選舉，可以讓候選人來唱票嗎？','高雄市協會能用理事長名字申請補助嗎？','理監事會議紀錄怎麼寫？','協會怎麼領補助？','志工保險可以用縣府補助支付嗎？'])assert.equal(route(q),null,q);
