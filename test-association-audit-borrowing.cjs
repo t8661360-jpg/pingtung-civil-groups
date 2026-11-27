@@ -1,0 +1,14 @@
+const a=require('node:assert/strict');
+const {route:r}=require('./association-audit-borrowing.js');
+const q='協會理事長違反章程硬是簽長期借款，會員大會可以追認嗎？監事知道後要怎麼做？';
+const x=r(q);
+a.match(x.summary,/不能只因會員大會事後表決.*不能只憑未經內部程序/);
+a.match(x.steps.flat().join(' '),/善意第三人.*第170條.*第22條.*糾正意見/);
+a.ok(x.refs.some(v=>v.source.includes('D0050097&flno=22')));
+a.doesNotMatch(x.steps.flat().join(' '),/不動產抵押/);
+const z=r('協會房屋已抵押借貸款，理事長擅自簽字，會員大會能追認嗎？');
+a.match(z.steps.flat().join(' '),/第13條.*先經大會授權/);
+a.match(r('協會監事會需要定期查核帳目嗎？').summary,/定期監事會議.*臨時監事會議/);
+a.match(r('監事會查帳要定期嗎？').summary,/若是一般協會/);
+a.equal(r('合作社監事查帳怎麼做？'),null);
+a.equal(r('協會理事長幫協會借款作個人保證，退任後要還嗎？'),null);

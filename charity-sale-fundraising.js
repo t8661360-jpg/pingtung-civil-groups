@@ -3,6 +3,21 @@
 const law=(name,code,n)=>({title:name+'第'+n+'條',source:'https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode='+code+'&flno='+n});
 const guidance={title:'衛福部衛部救字第1040129137號及內政部內授中社字第0990704042號會議決議（官方彙編第1–2頁）',source:'https://www.penghu.gov.tw/uploaddowndoc?file=unit02%2F202504250810070.pdf&filedisplay=%E5%85%AC%E7%9B%8A%E5%8B%B8%E5%8B%9F%E6%A2%9D%E4%BE%8B%E9%87%8D%E8%A6%81%E6%B3%95%E4%BB%A4%E8%A7%A3%E9%87%8B%281091203%E7%89%88%29.pdf&flag=pdf'};
 const current={title:'內政部：公益勸募許可申請、管轄與募款箱規定',source:'https://www.moi.gov.tw/News_Content.aspx?n=9&s=342876'};
+function commercialCompare(q){
+ const t=String(q??'').normalize('NFKC').replace(/\s/g,'');
+ if(!t||t.length>210||!/勸募|募款|募捐|許可/.test(t)||/政治獻金|募資平台|校內教育儲蓄戶|宗教活動|捐血|稅務申報|所得稅/.test(t))return null;
+ const merchant=/店家|商家|商號|賣家|公司/.test(t)&&/正常(?:價格|售價|對價)|照常販售|一般售價|按市價/.test(t)&&/自己捐|自行捐|自行提撥|自有營收|營收.{0,8}(?:捐|撥出)|售出.{0,6}再捐/.test(t);
+ const buyer=/義買/.test(t)&&!/主辦.{0,8}義買|我們要舉辦義賣|已公開收捐|善款義賣結案|買設備|義賣所得/.test(t);
+ if(!merchant&&!buyer)return null;
+ const extra=/另外收捐款|另收捐款|另外募款|加價捐|多收.{0,4}(?:捐|善款)|另放捐款箱|另外放捐款箱|向客人募集|邀請買家另捐/.test(t)&&!/不(?:會|用|必|再)?另外(?:收捐款|募款)|沒有(?:再|另外)?(?:收捐款|募款|設捐款箱)/.test(t);
+ const receipts=/開發票|開立發票/.test(t)&&!/沒(?:有)?開發票|不開發票/.test(t);
+ const p=n=>law('公益勸募條例','D0050138',n);
+ const base=['普通買賣之後由商家自己捐','如果是按正常對價銷售、按規定開立交易憑證，又由店家以自己的收入捐款而不另外向顧客收捐，依官方函釋例示，不因店家後來自己捐款就變成向顧客公開勸募。顧客支付的是商品價金，不是用商家名義發起募款；交易憑證和後續捐贈憑證各自保留。'];
+ const separated=['另向公眾收捐款、或活動本身就是募集，要分開判斷','購買者想行善，不等於主辦者無須勸募許可。若另外加收捐款、放捐款箱、公開向客人募集，或非以通常交易對價而是以公益目的募集財物，要查主辦者資格、行為、用途與許可，不可用「義買」或「義賣」名稱取代。一般協會不是僅憑立案即可公開勸募。'];
+ return {direct:true,category:'公益勸募｜義買與一般交易',title:merchant?'正常銷售後自行捐款，不等於向顧客募款':'義買是買方行為；主辦方是否勸募另看實際做法',
+ summary:extra?'一般商品價金與另外收的捐款要分列，不能以正常銷售免除後者的勸募判斷。':merchant?(receipts?'依所述通常交易、商家自行從營收捐且沒有另收捐款，不是向顧客發起公益勸募。':'若確實是正常銷售、由店家用自己的營收捐款而未另收顧客捐款，與向民眾募款不同；請核對收款是否全是商品對價及交易憑證。'):'民眾只是按正常價格買商品，跟主辦者向公眾募集公益財物是兩回事。光看「義買」名稱，無法確定主辦者是否要申請許可。',
+ steps:[base,separated],refs:[p(3),p(5),p(7),guidance],questionState:{focus:'compound'}};
+}
 function saleFundraising(q){
  const t=String(q||'').normalize('NFKC').replace(/\s/g,'');
  if(t.length>190||/政治獻金|競選|校內教育儲蓄戶|回饋募資|食安|道路使用|場地申請/.test(t))return null;
@@ -27,6 +42,8 @@ function saleFundraising(q){
  const boxStep=['公開捐款箱不等於商品銷售','公開放置捐款箱向不特定人募集公益捐款，該部分是勸募；不能用義賣或一般銷售名目免掉許可。請把捐款款項與商品對價分開記錄。'];
  if(box&&received&&noPermit)return {direct:true,category:'公益勸募',questionState:{focus:'compound'},title:'義賣另外放公開捐款箱，無許可已收款：先停募',summary:'商品銷售和捐款箱分開。既已從公開捐款箱收款、未取得所需許可，請先停募、留存紀錄，聯絡活動所在地的勸募主管機關確認返還或繳交程序。',steps:[boxStep,stop,roles],refs:[p(5),p(7),p(22),current]};
  if(commercial&&!box)return {direct:true,category:'公益勸募與義賣',questionState:{focus:'compound'},title:'正常銷售後商家自行捐款，與公開勸募不同',summary:'照正常價格販售並開發票，款項由商家自行提撥、沒有另外向客人募款，就這個做法而言，不必申請公益勸募許可。',steps:[commercialStep,boxStep],refs:[p(3),p(7),guidance]};
+ const compared=commercialCompare(t);
+ if(compared)return compared;
  if(fullPublic&&!box)return {direct:true,category:'公益勸募',questionState:{focus:'compound'},title:'慈善團體法人公開義賣，全捐弱勢：先申請勸募許可',summary:'依您描述的公開義賣、扣除必要費用後全數捐助弱勢的做法，先向勸募主管機關申請許可，不是只辦稅籍。若活動只在屏東，向屏東縣政府申請。',steps:[explain,roles,place,...(received&&noPermit?[stop]:[])],refs:[p(3),p(5),p(7),permit(2),permit(3),guidance,current,...(received&&noPermit?[p(22)]:[])]};
  if(box||coop)return {direct:true,category:'公益勸募',questionState:{focus:'compound'},title:box?'義賣另收公益捐款：不是只看商品有無銷售':'合作社義賣與公開勸募：先確認主體、做法及有無已收款',summary:box?'公開另收的捐款須另按勸募規則；開始前先核資格與許可，若已無許可收款則不能只補送申請。':'先確認是正常銷售後由合作社自己捐，還是向民眾公開收捐款。不要只憑合作社有法人身分就發起勸募。',steps:[...(box?[boxStep]:[explain]),roles,place,...(noPermit||received?[stop]:[])],refs:[p(3),p(5),p(7),p(22),permit(2),permit(3),guidance,current]};
  return {direct:true,category:'公益勸募與義賣',questionState:{focus:'compound'},title:'義賣要不要申請勸募許可？先分清做法',summary:'不能單靠「義賣」這個名稱判斷。請先說明主辦團體資格、是否將所得全捐、商品是否按正常對價銷售，以及有沒有另外向民眾收捐款。',steps:[explain,roles],choiceHeading:'較接近您的做法是？',choices:[{label:'公益性社團法人公開義賣，全捐弱勢',question:'我們是已登記的公益性社團法人，要公開辦義賣、扣必要費用後全捐弱勢，還沒開始要先申請嗎？'},{label:'商家正常銷售，再自行捐款',question:'商家照正常價格賣商品開發票，再自己捐營收的5%，客人另外不捐款，也要先申請嗎？'},{label:'活動另外放公開捐款箱',question:'義賣現場另放公開捐款箱，還沒開始要申請勸募許可嗎？'}],refs:[p(3),p(5),p(7),guidance]};
