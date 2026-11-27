@@ -1521,6 +1521,8 @@ let financeMeetingPlanner;
 async function ask(q){
   q=String(q||"").trim();if(!q||busy)return;
   if(!financeMeetingPlanner&&typeof window.createFinanceMeetingPlanner==="function")financeMeetingPlanner=window.createFinanceMeetingPlanner({board,showAnswer:renderAnswer});
+  const charterApplicability=typeof window.verifiedAssociationCharterApplicability==="function"?window.verifiedAssociationCharterApplicability(q):null;
+  if(charterApplicability){financeMeetingPlanner=null;renderAnswer(q,charterApplicability);return;}
   const decisionAudit=typeof window.verifiedAssociationDecisionAudit==="function"?window.verifiedAssociationDecisionAudit(q):null;
   if(decisionAudit){financeMeetingPlanner=null;renderAnswer(q,decisionAudit);return;}
   if(financeMeetingPlanner&&financeMeetingPlanner(q))return;
@@ -1966,6 +1968,7 @@ touch();
 <script src="donation-receipt-identity.js?v=1"></script>
 <script src="association-withdrawal-election.js?v=1"></script>
 <script src="association-charter-address.js?v=1"></script>
+<script src="association-charter-applicability.js?v=1"></script>
 <script src="association-roster-handover.js?v=1"></script>
 <script src="association-public-election.js?v=1"></script>
 <script src="association-ledger-loss.js?v=1"></script>
