@@ -226,7 +226,7 @@ function normalizeQuestionR232(s){
  return s;
 }
 function normalizeQuestion(q){
- return normalizeQuestionR235(normalizeQuestionR234(normalizeQuestionR233(normalizeQuestionR232(normalizeQuestionR229(normalizeQuestionR228(normalizeQuestionR227(normalizeQuestionR225(normalizeQuestionR223(normalizeQuestion223(normalizeQuestion222(normalizeQuestion221(normalizeQuestion216(normalizeQuestion215(normalizeQuestion214(normalizeQuestion212(normalizeQuestion210(normalizeQuestion209(normalizeQuestion208(normalizeQuestion207(normalizeQuestion206(normalizeQuestion202(normalizeQuestion201(normalizeQuestion200(normalizeQuestion194(normalizeQuestion193(normalizeQuestion192(normalizeQuestion191(normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(normalizeQuestionU5(normalizeQuestionU3(normalizeQuestionU4(normalizeQuestionU2(normalizeQuestionU6(normalizeQuestionU8(normalizeQuestionU7(fixTyposU1(q))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
+ return normalizeQuestionR235(normalizeQuestionR234(normalizeQuestionR233(normalizeQuestionR232(normalizeQuestionR229(normalizeQuestionR228(normalizeQuestionR227(normalizeQuestionR225(normalizeQuestionR223(normalizeQuestion223(normalizeQuestion222(normalizeQuestion221(normalizeQuestion216(normalizeQuestion215(normalizeQuestion214(normalizeQuestion212(normalizeQuestion210(normalizeQuestion209(normalizeQuestion208(normalizeQuestion207(normalizeQuestion206(normalizeQuestion202(normalizeQuestion201(normalizeQuestion200(normalizeQuestion194(normalizeQuestion193(normalizeQuestion192(normalizeQuestion191(normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(normalizeQuestionU5(normalizeQuestionU3(normalizeQuestionU4(normalizeQuestionU2(normalizeQuestionU6(normalizeQuestionU8(normalizeQuestionU7(normalizeQuestionR237(fixTyposU1(q)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
 }
 /* 第200輪（根源）：入會退會與會員資格換問法——
    「忘記繳／忘了繳／漏繳會費」＝沒繳會費（原本「忘記繳會費會被退會嗎」被當成退費）；
@@ -1817,6 +1817,7 @@ function onlineVoting(t){
 }
 function mailVoting(t){
  if(!/(通訊投票|通訊選舉|通訊方式|郵寄投票|寄選票|郵寄選舉)/.test(t))return null;
+ if(/(解散|議案|決議|表決)/.test(t)&&!/(選舉|選票|理事|監事|改選|罷免|合作社)/.test(t))return null; // 第237輪：解散等議案的通訊投票不是選舉，交給「會議表決」規則
  if(/合作社/.test(t))return{category:'合作社會務',title:'合作社得採通訊投票，須章程規定並報備查',summary:'合作社社員代表的選舉或罷免，得經理事會決議並報主管機關備查後，採通訊投票辦理；但要先在章程規定，並訂定辦理辦法經社員大會決議通過、報主管機關備查（合作社選舉罷免辦法第3條）。',statutes:[{title:'合作社選舉罷免辦法第3條',source:LAW+'D0050022'}],questionState:{focus:'mail-voting',domain:'coop'},notes:[],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
  return{category:'人民團體會務說明',title:'協會理監事改選可以用通訊選舉，但要章程訂定',summary:'可以。人民團體的理事、監事選舉，得於章程訂定採用通訊選舉（人民團體選舉罷免辦法第23條）。辦理要點：\n1. 章程須先訂明採通訊選舉（沒訂的要先修章程）。\n2. 理事會在開票日 45 天前審定會員資格、造名冊供閱覽。\n3. 開票日 30 天前依名冊寄送紙本通訊選舉票。\n4. 團體應訂定通訊選舉辦法，載明選務人員、投票規則、無效票認定、開票程序等，經理事會通過並報主管機關備查。\n注意：通訊選舉只適用於理監事選舉，會員大會的一般議案表決不能用通訊方式。',statutes:[E(23)],questionState:{focus:'mail-voting',domain:'social'},notes:['是否適用通訊選舉，在辦理前建議先洽承辦人確認。'],actions:[{label:'下載通訊選舉範本',view:'forms',sub:'範本'},{label:'聯絡承辦',view:'contact',sub:''}]};
 }
@@ -5755,7 +5756,7 @@ function patrol31(t){
   summary:'人民團體會務輔導辦法第27條只規定清算人怎麼產生（沒有法人登記的，依章程或會員大會決議辦理；章程沒規定時由理事長或章程所定代理人擔任；還是產生不了，由縣府選任）。\n\n清算人選出後要不要報縣府、要附什麼文件，法規沒有明文，本站查不到，不敢亂講。解散的會員大會紀錄，閉會後30日內要報縣府備查（同辦法第12條），建議連同清算人的決議一併詢問承辦人員。\n\n已辦法人登記的協會，依章程規定或總會決議解散的，董事要在15日內報告法院，清算也由法院監督（民法第42條）。'+tail,
   statutes:[G(27),G(12),CIV(42)]});
  /* 解散後名稱可不可以給別人 */
- if(/(解散|廢止|註銷|結束|收掉)/.test(t)&&/(名稱|名字|會名)/.test(t)&&/(別人|其他團體|別的團體|他人|重新|再用|沿用|讓|還能|還可以|可以用|能不能用|繼續用|同名|一樣的名)/.test(t)&&!/(重複|撞名|章程|改名|更名)/.test(t))
+ if(/(解散|廢止|註銷|結束|收掉)/.test(t)&&/(名稱|名字|會名|同名|原名|相同的名|一樣的名)/.test(t)&&/(別人|其他團體|別的團體|他人|重新|再用|沿用|讓|還能|還可以|可以用|能不能用|繼續用|同名|一樣的名)/.test(t)&&!/(重複|撞名|章程|改名|更名)/.test(t))
   return Object.assign({},base,{actions:[{label:'查詢團體名稱',view:'dir',sub:''},{label:'聯絡承辦',view:'contact',sub:''}],title:'解散後名稱能不能給別人用：法規沒有明文，要看審查時有沒有和已許可的團體重複',
   summary:'人民團體法只規定，新團體的名稱不能和「已經許可的團體」名稱相同（第7條第1款）。團體解散、許可廢止後，這個名稱能不能讓別人使用，法規沒有明文，本站查不到，請電洽承辦人員確認。\n\n想用哪個名稱，可以先用本站的「團體查詢」看看現在有沒有同名的團體；最後能不能使用，以縣府審查的結果為準。'+tail,
   statutes:[P(7)]});
@@ -5875,7 +5876,7 @@ function patrol28(t){
  if(/(決議|大會|理事會).{0,6}(不服|不同意|不滿|反對|有爭議|不認同|不接受|有問題|不合法|違法|違規|不公平)|(不服|不同意|反對|不滿|質疑).{0,6}(決議|大會的決定|理事會的決定)/.test(t)&&/(怎麼辦|怎麼處理|可以怎麼|可以怎樣|能怎樣|能怎麼|還能|有什麼辦法|申訴|反映|檢舉|救濟|要找誰|向誰|可以嗎)/.test(t)&&!/(罷免|改選|選舉結果|選舉)/.test(t))
   return A('對決議不服：可請縣府處理違法決議，也可連署要求再開臨時大會','決議如果違反法令或章程，縣府可以警告、撤銷決議，並限期令團體改善（人民團體法第58條），所以可以書面向縣府反映，說明哪一項決議違反哪一條法令或章程。\n如果只是不同意決議內容，可以由五分之一以上會員書面連署，請求理事長召開臨時會員大會重新討論（人民團體法第25條；會務輔導辦法第15條）；理事長不開，縣府可以指定理事一人召集。\n涉及個人權利義務的私權爭議（例如要不要請求法院處理），法規庫沒有收錄民法相關規定，請洽法律專業人士。',[P(58),P(25),G2(15)]);
  /* 會議通訊投票、書面表決 */
- if(/(會議|開會|大會|理事會|監事會|決議)/.test(t)&&!/通知/.test(t)&&/(通訊|書面|郵寄|寄回|傳真|Line|line|LINE|電話|e-?mail|email|電子郵件|群組|簽名同意)/.test(t)&&!/(網路|線上)/.test(t)&&/(投票|表決|同意|決議|通過|開會)/.test(t)&&/(可以|能|可不可以|行嗎|嗎|算數|有效)/.test(t)&&!/(選舉|改選|選理事|選監事|選票|罷免)/.test(t)&&!/視訊/.test(t))
+ if(/(會議|開會|大會|理事會|監事會|決議|解散)/.test(t)&&!/通知/.test(t)&&/(通訊|書面|郵寄|寄回|傳真|Line|line|LINE|電話|e-?mail|email|電子郵件|群組|簽名同意)/.test(t)&&!/(網路|線上)/.test(t)&&/(投票|表決|同意|決議|通過|開會)/.test(t)&&/(可以|能|可不可以|行嗎|嗎|算數|有效)/.test(t)&&!/(選舉|改選|選理事|選監事|選票|罷免)/.test(t)&&!/視訊/.test(t))
   return A('會議表決：可以視訊開會（章程要先訂明），法規沒有寫可用通訊或群組取代開會','法規允許的是「視訊會議」：章程要先訂明，會員大會、理事會、監事會才可以用視訊會議或中央主管機關公告的方式召開（人民團體法第25條、第29條）。\n理事、監事要親自出席理事會、監事會，不能委託他人代理（人民團體法第31條）；會員大會則可以書面委託其他會員代理，每人最多代理一人（第42條）。\n人民團體法和會務輔導辦法沒有規定可以用傳真、Line 群組或書面簽名同意來取代開會表決。只有理事、監事的「選舉」，才可以在章程訂定後採通訊選舉（人民團體選舉罷免辦法第23條）。要不要這樣做，建議先洽承辦人員。',[P(25),P(29),P(31),P(42),E(23)]);
  /* 理事、監事連續缺席 */
  if(/(理事|監事|理監事|常務理事|常務監事)/.test(t)&&!/(理事長不|理事長沒|理事長都不|召集人不)/.test(t)&&/(連續|一直|都沒來|都不來|老是|屢次|多次|常常|經常|好幾次|兩次|二次|三次|幾次|曠)/.test(t)&&/(缺席|沒來|不來|沒出席|不出席|沒有來|缺會|曠|請假)/.test(t)&&/(會怎樣|怎麼辦|怎麼處理|會被|視同|解任|辭職|取代|換掉|後果|算|可以|嗎)/.test(t))
@@ -5980,6 +5981,11 @@ function patrol53(t){
  /* 解散後縣府要不要核准 */
  if(/解散/.test(t)&&/(決議|通過|大會|到底|要不要|需不需要|需要|要經過|經過|要嗎|嗎|審核)/.test(t)&&/(核准|同意|批准|許可|核定|核可|審核)/.test(t)&&/縣府|縣政府|主管機關|社會處|政府/.test(t)&&!/(被|遭|強制|廢止|補助|勸募|立案|成立|籌組|財產|剩餘|錢)/.test(t))
   return A('解散決議要不要縣府核准：法規沒有寫要核准，只規定大會紀錄要報備查','人民團體法規定，會員（會員代表）大會決議解散，團體就應予解散（人民團體法第59條第5款），決議要有會員過半數出席、出席三分之二以上同意（第27條）。\n法規沒有寫解散決議還要縣府核准；會員大會的會議紀錄，則要在閉會後三十日內報請主管機關備查（人民團體會務輔導辦法第12條）。\n解散報告表等後續文件怎麼送，本站查不到明文，請向承辦人員確認。',[P2(59),P2(27),G2(12)]);
+ /* 第237輪：清算人要不要另外立案、登記 */
+ if(/清算人|清算的人/.test(t)&&/(立案|另外登記|要登記|登記嗎|備案|領證|證書|執照|許可)/.test(t)&&!/(解散登記|法院登記|縣府核准|被|廢止)/.test(t)){
+  const M2=n=>({title:'民法第'+n+'條',source:LAW+'B0000001'});
+  return A('清算人要不要立案：不用另外立案，清算人是辦清算的人，不是新團體','不用另外立案。清算人只是辦理解散後清算的人（了結現務、收取債權、清償債務、移交剩餘財產），不是另外成立的團體，本站查不到要求清算人另外立案或領證的規定。\n\n• 沒有法人登記的協會：清算依章程或會員（會員代表）大會決議辦理；章程沒規定、或大會開不成時，由理事長或章程所定的代理人擔任清算人；還是找不到人時，由縣府選任（人民團體會務輔導辦法第27條）。\n• 已辦法人登記的協會：清算人原則上由董事擔任，但章程另有規定或總會另有決議的不在此限（民法第37條）；不能產生時由法院選任（第38條）；依章程或總會決議解散的，董事應於十五日內報告法院（第42條第3項）。\n\n清算人名單要怎麼向縣府報備、書表怎麼填，本站沒查到明文，請洽承辦人員確認。',[G2(27),M2(37),M2(38),M2(42)]);
+ }
  /* 清算人要不要找、要不要另選 */
  if(/清算人|清算的人|負責清算/.test(t)&&/(要不要|需不需要|要找|要選|另外選|另選|必須|一定要|要有|有沒有)/.test(t)&&!/(誰|哪位|由誰)/.test(t)&&!/(報|縣府|縣政府|備查|通報|通知|法院|沒人|沒有人|不願|找不到|不肯)/.test(t))
   return A('解散要有清算人：依章程或大會決議產生，沒規定時由理事長擔任','要。解散後要辦清算，沒有法人登記的協會，清算程序依章程或會員（會員代表）大會決議辦理；章程沒有規定、或大會開不成時，由理事長或章程所定的代理人擔任清算人；清算人無法產生時，由縣府選任（人民團體會務輔導辦法第27條）。\n所以大會決議解散時，建議一併決定清算人。已經辦理法人登記的協會，除法律另有規定外，依民法規定辦理。',[G2(27)]);
@@ -6572,7 +6578,7 @@ function patrol36(t){
   return R('理事長失聯也要解散：仍要由會員大會決議，理事長不開會時可連署請求或請縣府指定人召集','解散一定要經會員（會員代表）大會決議，出席人數要過半數，出席人數三分之二以上同意（人民團體法第27條、第59條第5款），不會因為理事長失聯就自動解散。\n理事長聯絡不上、沒辦法召集時：\n1. 理事過半數，或會員（會員代表）五分之一以上，可以書面連署，請理事長召開臨時會員大會；\n2. 理事長收到連署後30日內沒有開完會，縣府可以依人民團體法第32條，指定一位理事召集（人民團體會務輔導辦法第15條）。\n解散後清算人怎麼產生，請看人民團體會務輔導辦法第27條：章程沒規定或大會開不成時由理事長或代理人擔任，無法產生時由縣府選任。',[P2(27),P2(32),M(15),M(27)]);
  if(/(沒錢|沒有錢|沒經費|沒有經費|沒財產|沒有財產|一毛錢|帳戶空|戶頭空|窮|負債|欠債)/.test(t)&&/(解散|結束|收掉|關掉)/.test(t)&&/(怎麼|如何|可以|能不能|可不可以|嗎|想|要|打算|準備|該不該|應不應該)/.test(t)&&!/(欠錢怎麼辦|還欠)/.test(t)&&!/(不開|沒開|不召開|沒有開|沒召開|停開|不想開|不要開)(會員)?(大會|會)/.test(t))  /* 理解把關第8輪：「沒錢不開大會，會被解散嗎」問的是不開大會的後果，不是想解散 */
   return R('沒有錢也可以解散：程序和一般解散一樣，要經會員大會決議','協會沒有錢、沒有財產，並不影響解散。人民團體法第59條列的解散情形，沒有以財產多寡為條件。\n一樣要開會員（會員代表）大會，出席人數過半數，出席人數三分之二以上同意解散（人民團體法第27條）；之後辦理清算，清算人的產生看人民團體會務輔導辦法第27條。\n如果還有欠款，清算時要先清償債務；本站查不到債務還不完要怎麼處理的明文，請電洽承辦人員確認。',[P2(27),P2(59),M(27)]);
- if((/會員.{0,6}(剩|少於|不到|太少|只剩|不足|低於)/.test(t)&&(/(人|個)/.test(t)||/太少/.test(t))||/(會員|協會|社團).{0,4}(變很少|越來越少|變少|剩好少|剩很少)|人數(不夠|不足|太少|變少)/.test(t))&&/(解散|廢止|撤銷|立案|被|繼續|維持|存在|還能|還可以|運作)/.test(t)&&!/(出席|開會|投票|選舉|表決|連署|發起|成立|社區)/.test(t))
+ if((/會員.{0,6}(剩|少於|不到|太少|只剩|不足|低於)/.test(t)&&(/(人|個)/.test(t)||/太少/.test(t))||/(會員|協會|社團).{0,4}(變很少|越來越少|變少|剩好少|剩很少)|人數(不夠|不足|太少|變少)/.test(t))&&/(解散|廢止|撤銷|立案|被|繼續|維持|存在|還能|還可以|運作)/.test(t)&&!/(出席|開會|大會|會議|投票|選舉|表決|連署|發起|成立|社區)/.test(t))
   return R('會員少到幾個人會被解散：法規沒有訂人數下限','人民團體法沒有規定「會員少於幾人就要解散」。30人以上是組織團體時，發起人的人數要求（人民團體法第8條），不是成立後的會員人數下限。\n不過會員太少，常會連開會都湊不齊；團體長期沒有開會、任期屆滿沒有改選，主管機關可以先警告、限期改善，屆期未改善或情節重大才會進一步處分（人民團體法第58條）。\n如果會員確定無法維持運作，要由會員（會員代表）大會決議解散（第27條、第59條第5款）。',[P2(8),P2(58),P2(59),P2(27)]);
  if(/(解散|註銷)/.test(t)&&/註銷/.test(t)&&/(一樣|差別|不同|有什麼|是不是|同)/.test(t))
   return R('解散和註銷不一樣：解散是團體不再存在，註銷是指立案證書失效','「解散」是團體不再存續，原因是會員大會決議解散，或主管機關的處分（人民團體法第58條、第59條）。\n人民團體會務輔導辦法裡的「註銷」，是指立案證書：改選時舊任沒有在期限內移交證書和圖記，或整理小組接管不到，主管機關可以把原證書註銷後重新發給（會務輔導辦法第18條、第22條）。\n團體解散後，立案證書、圖記依縣府解散書表繳回（見「協會怎麼解散」），法規沒有明文；印章要怎麼處理，請洽承辦確認。',[P2(59),P2(58),M(18),M(22)]);
@@ -8239,7 +8245,7 @@ function patrol89(t){
  const call='建議電洽承辦人員確認（縣府總機 08-7320415）。';
  const dis=/(解散|清算|結束.{0,3}(協會|團體|社團)|收掉|關掉|不辦了)/.test(t);
  /* 1. 解散、清算後的稅務與統編 */
- if(dis&&/(報稅|扣繳|所得稅|營所稅|稅籍|統編|統一編號|稅務|國稅局|稅捐|結算申報|決算申報|清算申報|申報稅)/.test(t)&&!/(解散.{0,3}(前|以前)|捐款|抵稅|勸募)/.test(t))
+ if(dis&&/(報稅|扣繳|所得稅|營所稅|稅籍|統編|統一編號|稅務|國稅局|稅捐|結算申報|決算申報|清算申報|申報稅|稅要|稅怎|稅的|稅呢|稅金|稅款|繳稅|要稅)/.test(t)&&!/(解散.{0,3}(前|以前)|捐款|抵稅|勸募)/.test(t))
   return{direct:true,category:'稅務',title:'協會解散、清算後的稅務與統編：所得稅法第75條是寫給營利事業的，協會要不要比照辦理，請洽國稅局',
    summary:'解散後稅要怎麼報、統編要不要註銷，本站查不到專門給協會的明文規定。\n\n能查到的是所得稅法第75條：營利事業遇到解散、廢止、合併或轉讓時，要辦到解散日為止的當期決算，在四十五日內向稽徵機關申報；清算期間的清算所得，要在清算結束之日起三十日內申報（所得稅法第75條）。這一條的對象寫的是「營利事業」，協會算不算、要怎麼報，本站不敢亂講。\n\n扣繳這一塊有明文：協會如果給付過薪資、講師費等所得而有扣繳義務，團體解散時，要隨時就已扣繳的稅款數額，填發扣繳憑單，並在十日內向稽徵機關辦理申報（所得稅法第92條第1項但書）。\n\n統一編號何時註銷、解散當年度的結算申報怎麼辦，沒有明文。請向國稅局確認，並'+call,
    statutes:[IT(75),IT(92)],notes:['捐款能不能抵稅，一律請洽國稅局。'],actions:btn};
@@ -12860,6 +12866,19 @@ function patrolR232(t){
 }
 /* 第234輪：會員、理事自己出錢捐給協會，算不算勸募（原本被答成理事長不能自行募款或難倒小屏）。公益勸募條例第6條第3項。 */
 /* 第235輪：社區發展協會等開會「沒人出席／沒人來」＝出席人數不足 */
+/* 第237輪（根源）：異體字「税」、口語「不做了怎麼結束」、「停業一年」、「立案證書要繳回」 */
+function normalizeQuestionR237(s){
+ s=String(s||'').replace(/税/g,'稅');
+ if(/(解散|議案|決議|表決)/.test(s)&&/(通訊投票|郵寄投票|通訊表決)/.test(s)&&!/(選舉|選票|理事|監事|改選|罷免|合作社)/.test(s))s=s.replace(/(解散案?)(可以|能|行|可不可以)/,'$1決議$2').replace(/通訊投票|郵寄投票|通訊表決/,'書面投票');
+ if(/^(?:協會|我們|本會|社團)?(?:要|想)?(?:不做了|不辦了|不幹了|做不下去了?|辦不下去了?)(?:要|該|可以)?(?:怎麼|如何|怎樣)(?:結束|收掉|收尾|收)(?:嗎|呢)?[?？]?$/.test(s))return '想結束協會要做什麼';
+ if(/(協會|社團|本會)/.test(s)&&/(停業|休業)/.test(s)&&!/(商業|公司|店|營業稅|稅|行號|工廠|結束|解散|收掉|關掉)/.test(s))return '協會暫停運作可以不開會嗎';
+ if(/(協會|社團|本會)/.test(s)&&/停辦/.test(s)&&!/(活動|課程|班|比賽|營隊|講座|旅遊|餐會|聚會|補助|計畫)/.test(s)){
+  if(/停辦.{0,3}(一年|半年|兩年|二年|幾個月|一陣子|一段時間|幾年)|(一年|半年|兩年|二年|幾個月|一陣子|一段時間).{0,3}停辦/.test(s))return '協會暫停運作可以不開會嗎';
+  if(/(想|要|打算|準備|決定|可以|能不能|怎麼|如何)/.test(s))return '想結束協會要做什麼';
+ }
+ if(/(立案證書|立案證|許可證書)/.test(s)&&/(繳回|繳還|還給縣府|交還|交回|退還|還給政府|要不要還)/.test(s)&&!/(解散|遺失|不見|弄丟|換|更名|改名|影印|搬|理事長|補發)/.test(s))return '解散後'+s;
+ return s;
+}
 function normalizeQuestionR235(s){
  s=String(s||'');
  if(/(社區發展協會|社區協會|社發協會)/.test(s)&&/(立案|成立|設立|籌組)/.test(s)&&/(多久|幾天|幾個月|要等|多長|多少時間|要花)/.test(s)&&!/(補助|魅力|報備|備查|改選|選舉|任期|大會後|解散|登記|法人|成立後|後幾|後多久|幾天內|多久內|月內|內要|內辦|要辦理|應辦理)/.test(s))

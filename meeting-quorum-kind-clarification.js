@@ -22,6 +22,7 @@ function scope(q){
  const body=t.replace(/(?:理事會、監事會)?聯席會議|理監事(?:會)?聯席(?:會議)?/g,'聯席').replace(/理監事會議|理監事會/g,'理監並稱');
  const kinds=[];
  if(/會員(?:代表)?大會/.test(body))kinds.push('assembly');
+ if(!kinds.length&&!coop&&/(?:解散|臨時|定期|常年|年度)大會/.test(body))kinds.push('assembly'); // 第237輪：「解散大會」就是會員大會
  if(/社員(?:代表)?大會/.test(body))kinds.push('coopAssembly');
  if(/社務會/.test(body))kinds.push('coopJoint');
  if(/(?:理事會|理監並稱)/.test(body))kinds.push(coop?'coopBoard':'board');
