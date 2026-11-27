@@ -791,6 +791,38 @@ function formerMemberGiftReturn(q){
   refs:[...(g?[civil(406),...((notYet||unknown)?[civil(408)]:[]),...((burden||unknown)?[civil(412),civil(419)]:[])]:[]),...(l?[civil(464),civil(470)]:[]),...(fee?[law('社會團體財務處理辦法','D0050097',14)]:[])],
   actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
 }
+function preschoolParentFiling(q){
+ const t=String(q??'').normalize('NFKC').replace(/\s/g,'');
+ if(t.length>165||!/幼兒園|附幼/.test(t)||!/家長會/.test(t)
+  ||/家長協會|另(?:行|外)?立案|基金會|托嬰|課後照顧|會費|退費|補助|聘僱/.test(t))return null;
+ if(!/改選|換(?:人|會長)|異動|當選|補選|報備|備查|送件|報(?:哪|縣|教育|社會)|查(?:哪|問)|報給|成立|設立|設置/.test(t))return null;
+ const elsewhere=/臺北|台北|新北|桃園|基隆|新竹|苗栗|臺中|台中|彰化|南投|雲林|嘉義|臺南|台南|高雄|宜蘭|花蓮|臺東|台東|澎湖|金門|連江|外縣市/.test(t);
+ const attached=/附幼|(?:國小|國中|國民小學|國民中學|國民中小學|國中小|學校).{0,12}(?:附設|附屬)(?:的)?(?:幼兒園|幼稚園)|附設幼兒園/.test(t)
+  &&!/不是.{0,12}(?:附幼|附設幼兒園)/.test(t);
+ const independent=!attached&&/獨立|私立幼兒園|鄉鎮市立幼兒園|鄉立幼兒園|鎮立幼兒園|不是.{0,12}(?:附幼|附設幼兒園)/.test(t);
+ const founding=/成立|設置|設立/.test(t)&&!/改選|換(?:人|會長)|報備|送件/.test(t);
+ const period=/幾天|多久|幾日|期限|時間內|日內/.test(t);
+ const rule=law('幼兒教育及照顧法','H0070031',35);
+ const education={title:'屏東縣政府教育處：特殊及學前教育科組織職掌',source:'https://portal.ptc.edu.tw/personnel/rss2.php?ty=charge'};
+ const joined=['國民中、小學附設幼兒園','依第35條，家長會併入該校家長會辦理。改選時先找本校家長會承辦人，由學校按適用的學生家長會規定確認送件；不要另當成獨立幼兒園家長會，或套用社會處的人民團體改選表。'];
+ const stand=['獨立幼兒園','幼兒園可成立家長會，但中央法律不是規定每一園都要成立。組織、運作和改選後是否及如何報送，依所在地縣市自治規範。'];
+ const docs=['改選或換會長後怎麼準備','可先備妥改選或異動的會議紀錄和更新名冊，向園方及所在地縣市教育主管機關確認要不要正式備查、應附文件、送件方式及期限。不要把學校或其他縣市的期限當成適用於本案。'];
+ const county=['屏東縣幼兒園的詢問窗口','請先找園方，也可撥屏東縣政府總機 08-7320415，請轉教育處特殊及學前教育科，說明是獨立幼兒園家長會改選或任期中異動。不是送社會處的人民團體改選。'];
+ const choices=[
+  {label:'國中小附設幼兒園',question:'屏東縣國小附設幼兒園的家長會長改選，另外要報教育處嗎？'},
+  {label:'獨立幼兒園',question:'屏東縣的獨立幼兒園，家長會長換人要報備嗎？'}
+ ];
+ return {direct:true,category:'教育業務分流',
+  title:attached?'國中小附幼家長會：依第35條併入該校家長會':founding?'幼兒園得成立家長會；國中小附設的併入學校':independent?'獨立幼兒園家長會改選：先找園方和教育主管機關':'幼兒園家長會改選：先分附設幼兒園和獨立園',
+  summary:attached?'國小或國中附設幼兒園的家長會併入該校家長會，先由校方確認如何辦理，不另走獨立幼兒園的程序。':
+   founding?'獨立幼兒園得成立家長會，不是每一園都必須成立。國民中、小學附設的併入該校家長會。':
+   period?'改選送件期限要看所在地自治規範與這次異動的類型；不能把別種學校的期限套到幼兒園。':
+   independent?(elsewhere?'獨立幼兒園有改選或換會長，先向園方與所在地縣市教育主管機關確認備查規定。':'屏東縣獨立幼兒園家長會改選，先請園方向縣府教育處特殊及學前教育科確認，不走社會處的人民團體改選。'):
+   '先確認是國中小附設幼兒園，還是獨立幼兒園。兩者不同，不能用國民教育法的學校家長會規則一律回答。',
+  ...(!founding&&!attached&&!independent&&!elsewhere?{choiceHeading:'先選幼兒園類型',choices}:{}),
+  steps:[...(!attached?[stand]:[]),...(!independent?[joined]:[]),...(!attached&&!founding&&!elsewhere?[county]:[]),...(!attached&&!founding?[docs]:[])],
+  refs:[rule,...(!elsewhere&&!attached&&!founding?[education]:[])]};
+}
 function answerMixed(q){
  const giftReturn=formerMemberGiftReturn(q);if(giftReturn)return giftReturn;
  const coopWithdrawal=coopWithdrawalAndAssembly(q);if(coopWithdrawal)return coopWithdrawal;
@@ -800,6 +832,7 @@ function answerMixed(q){
  const withdrawal=withdrawalAndAssemblyRoll(q);if(withdrawal)return withdrawal;
  const boardMinutes=inspectAndPublishBoardMinutes(q);if(boardMinutes)return boardMinutes;
  const address=associationRegisteredAddress(q);if(address)return address;
+ const preschool=preschoolParentFiling(q);if(preschool)return preschool;
  const parent=schoolParentFiling(q);if(parent)return parent;
  const creditVacancy=creditCooperativeVacancy(q);if(creditVacancy)return creditVacancy;
  const coopVacancy=coopBoardVacancies(q);if(coopVacancy)return coopVacancy;
@@ -829,6 +862,6 @@ function answerMixed(q){
     keys.includes('creditor')?'合作社清算：就任後公告與終結報告，分別計算':isCoop?'合作社清算報告與股息上限，分開看':'協會入會資格與會員除名，分開看',
   summary:keys.length===1?topics[keys[0]].line[1]:'你問了兩件事，分別如下。',steps:keys.length>1?keys.map(k=>topics[k].line):[],refs:keys.flatMap(k=>topics[k].laws)};
 }
-if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy,changedMeetingVenue,familyAssemblyProxy,dualBoardVacancies,coopBoardVacancies,creditCooperativeVacancy,schoolParentFiling,associationRegisteredAddress,inspectAndPublishBoardMinutes,temporaryMeetingNotice,withdrawalAndAssemblyRoll,memberMeetingExpenseFunding,missedSupervisorNotice,duesAndAssemblyRights,coopWithdrawalAndAssembly,designatedMeetingConvener,assemblyRepresentativeParticipation,formerMemberGiftReturn};return;}
+if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy,changedMeetingVenue,familyAssemblyProxy,dualBoardVacancies,coopBoardVacancies,creditCooperativeVacancy,schoolParentFiling,associationRegisteredAddress,inspectAndPublishBoardMinutes,temporaryMeetingNotice,withdrawalAndAssemblyRoll,memberMeetingExpenseFunding,missedSupervisorNotice,duesAndAssemblyRights,coopWithdrawalAndAssembly,designatedMeetingConvener,assemblyRepresentativeParticipation,formerMemberGiftReturn,preschoolParentFiling};return;}
 root.verifiedMixedQuestionAnswer=answerMixed;
 })(typeof window!=='undefined'?window:globalThis);

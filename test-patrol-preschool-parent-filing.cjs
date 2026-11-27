@@ -1,0 +1,13 @@
+const assert=require('node:assert/strict');
+const {answerMixed,preschoolParentFiling}=require('./verified-mixed-questions');
+const a=answerMixed('屏東縣的幼兒園家長會改選，能向教育處報備嗎？');
+assert.deepEqual(a.choices.map(x=>x.label),['國中小附設幼兒園','獨立幼兒園']);
+assert.ok(a.refs.some(x=>x.title==='幼兒教育及照顧法第35條'));
+assert.match(answerMixed(a.choices[0].question).summary,/併入該校家長會/);
+assert.match(answerMixed(a.choices[1].question).summary,/特殊及學前教育科/);
+assert.match(answerMixed('國小附幼的家長會長改選，另外要報屏東縣教育處嗎？').summary,/不另走獨立幼兒園的程序/);
+assert.match(answerMixed('屏東縣幼兒園的家長會一定要成立嗎？').summary,/不是每一園都必須成立/);
+assert.match(answerMixed('幼兒園家長會換會長後幾天內要送件到縣府？').summary,/所在地自治規範/);
+assert.doesNotMatch(JSON.stringify(answerMixed('高雄市的獨立幼兒園家長會換會長，要送教育局報備嗎？')),/08-7320415|屏東縣/);
+for(const q of ['國立屏東女中家長會長換人，要報屏東縣府嗎？','我們是另外立案的幼兒園家長協會，理事長改選要報誰？','幼兒園的家長會費怎麼收？','幼兒園想成立協會，要不要向社會處申請？'])assert.equal(preschoolParentFiling(q),null,q);
+console.log('preschool parent filing OK');
