@@ -727,6 +727,38 @@ function designatedMeetingConvener(q){
   steps:noKind?[]:[...(a?[roleA]:[]),...(b?[roleB]:[]),...(s?[roleS]:[]),prep],
   refs,actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
 }
+function assemblyRepresentativeParticipation(q){
+ const t=String(q??'').normalize('NFKC').replace(/\s/g,'');
+ if(t.length>165||/合作社|社員|公會|工會|農會|漁會|公司|股東|基金會|家長會|政黨|管委會|董事會|區分所有權|候補|代表名額|分區選舉|記錄查閱|看會議紀錄/.test(t))return null;
+ if(!/大會/.test(t)||!/出席|參加|旁聽|列席|發言|提案|投票|表決|發問|進場|人數|成會|簽到/.test(t))return null;
+ if(!/一般會員|普通會員|其他會員|不是代表|非代表|沒選上代表|未當選代表|不是會員代表|(?:協會|社會團體).{0,28}會員.*(?:會員大會|代表大會)|會員.*(?:會員大會|代表大會)|會員大會.*會員/.test(t))return null;
+ const ordinary=/(?:不是|並非|不是開)(?:會員)?代表(?:制的)?大會|一般會員大會|普通會員大會|是會員大會.{0,10}(?:不是|而非)/.test(t);
+ const rep=!ordinary&&/會員代表大會|代表制(?:的)?大會|代表大會/.test(t);
+ const unclear=!ordinary&&!rep&&/代表.{0,5}(?:選出來|選出了?|改選完|選好)|(?:選出|選好|有了).{0,5}(?:會員)?代表/.test(t);
+ if(!ordinary&&!rep&&!unclear)return null;
+ if(rep&&!/(?:一般|普通|其他|非代表的)會員|不是(?:會員)?代表|非(?:會員)?代表|沒選上代表|未當選代表|只是(?:來)?列席|只(?:是|想|來)?旁聽|只(?:是|想|來)?列席/.test(t))return null;
+ const proxy=/委託|受託|代投|代理/.test(t);
+ if(proxy&&!/不是(?:會員)?代表|非(?:會員)?代表|沒選上代表|未當選代表|一般會員|普通會員/.test(t))return null;
+ if(!proxy&&/非會員(?!代表)|不是會員(?!代表)/.test(t))return null;
+ const guide=law('人民團體會務輔導辦法','D0020094',10);
+ const repStep=['會員代表大會：正式出席和表決看代表名冊','依法召開的會員代表大會由有資格的代表行使大會職權。不是代表的一般會員仍是會員，但不因到場而成為這場大會的正式出席人，不計入法定出席人數，也不能以旁聽身分投票。'];
+ const memberStep=['會員大會：有資格的會員可以正式出席','如果這一場是會員大會而非會員代表大會，經審定列在應出席名冊、具資格且未依法受限制的會員，可以正式出席及表決；發言與提案依章程和議事規則辦理。選出過代表，並不等於這場會議是代表大會。'];
+ const observer=['旁聽、發言和正式提案要分開','一般會員能不能列席旁聽、被允許發言，以及能否直接提案，不能預設一律可或一律不可。請核對本會章程及議事規則；若議案須由有資格的代表提出，可先將建議交給代表轉提。允許旁聽或發言，不等於當場有表決權。'];
+ const delegated=['受託和旁聽不同','在會員代表大會，書面委託應交由同一協會具該場代表資格的人，不能委託未具代表資格的一般會員代投；每名代表以代理一人為限。'];
+ return {direct:true,category:'人民團體會務說明',
+  title:unclear?'先確認是會員大會還是會員代表大會':rep?'會員代表大會：旁聽、發言與表決要分開':'會員大會：有資格的會員不是旁聽來賓',
+  summary:unclear?'先看開會通知寫的是哪一種大會。選出代表，不表示每場都已改為代表大會。':
+   ordinary?'如果這場開的是會員大會，列在應出席名冊的合格會員可以正式出席，發言與提案依議事規則辦理。':
+   proxy?'不是代表的一般會員，不能拿代表的委託書到會員代表大會代理投票。':
+   '一般會員若不是代表，就算獲准旁聽，也不計入正式出席人數，不能投票；能否列席、發言或提案，另看章程和議事規則。',
+  ...(unclear?{choiceHeading:'這場開的是哪一種大會？',choices:[
+   {label:'會員大會',question:'如果是協會的一般會員大會，不是代表大會，會員可以發言和提案嗎？'},
+   {label:'會員代表大會',question:'協會的會員代表大會，一般會員不是代表，可以出席、發言或提案嗎？'}
+  ]}:{}),
+  steps:unclear?[memberStep,repStep,observer]:ordinary?[memberStep]:[...(proxy?[delegated]:[]),repStep,observer],
+  refs:[guide,association(16),association(27),...(!ordinary?[association(13),association(28)]:[]),...(proxy?[association(42),{title:'內政部函釋：同團體會員或代表的書面委託',source:'https://www.moi.gov.tw/News_Content.aspx?n=14119&s=256739'}]:[])],
+  actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
+}
 function answerMixed(q){
  const coopWithdrawal=coopWithdrawalAndAssembly(q);if(coopWithdrawal)return coopWithdrawal;
  const duesRights=duesAndAssemblyRights(q);if(duesRights)return duesRights;
@@ -740,6 +772,7 @@ function answerMixed(q){
  const coopVacancy=coopBoardVacancies(q);if(coopVacancy)return coopVacancy;
  const dual=dualBoardVacancies(q);if(dual)return dual;
  const designated=designatedMeetingConvener(q);if(designated)return designated;
+ const representativeParticipation=assemblyRepresentativeParticipation(q);if(representativeParticipation)return representativeParticipation;
  const familyProxy=familyAssemblyProxy(q);if(familyProxy)return familyProxy;
  const venue=changedMeetingVenue(q);if(venue)return venue;
  const temporary=temporaryMeetingNotice(q);if(temporary)return temporary;
@@ -763,6 +796,6 @@ function answerMixed(q){
     keys.includes('creditor')?'合作社清算：就任後公告與終結報告，分別計算':isCoop?'合作社清算報告與股息上限，分開看':'協會入會資格與會員除名，分開看',
   summary:keys.length===1?topics[keys[0]].line[1]:'你問了兩件事，分別如下。',steps:keys.length>1?keys.map(k=>topics[k].line):[],refs:keys.flatMap(k=>topics[k].laws)};
 }
-if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy,changedMeetingVenue,familyAssemblyProxy,dualBoardVacancies,coopBoardVacancies,creditCooperativeVacancy,schoolParentFiling,associationRegisteredAddress,inspectAndPublishBoardMinutes,temporaryMeetingNotice,withdrawalAndAssemblyRoll,memberMeetingExpenseFunding,missedSupervisorNotice,duesAndAssemblyRights,coopWithdrawalAndAssembly,designatedMeetingConvener};return;}
+if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy,changedMeetingVenue,familyAssemblyProxy,dualBoardVacancies,coopBoardVacancies,creditCooperativeVacancy,schoolParentFiling,associationRegisteredAddress,inspectAndPublishBoardMinutes,temporaryMeetingNotice,withdrawalAndAssemblyRoll,memberMeetingExpenseFunding,missedSupervisorNotice,duesAndAssemblyRights,coopWithdrawalAndAssembly,designatedMeetingConvener,assemblyRepresentativeParticipation};return;}
 root.verifiedMixedQuestionAnswer=answerMixed;
 })(typeof window!=='undefined'?window:globalThis);
