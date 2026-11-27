@@ -125,7 +125,39 @@ function chairVacancy(q){
   related:stage==='unknown'?[lifeline+'不足六個月，要補選嗎？',lifeline+'至少六個月，要補選嗎？']:[],
   refs:coopOrg?[law('合作社選舉罷免辦法','D0050022',7)]:[...(comm?[law('商業團體法施行細則','D0050101',45),{title:'內政部函釋：商業同業公會理事長的補選與代理',source:'https://www.moi.gov.tw/News_Content.aspx?n=14119&s=219798'}]:[]),law('人民團體選舉罷免辦法','D0050093',17)]};
 }
+function assemblyCommunications(q){
+ const t=String(q??'').normalize('NFKC').replace(/\s/g,'');
+ if(t.length>155||!/協會|社團|人民團體|社會團體|商業同業公會/.test(t))return null;
+ const trade=/商業同業公會/.test(t);
+ if(/合作社|工會|農會|漁會|財團法人|基金會|公司|管委會|里民大會|選舉|改選|補選|罷免|籌備|成立大會|違法|改地點|改期|委託|視訊|會址|公告出席|出席名單|名冊公開|個資|補助|核銷|財報|決算|預算|財務報表|收支報告/.test(t)||(!trade&&/公會|職業團體/.test(t)))return null;
+ const assembly=/會員(?:[（(]?代表[）)]?)?大會|會員代表會議|會員代表會|協會(?:的)?大會|(?:這次|開)大會/.test(t);
+ const subBoard=/理事會|監事會|理監事聯席/.test(t);
+ if(!assembly&&!subBoard)return null;
+ const records=/(?:會議|大會|會)紀[錄录]|(?:會議|大會|會)記[錄录]|(?:決議|會後(?:的)?)紀錄/.test(t);
+ const notices=/(會前|開會|開大會|大會|會議|議程)(?:的)?通知|通知單|通知書|通知誰|通知(?:全體|每個|各|會員|代表|要)|議程.{0,6}(?:通知|寄發)/.test(t)
+   ||!records&&/會員代表(?:會議|會|大會)/.test(t)&&/寄給|寄送|只寄|公告/.test(t);
+ const generic=!notices&&!records&&/(開會|大會|會議)(?:的)?資料/.test(t)&&/寄給|寄誰|送誰|報縣府|多久|幾天/.test(t);
+ if(!generic&&!/寄|送|通知|公告|報|備查|前|多久|幾天|期限|(?:要|能|可不可以|可否)(?:看的?|查閱)|留存/.test(t))return null;
+ if(!generic&&!notices&&!records)return null;
+ if(generic&&!assembly)return null;
+ if(trade&&!records)return null;
+ if(trade&&notices)return null;
+ if(!trade&&subBoard&&notices)return null;
+ if(!trade&&assembly&&subBoard&&records)return null;
+ const guide=n=>law('人民團體會務輔導辦法','D0020094',n);
+ if(trade)return {direct:true,category:'商業同業公會會務',title:'商業同業公會：會議紀錄分送各會員，並報主管機關',summary:'是分送各會員，不是只寄出席的會員代表。',steps:[['期限與對象','會員大會、理事會或監事會的會議紀錄，應於會議後十五日內分送各會員，同時報主管機關及目的事業主管機關備查。其他會議的決議涉及會員權益時，則通知相關會員。']],refs:[law('商業團體法施行細則','D0050101',25)]};
+ const noticePeople=/會員代表|代表[）)]?大會/.test(t)?'若貴會依法採會員代表制，通知理事會審定、應出席的各會員代表，不是通知全體一般會員。':'一般會員大會要通知應出席的各會員；若依法採會員代表制，則通知審定應出席的各會員代表。';
+ const pre=['開會前：通知與議程',noticePeople+' 原則上於開會十五日前通知，內容包含會議種類、時間、地點和議程，並報請主管機關派員列席。這些規定沒有一律要求另貼公告；章程或特別規定另有要求時應遵守，公告不能取代個別通知。僅緊急事故召集臨時會議且開會前一日已送達，才有期限例外。'];
+ const post=['閉會後：保存、查閱及報備',subBoard?'理事會、監事會和理監事聯席會議紀錄由團體自行留存，提供會員（會員代表）查閱。依法須向主管機關或目的事業主管機關核辦的決議，另檢附文件送件，不套用大會紀錄通用的三十日期限。':'會員（代表）大會紀錄，須在閉會後三十日內報請主管機關備查；團體仍要自行留存並提供會員（會員代表）查閱。一般規定沒有要求逐一寄給每位會員；章程、其他適用規定另有要求時仍應遵守。'];
+ const steps=[...(notices?[pre]:[]),...(records?[post]:[])];
+ if(generic)steps.push(pre,post);
+ const refs=[...(notices||generic?[association(26),guide(10)]:[]),...(records||generic?[guide(12),{title:'內政部函釋：會議紀錄的留存與調閱',source:'https://www.moi.gov.tw/News_Content.aspx?n=14119&s=256756'}]:[])];
+ return {direct:true,category:'人民團體會務說明',title:generic?'先分清開會通知，還是會後會議紀錄':notices&&records?'大會通知與會議紀錄：時間及對象分開看':notices?'會員大會通知：依應出席會員或會員代表名冊':'會議紀錄：給會員查閱，大會紀錄另報備查',
+  summary:generic?'兩者的對象和期限不一樣。可以先看通則，再點選您要辦的項目。':notices&&records?'開會前通知應出席人；閉會後留存紀錄，大會紀錄另報備查。':notices?'要通知應出席的人；個別通知和公告不是同一件事。':'提供會員查閱和向主管機關報備，是不同的義務，不是二選一。',steps,refs,
+  related:generic?['協會會員大會通知要寄給誰？','協會會員大會會議紀錄要寄給誰、多久要報備？']:[]};
+}
 function answerMixed(q){
+ const communications=assemblyCommunications(q);if(communications)return communications;
  const vacancy=chairVacancy(q);if(vacancy)return vacancy;
  const caseGrant=dissolutionAndGrant(q);if(caseGrant)return caseGrant;
  const comparison=verifiedComparison(q);if(comparison)return comparison;
@@ -136,6 +168,6 @@ function answerMixed(q){
     keys.includes('creditor')?'合作社清算：就任後公告與終結報告，分別計算':isCoop?'合作社清算報告與股息上限，分開看':'協會入會資格與會員除名，分開看',
   summary:keys.length===1?topics[keys[0]].line[1]:'你問了兩件事，分別如下。',steps:keys.length>1?keys.map(k=>topics[k].line):[],refs:keys.flatMap(k=>topics[k].laws)};
 }
-if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining};return;}
+if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications};return;}
 root.verifiedMixedQuestionAnswer=answerMixed;
 })(typeof window!=='undefined'?window:globalThis);
