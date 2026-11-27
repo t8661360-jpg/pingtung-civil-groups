@@ -1574,6 +1574,10 @@ async function ask(q){
   if(electionStaffObjection){financeMeetingPlanner=null;renderAnswer(q,electionStaffObjection);return;}
   const charterBeforeAssembly=typeof window.verifiedCharterBeforeAssembly==="function"?window.verifiedCharterBeforeAssembly(q):null;
   if(charterBeforeAssembly){financeMeetingPlanner=null;renderAnswer(q,charterBeforeAssembly);return;}
+  const expulsionProxy=typeof window.verifiedAssociationExpulsionProxy==="function"?window.verifiedAssociationExpulsionProxy(q):null;
+  if(expulsionProxy){financeMeetingPlanner=null;renderAnswer(q,expulsionProxy);return;}
+  const assetSaleAuthority=typeof window.verifiedAssetSaleAuthority==="function"?window.verifiedAssetSaleAuthority(q):null;
+  if(assetSaleAuthority){financeMeetingPlanner=null;renderAnswer(q,assetSaleAuthority);return;}
   const contractRepresentation=typeof window.verifiedCooperativeContractRepresentation==="function"?window.verifiedCooperativeContractRepresentation(q):null;
   if(contractRepresentation){financeMeetingPlanner=null;renderAnswer(q,contractRepresentation);return;}
   const concurrentOffices=typeof window.verifiedCooperativeConcurrentOffices==="function"?window.verifiedCooperativeConcurrentOffices(q):null;
@@ -2192,6 +2196,8 @@ touch();
 <script src="association-records-and-term.js?v=2"></script>
 <script src="association-external-audits.js?v=1"></script>
 <script src="cooperative-concurrent-offices.js?v=1"></script>
+<script src="association-expulsion-proxy.js?v=1"></script>
+<script src="association-asset-sale-authority.js?v=1"></script>
 <script src="cooperative-contract-representation.js?v=1"></script>
 <script src="election-staff-objection.js?v=2"></script>
 <script src="association-charter-membership-term.js?v=1"></script>
