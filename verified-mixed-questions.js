@@ -759,7 +759,40 @@ function assemblyRepresentativeParticipation(q){
   refs:[guide,association(16),association(27),...(!ordinary?[association(13),association(28)]:[]),...(proxy?[association(42),{title:'內政部函釋：同團體會員或代表的書面委託',source:'https://www.moi.gov.tw/News_Content.aspx?n=14119&s=256739'}]:[])],
   actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
 }
+function formerMemberGiftReturn(q){
+ const t=String(q??'').normalize('NFKC').replace(/\s/g,'');
+ if(t.length>170||/合作社|退社|公益勸募|勸募許可|募款|公益彩券|補助款|稅|捐贈扣除|公會|工會|農會|漁會|基金會|公司|股東|借款|借錢/.test(t))return null;
+ if(!/退會|退出(?:協會|團體)|不當會員|離開(?:協會|團體)|除名/.test(t)
+  ||!/拿回|要回|取回|退回|退還|返還|撤回|撤銷|收回|索回|還我|還給我/.test(t))return null;
+ const g=/捐|贈與|無償送給|送給.{0,6}(?:協會|團體)/.test(t);
+ const l=/(?:只是|僅是|原本|先|無償)?借(?:給)?(?:協會|社會團體|團體).{0,14}(?:用|使用)|使用借貸|約好.{0,14}(?:用完.{0,4}還|借用)/.test(t);
+ if(!g&&!l)return null;
+ const fee=/會費|入會費/.test(t);
+ const notYet=g&&/還沒交|還未交|尚未交|未交付|還沒(?:匯|過戶|移轉)|尚未移轉|答應.{0,18}還沒/.test(t);
+ const burden=g&&/附負擔|附條件|約定.{0,8}(?:用在|用於|用途|必須|才捐)|說好.{0,12}(?:才捐|只能用|要用在)/.test(t);
+ const done=g&&/已(?:經)?交|已(?:經)?捐|已(?:經)?給|無條件捐|已完成贈與|對方收到|已(?:經)?過戶/.test(t);
+ const civil=n=>law('民法','B0000001',n);
+ const given=['已完成的贈與','如果當初是無償贈與、對方已接受且權利已移轉，單憑退會，不能要求協會把這筆捐款或物品還回來。若另有有效返還約定或民法上的撤銷事由，才另外判斷；不要自行取走物品。'];
+ const untransferred=['還沒移轉權利的捐贈承諾','依民法第408條，權利未移轉前原則上可以撤銷，已移轉一部分時只適用未移轉部分。但經公證或為履行道德上義務而為的贈與不適用。要查的是權利是否已移轉，不只看口頭答應或物品是否還在原處。'];
+ const obligation=['約定負擔和單純希望用途不同','若捐贈時雙方確有約定對方須履行的負擔，且捐贈人已給付、對方卻不履行，依民法第412條可請求履行或撤銷；單方希望某種用途，不一定是雙方的約定。具備撤銷事由時，應向受贈人作出撤銷的意思表示；合法撤銷後，再依法請求返還。'];
+ const loan=['只是借用，不是贈與','若約定讓協會無償使用、之後歸還，依民法第464、470條，有期限就在屆滿時返還；沒定期限，原則在約定用途使用完畢時返還，經過相當時間可推定已用完，也可請求。沒有期限且無法依用途定期限時，可以隨時請求返還。退會本身不等於借用期限已到。'];
+ const dues=['入會費、常年會費另看退費原則','一般社會團體的入會費或常年會費不等於捐款，退會不代表一定退費。如有退費需要，社會團體財務處理辦法第14條要求理事會先訂退費原則、提會員（會員代表）大會通過，再依原則辦理。'];
+ const follow=['先保存能分辨性質的資料','保留收據、匯款或交付紀錄、借用單及雙方約定。對物品歸屬或返還有爭議，可先書面核對是捐贈、借用還是另有約定，必要時找法律諮詢。'];
+ const choices=[{label:'已捐贈並移轉',question:'我退會了，已經無條件捐給協會的物品可以拿回嗎？'},{label:'答應捐，但還沒交付',question:'我要退會，先前答應捐給協會的物品還沒交付，可以撤回嗎？'},{label:'只是借協會使用',question:'退會後，原本只是借協會用的投影機可以拿回嗎？'}];
+ const unknown=g&&!done&&!notYet&&!burden&&!l;
+ return {direct:true,category:'人民團體財務',title:fee?'退會後的捐贈和會費，要分開看':l&&!g?'退會後要拿回借用物：看約定期限及用途':'退會不會讓已完成的贈與自動返還',
+  summary:fee?((!g&&l?'借用物依期限和用途請求返還':notYet?'還沒移轉權利的贈與，能否撤回要看民法第408條':burden?'附有約定負擔的贈與，要看對方有沒有履行':'已完成的無條件贈與，不能只因退會拿回')+'；會費能否退，要另外核對會員大會通過的退費原則。'):
+   l&&!g?'若是借給協會而不是送給協會，可依借用期限和用途請求返還，不是看有沒有退會。':
+   notYet?'還沒移轉權利，不同於已完成的贈與。符合民法第408條時可撤銷，仍須排除公證或履行道德義務的例外。':
+   burden?'不是因退會就能拿回；如果協會確實未履行捐贈時約定的負擔，可以依民法第412條請求履行或撤銷。':
+   '如果已無條件捐贈並移轉權利，不能只因退會拿回。尚未移轉、另有約定或只是借用，處理方式不同。',
+  ...(unknown?{choiceHeading:'當初是怎麼把物品交給協會的？',choices}:{}),
+  steps:[...(l?[loan]:[]),...(g?(notYet?[untransferred]:burden?[obligation,given]:unknown?[given,untransferred,obligation]:[given]):[]),...(fee?[dues]:[]),follow],
+  refs:[...(g?[civil(406),...((notYet||unknown)?[civil(408)]:[]),...((burden||unknown)?[civil(412),civil(419)]:[])]:[]),...(l?[civil(464),civil(470)]:[]),...(fee?[law('社會團體財務處理辦法','D0050097',14)]:[])],
+  actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
+}
 function answerMixed(q){
+ const giftReturn=formerMemberGiftReturn(q);if(giftReturn)return giftReturn;
  const coopWithdrawal=coopWithdrawalAndAssembly(q);if(coopWithdrawal)return coopWithdrawal;
  const duesRights=duesAndAssemblyRights(q);if(duesRights)return duesRights;
  const missed=missedSupervisorNotice(q);if(missed)return missed;
@@ -796,6 +829,6 @@ function answerMixed(q){
     keys.includes('creditor')?'合作社清算：就任後公告與終結報告，分別計算':isCoop?'合作社清算報告與股息上限，分開看':'協會入會資格與會員除名，分開看',
   summary:keys.length===1?topics[keys[0]].line[1]:'你問了兩件事，分別如下。',steps:keys.length>1?keys.map(k=>topics[k].line):[],refs:keys.flatMap(k=>topics[k].laws)};
 }
-if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy,changedMeetingVenue,familyAssemblyProxy,dualBoardVacancies,coopBoardVacancies,creditCooperativeVacancy,schoolParentFiling,associationRegisteredAddress,inspectAndPublishBoardMinutes,temporaryMeetingNotice,withdrawalAndAssemblyRoll,memberMeetingExpenseFunding,missedSupervisorNotice,duesAndAssemblyRights,coopWithdrawalAndAssembly,designatedMeetingConvener,assemblyRepresentativeParticipation};return;}
+if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy,changedMeetingVenue,familyAssemblyProxy,dualBoardVacancies,coopBoardVacancies,creditCooperativeVacancy,schoolParentFiling,associationRegisteredAddress,inspectAndPublishBoardMinutes,temporaryMeetingNotice,withdrawalAndAssemblyRoll,memberMeetingExpenseFunding,missedSupervisorNotice,duesAndAssemblyRights,coopWithdrawalAndAssembly,designatedMeetingConvener,assemblyRepresentativeParticipation,formerMemberGiftReturn};return;}
 root.verifiedMixedQuestionAnswer=answerMixed;
 })(typeof window!=='undefined'?window:globalThis);

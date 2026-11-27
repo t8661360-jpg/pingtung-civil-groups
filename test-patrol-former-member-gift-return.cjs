@@ -1,0 +1,15 @@
+const assert=require('node:assert/strict');
+const {answerMixed,formerMemberGiftReturn}=require('./verified-mixed-questions');
+const a=answerMixed('退會的會員可以把以前捐的東西要回去嗎');
+assert.match(a.summary,/不能只因退會拿回/);
+assert.equal(a.choices.length,3);
+const expected=[/不能只因退會拿回/,/公證或履行道德義務/,/依借用期限和用途請求返還/];
+a.choices.forEach((v,i)=>assert.match(answerMixed(v.question).summary,expected[i]));
+const mixed=answerMixed('退會了，之前無條件捐給協會的冷氣跟去年會費都能拿回來嗎？');
+assert.match(mixed.summary,/已完成的無條件贈與.*會費能否退/);
+assert.ok(mixed.refs.some(x=>x.title==='社會團體財務處理辦法第14條'));
+const burden=answerMixed('會員之前捐給協會的設備有約定要用在老人共餐，改拿去做別的，我退會可以要求返還嗎？');
+assert.match(burden.summary,/民法第412條請求履行或撤銷/);
+assert.match(burden.steps.flat().join(' '),/單方希望某種用途，不一定是雙方的約定/);
+for(const q of ['協會會員退會後可以退會費嗎？','協會公益勸募許可到期收到捐款，可以退給捐款人嗎？','合作社社員退社後股金怎麼領回？','我退會後還能看協會捐贈名冊嗎？','我退會後可以把借給協會的借款收回嗎？'])assert.equal(formerMemberGiftReturn(q),null,q);
+console.log('gift return OK');
