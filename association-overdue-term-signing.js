@@ -40,7 +40,22 @@ function singleTerm(q){
  const changeAddress=/會址|會址使用|換地址|搬會館/.test(t);
  return {direct:true,category:'人民團體｜任期、改選及代表權',title:transition?'依法按期改選後、第一次理事會前的代表權':'逾期未改選，先確認理事長代表權再簽約',summary,steps:[...(transition?[regular,urgent,signing]:[timing,signing,oversight,grant,regular]),...(changeAddress?[address]:[])],refs:changeAddress?[...refs,addressFAQ]:refs,questionState:{focus:'compound'}};
 }
+const civil=n=>({title:'民法第'+n+'條',source:'https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=B0000001&flno='+n});
+function rental(q){
+ const t=String(q??'').normalize('NFKC').replace(/\s/g,'');
+ if(!t||t.length>240||!/協會|社會團體|人民團體/.test(t)||!/承租|租約|租場地|租金|租會館|租辦公室/.test(t)||/合作社|信用|公會|工會|管委會|公司|勞資|住宅租約|把場地出租|協會出租|公有場地/.test(t))return null;
+ const term=/卸任|前任|已換人|改選.{0,8}(?:拖|很久|過期|來不及)|沒改選|未改選|任期.{0,8}(?:過|滿|屆)|職務已.{0,5}終止/.test(t);
+ const pending=/還沒簽|未簽|尚未簽|沒簽/.test(t)&&!/已簽|已用過|請款/.test(t);
+ const paid=/租金|拒付|請款|負擔|賠償|要給錢|是否要付/.test(t);
+ const meeting=pending&&/哪.{0,6}(?:一種|種|個).{0,7}(?:會|議)|哪一種|開.{0,4}(?:大會|理事會)|開會通過|會議通過/.test(t);
+ if((!term||!paid)&&!meeting)return null;
+ const authority=['先查簽署當時是什麼身分','「原任仍在依法交接、已有有效授權」和「已卸任、沒有另外授權」不是同一件事。查簽約日期、簽名是以協會還是個人名義、任期與改選紀錄、章程和有效的會議決議。確有困難申請延長改選，須主管機關核准，不能只用仍持印章或名冊未換判斷。'];
+ const effect=['已簽或已使用：分開核對租約與事後行為','若是社團法人，民法第27條對董事代表權限制與善意第三人有規定；沒有代表或代理權者則要看授權、是否符合表見代理、團體有無事後承認等，不是同一情形。承租與實際使用的資料要留存，但不是有使用就一律按原租約付全額，也不能只憑章程不同意、前任簽名就直接拒付。先核對合約、通知、付款與使用紀錄再求助。'];
+ const next=['還沒簽：不用先假定要開會員大會','先查章程、預算、既有決議和書面授權；場地短租如在通過的活動及授權內，和另作長期或重大承諾不同。從章程或既有大會決議確認要由理事會處理、還是必須提大會。若權限或期限不明，先不以舊名義簽約；待確認再由有權人簽。'];
+ return {direct:true,category:'人民團體｜場租與代表權',title:pending?'場地還沒租：先查協會授權，再決定要不要開會':'理事長有無簽署權，與誰須負擔場租要分開',summary:pending?'先不要未經授權就簽。是理事會、大會或既有授權可處理，須看章程、租期金額與是否已有預算；不是每次租場地都必須開大會。':'不能只憑理事長已卸任或改選拖延，就斷定協會要付租金或可以拒付。要查簽署當時的代表權、相對人所知與事後有無承認，實際使用場地也要一併核對。',steps:pending?[next,...(term?[authority]:[])]:[authority,effect,timing],refs:pending?[refs[0],refs[1],civil(27)]:[refs[0],civil(27),civil(103),civil(169),civil(170),civil(421)],questionState:{focus:'compound'}};
+}
 function overdueTerm(q){
+ const rent=rental(q);if(rent)return rent;
  const base=singleTerm(q);
  if(!base||base.choices)return base;
  if(/除名|開除會員/.test(q)&&/臨時(?:會員|代表)?大會|臨時動議|臨時提案|現場.{0,7}(?:加案|提案|表決)/.test(q)){

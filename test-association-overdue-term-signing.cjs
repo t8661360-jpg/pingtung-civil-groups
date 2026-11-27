@@ -19,3 +19,8 @@ assert.equal(missing?.choices?.length,2);
 assert.match(overdueTerm(missing.choices[0].question)?.title,/逾期未改選/);
 assert.match(overdueTerm(missing.choices[1].question)?.title,/依法按期改選後/);
 assert.match(JSON.stringify(overdueTerm('協會任期到期沒改選，又要換會址租約，可以簽嗎？')),/會址使用同意/);
+const r=require('./association-overdue-term-signing.js').overdueTerm;
+assert.match(r('社區協會理事長改選拖了很久，繼續租場地辦活動，團體是否一定負擔租金？').summary,/不能只憑.*要付租金或可以拒付/);
+assert.match(JSON.stringify(r('協會剛收到租金請款，當初承租的是已經卸任的理事長。當時章程不同意他簽；現在場地也用過了，協會能拒付嗎？').steps),/也不能只憑章程不同意、前任簽名就直接拒付/);
+assert.match(r('先問租約，再問開會。我們只知道是協會，有人要租場地辦活動還沒簽；如果還要開會通過，該開哪一種？').summary,/不是每次租場地都必須開大會/);
+for(const q of ['合作社理事主席任期過了，想再簽辦公室租約和改社址，能不能一起處理？','協會活動租金支出如何核銷？','公寓管委會理事長卸任簽租約，還要付租金嗎？'])assert.equal(r(q),null,q);
