@@ -59,6 +59,16 @@ function normalizeQuestionU4(s){
   s='任期屆滿來不及改選可以延期嗎';
  return s;
 }
+/* 理解把關第5輪（根源）：
+   1. 「活動有剩一些錢／經費沒用完／錢沒花完」＝有結餘（原本整句對不上，被答成難倒小屏）。
+   2. 「每年要送／要交哪些東西給縣府」＝每年要報縣府什麼（送、交＝報；東西、資料＝什麼）。 */
+function normalizeQuestionU5(s){
+ s=String(s||'');
+ if(/(活動|經費|年度|去年|今年|年底|會費|帳上|預算)/.test(s)&&!/合作社|社員|補助|核銷|解散|清算|勸募|募款|募來|捐|計畫執行/.test(s))
+  s=s.replace(/(?:還)?有剩(?:下)?(?:了)?(?:一些|一點|一點點|不少|很多|蠻多)?(?:的)?(?:錢|經費|款)|(?:還)?剩(?:了)?(?:一些|一點|不少|很多)(?:的)?(?:錢|經費)|(?:錢|經費|款)?沒(?:有)?(?:用|花)完(?:的(?:錢|經費))?|(?:還)?有剩(?=可以|能不能|可不可以|怎麼|要怎|要不要|的話|[，,])/g,'有結餘');
+ if(/發起人/.test(s)&&!/合作社|社員|公會/.test(s))s=s.replace(/發起人(?:要|需要|得|該)?(?:找|有)?幾個(?![人月年協會社團位名])/,'發起人要幾個人');
+ return s;
+}
 function fixTyposU1(q){
  return String(q||'').replace(/理是長|裡事長|里事長|理市長|李事長/g,'理事長').replace(/理監是|理間事|裡監事/g,'理監事').replace(/常務監是/g,'常務監事').replace(/監是會|鑑事會/g,'監事會').replace(/理是會|裡事會|里事會/g,'理事會').replace(/總幹是|總幹士|總幹市/g,'總幹事').replace(/會原大會|會圓大會|會員大匯/g,'會員大會').replace(/改撰|改癬/g,'改選').replace(/會廢/g,'會費').replace(/辭值|詞職|辭直/g,'辭職');
 }
@@ -102,7 +112,7 @@ function normalizeQuestionR223(s){
  return s;
 }
 function normalizeQuestion(q){
- return normalizeQuestionR223(normalizeQuestion223(normalizeQuestion222(normalizeQuestion221(normalizeQuestion216(normalizeQuestion215(normalizeQuestion214(normalizeQuestion212(normalizeQuestion210(normalizeQuestion209(normalizeQuestion208(normalizeQuestion207(normalizeQuestion206(normalizeQuestion202(normalizeQuestion201(normalizeQuestion200(normalizeQuestion194(normalizeQuestion193(normalizeQuestion192(normalizeQuestion191(normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(normalizeQuestionU3(normalizeQuestionU4(normalizeQuestionU2(fixTyposU1(q))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
+ return normalizeQuestionR223(normalizeQuestion223(normalizeQuestion222(normalizeQuestion221(normalizeQuestion216(normalizeQuestion215(normalizeQuestion214(normalizeQuestion212(normalizeQuestion210(normalizeQuestion209(normalizeQuestion208(normalizeQuestion207(normalizeQuestion206(normalizeQuestion202(normalizeQuestion201(normalizeQuestion200(normalizeQuestion194(normalizeQuestion193(normalizeQuestion192(normalizeQuestion191(normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(normalizeQuestionU5(normalizeQuestionU3(normalizeQuestionU4(normalizeQuestionU2(fixTyposU1(q)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
 }
 /* 第200輪（根源）：入會退會與會員資格換問法——
    「忘記繳／忘了繳／漏繳會費」＝沒繳會費（原本「忘記繳會費會被退會嗎」被當成退費）；
@@ -2534,7 +2544,7 @@ function subsidySettlement(t){
 }
 function corpRegistration(t){
  if(!/法人/.test(t))return null;
- if(/財團法人|合作社|公司|勸募/.test(t))return null;
+ if(/財團法人|合作社|公司|勸募|統編|統一編號/.test(t))return null;
  const cancel=/(註銷|撤銷|取消|廢止|解散|不要|放棄|消滅)/.test(t);
  if(!cancel&&!/(登記|成為|變成|申請|可以|要不要|怎麼辦|哪裡)/.test(t))return null;
  const court='臺灣屏東地方法院：屏東市棒球路9號，電話08-7550611（請轉登記處）。';
@@ -3079,6 +3089,10 @@ function communityMore(t){
   statutes:[CDP(10)],notes:[]};
  return null;
 }
+/* 理解把關第4輪：個人申請的福利（假牙、輔具、生育、喪葬、敬老金、國民年金等）不是團體補助，轉給既有的業務分流，不拿「協會申請縣府補助」硬配 */
+function personalWelfare(t){
+ return /(低收入|中低收|低收戶|急難救助|急難紓困|老人津貼|敬老津貼|育兒津貼|身障補助|身心障礙(補助|津貼|手冊|證明)|租屋補助|租金補貼|假牙|輔具|健保費|喪葬(補助|津貼|給付)|生育(津貼|補助|獎勵|給付)|敬老(金|禮金)|重陽(禮金|敬老)|國民年金|老農津貼|老人年金|托育(補助|費用)|營養午餐|助學金|特殊境遇|看護補助|醫療補助)/.test(t)&&!/(協會|社團|團體|公會|合作社|社區發展|本會|據點|活動|計畫|方案|志工|會員|物資|捐|募)/.test(t);
+}
 function outOfScope(t){
  let k=null;
  if(/政黨/.test(t)&&/(成立|申請|登記|找誰|怎麼)/.test(t))k=['政黨','政黨依政黨法辦理，主管機關是內政部，不是縣政府。要成立政黨，請向內政部申請備案。'];
@@ -3087,7 +3101,7 @@ function outOfScope(t){
  else if(/(宮廟|寺廟|神壇|廟)/.test(t)&&/(成立|登記|立案|協會|要不要|找誰)/.test(t))k=['宮廟、寺廟','寺廟的登記是民政業務，請洽縣府民政處或所在地的公所。信徒如果想另外成立一個宗教性的協會（社會團體）來辦活動，那才是依人民團體法向社會處申請，兩者是不同的登記。'];
  else if(/(工會|職業工會|產業工會|企業工會)/.test(t)&&/(找誰|成立|籌組|申請|加入|承辦|哪個單位|去哪|歸|管|屬於|社會處|主管)/.test(t)&&!/公會/.test(t))k=['工會','工會依工會法辦理，主管機關是勞工主管機關，不是社會處。在屏東縣請洽屏東縣政府勞動暨青年發展處，電話 08-7558048。'];
  else if((/(公寓大廈|區分所有權人|區權會)/.test(t)||/(管委會|管理委員會|主委|主任委員)/.test(t)&&/(大樓|大廈|公寓|住戶|社區大樓|管理費)/.test(t))&&!/(協會|社團|公會|合作社|宮廟|寺廟|市場)/.test(t))k=['公寓大廈管理委員會（管委會）','公寓大廈的管理委員會，是依公寓大廈管理條例由區分所有權人選任住戶擔任管理委員所設立的組織（公寓大廈管理條例第3條），主任委員、管理委員怎麼選任、解任，是依區分所有權人會議的決議或規約（同條例第29條），不是依人民團體法立案的協會，不適用本站整理的改選、開會規定。本站沒有管委會的資料，請撥縣府總機 08-7320415，請總機轉接公寓大廈管理的承辦單位。'];
- else if(/(低收入|中低收|低收戶|急難救助|急難紓困|老人津貼|敬老津貼|育兒津貼|身障補助|(老人|長輩|長者|阿公|阿嬤|銀髮).{0,4}(健保|假牙|乘車|敬老|重陽).{0,4}(補助|津貼|禮金)|老人(補助|年金)|健保費?補助|國民年金|生育(補助|津貼)|喪葬補助|重陽(禮金|敬老金)|身心障礙(補助|津貼|手冊|證明)|租屋補助|租金補貼)/.test(t)&&!/(協會|社團|團體|公會|合作社|社區發展|本會|據點|活動|計畫|方案|志工|會員|物資|捐|募)/.test(t))k=['低收入戶、津貼等個人福利','個人申請的社會福利（例如低收入戶、中低收入戶、各種津貼或救助），不是這個櫃檯的業務，本站沒有這方面的資料，小屏不能亂回答。請撥縣府總機 08-7320415，請總機轉接辦理該項福利的單位。'];
+ else if(personalWelfare(t)||/(低收入|中低收|低收戶|急難救助|急難紓困|老人津貼|敬老津貼|育兒津貼|身障補助|(老人|長輩|長者|阿公|阿嬤|銀髮).{0,4}(健保|假牙|乘車|敬老|重陽).{0,4}(補助|津貼|禮金)|老人(補助|年金)|健保費?補助|國民年金|生育(補助|津貼)|喪葬補助|重陽(禮金|敬老金)|身心障礙(補助|津貼|手冊|證明)|租屋補助|租金補貼)/.test(t)&&!/(協會|社團|團體|公會|合作社|社區發展|本會|據點|活動|計畫|方案|志工|會員|物資|捐|募)/.test(t))k=['低收入戶、津貼等個人福利','個人申請的社會福利（例如低收入戶、中低收入戶、各種津貼或救助），不是這個櫃檯的業務，本站沒有這方面的資料，小屏不能亂回答。請撥縣府總機 08-7320415，請總機轉接辦理該項福利的單位。'];
  if(!k)return null;
  return{direct:true,category:'業務分流',title:k[0]+'不是這個櫃檯（人民團體）的業務，要找的單位不同',summary:k[1]+'\n\n這個櫃檯辦理的是屏東縣的社會團體（協會）、職業團體（公會）、社區發展協會和合作社。',statutes:[],notes:[]};
 }
@@ -3320,6 +3334,7 @@ function meetingProcedure(t){
 function subsidyBasics(t){
  if(!/補助/.test(t)||/合作社|社員|魅力|好讚|勸募|社造|志工/.test(t))return null;
  if(/((老人|長輩|長者|阿公|阿嬤|銀髮).{0,4}(健保|假牙|乘車|敬老|重陽).{0,4}補助|老人補助|健保費?補助|生育補助|喪葬補助)/.test(t)&&!/(協會|社團|團體|公會|社區發展|本會|據點|活動|計畫|方案|會員|物資|捐|募)/.test(t))return null; // 個人福利交給業務分流
+ if(personalWelfare(t))return null;
  const src='（屏東縣政府對民間團體補助經費作業要點';
  if(/(核銷|結報|報帳|成果報告|結案|報告|交代|(多久|期限|何時|什麼時候).{0,4}用完|用完.{0,4}(期限|多久))/.test(t)&&/(附|文件|資料|準備|怎麼|如何|期限|多久|幾天|什麼時候|何時|流程|還要|要不要|要嗎|嗎|給誰|向誰|跟誰|找誰|對誰|交給|哪個單位|什麼|哪些|要交)/.test(t)&&!/(沒用完|用不完|剩)/.test(t))
   return{direct:true,category:'補助經費',title:'補助核銷：計畫做完20日內，附核准文件影本、領款收據、支用明細表和單據',
@@ -4378,7 +4393,7 @@ function patrol18(t){
   summary:'社會團體財務處理辦法把原始憑證分成外來憑證、對外憑證和內部憑證三種（第8條），沒有規定「一定要統一發票」才能入帳。向外面買東西取得的單據，屬於外來憑證。\n但各種單據能不能報帳，要看用途：如果是領政府補助款要核銷，依核定函和補助要點的要求；如果涉及稅務，請洽國稅局。其他單據怎麼認列，辦法沒有逐項規定，'+call,
   statutes:[FIN(8)]});
  /* 結餘 */
- if(/(結餘|剩餘款|賸餘|剩下的錢|剩的錢|餘額|盈餘)/.test(t)&&/(下年度|明年|隔年|滾|留著|留下|結轉|怎麼處理|怎麼辦|要不要繳|上繳|歸|如何)/.test(t)&&/(活動|年度|年底|今年|當年|收支|決算|預算|協會|社團|會費)/.test(t)&&!/(補助|核銷|勸募|募款)/.test(t))
+ if(/(結餘|剩餘款|賸餘|剩下的錢|剩的錢|餘額|盈餘)/.test(t)&&/(下年度|明年|隔年|滾|留著|留下|留到|留給|繼續用|接著用|結轉|怎麼處理|怎麼辦|要不要繳|上繳|繳回|繳還|歸|如何)/.test(t)&&/(活動|年度|年底|今年|去年|當年|收支|決算|預算|經費|協會|社團|會費)/.test(t)&&!/(補助|核銷|勸募|募款)/.test(t))
   return Object.assign({},base,{title:'年度或活動結餘怎麼處理：辦法沒有規定要上繳，可以提列準備基金',
   summary:'社會團體財務處理辦法沒有規定年度結餘或活動結餘要上繳或不能留，每年的收支結果會記在決算表和資產負債表裡（第12條）。\n若想把錢留作日後使用，可以逐年提列準備基金，每年提列數額為收入總額的20%以下；基金和孳息要專戶存儲，沒經過理事會通過不能動用（第15條）。\n如果結餘是政府補助款，沒用完的部分依補助核定函處理，請洽補助承辦單位。',
   statutes:[FIN(12),FIN(15)]});
@@ -5106,7 +5121,7 @@ function patrol17(t){
  /* 理事長可不可以自己決定解散 */
  if(/解散|收掉|結束/.test(t)&&/(理事長|會長)/.test(t)&&/(自己|自行|單方|直接|一個人|說了算|獨自)/.test(t)&&/(決定|解散|收掉|結束|可以|能不能)/.test(t)){const c=chairDissolve(t);if(c)return Object.assign({},c,{direct:true});}
  /* 解散後可不可以再成立 */
- if(DIS&&/(解散|結束|收掉|廢止).{0,6}(之後|以後|後).{0,6}(再|重新|又).{0,4}(成立|設立|申請|辦|組|立案)|(再|重新|又)(成立|設立|申請|組|辦).{0,8}(解散|之後|以後)|解散了.{0,4}(還|可以|能).{0,4}(再|重新)/.test(t))
+ if(DIS&&/(解散|結束|收掉|廢止).{0,6}(之後|以後|後).{0,6}(再|重新|又).{0,4}(成立|設立|申請|辦|組|立案)|(再|重新|又)(成立|設立|申請|組|辦).{0,8}(解散|之後|以後)|解散了.{0,4}(還|可以|能).{0,4}(再|重新)/.test(t)&&!/(名稱|名字|會名|同名|原名)/.test(t))
   return Object.assign({},base,{title:'協會解散後想再成立：要當作新的團體重新申請許可',
   summary:'本站查不到「恢復已解散協會」的規定。想再成立協會，是依人民團體法的程序重新辦：由發起人檢具申請書、章程草案及發起人名冊，向縣府申請許可（人民團體法第8條）；發起人須成年、30人以上，且沒有該條所列情形。許可後再開發起人會議、組籌備會，籌備完成後召開成立大會（第9條）。\n原協會的立案證書、財產和權利義務怎麼處理，要看解散清算的結果；有疑問的話'+call,
   statutes:[P(8),P(9)]});
@@ -5358,7 +5373,7 @@ function patrol13(t){
   summary:'人民團體法沒有名譽理事長、顧問的規定，要看章程。\n\n可以確定的是：\n• 會員大會：每一會員（會員代表）有一權（人民團體法第16條）。名譽理事長如果本身是會員，就和其他會員一樣，有一票。\n• 理事會：理事要親自出席並表決（人民團體法第29條、第31條），理事是由會員選舉出來的（第17條）。沒有經過選舉的名譽職務，不是理事，能不能列席、發言，要看章程。\n\n不確定時，請洽承辦人員。',
   statutes:[P(16),P(17),P(29),P(31)]});
  /* 理事長的配偶、家人能不能當監事 */
- if(/(理事長|理事)/.test(t)&&/(太太|老婆|妻子|丈夫|老公|先生|兒子|女兒|爸爸|媽媽|父親|母親|哥哥|弟弟|姊姊|妹妹|家人|親戚)/.test(t)&&/(監事|理事|理監事)/.test(t)&&!/(工作人員|員工|聘|總幹事|秘書|會計|出納|代理|繼承|頂替|接班|(過世|出缺|往生|去世|死亡|走了).*(接任|接手|接下|代替|遞補))/.test(t)){
+ if(/(理事長|理事)/.test(t)&&/(太太|老婆|妻子|丈夫|老公|先生|兒子|女兒|爸爸|媽媽|父親|母親|哥哥|弟弟|姊姊|妹妹|家人|親戚)/.test(t)&&/(監事|理事|理監事)/.test(t)&&!/(工作人員|員工|聘|總幹事|秘書|會計|出納|代理|繼承|頂替|接班|讓給|讓位|讓渡|轉讓|頂讓|傳給|傳位|交棒|(過世|出缺|往生|去世|死亡|走了).*(接任|接手|接下|代替|遞補))/.test(t)){
   const a=relativesAsOfficers(t.replace(/太太|老婆|妻子|丈夫|老公|先生|兒子|女兒|爸爸|媽媽|父親|母親|哥哥|弟弟|姊姊|妹妹|家人|親戚/g,'配偶'));
   if(a)return a;
  }
@@ -6194,7 +6209,7 @@ function patrol41(t){
   return A('社區發展協會的組織區域：原則上以村里為單位，不超出鄉鎮市區範圍','社區發展工作要點第4點規定，社區發展協會的組織區域以村里為單位，不超出鄉（鎮、市、區）的行政區域範圍為原則。\n條文寫的是「原則」，個案能不能跨村里、跨社區，本站沒有收錄認定標準，請先向所在地鄉鎮市公所確認社區範圍，再洽縣府承辦人。'+tel,[CDP(4)]);
  if(org&&/(經費|財源|資金|收入|活動費|運作的錢|辦活動的錢|(協會|團體)的錢)/.test(t)&&/(哪裡來|哪來|從哪|來源|怎麼來|有哪些|靠什麼|靠啥|哪些錢)/.test(t)&&!/(補助|申請)/.test(t))
   return A('協會的經費來源有哪些：入會費、常年會費、事業費、會員捐款等七類','人民團體法第33條規定，人民團體經費來源有七類：入會費、常年會費、事業費、會員捐款、委託收益、基金及其孳息，以及其他收入。\n其中入會費、常年會費、事業費、會員捐款的繳納數額及方式，要提經會員（會員代表）大會通過，並報主管機關核備後才能實施。社區發展協會的經費來源也適用人民團體法（社區發展工作要點第17點）。',cdp?[P(33),CDP(17)]:[P(33)]);
- if(org&&/(法人登記|法人資格|辦法人|取得法人|變法人|成為法人)/.test(t)&&(/(要不要|一定要|需要|必須|非要|有沒有規定|強制|要嗎|需不需要)/.test(t)||/(不辦|沒辦|沒有|未辦|不登記|沒登記|不去登記).{0,4}法人.{0,6}(可以|能|行|嗎|運作)/.test(t)||/(法人登記).{0,4}(沒有|未|不).{0,4}(可以|能|行|運作)/.test(t))&&!/(註銷|解散|廢止|取消|變更|清算|怎麼|如何|流程|步驟|文件|費用|稅|統編|開戶|買|土地|房|不動產|財產|貸款|捐|勸募|採購|標案|簽約|租|過戶|名下|銀行)/.test(t))
+ if(org&&/(法人登記|法人資格|辦法人|取得法人|變法人|成為法人)/.test(t)&&(/(要不要|一定要|需要|必須|非要|有沒有規定|強制|要嗎|需不需要)/.test(t)||/(不辦|沒辦|沒有|未辦|不登記|沒登記|不去登記).{0,4}法人.{0,6}(可以|能|行|嗎|運作)/.test(t)||/(法人登記).{0,4}(沒有|未|不).{0,4}(可以|能|行|運作)/.test(t))&&!/(註銷|解散|廢止|取消|變更|清算|怎麼|如何|流程|步驟|文件|費用|稅|統編|統一編號|扣繳|開戶|買|土地|房|不動產|財產|貸款|捐|勸募|採購|標案|簽約|租|過戶|名下|銀行)/.test(t))
   return A('協會一定要辦法人登記嗎：不一定，經立案後「得」向法院辦理','不一定。人民團體法第11條寫的是：人民團體經主管機關核准立案後，「得」依法向地方法院辦理法人登記，完成後30日內把登記證書影本送主管機關備查。也就是立案是一件事，要不要再辦法人登記，法條沒有強制。\n不過有些事要有法人身分才行，例如申請公益勸募，勸募團體要是公益性社團法人（公益勸募條例第5條）。要不要辦，可以先看貴會有沒有這類需要。'+tel,[P(11),{title:'公益勸募條例第5條',source:LAW+'D0050138'}]);
  if(org&&/(公所|鄉公所|鎮公所|市公所|區公所)/.test(t)&&/補助/.test(t)&&(/(可以|能|可不可以|能不能|可否|有沒有|有嗎|可領|能領)/.test(t)||/有.{0,8}補助.{0,6}嗎/.test(t))&&/(申請|領|拿|有)/.test(t)&&!/(重複|兩個單位|同時|魅力|社造|核銷|多少|金額|期限|截止)/.test(t))
   return A('可以向公所申請補助嗎：要看補助單位當年度公告的作業要點','能不能申請、補助什麼項目、金額多少、什麼時候截止，要看補助單位當年度公告的補助作業要點。本站沒有收錄各鄉鎮市公所的補助規定，沒辦法替您確認。\n請直接洽所在地公所社會課；縣府社會處的補助項目，請洽縣府總機 08-7320415 轉社會處。申請前記得確認同一個活動有沒有其他單位已補助。',[]);
@@ -6683,7 +6698,7 @@ function patrol56(t){
  if(staff&&!board&&!acctQual&&!(/(會計|出納)/.test(t)&&!/(總幹事|秘書長|工作人員|職員|員工|幹事|行政人員|會務人員)/.test(t))&&(/(一定|必須|非要|非得|不請|不聘|不設|可不可以不|能不能不|可以不|需不需要|要不要|有沒有規定要|必要).{0,4}(請|聘|設|置|僱|雇)/.test(t)||/(不請|不聘|不設|不用請|不必請|不需請|有必要請|沒必要請)/.test(t))&&!/(怎麼|誰|如何)/.test(t))
   return A('協會不一定要請總幹事：辦法寫的是「得置」，要不要設由協會自己決定','不一定。社會團體工作人員管理辦法第3條寫的是「得置」秘書長（總幹事）、秘書（幹事）等工作人員，並沒有規定一定要請；要不要設、設幾個人，由理事會依團體規模、財力和業務需要來訂。\n如果貴會章程有寫要置總幹事，就依章程辦理。\n沒有聘僱工作人員的協會，會務由理事長帶領理事、監事自己處理，但理事、監事不能同時當工作人員領薪水（第4條）。',[SW(3),SW(4)]);
  // 2 工作人員要不要報縣府、換總幹事
- if(staff&&/(縣府|縣政府|主管機關|社會處|政府|備查|報備|核備|函報|報請)/.test(t)&&/(要不要|需不需要|要|須|得|用不用|有沒有|嗎)/.test(t)&&/(聘|換|新|異動|離職|辭|到職|任|報|備)/.test(t)&&!/(名冊|開戶|證書|印章)/.test(t)&&!board){
+ if(staff&&/(縣府|縣政府|主管機關|社會處|政府|備查|報備|核備|函報|報請)/.test(t)&&/(要不要|需不需要|要|須|得|用不用|有沒有|嗎)/.test(t)&&/(聘|換|新|異動|離職|辭|到職|任|報|備)/.test(t)&&!/(名冊|開戶|證書|印章)/.test(t)&&!/((每|一)年|年度|例行|定期|固定|一年到頭).{0,14}(送|報|繳|交)|(送|報|繳|交)(哪些|那些|什麼|甚麼|啥)|哪些(東西|資料|文件|報表|事)|(報|送)什麼|前任|沒交接|沒有交接|沒交代/.test(t)&&!board){
   const a=staffResignReport('總幹事異動要報縣府嗎');if(a)return Object.assign({},a,{direct:true});
  }
  // 3 總幹事任期
@@ -7154,7 +7169,7 @@ function patrol78(t){
  if(/誰(決定|訂|定|核准|批|來訂|來定|負責)|代表|授權|蓋章|印章|以協會名義/.test(t))return null;
  if(/(可以|能不能|可不可以|能否).{0,3}(雇|僱|聘|請).{0,8}嗎/.test(t)&&/(勞保|健保|勞健保|保險|投保)/.test(t))return null;
  // ── 工作人員資料要不要報縣府（沿用既有答案）──
- if(labor.test(t)&&/(報|送|通報|備查|核備|報備).{0,4}(縣府|縣政府|主管機關|社會處|政府)|(縣府|縣政府|主管機關).{0,4}(要|需要).{0,3}(知道|備查|核備)/.test(t)&&!/(補助|理監事|選任|簡歷|改選|登記證|契約|薪|加班|特休|勞保|健保|保險)/.test(t))
+ if(labor.test(t)&&/(報|送|通報|備查|核備|報備).{0,4}(縣府|縣政府|主管機關|社會處|政府)|(縣府|縣政府|主管機關).{0,4}(要|需要).{0,3}(知道|備查|核備)/.test(t)&&!/(補助|理監事|選任|簡歷|改選|登記證|契約|薪|加班|特休|勞保|健保|保險)/.test(t)&&!/((每|一)年|年度|例行|定期|固定|一年到頭).{0,14}(送|報|繳|交)|(送|報|繳|交)(哪些|那些|什麼|甚麼|啥)|哪些(東西|資料|文件|報表|事)|(報|送)什麼|前任|沒交接|沒有交接|沒交代/.test(t))
   return staffResignReport('工作人員異動');
  // ── 勞動契約要不要簽 ──
  if(labor.test(t)&&/(勞動契約|僱用契約|雇用契約|聘僱契約|聘用契約|僱傭契約|雇傭契約|勞動合約|僱用合約|雇用合約|聘書|契約|合約|簽約)/.test(t)&&/(要不要|要簽|要簽約|簽約嗎|要不要簽|需要簽|需不需要|一定要|必須|簽不簽|可以不簽|有沒有簽|怎麼簽|要訂|定期|不定期)/.test(t)&&!/(廠商|場地|承租|租|承攬|補助|會員|報價|採購)/.test(t))
@@ -7606,7 +7621,7 @@ function patrol83(t){
  if(/((被|遭|收到).{0,6}|(縣府|主管機關|政府|縣政府).{0,4})(解散|廢止)/.test(t)&&!/(免稅|稅務|國稅局|補稅)/.test(t)&&/(不服|申訴|救濟|抗議|異議|可以告|能告|訴願|行政訴訟|反對|不同意|不接受)/.test(t))
   return R('被縣府廢止許可或解散後不服怎麼辦：一般可提起訴願，期限是處分送達次日起30日內','人民團體法第58條、第59條只列了縣府可以做的處分，沒有寫不服怎麼辦；一般的救濟程序在訴願法：\n1. 人民認為行政處分違法或不當、損害權利或利益的，可以提起訴願；但法律另有規定的，從其規定（訴願法第1條）。\n2. 期限：自處分送達或公告期滿的次日起30日內提起（訴願法第14條第1項）。\n3. 訴願書要經由原處分機關（縣府）向訴願管轄機關提出（第58條第1項）；不服縣（市）政府的處分，向中央主管部、會、行、處、局、署提起訴願（第4條第3款），是哪一個機關，請向承辦人員確認。\n4. 提起訴願不會自動停止處分的執行（第93條第1項），要停止執行須另外申請（第2項）。\n5. 訴願決定之後還不服：可以向行政法院提起撤銷訴訟；提起訴願逾三個月不為決定，也可以提起（行政訴訟法第4條第1項）。要在訴願決定書送達後二個月的不變期間內提起，送達已逾三年的不能再提起（第106條第1項、第2項）。\n期限很短，建議收到處分後馬上洽律師，並和承辦人員確認處分內容。',[P(58),P(59),LAWAPP(1),LAWAPP(14),LAWAPP(4),LAWAPP(58),LAWAPP(93),{title:'行政訴訟法第4條',source:LAW+'A0030154'},{title:'行政訴訟法第106條',source:LAW+'A0030154'}]);
  // 原班人馬再組新協會
- if(/(解散|散掉)/.test(t)&&/(理監事|理事長|原來的|原班|同一批|同樣的人|原本的|原有的)/.test(t)&&/(再組|重新組|另組|再成立|重新成立|再辦|另外成立|再申請|再當|新協會|新的協會)/.test(t))
+ if(/(解散|散掉)/.test(t)&&/(理監事|理事長|原來的|原班|同一批|同樣的人|原本的|原有的)/.test(t)&&/(再組|重新組|另組|再成立|重新成立|再辦|另外成立|再申請|再當|新協會|新的協會)/.test(t)&&!/(名稱|名字|會名|同名|原名)/.test(t))
   return again('協會解散後可以再成立嗎');
  // 統編、稅籍
  if(/(解散|結束|收掉|關掉|廢止)/.test(t)&&/(統編|統一編號|稅籍|扣繳編號|營業登記)/.test(t))
@@ -12174,7 +12189,7 @@ function verifiedRoundAnswerCore(q,ctx){
  }
  return guildAbsence(t)||patrol216(t)||patrol214(t)||patrol213(t)||patrol212(t)||patrol210(t)||patrol209(t)||patrol208(t)||patrol207(t)||patrol206(t)||patrol205(t)||patrol204(t)||patrol203(t)||patrol202(t)||coop202(t)||joinBeforeAssembly(t)||meetingMonths(t)||lectureFaq(t)||patrol201(t)||patrol199(t)||patrol197(t)||patrol196(t)||patrol194(t)||patrol192(t)||patrol191(t)||patrol189(t)||patrol188(t)||patrol187(t)||patrol186(t)||patrol185(t)||patrol184(t)||patrol182(t)||patrol181(t)||patrol180(t)||patrol179(t)||patrol178(t)||patrol176(t)||patrol175(t)||patrol174(t)||patrol173(t)||patrol172(t)||patrol171(t)||patrol170(t)||patrol169(t)||patrol168(t)||patrol167(t)||patrol166(t)||patrol165(t)||patrol164(t)||patrol162(t)||patrol161(t)||professionalJoin160(t)||chamberJoin(t)||patrol157(t)||patrol156(t)||patrol155(t)||patrol154(t)||patrol153(t)||patrol152(t)||patrol150(t)||patrol149(t)||patrol148(t)||patrol147(t)||patrol146(t)||patrol145(t)||patrol144(t)||patrol143(t)||patrol142(t)||patrol141(t)||patrol140(t)||patrol139(t)||assemblyNotHeld(t)||patrol137(t)||patrol136(t)||patrol135(t)||patrol134(t)||patrol133(t)||appeal133(t)||patrol132(t)||patrol131(t)||patrol130(t)||patrol129(t)||patrol128(t)||patrol127(t)||patrol126(t)||patrol125(t)||patrol124(t)||patrol123(t)||patrol122(t)||patrol121(t)||patrol120(t)||patrol119(t)||patrol118(t)||patrol117(t)||patrol116(t)||patrol115(t)||patrol114(t)||patrol113(t)||patrol112(t)||patrol111(t)||patrol110(t)||patrol109(t)||patrol108(t)||patrol107(t)||patrol106b(t)||patrol106(t)||patrol105(t)||patrol104(t)||patrol103(t)||patrol102(t)||patrol101(t)||patrol100(t)||patrol99(t)||patrol98(t)||patrol97(t)||patrol96(t)||patrol95(t)||patrol94(t)||patrol93(t)||patrol92(t)||patrol91(t)||patrol90(t)||patrol89(t)||patrol88(t)||patrol87(t)||patrol86(t)||guild86(t)||patrol85(t)||charterRound84(t)||taxFiling81(t)||memberRound83(t)||patrol84(t)||patrol83(t)||patrol82(t)||patrol81(t)||patrol80(t)||patrol79(t)||patrol78(t)||patrol77(t)||patrol76(t)||patrol75(t)||patrol74(t)||patrol73(t)||patrol72(t)||patrol71(t)||patrol70(t)||patrol69(t)||patrol68(t)||patrol67(t)||patrol66(t)||patrol65(t)||patrol64(t)||patrol63(t)||patrol62(t)||patrol61(t)||patrol60(t)||patrol59(t)||patrol58(t)||patrol57(t)||patrol56(t)||patrol55(t)||patrol54(t)||patrol53(t)||patrol52(t)||patrol51(t)||patrol50(t)||patrol49(t)||patrol48(t)||chairTermGeneral(t)||patrol47(t)||patrol46(t)||patrol45(t)||patrol44(t)||patrol43(t)||patrol42(t)||patrol41(t)||patrol40(t)||patrol39(t)||patrol38(t)||patrol37(t)||patrol36(t)||patrol35(t)||patrol34(t)||patrol33(t)||patrol32(t)||patrol31(t)||patrol30(t)||patrol29(t)||patrol28(t)||patrol27(t)||patrol26(t)||patrol25(t)||patrol24(t)||patrol23(t)||patrol22(t)||patrol21(t)||patrol20(t)||patrol19(t)||patrol18(t)||patrol17(t)||patrol15(t)||patrol16(t)||patrol14(t)||intlGroupElection(t)||patrol13(t)||patrol11(t)||patrol10(t)||patrol9(t)||patrol8(t)||patrol7(t)||memberStaffPatrol6(t)||communityPatrol(t)||dissolveCharterPatrol(t)||financePatrol(t)||membershipPatrol(t)||formTemplates(t,ctx&&ctx.catalog)||(/^(協會|社區發展協會|我們協會|本會)?的?(理事|監事|理監事)(和監事|跟監事)?(要)?(怎麼選|怎麼產生|如何產生|誰選)/.test(t)?electionHowTo(t):null)||attendanceFeeCan(t)||joinManyGroups(t)||chairReplaceMidTerm(t)||charterItemChange(t)||resolutionOverturn(t)||staffInsurance(t)||intlGroupWho(t)||moneyMisuse(t)||supervisorNoMeeting(t)||rosterView(t)||whoManagesMoney(t)||donationDeduct(t)||annualAccountsHowTo(t)||boardMeetingHowTo(t)||memberQuitHowTo(t)||viceChair(t)||motionSecond(t)||assocLoan(t)||yearEndBonus(t)||entertainmentExpense(t)||englishName(t)||minorOfficer(t)||assocInvest(t)||candidateDeposit(t)||chairAndRecorder(t)||facebookGroup(t)||rulingRules(t)||byElection(t)||receiptsBasic(t)||memberRepThreshold(t)||officerResignHow(t)||finalAccountsWho(t)||publicServantOfficer(t)||relativesAsOfficers(t)||mergeGroups(t)||govCommission(t)||conveneAndPetition(t)||assemblyPrepAndSignIn(t)||whatNeedsAssembly(t)||feeAndMemberStatus(t)||directorMustBeMember(t)||auditAndYear(t)||reorganization(t)||staffResignReport(t)||videoElection(t)||subsidyDetails(t)||subsidyBasics(t)||taxWithholding(t)||commercialGuild(t)||memberSuspension(t)||meetingProcedure(t)||solicitationAfter(t)||coopMore(t)||communityMore(t)||outOfScope(t)||whichAuthority(t)||volunteerMore(t)||patrol171b(t)||submitWhere(t)||timeDeposit(t)||nonCompliance(t)||memberEligibilityOutside(t)||annualMeetings(t)||chairTermLimit(t)||assemblyQuorum(t)||urgentMeetingNotice(t)||directorVacancy(t)||recallOfficer(t)||boardResolution(t)||annualFinanceFiling(t)||receiptAndWithdraw(t)||charterContents(t)||dissolveVote(t)||sealMake(t)||memberOnlyFundraising(t)||communityBasics(t)||countyPhone(t)||advisorAppoint(t)||sealKeeper(t)||assocTravel(t)||activityReport(t)||assocFund(t)||officerAsFinanceStaff(t)||electionShowOfHands(t)||directorProxyVote(t)||memberAdmissionWho(t)||memberRosterReport(t)||attendanceFeeAmount(t)||auditByCPA(t)||financeAnnounce(t)||coopBasics(t)||foundingCost(t)||prepMeetingCount(t)||assemblyShortOfQuorum(t)||twoCommunityAssociations(t)||villageChiefAsChair(t)||intlTermStart(t)||charmCommunityContact(t)||groupTypeDifference(t)||directorAbsence(t)||chairElectionMethod(t)||officerNumbers(t)||meetingNoticeChannel(t)||budgetHowTo(t)||renameGroup(t)||certificateLost(t)||dormantGroup(t)||lookupRegistered(t)||coopWithdraw(t)||termLengthLimit(t)||assemblyAgenda(t)||teacherAssocSetup(t)||commercialGroupSetup(t)||alumniSetup(t)||boardAgenda(t)||assetScrap(t)||taxMissed(t)||officeAtHome(t)||communityAreaSplit(t)||officeMove(t)||crossCountyEvent(t)||dissolvedAssets(t)||groupNameDuplicate(t)||standingDirectorCount(t)||memberViewAccounts(t)||howToReportGroup(t)||groupReported(t)||anonymousDonation(t)||chairRelativeStaff(t)||minorJoinAssoc(t)||volunteerTopics(t)||volunteerTeam(t)||memberCourseFee(t)||staffMustBeMember(t)||chairFundraising(t)||boardBelowHalf(t)||assocMayNotMeet(t)||assocNurseryCenter(t)||assocCareStation(t)||assocDonateGoods(t)||assocGovTender(t)||subsidySettlement(t)||corpRegistration(t)||assocBoardPay(t)||financeStaffConcurrent(t)||staffHiring(t)||coopVsAssocAccountingForms(t)||coopBalanceSheetReport(t)||delegateQuotaCalculation(t)||delegateConcurrentRole(t)||onlineVoting(t)||mailVoting(t)||assemblyVotingMethod(t)||boardVotingMethodDetail(t)||delegateElectionProcess(t)||delegateAssemblyRules(t)||coopMemberRemoval(t)||coopAdvertisingTaxability(t)||coopLoanToMemberTax(t)||coopBankLoanProcedure(t)||coopBankLoan(t)||branchAccountingPractice(t)||memberDelegateElection(t)||branchOrgSetup(t)||delegateProposalProcess(t)||annualMeetingVsAssembly(t)||vacancyQuorum(t)||supervisorConvenerNoMeeting(t)||supervisorMinimumMembers(t)||supervisorChairmanElection(t)||supervisorAuditPowers(t)||branchOrgAccounting(t)||runClassesPermit(t)||residentialCarePermit(t)||chairConvicted(t)||chairDismissStaff(t)||chairDissolve(t)||homeAsOfficeTax(t)||nonprofitTaxThreshold(t)||sameAddressGroups(t)||chairStaffConflict(t)||orgDisposeProperty(t)||orgAcquireEquipment(t)||sellGoodsAllowed(t)||staffActingChair(t)||p2MembershipFee(t)||p2BoardNotice(t)||p2RecordRetention(t)||p2CharterAmend(t)||p2SupervisorAudit(t)||p2CoopShares(t)||p2FoundingMeeting(t)||p2ElectionPrep(t)||p2MinutesContent(t)||p2DelegateSystem(t)||chairAbandonsOffice(t)||chairOtherGroupPosition(t)||chairSpendWithoutBoard(t)||supervisorSpend(t)||supervisorActingChair(t)||candidateSeatCount(t)||ballotRetention(t)||officerResignation(t)||invalidBallotReason(t)||delegateQualification(t)||substitutionOrder(t)||byElectionThreshold(t)||coopChairReelection(t)||chairmanReelectionLimit(t)||chairmanAbsence(t)||recordRetentionPeriod(t)||advertisingIncome(t)||staffBankAccountSetup(t)||meetingSigninDuration(t)||meetingVotingMethod(t)||preElectionBoardMeeting(t)||electionEffectiveDate(t)||politicalDonation(t)||communityReportingRequirements(t)||communityYearlyPlanDeadline(t)||communityVsAssociationDifferences(t)||supervisorAsDirector(t)||newChairTodo(t)||postElectionAccountingDeadline(t)||electionReportDeadline(t)||checkSignature(t)||feePeriods(t)||feeDeferral(t)||threeMonthsWording(t)||electionCandidates(t)||electionObjection(t)||minutesDeadline(t)||coopBoardQuorum(t)||coopTax(t)||communityRename(t)||communityReportTownship(t)||addressCertificate(t)||bankChairChange(t)||eventFee(t)||communityChairTerm(t)||invalidBallot(t)||feeAmount(t)||personalAccount(t)||delegateAssembly(t)||noSupervisor(t)||foundingDocs(t)||investStocks(t)||membershipRefused(t)||coopCapital(t)||receiveDonation(t)||hireEmployee(t)||lendToChair(t)||branchOrg(t)||supervisorMeeting(t)||noAnnualMeeting(t)||chairSpendingAuth(t)||communityVsGeneral(t)||coopDissolutionProperty(t)||charterAmendment(t)||coopSupervisorAudit(t)||patrol112late(t)||publicSolicitation(t)||decisionRevoked(t)||chairResign(t)||memberExpulsion(t)||sealChange(t)||noHandover(t)||communityDissolutionProperty(t)||boardFinanceAgenda(t)||boardQuorumGeneral(t)||delegated(t)||chairNoMeeting(t)||feeAnswer(t)||coopAssemblyQuorum(t)||proxyCount(t)||concurrent(t)||financeQuestioned(t)||financeDeadline(t)||meetingFrequency(t)||videoMeeting(t)||coopMinimum(t)||financeForms(t)||formsDownload(t,ctx&&ctx.catalog)||dissolutionHowTo(t)||patrol95late(t)||null||chairChangeTodo(t)||electionHowTo(t)||meetingHowTo(t);
 }
-const api={normalizeQuestion,withContext,verifiedRoundAnswer};
+const api={normalizeQuestion,withContext,verifiedRoundAnswer,personalWelfare};
 if(typeof module!=='undefined'&&module.exports)module.exports=api;
 Object.assign(root,api);
 })(typeof window!=='undefined'?window:globalThis);

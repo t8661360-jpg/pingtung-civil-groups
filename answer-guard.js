@@ -106,7 +106,11 @@
     if (diffType && SUF3.test(p2) && p2.length < 16) { const k = p1.search(/怎麼|如何|可以|可不可以|能不能|幾|多久|多少|誰|要不要|需不需要|有沒有|會不會|一定要/); const subj = p2.replace(SUF3, '').replace(/的$/, '');
       if (k >= 2 && subj.length >= 2) { const re1 = TYPES.find(x => x[0] === ty1[0])[1], re2 = TYPES.find(x => x[0] === ty2[0])[1];
         p2 = subj.replace(new RegExp(re2.source, 'g'), '') ? subj + p1.slice(k) : p1.replace(new RegExp(re1.source), subj); } }
-    if (/呢$/.test(p2) && p2.length < 12) { const k = p1.search(/怎麼|如何|可以|可不可以|能不能|幾|多久|多少|誰|要不要|需不需要|有沒有|會不會/); const subj = p2.replace(/呢$/, ''); if (k < 2 || subj.length < 2) return null; p2 = subj + p1.slice(k); }
+    /* 第5輪：「…，公會的呢」「…？合作社呢？」後半只有另一種團體的名稱 → 把前半問句的團體換成它，當成第二個問題 */
+    const bare5 = /呢$/.test(p2) && p2.length < 12 ? p2.replace(/呢$/, '').replace(/^(那麼|那)/, '').replace(/的$/, '') : '';
+    const bareType5 = !!bare5 && diffType && !bare5.replace(new RegExp(TYPES.find(x => x[0] === ty2[0])[1].source, 'g'), '');
+    if (bareType5) p2 = p1.replace(new RegExp(TYPES.find(x => x[0] === ty1[0])[1].source), bare5);
+    else if (/呢$/.test(p2) && p2.length < 12) { const k = p1.search(/怎麼|如何|可以|可不可以|能不能|幾|多久|多少|誰|要不要|需不需要|有沒有|會不會/); const subj = p2.replace(/呢$/, ''); if (k < 2 || subj.length < 2) return null; p2 = subj + p1.slice(k); }
     if (/^.{0,8}(也|一樣|同樣)/.test(p2) && p2.length < 14 && !diffType) return null; // 「監事會也可以嗎」這種承接問法，照原本整句回答
     if (/^(如果|假如|要是|萬一)/.test(p1) && !/嗎|呢/.test(parts[0].ask)) return null; // 條件句照原本整句回答
     const A = resolvePart(withType(p1));
@@ -137,7 +141,7 @@
     if (A && B && tA !== tB) {
       const isKB = typeof KB !== 'undefined' && KB.some(e => e.title === W);
       if (a.unanswered || isKB || W === tA || W === tB) {
-        if (W === tA && !freqMiss(a, parts[1].ask) && (covers(a, B) || coversQ(a, parts[1].ask)) || W === tB && !freqMiss(a, parts[0].ask) && (covers(a, A) || coversQ(a, parts[0].ask))) return null; // 原答案已經涵蓋另一半的重點
+        if (!(bareType5 && !a.unanswered) && (W === tA && !freqMiss(a, parts[1].ask) && (covers(a, B) || coversQ(a, parts[1].ask)) || W === tB && !freqMiss(a, parts[0].ask) && (covers(a, A) || coversQ(a, parts[0].ask)))) return null; // 原答案已經涵蓋另一半的重點
         return merge([A, B], { category: A.category === B.category ? A.category : '人民團體會務說明', title: '您問了兩件事，小屏分開回答',
           summary: '您一次問了兩件事，小屏分開回答。\n\n' + block('一', A) + '\n\n' + block('二', B), steps: [], docs: [], laws: [],
           actions: (!a.unanswered && a.actions && a.actions.length ? a.actions : A.actions) || [] });
@@ -325,10 +329,78 @@
     return null;
   }
   if (typeof window !== 'undefined') window.__understandingGuard3 = understandingGuard3;
+  /* ── 理解把關第5輪（2026-11-27）──
+     A. 基金會（財團法人）的問題配到協會的答案 → 改用既有的「基金會不是這個櫃檯的業務」分流。
+     B. 神明會、補習班、幼兒園、產銷班、教會、巡守隊等不是本櫃檯對象、本站也沒有已核對資料的組織 → 固定用語。
+     C. 「路燈壞了要找誰」這類和人民團體無關的「找誰」→ 不列人民團體承辦人名單，用固定用語。
+     D. 一句話把兩種團體並列（「合作社理事主席跟協會理事長都可以領薪水嗎」）：兩種團體各自答得出來就分開回答，否則出選單。
+     E. 問句的關鍵名詞（統一編號、把位子讓給別人）答案完全沒提到 → 選單。
+     每個條件都用 scripts/site-smoke.mjs 全部 CHECKS 驗證過不會擋掉已答對的題目。 */
+  const INSCOPE5 = /協會|社團|團體|公會|合作社|社區發展|儲蓄互助社/;
+  const OOS5 = [/神明會/, /補習班|安親班/, /幼兒園|托嬰中心/, /產銷班/, /(?<![佛道宗])教會(?!員)/, /(巡守隊|守望相助隊).{0,6}(隊長|幹部|改選|任期|怎麼選|誰選)/, /(?<!祭祀)公業/];
+  const WHO5 = /找誰|找哪|打給誰|問誰|跟誰|向誰|誰處理|誰管|哪個單位|哪一個單位/;
+  const SCOPEWHO5 = /協會|社團|團體|公會|合作社|社區|會務|立案|承辦|籌組|成立|志工|志願服務|理事|監事|會員|社員|社會處|小屏|你|妳|您|櫃檯|這裡|這邊|業務|窗口|聯絡|電話|分機|補助|申請|登記|章程|改選|會議|開會|解散/;
+  const FILL5 = /請問|我想|我要|想要|有問題|有事情|有事|問題|事情|不知道|不曉得|到底|應該|可以|需要|處理|找誰|找哪位|找哪個單位|找哪裡|找哪|打給誰|要問誰|問誰|跟誰|向誰|誰處理|誰管|哪個單位|哪一個單位|怎麼辦|要|該|去|我|的|了|嗎|呢|啊|啦|[^一-鿿0-9a-z]/gi;
+  const DETAILS5 = [
+    { ask: /統編|統一編號/, ans: /統編|統一編號/ },
+    { ask: /((每|一)年|年度|例行|定期|一年到頭).{0,14}(送|報|繳交|交).{0,10}(哪些|那些|什麼|甚麼|啥)|(哪些|什麼|甚麼).{0,8}((每|一)年|年度).{0,6}(送|報)/, ans: /每年|每一年|年度/ },
+    { ask: /(理事長|理事|監事|位子|位置|職位|職務|席次).{0,10}(讓給|讓位|讓渡|轉讓|頂讓|傳給|傳位)|(讓給|讓渡|轉讓給|傳給).{0,8}(當|做|接)?.{0,4}(理事長|理事|監事)/, ans: /讓給|讓位|轉讓|讓渡|遞補|互選|辭職/ }
+  ];
+  const coversType5 = (n, at) => TYPES.find(x => x[0] === n)[1].test(n === '協會' ? at.replace(/社區發展協會|社區協會/g, '＿') : at);
+  function understandingGuard5(q, a) {
+    if (!a || !a.title || a.unanswered || a.guarded) return null;
+    if (/您是不是要問|難倒小屏|想先確認|暫時無法回覆|兩件事|兩種團體/.test(a.title)) return null;
+    const fs = a.questionState && a.questionState.focus;
+    if (fs === 'guard-menu' || fs === 'keyword-menu' || fs === 'clarify' || fs === 'compound') return null;
+    if (a.category === '業務分流' || a.category === '打招呼') return null;
+    const raw = NFK(q); if (raw.length < 5) return null;
+    const at = answerText(a);
+    /* C */
+    if (a.title === '人民團體業務承辦人' && WHO5.test(raw) && !SCOPEWHO5.test(raw) && raw.replace(FILL5, '').length >= 2) return fixedPhrase2(q, []);
+    if ((a.groups && a.groups.length) || a.category === '團體查詢') return null;
+    /* A0. 個人福利（敬老禮金、假牙、輔具…）被別的答案搶走 → 改用既有的「個人福利不是這個櫃檯」分流 */
+    try { if (typeof personalWelfare === 'function' && personalWelfare(raw)) { const r = verifiedRoundAnswer('低收入戶怎麼申請', {}); if (r && r.category === '業務分流') return Object.assign({}, r, { direct: true, guarded: true }); } } catch (e) {}
+    /* A */
+    if (/基金會|財團法人/.test(raw) && !/基金會|財團法人/.test(at) && !INSCOPE5.test(raw)) {
+      try { const r = verifiedRoundAnswer('基金會怎麼成立', {}); if (r && r.category === '業務分流' && /基金會/.test(r.title || '')) return Object.assign({}, r, { direct: true, guarded: true }); } catch (e) {}
+      return fixedPhrase2(q, []);
+    }
+    /* B */
+    if (!INSCOPE5.test(raw)) for (const re of OOS5) if (re.test(raw) && !re.test(at)) return fixedPhrase2(q, []);
+    /* D */
+    const m = raw.match(/^(.{2,16}?)(?:跟|和|與|及|、|還有)(.{2,16}?)(?:也都|都|各自|各)(.{3,})$/);
+    if (m && !COMPARE.test(raw) && !/改成|變成|轉型|轉成|改制|合併|加入|互相|彼此|之間/.test(raw)) {
+      let x1 = m[1], x2 = m[2]; const t1 = typesOf(x1), t2 = typesOf(x2);
+      if (t1.length === 1 && t2.length === 1 && t1[0] !== t2[0] && !(coversType5(t1[0], at) && coversType5(t2[0], at))) {
+        const strip = (x, n) => x.replace(new RegExp(TYPES.find(y => y[0] === n)[1].source, 'g'), '').replace(/^的/, '');
+        const r1 = strip(x1, t1[0]), r2 = strip(x2, t2[0]);
+        if (!r1 && r2) x1 = x1 + '的' + r2; else if (r1 && !r2) x2 = x2 + '的' + r1;
+        const A = resolvePart(x1 + m[3]), B = resolvePart(x2 + m[3]);
+        const okA = A && coversType5(t1[0], textOf(A)) && (t1[0] === '合作社' || !/^合作社/.test(A.category || '')), okB = B && coversType5(t2[0], textOf(B)) && (t2[0] === '合作社' || !/^合作社/.test(B.category || ''));
+        if (okA && okB && A.title !== B.title) {
+          const seen = new Set(); const st = [A, B].flatMap(x => x.statutes || []).filter(x => { const k = x && x.title; if (!k || seen.has(k)) return false; seen.add(k); return true; });
+          return { ...A, direct: true, guarded: true, category: A.category === B.category ? A.category : '人民團體會務說明', title: '您問了兩種團體，小屏分開回答',
+            summary: '您一次問了兩種團體，規定不一樣，小屏分開回答。\n\n' + t1[0] + '：' + A.title + '\n' + A.summary + '\n\n' + t2[0] + '：' + B.title + '\n' + B.summary,
+            statutes: st, refs: [A, B].flatMap(x => x.refs || []), notes: [...new Set([A, B].flatMap(x => x.notes || []))], steps: [], docs: [], laws: [], actions: A.actions || [], questionState: { focus: 'compound' } };
+        }
+        return menu2(q, [...similar(x1 + m[3], 3), ...similar(x2 + m[3], 3), ...similar(q, 4)], '您一次問了兩種團體，小屏怕只答到其中一種。');
+      }
+    }
+    /* D2. 「…，公會的呢」後半只有另一種團體的名稱：走到這裡表示沒能把兩種團體分開回答 → 選單 */
+    { const cl = String(q || '').normalize('NFKC').split(/[，,；;。？?！!]+/).map(x => NFK(x)).filter(x => x.length >= 2);
+      const lastc = cl[cl.length - 1] || '', mm = lastc.match(/^(?:那麼|那)?(合作社|社區發展協會|社區協會|協會|公會|工會)的?呢$/);
+      if (cl.length >= 2 && mm) { const t1 = typesOf(cl[0]), t2 = typesOf(mm[1]);
+        if (t1.length === 1 && t2.length === 1 && t1[0] !== t2[0] && !/分別|分開|兩件事|兩種/.test(a.title) && !(coversType5(t1[0], NFK(a.title)) && coversType5(t2[0], NFK(a.title)))) return menu2(q, [...similar(cl[0], 3), ...similar(cl[0].replace(new RegExp(TYPES.find(y => y[0] === t1[0])[1].source), mm[1]), 3), ...similar(q, 4)], '您一次問了兩種團體，小屏怕只答到其中一種。'); } }
+    /* E */
+    for (const d of DETAILS5) if (d.ask.test(raw) && !d.ans.test(at)) return menu2(q, similar(q, 7), '');
+    return null;
+  }
+  if (typeof window !== 'undefined') window.__understandingGuard5 = understandingGuard5;
   function guard(q, a) {
     try { const c = compareGuard(q, a) || compareTopic(q, a) || compound(q, a); if (c) return c; } catch (e) {}
     try { const u = understandingGuard(q, a); if (u) return u; } catch (e) {}
     try { const u3 = understandingGuard3(q, a); if (u3) return u3; } catch (e) {}
+    try { const u4 = understandingGuard5(q, a); if (u4) return u4; } catch (e) {}
     try {
       if (!a || a.direct || a.questionState || a.unanswered || !a.title) return null;
       if ((typeof exactArticleAnswer === 'function' && exactArticleAnswer(q)) || (typeof focusedQuestionAnswer === 'function' && focusedQuestionAnswer(q))) return null; // 會被其他已核對答案取代
