@@ -1331,6 +1331,47 @@ function contactLine(list){return list.length?`${list[0].unit||""}${list[0].name
 
 /* 團體查詢回覆 */
 function notCovered(t){return(t==="社區發展協會"||t==="合作社")&&!STORE.dir.rows.some(r=>r.t===t)}
+// 明確查具名團體的既有登記資料：只用名冊中完全吻合的名稱，不用相近名稱代答。
+function explicitRegistryAnswer(q) {
+  const t=String(q||"").normalize("NFKC").replace(/\s/g,"");
+  if(t.length<6||t.length>115||!/立案(?:資料|證號|狀況|了嗎|日期)|是否立案|有沒有立案|解散了嗎|是否解散|電話|會址|聯絡方式/.test(t))return null;
+  if(/不是查|不是要查|不想查|不用查|不需要查|私人手機|私人電話|個人住址|公告.*電話|公開.*電話|電話.*公告|電話.*公開|需要.*同意|想成立|想設立|要怎麼|如何|流程|變更|要報|應報|要設在|改選|變更會址|要把|想把|要合辦|能不能|可不可以|可否|同時(?:想問|要問)|另外(?:還)?(?:請問|想問)|[?？。；;].{3,}/.test(t))return null;
+  const asked=/查|搜尋|找資料|哪裡|在哪|多少|幾號|是否|有沒有|了嗎|立案資料|立案證號|立案狀況/.test(t)||/^(?:問一下)?[\u4e00-\u9fa5A-Za-z0-9「」]{2,45}的(?:電話|會址|聯絡方式)[?？。]?$/.test(t);
+  if(!asked)return null;
+  const normalizeName=v=>String(v||"").normalize("NFKC").replace(/臺/g,"台").replace(/\s/g,"");
+  const n=normalizeName(t);
+  const rows=(STORE.dir.rows||[]).filter(g=>{
+    const label=normalizeName(g.n);
+    const core=label.length>=7&&label.startsWith("屏東縣")?label.slice(3):"";
+    return label.length>=5&&(n.includes(label)||(core.length>=4&&n.includes("「"+core+"」")));
+  });
+  if(rows.length!==1)return null;
+  const g=rows[0];
+  const contacts=/電話|會址|聯絡方式/.test(t);
+  const live=g.s==="已解散"?false:true;
+  const facts=[g.d&&"所在地區："+g.d,g.r&&"立案證號："+g.r,g.dt&&"成立日期："+g.dt,g.sd&&!live&&"解散字號："+g.sd].filter(Boolean);
+  const heading=live?"依本縣名冊列載":"依本縣名冊列為已解散，目前不是存續團體";
+  const extra=contacts?(live?" 名冊只能佐證這筆團體登記；如需現用電話或會址，請以團體正式公開管道或縣府承辦確認。不把名冊未核實的私人聯絡資料當作公開窗口。":" 不宜把舊電話或會址當作現在可聯絡的資料。"):"";
+  return {direct:true,guarded:true,category:"團體查詢",title:g.n+"：立案資料",summary:"「"+g.n+"」"+heading+"。"+(facts.length?facts.join("；")+"。":"")+extra,dirMeta:typeof dirMetaLine==="function"?dirMetaLine():"",notes:["以本縣名冊列載為據，名冊不代表即時營運狀態。"],actions:[{label:"聯絡承辦",view:"contact",sub:""}],questionState:{focus:"compound"}};
+}
+function registryFollowup(q){
+  const t=String(q||"").normalize("NFKC").replace(/\s/g,"");
+  if(/(?:協會|團體).{0,9}(?:名字|名稱).{0,8}(?:不知道|忘了|不清楚)|(?:不知道|不清楚).{0,8}(?:協會|團體).{0,6}(?:名字|名稱)/.test(t)&&/查|找/.test(t)&&/立案證號|立案資料|立案狀況/.test(t)&&!/要怎麼申請|如何成立|公司|非營利法人/.test(t)){
+    return {direct:true,guarded:true,category:"團體查詢",title:"先用組織線索查立案，不用提供個人資料",summary:"沒有全名時，先提供可能的名稱兩三個字、所在地鄉鎮市、或團體類型。有已知的立案證號可直接比對；不要把「有個協會」當成組織名稱。仍無法確認是哪一個時，請洽承辦，不要使用相似名稱推定。",actions:[{label:"團體查詢",view:"search",sub:""},{label:"聯絡承辦",view:"contact",sub:""}],questionState:{focus:"compound"}};
+  }
+  const clauses=t.split(/[；;？?。]+|[，,]?另外(?:也)?/).filter(Boolean);
+  if(clauses.length!==2)return null;
+  for(const i of [0,1]){
+    const factual=explicitRegistryAnswer(clauses[i]);
+    const x=clauses[1-i];
+    if(!factual||!/協會|社會團體/.test(x)||!/通知/.test(x)||!/最晚|幾天前|提早|提前|哪一天/.test(x)||!/開會|會議|大會/.test(x)||/合作社|公會|工會|緊急事故/.test(x))continue;
+    if(/聯席/.test(x)||/會員大會|理事會|監事會/.test(x))return null; // 保留原本已知會議類型和日期的處理。
+    const givenDate=x.match(/(?:民國)?\d{2,4}年\d{1,2}月\d{1,2}[日號]|\d{2,4}[/-]\d{1,2}[/-]\d{1,2}|\d{1,2}月\d{1,2}[日號]/)?.[0];
+    const handover={title:"人民團體會務輔導辦法第10、11條：大會及理監事會議議程通知",source:"https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0020094"};
+    return {...factual,title:"團體立案資料與開會通知分開回答",summary:(i===0?factual.summary+" ":"")+"一般協會的開會通知須先確認會議類型：會員（代表）大會原則十五日前，理事會／監事會通常七日前。未同時確定會議類型與日期，還不能算當天。"+(givenDate?" 您已提到「"+givenDate+"」，只要再確認會議種類。":"")+(i===1?" "+factual.summary:""),steps:[["先看通知是哪種會議","只要補充「會員大會、理事會、監事會或理監事聯席會議」"+(givenDate?"":"與預定日期")+"，不要貼具名名冊或完整公文。緊急事故例外是開會前一日送達，不是前一天才寄出。"]],refs:[{title:"人民團體法第26條：會員（代表）大會通知",source:"https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=D0050091&flno=26"},handover],choiceHeading:"這次要開的是哪類會議？",choices:[{label:"會員（代表）大會",question:"一般協會會員大會"+(givenDate?"在"+givenDate+"開會，":"")+"最晚幾天前要通知？"},{label:"理事會或監事會",question:"一般協會理事會及監事會"+(givenDate?"在"+givenDate+"開會，":"")+"最晚幾天前通知？"}]};
+  }
+  return null;
+}
 function dirAnswer(q,intent){
   if(!STORE.dir.rows.length){
     return{category:"團體查詢",title:"團體資料查詢",summary:`線上名冊目前建置中，暫時無法在櫃檯直接查詢。請洽${contactLine(staffFor(detectType(q),detectCat(q)))}，承辦人可協助查詢團體立案資料。`,staff:staffFor(detectType(q),detectCat(q)),notes:[],actions:[{label:"聯絡承辦",view:"contact",sub:""}]};
@@ -1633,7 +1674,8 @@ async function ask(q){
   const stop=thinkingView(shownQ,lines);
   const t0=Date.now();
   await loadAll();
-  let ans=typeof window.documentInspectionAnswer==="function"?window.documentInspectionAnswer(shownQ):null;
+  let ans=registryFollowup(shownQ)||explicitRegistryAnswer(shownQ);
+  if(!ans&&typeof window.documentInspectionAnswer==="function")ans=window.documentInspectionAnswer(shownQ);
   if(!ans&&typeof window.associationChairFiling==="function")ans=window.associationChairFiling(shownQ);
   if(!ans&&typeof window.associationCooperativeConversion==="function")ans=window.associationCooperativeConversion(shownQ);
   const kwMenu=!ans&&typeof keywordMenu==="function"?await keywordMenu(q,shownQ,intent):null;
