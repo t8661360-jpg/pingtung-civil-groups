@@ -1,0 +1,15 @@
+const a=require('node:assert/strict');
+const l=require('./land-agent-guild-practice.js').route;
+const q=require('./association-qr-donation.js').route;
+let r=l('地政士一定要加入公會才能執業嗎？');
+a.match(r.summary,/沒加入.*不得執業.*當地公會尚未成立/);
+a.match(l('被地政士公會拒絕入會怎麼辦？').summary,/經人民團體主管機關認定會員資格後/);
+a.match(l('地政士要怎麼執業，開業執照去哪裡申請？').steps.flat().join(' '),/向內政部申請.*向直轄市或縣（市）地政主管機關.*加入該管公會/);
+for(const s of ['協會要辦土地過戶，可以委託地政士嗎？','護理師沒加入公會可以執業嗎？'])a.equal(l(s),null,s);
+r=q('協會捐款如果用QR碼收，民眾付款後要不要開收據？這跟在網路上向不特定民眾勸募一樣嗎？');
+a.match(r.summary,/實際收到捐款.*要不要先取得勸募許可.*不是看是否用 QR/);
+const [pub,pass,info]=r.choices.map(x=>q(x.question));
+a.match(pub.steps.flat().join(' '),/第7條取得許可.*第16條開收據.*勸募許可文號/);
+a.match(pass.steps.flat().join(' '),/第17條開正式收據.*第6條.*按指定用途使用.*公開徵信/);
+a.match(info.summary,/不會只因掃碼而開捐款收據/);
+a.equal(q('合作社用QR碼收付款，會費要開發票嗎？'),null);

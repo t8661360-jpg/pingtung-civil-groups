@@ -1655,6 +1655,8 @@ async function ask(q){
   if(politicalDonation){renderAnswer(q,politicalDonation);return;}
   const donorReceipt=typeof window.verifiedDonationReceiptIdentity==="function"?window.verifiedDonationReceiptIdentity(q):null;
   if(donorReceipt){renderAnswer(q,donorReceipt);return;}
+  const qrDonations=typeof window.verifiedAssociationQrDonation==="function"?window.verifiedAssociationQrDonation(q):null;
+  if(qrDonations){financeMeetingPlanner=null;renderAnswer(q,qrDonations);return;}
   const saleFundraising=typeof window.verifiedCharitySaleFundraising==="function"?window.verifiedCharitySaleFundraising(q):null;
   if(saleFundraising){renderAnswer(q,saleFundraising);return;}
   const inKind=typeof window.verifiedInKindDonationAnswer==="function"?window.verifiedInKindDonationAnswer(q):null;
@@ -1695,6 +1697,8 @@ async function ask(q){
   if(chairVote){renderAnswer(q,chairVote);return;}
   const officeStatus=typeof window.verifiedAssociationOfficeStatus==="function"?window.verifiedAssociationOfficeStatus(q):null;
   if(officeStatus){renderAnswer(q,officeStatus);return;}
+  const landPractice=typeof window.verifiedLandAgentGuildPractice==="function"?window.verifiedLandAgentGuildPractice(q):null;
+  if(landPractice){financeMeetingPlanner=null;renderAnswer(q,landPractice);return;}
   const guildPractice=typeof window.verifiedGuildPractice==="function"?window.verifiedGuildPractice(q):null;
   if(guildPractice){renderAnswer(q,guildPractice);return;}
   const withdrawElection=typeof window.verifiedWithdrawalElection==="function"?window.verifiedWithdrawalElection(q):null;
@@ -2133,8 +2137,10 @@ touch();
 <script src="association-decision-audit.js?v=1"></script>
 <script src="association-chair-vote.js?v=2"></script>
 <script src="association-office-status.js?v=1"></script>
+<script src="land-agent-guild-practice.js?v=20261127-land-agent"></script>
 <script src="guild-practice-registration.js?v=1"></script>
 <script src="association-quorum-withdrawal.js?v=1"></script>
+<script src="association-qr-donation.js?v=20261127-qr"></script>
 <script src="charity-sale-fundraising.js?v=1"></script>
 <script src="donation-receipt-identity.js?v=1"></script>
 <script src="association-withdrawal-election.js?v=20261127-coop-fees"></script>
