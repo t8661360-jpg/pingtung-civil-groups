@@ -3,11 +3,29 @@
 const ref=(name,code,n)=>({title:name+'第'+n+'條',source:'https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode='+code+'&flno='+n});
 const p=n=>ref('人民團體法','D0050091',n),c=n=>ref('合作社法','D0050112',n),e=n=>ref('合作社選舉罷免辦法','D0050022',n);
 const county={title:'屏東縣政府對民間團體補助經費作業要點第5、8點（115年度公告附件）',source:'https://portal.ptc.edu.tw/bulletin/attachment.php?a_sn=33872&b_sn=B114003910'};
+const model={title:'彰化縣社會處合作社章程範例第32條（只作比較）',source:'https://social.chcg.gov.tw/files/合作社章程範例_8_1090325_8_1090520.pdf'};
+const example={title:'食在永續消費合作社章程第23條（個別章程範例）',source:'https://coop.tcu.edu.tw/?page_id=905'};
 const base={direct:true,questionState:{focus:'compound'},actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
 function route(q){
  const t=String(q??'').normalize('NFKC').replace(/\s/g,'');
  if(!t||t.length>230)return null;
  const compare=/一般協會|協會|社會團體/.test(t)&&/會員代表大會|全體會員|會員大會/.test(t);
+ const reps=/合作社/.test(t)&&/社員代表大會|社員代表.{0,12}過半/.test(t)&&!/信用合作社|信合社|保險合作社|聯合社|工會|農會|漁會|罷免|解散|合併|轉銀行/.test(t);
+ const isNotice=/通知|公告|書面|報主管機關|提前.{0,4}(?:七天|七日|7天|7日)/.test(t)&&/幾天|幾日|多久|七天|七日|7天|7日|何時|需要|要不要/.test(t);
+ const ordinaryMotion=/一般議案|一般提案|普通議案|不是選舉|不辦選舉|不選理監事/.test(t);
+ if(reps&&isNotice&&!compare){
+  const election=!ordinaryMotion&&/要選理監事|要選理事|選理監事|理監事選舉|改選/.test(t);
+  if(election||ordinaryMotion)return {...base,category:'合作社會務｜社員代表大會通知',title:election?'選理監事：選舉日前七日公告、個別書面通知並報備':'普通議案的代表大會：不能直接套選舉七日規則',summary:election?'依法以社員代表大會開會選理監事時，依選舉罷免辦法第18條，選舉日前七日公告，並個別書面通知應出席人員、報主管機關備查。':'若只有一般提案，先確認合作社社別、現行章程與議程；第18條的選舉通知不能直接當成普通代表大會一律七日前。',steps:election?[['公告、通知、報備是三件事','公告選舉種類、時間、地點、應選及候補名額、選舉方式，逐一書面通知應出席人員，並報主管機關備查；採登記候選方式者，並公告候選人名單。不要僅在群組貼一則公告代替個別書面通知。']]:[['先確認是一般社員大會，還是合法社員代表大會','合作社法第46條對一般社員大會有七日前書面通知規定，內容載明召集事由及提議事項。代表大會的普通議案請查適用章程與主管機關確認，不把一般社員大會或選舉的期限硬套。']],refs:[e(18),...(ordinaryMotion?[c(46),e(4)]:[])]};
+ }
+ const bothHalves=/章程.{0,24}(?:代表)?過半(?:數)?(?:出席|到場)/.test(t)&&/(?:出席|實到).{0,10}過半(?:數)?同意/.test(t);
+ const due=Number(t.match(/(?:應到|應出席(?:人數)?(?:為|有)?)(\d{1,4})(?:位|名|人)/)?.[1]||0);
+ const actual=Number(t.match(/(?:實到|實際出席(?:為|有)?)(\d{1,4})(?:位|名|人)/)?.[1]||0);
+ if(reps&&bothHalves&&due&&actual&&ordinaryMotion&&!compare&&!/改選|選理監事(?![。！？?，,]*$)|修章|除名|特殊議案/.test(t)){
+  const threshold=Math.floor(due/2)+1, votes=Math.floor(actual/2)+1;
+  const low=due<51?' 應到'+due+'位低於選罷辦法第4條一般代表名額51名下限；若這是現行名額或名冊有減少，先請主管機關核對，不單用下面算式判定可開會。':'';
+  const calc=actual>due?'實到不能大於應到，先查名冊及簽到紀錄。':actual<threshold?'若應到'+due+'位已核實，至少'+threshold+'位才成會；實到'+actual+'位不足，不再計算這案需幾票。':'若章程確如您所述、應到'+due+'位和實到'+actual+'位均已核實，至少'+threshold+'位才成會；有效出席'+actual+'位時，普通議案至少'+votes+'票同意。';
+  return {...base,category:'合作社會務｜章程出席與同意門檻',title:'依您所述章程算普通議案：開會門檻與同意票分開',summary:calc+low,steps:[['只在你們章程確有這兩個過半門檻時才這樣算','過半是超過一半，不是至少一半。彰化縣公開章程範例及食在永續消費合作社章程可參考，但這不是屏東全縣所有合作社的通用規則。先看現行章程、合法代表名額和當次名冊；特別議案不按這個簡式計算。']],refs:[e(4),model,example]};
+ }
  const qCoop=/合作社/.test(t)&&/社員(?:代表)?大會/.test(t)&&/多少人|幾(?:個)?人|過半|出席|成會|算誰|門檻/.test(t)&&!/信用合作社|信合社|保險合作社|聯合社|工會|農會|漁會|委託|罷免|解散|合併|轉銀行/.test(t);
  if(qCoop&&(compare||/社員代表大會/.test(t))){
   const ordinary=/不是社員代表大會|只開社員大會|我們開一般社員大會|一般合作社社員大會(?!或)/.test(t)&&!/社員代表大會.{0,8}(?:又|也要|則|能不能|可否)/.test(t);

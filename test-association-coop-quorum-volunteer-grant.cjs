@@ -15,3 +15,10 @@ assert.match(grant.steps[1][1],/第8點.*領款收據.*實際支用明細表.*�
 assert.match(route(grant.choices[0].question).summary,/有列.*按核定用途/);
 assert.match(route(grant.choices[1].question).summary,/沒列.*不要先用補助款核銷/);
 for(const s of ['合作社社員大會要解散，出席過半就能嗎？','信合社社員代表大會選理監事的出席門檻？','協會的志工補助保險需要報什麼單據？','高雄市協會辦活動請志工吃便當，補助能報嗎？'])assert.equal(route(s),null,s);
+const n='我們一般合作社的章程寫社員代表過半數出席，出席過半數同意，應到31位實到16位，審一般議案要幾票？';
+assert.match(route(n).summary,/至少16位.*至少9票.*低於.*51名/);
+assert.match(route(n.replace('31','51').replace('16','26')).summary,/至少26位.*至少14票/);
+assert.match(route(n.replace('31','51').replace('16','25')).summary,/實到25位不足，不再計算/);
+const notify=route('合作社社員代表大會這次要選理監事，選舉前幾天要公告、個別通知和報主管機關？');
+assert.match(notify.summary,/第18條.*七日公告.*個別書面通知應出席人員.*報主管機關備查/);
+assert.match(route('社員代表大會不辦選舉，只是一般提案，合作社打算下個月開，也依法一律提前七天嗎？').summary,/不能直接當成.*一律七日前/);
