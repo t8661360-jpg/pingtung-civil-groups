@@ -631,7 +631,27 @@ function memberMeetingExpenseFunding(q){
   summary:county?(special?'一般補助不核銷會員大會本身的支出。若另有核定專案，請分開看並核對專案核定項目。':'不能把會員大會的出席費或紀念品列入屏東縣一般補助核銷。'):'若是協會自己的錢，不能直接套用縣府補助規定，也不能逕自認為出席費或紀念品一定可以發。',
   steps:[...(county?[grant,plan]:[]),...(own?[ownFunds]:[]),article],refs:[...(county?grantRefs:[]),...finance],actions};
 }
+function missedSupervisorNotice(q){
+ const t=String(q??'').normalize('NFKC').replace(/\s/g,'');
+ if(t.length>150||!/協會|社會團體/.test(t)||/合作社|公會|工會|農會|漁會|公司|基金會|董事會|罷免|股東/.test(t))return null;
+ if(!/理事會|理監事聯席/.test(t)||!/監事/.test(t)||!/沒(?:有)?通知|未通知|漏通知|不通知|沒(?:有)?邀請|沒有收到通知|只通知理事|沒通知到/.test(t)
+    ||!/列席|出席|決議|有效|無效|算數|通過|決算|直接送|送縣府/.test(t))return null;
+ if(/指定召集|召集人出缺|理事長請辭/.test(t))return null;
+ const joint=/理監事聯席|理事監事聯席/.test(t);
+ const yearEnd=/年度決算|決算報告|審決算|工作會計報告/.test(t);
+ const charter=/章程.{0,9}(?:要求|規定|寫|載明|應|須)/.test(t);
+ const guide=n=>law('人民團體會務輔導辦法','D0020094',n);
+ const board=['單獨理事會：先看誰應通知','會務輔導辦法第11條要求通知應出席人員。不能把監事一律當成理事會的有表決權成員；是否有應通知監事列席的要求，應查現行章程、適用規則或有效的團體決議。若章程載明應通知而確實漏發，就要處理這項程序瑕疵；不能只因漏通知即斷定決議一律有效或無效。'];
+ const jointStep=['理監事聯席會議：兩邊要分別計算','聯席會議須經理事長及監事會召集人分別同意後召集，並通知應出席的理事及監事。理事、監事各要過半數出席；決議也要分別依兩邊出席人員的同意門檻判斷。若監事出席未過半，不能只靠理事一方表決通過。'];
+ const recheck=['此案怎麼查','先保留通知及送達紀錄、簽到資料、會議紀錄與適用章程，核對會議種類、應列席身分、出席與議案；再向原立案主管機關確認是否應補正或重新召集。'];
+ const review=['年度決算的審查不能跳過','年度決算應先送監事會審核，再連同審核結果提會員（代表）大會通過後報主管機關。因故未能如期開大會時，可依財務處理辦法第11條經理事會及監事會或理監事聯席會議通過，再提大會追認。只由理事會通過或漏送監事會，不能當作監事會已審核。'];
+ return {direct:true,category:'人民團體會務說明',title:yearEnd?'理事會不能跳過監事會審核年度決算':joint?'聯席會議只通知理事，不足以完成兩邊的程序':'理事會漏通知監事列席，不能直接判定決議效力',
+ summary:yearEnd?'不可以把未經監事會審核的年度決算當作已審核直接送縣府。':joint?'聯席會議須通知應出席的理事與監事。若監事未達法定出席門檻，不能只靠理事通過。':charter?'如章程要求監事列席而確有漏通知，須查明程序瑕疵；不能單憑漏通知就判定決議失效。':'要先確認是單獨理事會或聯席會，以及章程是否要求監事列席。不能一概說決議有效或無效。',
+ steps:[...(yearEnd?[review]:[]),...(joint?[jointStep]:[board,jointStep]),recheck],
+ refs:[guide(11),association(29),...(yearEnd?[association(34),law('社會團體財務處理辦法','D0050097',11)]:[])],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
+}
 function answerMixed(q){
+ const missed=missedSupervisorNotice(q);if(missed)return missed;
  const expenses=memberMeetingExpenseFunding(q);if(expenses)return expenses;
  const withdrawal=withdrawalAndAssemblyRoll(q);if(withdrawal)return withdrawal;
  const boardMinutes=inspectAndPublishBoardMinutes(q);if(boardMinutes)return boardMinutes;
@@ -663,6 +683,6 @@ function answerMixed(q){
     keys.includes('creditor')?'合作社清算：就任後公告與終結報告，分別計算':isCoop?'合作社清算報告與股息上限，分開看':'協會入會資格與會員除名，分開看',
   summary:keys.length===1?topics[keys[0]].line[1]:'你問了兩件事，分別如下。',steps:keys.length>1?keys.map(k=>topics[k].line):[],refs:keys.flatMap(k=>topics[k].laws)};
 }
-if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy,changedMeetingVenue,familyAssemblyProxy,dualBoardVacancies,coopBoardVacancies,creditCooperativeVacancy,schoolParentFiling,associationRegisteredAddress,inspectAndPublishBoardMinutes,temporaryMeetingNotice,withdrawalAndAssemblyRoll,memberMeetingExpenseFunding};return;}
+if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy,changedMeetingVenue,familyAssemblyProxy,dualBoardVacancies,coopBoardVacancies,creditCooperativeVacancy,schoolParentFiling,associationRegisteredAddress,inspectAndPublishBoardMinutes,temporaryMeetingNotice,withdrawalAndAssemblyRoll,memberMeetingExpenseFunding,missedSupervisorNotice};return;}
 root.verifiedMixedQuestionAnswer=answerMixed;
 })(typeof window!=='undefined'?window:globalThis);
