@@ -333,7 +333,28 @@ function resignationAndMeeting(q){
   summary:oral&&!effective?'口頭請辭不生效，監事不會因此取得理事會召集權。':effective&&!oral?'准辭後也不是一律不能開會，但副理事長不會因稱謂就當然能召集或主持。':'可以依法辦理，但要先確認理事長是尚未准辭，還是已經出缺，以及誰有權召集。',
   steps,refs:[law('人民團體選舉罷免辦法','D0050093',27),law('人民團體選舉罷免辦法','D0050093',17),association(25),association(32),law('人民團體會務輔導辦法','D0020094',10),law('人民團體會務輔導辦法','D0020094',11)]};
 }
+function formerMemberArrearsPrivacy(q){
+ const t=String(q??'').normalize('NFKC').replace(/\s/g,'');
+ if(t.length>155||/信用合作社|工會|公會|農會|漁會|基金會|公司|管委會|法院|判決|催告債權|租金|募款|捐款|清算/.test(t))return null;
+ const social=/協會|社會團體/.test(t), cooperative=/合作社/.test(t);
+ if(social===cooperative)return null;
+ const share=/股金|股款|社股/.test(t);
+ if(cooperative?(!share||!/社員|退社/.test(t)||/會費/.test(t)):(share||!/會費|會員.{0,12}欠繳|退會.{0,12}欠繳/.test(t)))return null;
+ if(!/欠繳|欠費|未繳|沒繳|沒有繳|積欠/.test(t)||!/公開|公布|公告|張貼|貼(?:在|到)|上網|網路|官網|對外|群組/.test(t))return null;
+ if(/可否除名|能否除名|怎麼除名|怎麼催收|時效|要不要退費|退費多少/.test(t))return null;
+ const former=cooperative?/退社|前社員/.test(t):/退會|退出|前會員/.test(t);
+ if(!former)return null;
+ const steps=[['帳務追繳與對外公開是兩件事','能透過姓名、會員編號或其他資料認出是誰時，欠繳情形及金額屬於個人資料。使用不得超出原蒐集目的所必要範圍；超出原目的時須有法律規定的例外。未確認有合法依據，不要把可辨識的欠繳名單或金額貼到官網、社群或群組。']];
+ steps.push(['已退出，不代表可以公開','退會或退社不會讓個資保護失效。退出之前是否確有欠款，應另核對當時適用的章程、資料或其他依據，不要把退出當成債務當然消滅，也不要把帳務追繳當作公開資料的理由。']);
+ steps.push(cooperative?['合作社另依合作社法處理股金','合作社法第19條有就應得股息及結餘撥充欠繳股金的規定，並未授權上網公開社員資料。個別核對或通知，和對外揭露，是兩種不同的作法。']:
+  ['協會仍須定期公告財務收支','財務收支公告不等於公布每人的欠費。可公布無法辨識個人的收支資料；有欠費疑義，宜向當事人個別通知並核對帳目。']);
+ return {direct:true,category:cooperative?'合作社會務':'人民團體會務說明',
+  title:cooperative?'合作社股金欠繳，不等於可以公開社員個資':'協會欠繳會費，不等於可以公開會員個資',
+  summary:'即使已退'+(cooperative?'社':'會')+'，未確認合法依據前，不要公布可辨識個人的欠繳資料。',
+  steps,refs:[law('個人資料保護法','I0050021',5),law('個人資料保護法','I0050021',20),cooperative?coop(19):law('社會團體財務處理辦法','D0050097',20)]};
+}
 function answerMixed(q){
+ const arrears=formerMemberArrearsPrivacy(q);if(arrears)return arrears;
  const resign=resignationAndMeeting(q);if(resign)return resign;
  const dues=changedAssociationDues(q);if(dues)return dues;
  const donationDisclosure=fundraisingDisclosure(q);if(donationDisclosure)return donationDisclosure;
@@ -353,6 +374,6 @@ function answerMixed(q){
     keys.includes('creditor')?'合作社清算：就任後公告與終結報告，分別計算':isCoop?'合作社清算報告與股息上限，分開看':'協會入會資格與會員除名，分開看',
   summary:keys.length===1?topics[keys[0]].line[1]:'你問了兩件事，分別如下。',steps:keys.length>1?keys.map(k=>topics[k].line):[],refs:keys.flatMap(k=>topics[k].laws)};
 }
-if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting};return;}
+if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy};return;}
 root.verifiedMixedQuestionAnswer=answerMixed;
 })(typeof window!=='undefined'?window:globalThis);
