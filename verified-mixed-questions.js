@@ -226,7 +226,26 @@ function yearEndAuditVacancy(q){
   steps:[...(one?[seats]:[]),...(leave?[absence]:[]),review],
   refs:[association(34),law('社會團體財務處理辦法','D0050097',11),law('社會團體財務處理辦法','D0050097',22),...(one||leave?[association(29),guide(9),law('人民團體選舉罷免辦法','D0050093',17)]:[]),...(one?[association(32)]:[]),...(leave?[{title:'內政部函釋：理監事會出席人數與請假',source:'https://www.moi.gov.tw/News_Content.aspx?n=14119&s=256686&sms=12360'}]:[])]};
 }
+function overdueFundraising(q){
+ const t=String(q??'').normalize('NFKC').replace(/\s/g,'');
+ if(t.length>160||!/公益勸募|勸募(?:活動|案|許可)|許可.{0,6}勸募/.test(t))return null;
+ if(!/逾期|期限過|期滿|到期|已過期|期間結束|許可截止|超過許可|活動結束|結束後|延期/.test(t))return null;
+ if(!/退款|返還|退還|負責|繳交|轉捐|找不到|聯絡不上|繼續(?:募|收)|剩餘|賸餘|沒發完|沒用完|收款|收到|怎麼處理/.test(t))return null;
+ if(/政府補助|縣府補助|補助核銷|政治獻金|退會費|退股金|退訂|會員會費|扣繳|所得稅/.test(t))return null;
+ const article=n=>law('公益勸募條例','D0050138',n);
+ const compare=/許可期間(?:內)?(?:收|募|捐)|剩餘|賸餘|沒發完|沒用完|一起退/.test(t);
+ const paidLate=/逾期.{0,6}(?:收到|收入|募得|收款)|到期後.{0,4}(?:收到|募得)|找不到|轉捐|返還|退款|退還/.test(t);
+ const late=['許可屆滿後或逾期勸募','活動延期不會自動延長勸募許可。原許可到期後，不能繼續以該案向公眾勸募。若已因逾期勸募收受財物，由勸募團體處理返還捐贈人，不是由捐款人或單一工作人員自行承擔；只匯入而未繼續對外勸募的個案，先查明事實並請原許可機關認定，不要逕行動支。'];
+ const notFound=['找不到捐款人','不要自行轉捐。返還有困難時，先報原主管機關認定；認定後將該財物繳交主管機關，由其依原計畫或相關目的處理。建議留存款項明細、日期和聯繫紀錄供核對。'];
+ const legal=['原許可期間合法收的財物','勸募期滿不等於使用計畫已完成，也不是所有合法捐款都要退。依原許可的財物使用計畫執行；計畫執行完竣後仍有餘款，可以在三個月內依同類目的擬使用計畫，經主管機關同意才動支，再執行不得逾三年。團體解散或未依第19條處理的賸餘，按第22條辦理返還；不能把這筆錢混同逾期勸募取得的款項。'];
+ const steps=[...(compare?[legal]:[]),late,notFound];
+ if(!compare&&!paidLate)steps.push(['還要繼續辦','開放再募前，先持原許可函和新活動時程聯絡原許可機關確認應辦程序；在取得有效許可前先停止對外勸募。']);
+ return {direct:true,category:'公益勸募',title:compare?'許可期間內和逾期募得的財物，分開處理':'公益勸募許可到期：停止勸募，逾期所得由勸募團體處理返還',
+  summary:compare?'不要把兩種款項混在一起退款或動支。分別核對實際勸募時間、許可與財物使用計畫。':'不能因活動延期就沿用已到期的許可。逾期勸募所得須返還；無法返還時先報主管機關，不可自行轉捐。',
+  steps,refs:[article(7),article(12),article(22),...(compare?[article(19)]:[])]};
+}
 function answerMixed(q){
+ const fund=overdueFundraising(q);if(fund)return fund;
  const annual=yearEndAuditVacancy(q);if(annual)return annual;
  const coopRegistry=coopRegistryPrivacy(q);if(coopRegistry)return coopRegistry;
  const privacy=assemblyPrivacy(q);if(privacy)return privacy;
@@ -241,6 +260,6 @@ function answerMixed(q){
     keys.includes('creditor')?'合作社清算：就任後公告與終結報告，分別計算':isCoop?'合作社清算報告與股息上限，分開看':'協會入會資格與會員除名，分開看',
   summary:keys.length===1?topics[keys[0]].line[1]:'你問了兩件事，分別如下。',steps:keys.length>1?keys.map(k=>topics[k].line):[],refs:keys.flatMap(k=>topics[k].laws)};
 }
-if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy};return;}
+if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising};return;}
 root.verifiedMixedQuestionAnswer=answerMixed;
 })(typeof window!=='undefined'?window:globalThis);
