@@ -1532,6 +1532,8 @@ async function ask(q){
   if(lectureFee){renderAnswer(q,lectureFee);return;}
   const clanAssociation=typeof window.verifiedClanAssociationScope==="function"?window.verifiedClanAssociationScope(q):null;
   if(clanAssociation){renderAnswer(q,clanAssociation);return;}
+  const industrialMerger=typeof window.verifiedIndustrialGuildMerger==="function"?window.verifiedIndustrialGuildMerger(q):null;
+  if(industrialMerger){renderAnswer(q,industrialMerger);return;}
   const industrialDoubleFactory=typeof window.verifiedIndustrialDoubleFactory==="function"?window.verifiedIndustrialDoubleFactory(q):null;
   if(industrialDoubleFactory){renderAnswer(q,industrialDoubleFactory);return;}
   const houseTax=typeof window.verifiedHouseTaxReferral==="function"?window.verifiedHouseTaxReferral(q):null;
@@ -1982,6 +1984,7 @@ touch();
 <script src="farmer-association-representative.js?v=1"></script>
 <script src="house-tax-referral.js?v=1"></script>
 <script src="industrial-guild-double-representation.js?v=1"></script>
+<script src="industrial-guild-membership-merger.js?v=1"></script>
 <script src="clan-association-scope.js?v=1"></script>
 <script src="association-director-lecture-fee.js?v=1"></script>
 <script src="in-kind-donation-distinction.js?v=1"></script>
