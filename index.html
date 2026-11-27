@@ -1659,6 +1659,8 @@ async function ask(q){
   if(crossRoster){financeMeetingPlanner=null;renderAnswer(q,crossRoster);return;}
   const cooperativeRosterHandover=typeof window.verifiedCooperativeRosterHandover==="function"?window.verifiedCooperativeRosterHandover(q):null;
   if(cooperativeRosterHandover){renderAnswer(q,cooperativeRosterHandover);return;}
+  const electionRosterCopy=typeof window.verifiedElectionRosterCopy==="function"?window.verifiedElectionRosterCopy(q):null;
+  if(electionRosterCopy){financeMeetingPlanner=null;renderAnswer(q,electionRosterCopy);return;}
   const rosterHandover=typeof window.verifiedRosterHandover==="function"?window.verifiedRosterHandover(q):null;
   if(rosterHandover){renderAnswer(q,rosterHandover);return;}
   const admission=typeof window.verifiedAssociationAdmissionAnswer==="function"?window.verifiedAssociationAdmissionAnswer(q):null;
@@ -2074,7 +2076,7 @@ touch();
 <script src="company-association-membership.js?v=1"></script>
 <script src="mail-election-results.js?v=1"></script>
 <script src="post-election-first-meeting.js?v=2"></script>
-<script src="member-roster-access.js?v=1"></script>
+<script src="member-roster-access.js?v=20261127-election-copy"></script>
 <script src="association-fee-charter.js?v=1"></script>
 <script src="association-fee-timing.js?v=1"></script>
 <script src="cooperative-address-proof.js?v=1"></script>
@@ -2125,7 +2127,7 @@ touch();
 <script src="association-charter-applicability.js?v=1"></script>
 <script src="association-dissolution-financial-notice.js?v=1"></script>
 <script src="meeting-quorum-kind-clarification.js?v=1"></script>
-<script src="association-roster-handover.js?v=1"></script>
+<script src="association-roster-handover.js?v=20261127-private-roster"></script>
 <script src="cooperative-roster-handover.js?v=1"></script>
 <script src="cooperative-inspection-association-roster.js?v=1"></script>
 <script src="association-public-election.js?v=1"></script>
