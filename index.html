@@ -957,7 +957,7 @@ function detectCat(q){for(const [c,re] of CAT_ALIAS){if(re.test(q))return c}retu
 function intentOf(q){
   /* 已有核對過法條的直接回答時，不走名冊查詢（避免「協會每年有哪些會要開」被當成查名冊） */
   /* 問特定團體的屆期／第幾屆：查名冊（名冊有屆別與起訖日），不交給一般改選規定 */
-  {const sn0=specificName(q);if(sn0&&/(屆期|任期|屆別|第幾屆)/.test(q)&&/(到|什麼時候|何時|幾月|哪時|幾號|哪一天|第幾屆|屆滿|還有多久)/.test(q)&&!/(怎麼|如何|規定|可以|能不能|延長|延期|起算|開始算|最長|幾年|一般)/.test(q))return{kind:"dir",name:sn0,term:true}}
+  {const sn0=specificName(q);if(sn0&&/(屆期|任期|屆別|第幾屆)/.test(q)&&/(到|什麼時候|何時|幾月|哪時|幾號|哪一天|第幾屆|屆滿|還有多久)/.test(q)&&!/(怎麼|如何|規定|可以|能不能|延長|延期|起算|開始算|最長|幾年|一般|還能|簽約|有效|代表)/.test(q))return{kind:"dir",name:sn0,term:true}}
   if(typeof verifiedRoundAnswer==='function'){try{const d=verifiedRoundAnswer(q,{});if(d&&d.direct)return{kind:"ai"}}catch(e){}}
   const sn=specificName(q);
   if(!/多少|幾個|幾家|幾間|有哪些|哪些|列出|理事長是誰|的理事長|的電話|的地址|立案了嗎|重複|撞名/.test(q)){const k=searchKn(q,1);if(k.length&&k[0]._tc>=0.7&&revCov(k[0].標題,q)>=0.6)return{kind:"ai"}}
