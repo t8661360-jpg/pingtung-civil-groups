@@ -32,6 +32,8 @@ const CHECKS = [
   ['合作社有300名社員，代表大會代表幾位？我們還沒確定適用哪種合作社法規。', ['您問的是哪一類合作社','最高151名','最高199名']],
   ['協會理事會116年3月16日要開會，期中收支算到哪天？', ['2027年3月16日 理事會','2月28日','不取代正式的年度決算']],
   ['協會理事會明年3月16日要開會，期中收支算到哪天？', ['3月16日 理事會','理事會負責編造','不取代正式的年度決算']],
+  ['協會一月五日開會員大會，期中收支要做到哪天？', ['1月5日 會員','1月4日','不是法定申報截止日']],
+  ['協會八月十五日開理事會、九月二十日開會員大會，兩場收支報告各要做到哪天？', ['8月15日 理事會','7月31日','9月20日 會員','8月31日','不混用兩場會議']],
   ['退會書要交給誰', ['不是縣府','人民團體法第12條','建議退會書留一份副本']],
   ['舊章程不符合新法怎麼辦', ['章程和法律規定不一樣','人民團體法第58條']],
   ['地址換了', ['會址的設置和異動','會務輔導辦法第8條']],
@@ -2262,6 +2264,12 @@ try {
     await page.getByRole('button',{name:'查看報表期間',exact:true}).click();
     const n=await page.locator('#board').innerText();
     if(!['2027年9月21日','開會十五日前'].every(x=>n.includes(x))||n.includes('開會七日前'))fails.push('切換會議類型後應更新開會日期及通知時限');
+    await page.fill('#q','八月十五日要開會，收支報告要結到哪一天？');
+    await page.click('#askform button[type=submit]');
+    if(!(await page.locator('#board').innerText()).includes('已提供開會日期：8月15日'))fails.push('財務索引未保留中文問句的八月十五日');
+    await page.locator('#board [data-finance-kind="assembly"]').click({timeout:6000});
+    const cn=await page.locator('#board').innerText();
+    if(!['8月15日 會員','7月31日','不是法定申報截止日'].every(x=>cn.includes(x))||cn.includes('這次預計哪一天開會'))fails.push('選擇會議類別後，不應重問已提供的中文日期');
 
   } catch(e) { fails.push('財務報告索引無法完成：'+e.message); }
   // 1b. 函釋目錄與佈景（沒有音樂開關）
