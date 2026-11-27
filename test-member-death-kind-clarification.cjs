@@ -1,0 +1,11 @@
+const assert=require('node:assert/strict');
+const {memberLoss}=require('./member-death-kind-clarification.js');
+const r=memberLoss('我們沒有說是公會還是協會，有人過世，家人能接他的會員資格嗎？');
+assert.equal(r?.choices?.length,4);assert.match(r.summary,/個人會員，死亡即出會/);
+const out=r.choices.map(x=>memberLoss(x.question));
+assert.match(out[0].summary,/另行申請/);
+assert.match(out[1].summary,/代表改派/);
+assert.match(out[2].summary,/退還股金/);
+assert.equal(out[3].choices,undefined);
+for(const q of ['神明會會員死亡家人可以繼承嗎？','信用合作社員過世，股金繼承的期限？','協會理事長過世後要如何補選？'])assert.equal(memberLoss(q),null,q);
+console.log('出會、代表改派與社股繼承分流通過');

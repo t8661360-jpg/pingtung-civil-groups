@@ -1,0 +1,10 @@
+const assert=require('node:assert/strict');
+const {resignedWithdrawal}=require('./association-resigned-chair-withdrawal.js');
+const q='這次不是正式改選，是協會理事長辭職，能用上一屆當選證明領錢嗎？';
+const a=resignedWithdrawal(q);assert.equal(a?.choices?.length,2);
+assert.match(a.summary,/不要只憑上一屆當選證明/);
+assert.match(JSON.stringify(a),/第17條/);assert.match(JSON.stringify(a),/所遺任期不足六個月/);assert.match(JSON.stringify(a),/30日內/);
+assert.match(resignedWithdrawal(a.choices[0].question)?.summary,/原任不再具有代表權/);
+assert.match(resignedWithdrawal(a.choices[1].question)?.summary,/先確認辭職是否生效/);
+for(const test of ['我們協會整屆改選，銀行印鑑怎麼換？','合作社理事長辭職還能領錢嗎？','協會理事長辭職要不要開會？'])assert.equal(resignedWithdrawal(test),null,test);
+console.log('協會辭職、提款權與負向比較通過');

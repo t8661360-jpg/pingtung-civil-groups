@@ -1584,6 +1584,10 @@ async function ask(q){
   if(fundBorrow){financeMeetingPlanner=null;renderAnswer(q,fundBorrow);return;}
   const acctProof=typeof window.verifiedAssociationCompanyAccountProof==="function"?window.verifiedAssociationCompanyAccountProof(q):null;
   if(acctProof){financeMeetingPlanner=null;renderAnswer(q,acctProof);return;}
+  const resignWithdrawal=typeof window.verifiedAssociationResignedWithdrawal==="function"?window.verifiedAssociationResignedWithdrawal(q):null;
+  if(resignWithdrawal){financeMeetingPlanner=null;renderAnswer(q,resignWithdrawal);return;}
+  const lossKind=typeof window.verifiedMembershipDeathClarification==="function"?window.verifiedMembershipDeathClarification(q):null;
+  if(lossKind){financeMeetingPlanner=null;renderAnswer(q,lossKind);return;}
   const ledgerLoss=typeof window.verifiedAssociationLedgerLoss==="function"?window.verifiedAssociationLedgerLoss(q):null;
   if(ledgerLoss){renderAnswer(q,ledgerLoss);return;}
   const accountSeal=typeof window.verifiedAssociationAccountSeal==="function"?window.verifiedAssociationAccountSeal(q):null;
@@ -1994,6 +1998,8 @@ touch();
 <script src="association-account-seal.js?v=3"></script>
 <script src="cooperative-fund-quorum-asset-borrowing.js?v=1"></script>
 <script src="association-company-bank-proof.js?v=1"></script>
+<script src="association-resigned-chair-withdrawal.js?v=1"></script>
+<script src="member-death-kind-clarification.js?v=1"></script>
 <script src="credit-cooperative-funds-custody.js?v=1"></script>
 <script src="association-volunteer-insurance.js?v=1"></script>
 <script src="association-overdue-term-signing.js?v=1"></script>
