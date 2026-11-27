@@ -12904,6 +12904,7 @@ function normalizeQuestionR239(s){
 function normalizeQuestionR240(s){
  s=String(s||'');
  if(/(志工|義工)/.test(s)&&/(退場|離場|退下來|退下去)/.test(s)&&!/(開除|趕|違規|活動|會場|現場|場地)/.test(s))s=s.replace(/退場|離場|退下來|退下去/g,'退出');
+ if(/榮譽卡/.test(s)&&!/(志工|義工|志願|銀行|信用|會員|愛心|悠遊|會籍|理事|榮譽理事)/.test(s))s=s.replace(/(志願服務)?榮譽卡/,'志願服務榮譽卡');
  return s;
 }
 function patrolR240(t){
