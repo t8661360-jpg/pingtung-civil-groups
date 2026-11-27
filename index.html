@@ -1576,6 +1576,8 @@ async function ask(q){
   if(feeTiming){financeMeetingPlanner=null;renderAnswer(q,feeTiming);return;}
   const charterApplicability=typeof window.verifiedAssociationCharterApplicability==="function"?window.verifiedAssociationCharterApplicability(q):null;
   if(charterApplicability){financeMeetingPlanner=null;renderAnswer(q,charterApplicability);return;}
+  const liquidationDues=typeof window.verifiedAssociationLiquidationDues==="function"?window.verifiedAssociationLiquidationDues(q):null;
+  if(liquidationDues){financeMeetingPlanner=null;renderAnswer(q,liquidationDues);return;}
   const grantEstate=typeof window.verifiedAssociationDissolutionSubsidizedAssets==="function"?window.verifiedAssociationDissolutionSubsidizedAssets(q):null;
   if(grantEstate){financeMeetingPlanner=null;renderAnswer(q,grantEstate);return;}
   const dissolutionNotice=typeof window.verifiedAssociationDissolutionNotice==="function"?window.verifiedAssociationDissolutionNotice(q):null;
@@ -2141,7 +2143,7 @@ touch();
 <script src="association-expulsion-agenda-guild-collection.js?v=20261127-exp-vote"></script>
 <script src="verified-clause-routing.js?v=1"></script>
 <script src="association-budget-prior-balance.js?v=20261127-prior-balance"></script>
-<script src="association-audit-borrowing.js?v=20261127-borrow-review"></script>
+<script src="association-audit-borrowing.js?v=20261127-audit-referral"></script>
 <script src="association-finance-report-kind.js?v=20261127-two-periods"></script>
 <script src="association-minutes-filing-kind.js?v=1"></script>
 <script src="association-decision-audit.js?v=1"></script>
@@ -2156,6 +2158,7 @@ touch();
 <script src="association-withdrawal-election.js?v=20261127-coop-fees"></script>
 <script src="association-charter-address.js?v=1"></script>
 <script src="association-charter-applicability.js?v=1"></script>
+<script src="association-liquidation-dues.js?v=20261127-liquidation-dues"></script>
 <script src="association-dissolution-subsidized-assets.js?v=20261127-grant-assets"></script>
 <script src="association-dissolution-financial-notice.js?v=1"></script>
 <script src="association-membership-suspension.js?v=20261127-member-rights"></script>

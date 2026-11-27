@@ -1,0 +1,12 @@
+const a=require('node:assert/strict');
+const debt=require('./association-liquidation-dues.js').route;
+const audit=require('./association-audit-borrowing.js').route;
+const d=debt('協會決議解散，清算完才發現有筆欠繳會費，清算人可以補收嗎？');
+a.match(d.summary,/不是解散前已成立的債權.*向原法院確認/);
+a.match(d.steps.flat().join(' '),/不能只因報過完結就認定債權消失.*第27條/);
+a.match(debt('協會解散，還在清算，有會員以前沒繳會費，要不要追？').summary,/清算中.*可處理既存債權/);
+a.equal(debt('合作社解散，社員欠繳會費，清算人可以追收嗎？'),null);
+const v=audit('監事會說收據有問題，理事會不給看帳冊，可以請縣府抽查嗎？');
+a.match(v.summary,/向原立案主管機關反映.*不是提出就一定抽查/);
+a.match(v.steps.flat().join(' '),/糾正意見.*視實際需要抽查.*第19條/);
+a.equal(audit('合作社監事不給看帳，我能請縣府查帳嗎？'),null);
