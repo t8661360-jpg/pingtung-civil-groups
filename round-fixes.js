@@ -226,7 +226,7 @@ function normalizeQuestionR232(s){
  return s;
 }
 function normalizeQuestion(q){
- return normalizeQuestionR234(normalizeQuestionR233(normalizeQuestionR232(normalizeQuestionR229(normalizeQuestionR228(normalizeQuestionR227(normalizeQuestionR225(normalizeQuestionR223(normalizeQuestion223(normalizeQuestion222(normalizeQuestion221(normalizeQuestion216(normalizeQuestion215(normalizeQuestion214(normalizeQuestion212(normalizeQuestion210(normalizeQuestion209(normalizeQuestion208(normalizeQuestion207(normalizeQuestion206(normalizeQuestion202(normalizeQuestion201(normalizeQuestion200(normalizeQuestion194(normalizeQuestion193(normalizeQuestion192(normalizeQuestion191(normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(normalizeQuestionU5(normalizeQuestionU3(normalizeQuestionU4(normalizeQuestionU2(normalizeQuestionU6(normalizeQuestionU8(normalizeQuestionU7(fixTyposU1(q)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
+ return normalizeQuestionR235(normalizeQuestionR234(normalizeQuestionR233(normalizeQuestionR232(normalizeQuestionR229(normalizeQuestionR228(normalizeQuestionR227(normalizeQuestionR225(normalizeQuestionR223(normalizeQuestion223(normalizeQuestion222(normalizeQuestion221(normalizeQuestion216(normalizeQuestion215(normalizeQuestion214(normalizeQuestion212(normalizeQuestion210(normalizeQuestion209(normalizeQuestion208(normalizeQuestion207(normalizeQuestion206(normalizeQuestion202(normalizeQuestion201(normalizeQuestion200(normalizeQuestion194(normalizeQuestion193(normalizeQuestion192(normalizeQuestion191(normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(normalizeQuestionU5(normalizeQuestionU3(normalizeQuestionU4(normalizeQuestionU2(normalizeQuestionU6(normalizeQuestionU8(normalizeQuestionU7(fixTyposU1(q))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
 }
 /* 第200輪（根源）：入會退會與會員資格換問法——
    「忘記繳／忘了繳／漏繳會費」＝沒繳會費（原本「忘記繳會費會被退會嗎」被當成退費）；
@@ -3163,7 +3163,7 @@ function communityBasics(t){
   return{direct:true,category:'社區發展協會',title:/(住在|設籍|戶籍|居住|住社區|外地|外村|別村|搬走|不住)/.test(t)?'社區發展協會的會員資格：現行要點沒有規定一定要設籍居住，依協會章程':'社區發展協會的會員資格：依協會章程訂，現行要點沒有規定一定要設籍居住',
   summary:'要看協會的章程。現行的社區發展工作要點規定，社區發展協會的會員資格和權利，適用人民團體法和相關規定（要點第17點）；而人民團體法是把「會員入會、出會與除名」交給章程規定（人民團體法第12條）。要點本身沒有「一定要設籍並居住在社區」的條文。\n\n所以：\n• 章程寫了要設籍或居住在本社區的，就照章程，搬走之後會員資格會受影響。\n• 章程沒有這樣寫的，就不受這個限制。\n\n以前「設戶籍並居住本社區」的依據是社區發展工作綱要，已經在114年7月1日廢止。很多協會的章程還是照舊的內容寫，要放寬的話，須經會員大會修改章程，再報縣府核備。',
   statutes:[CDP(17),P(12)],notes:['社區發展協會的組織區域以村里為單位（社區發展工作要點第4點）。'],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
- if(/(公所|縣府|社會處|找誰|找哪|哪個單位|主管機關|誰管)/.test(t)&&/(找|問|送|還是|主管|誰管|哪)/.test(t)&&!/補助|魅力|好讚|核銷|決算|報公所|活動中心|場地|出租/.test(t))
+ if(/(公所|縣府|社會處|找誰|找哪|哪個單位|主管機關|誰管)/.test(t)&&/(找|問|送|還是|主管|誰管|哪)/.test(t)&&!/補助|魅力|好讚|核銷|決算|報公所|活動中心|場地|出租|關懷據點|據點|長照|日照|志工/.test(t))
   return{direct:true,category:'社區發展協會',title:'社區發展協會先找所在地的鄉鎮市公所，公所和縣府都是主管機關',
   summary:'建議先找所在地的鄉（鎮、市）公所。社區發展的主管機關有三層：中央是衛生福利部，縣是縣政府，鄉鎮市是鄉（鎮、市、區）公所（社區發展工作要點第3點）；其中公所負責輔導社區居民設立社區發展協會（要點第4點），是離社區最近的窗口。\n\n大致的分工是：\n• 公所：成立的輔導、平時會務的輔導、補助計畫的初審和轉送。\n• 縣府社會處：社區發展協會也是依人民團體法立案的團體，設立、組織、會員、財務適用人民團體法（要點第17點）；縣府辦理的補助和評鑑也在這裡。\n\n不確定某一件事該送哪裡，先問公所的社區業務承辦人；或撥縣府總機 08-7320415 轉社會處。',
   statutes:[CDP(3),CDP(4),CDP(17)],notes:[],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
@@ -5427,9 +5427,9 @@ function patrol15(t){
   statutes:[P(8)]});
  /* 審查多久 */
  if(/(申請|送件|籌組|許可|核准|審查|審核)/.test(t)&&/(多久|幾天|幾個月|多長|要等|時間|期限)/.test(t)&&/(籌組|許可|核准|審查|審核|申請)/.test(t)&&!/(成立大會後|立案|補助|勸募|統編|開戶|法人|延長|延|多久內|內要|月內|要成立|完成成立|來不及)/.test(t)&&(FOUND||/許可/.test(t)))
-  return Object.assign({},base,{category:'業務辦理',title:'申請籌組送件後，縣府審查期限是 2 個月',
-  summary:'發起人把申請書、發起人名冊、發起人身分證正反面影本黏貼冊、章程草案、發起人戶籍分佈一覽表送到縣府後，審查期限是 2 個月。\n\n許可後要在 6 個月內完成成立；來不及可以報准延長 3 個月，超過期限沒成立，許可會被廢止。',
-  statutes:[]});
+  return Object.assign({},base,{category:'業務辦理',title:'申請籌組送件後，縣府審查約 2 個月（依縣府的申請流程說明）',
+  summary:'發起人把申請書、發起人名冊、發起人身分證正反面影本黏貼冊、章程草案、發起人戶籍分佈一覽表送到縣府後，依縣府的申請流程說明，審查約 2 個月；人民團體法本身沒有訂審查的天數。\n\n許可後要在 6 個月內完成成立；來不及可以報縣府核准延長，最多延長 3 個月，超過期限沒成立，許可會被廢止（人民團體法第55條）。',
+  statutes:[P(55)]});
  /* 許可後期限／延長／失敗 */
  if((/(許可|核准|籌組|籌備)/.test(t)&&/(多久內|月內|期限|6個月|六個月|來不及|延|逾期|超過|沒成立|失敗|成立不了|成不了|籌不成|不成|放棄)/.test(t)||/成立/.test(t)&&/(來不及|延長|延期|可以延|能延|逾期)/.test(t))&&!/(審查|立案|補助|統編|開戶|法人)/.test(t))
   return Object.assign({},base,{category:'業務辦理',title:'許可籌組後 6 個月內要成立，來不及可延 3 個月，逾期許可會被廢止',
@@ -6003,7 +6003,7 @@ function patrol52(t){
  }
  if(/(章程).{0,6}(誰|哪個單位|哪裡|什麼單位).{0,4}(核准|審核|通過|決定|核定|批准|審查)|(誰|哪個單位).{0,4}(核准|審核|通過|核定).{0,3}章程/.test(t))
   return A('章程誰核准：先由會員大會通過，再報縣府核准立案','章程的訂定和修改，要經會員（會員代表）大會出席人數三分之二以上同意（人民團體法第27條第1款）。\n新成立的協會，要在成立大會後三十日內，檢具章程、會員名冊、選任職員簡歷冊，報請主管機關核准立案（人民團體法第10條第1項）。\n所以是兩關：內部由會員大會決議，對外由主管機關核准立案。',[P2(27),P2(10)]);
- if(/章程/.test(t)&&/(要不要|需不需要|一定要|必須|要有|有沒有|可不可以不|能不能不|不訂)/.test(t)&&!/(修改|變更|範例|下載|內容|載明|寫什麼)/.test(t))
+ if(/章程/.test(t)&&/(要不要|需不需要|一定要|必須|要有|有沒有|可不可以不|能不能不|不訂)/.test(t)&&!/(修改|變更|範例|範本|樣本|下載|內容|載明|寫什麼)/.test(t))
   return A('一定要有章程：申請立案要檢附章程，內容也有法定的記載事項','要。成立大會後三十日內，要檢具章程、會員名冊、選任職員簡歷冊報請主管機關核准立案（人民團體法第10條第1項），沒有章程無法立案。\n章程要載明名稱、宗旨、組織區域、會址、任務、組織、會員入會出會與除名、會員權利義務、會員代表和理事監事的名額職權任期選任解任、會議、經費及會計、章程修改程序等事項（人民團體法第12條）。',[P2(10),P2(12)]);
  if(/會員代表/.test(t)&&/(怎麼產生|如何產生|誰選|選出來|怎麼選|怎樣產生|怎麼來|由誰)/.test(t))
   return A('會員代表怎麼產生：人民團體法交給章程規定，本站查不到統一做法','人民團體法規定，會員代表及理事、監事的名額、職權、任期和選任，都是章程要載明的事項（人民團體法第12條第9款）。\n有採會員代表制的協會，代表怎麼產生、名額多少，要看自己的章程；理事、監事則是從會員（會員代表）中選舉（人民團體法第17條）。\n本站沒有查到法規統一規定會員代表的產生方式，請先看協會章程，不確定再洽承辦人員。',[P2(12),P2(17)]);
@@ -6360,6 +6360,8 @@ function patrol42(t){
 }
 function patrol41(t){
  if(/(合作社|社員|公會|職業團體|魅力社區|社造點|稅|政黨)/.test(t))return null;
+ /* r235：問「能不能當會員／入會」不是問理事長，交給社區發展協會會員資格規則 */
+ if(/(社區)/.test(t)&&/(會員|入會|加入)/.test(t)&&!/(理事|監事|幹部|理監事|參選|競選|被選|選舉|當選)/.test(t))return null;
  const base={direct:true,category:'社區發展協會',notes:[],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
  const A=(title,summary,st)=>Object.assign({},base,{title,summary,statutes:st});
  const cdp=/(社區發展協會|社區協會|社發協會|社區)/.test(t);
@@ -6516,7 +6518,7 @@ function patrol37(t){
  if(/(需不需要|要不要|要).{0,3}先?(報縣府|報備案|報備)/.test(t)&&!/(國外|出國|海外|退出|離開|不做|辭|不辦|結束|轉換|換單位)/.test(t))
   return R('運用志工前要先備案：把志願服務計畫和立案證書影本送縣府及目的事業主管機關','要。志願服務運用單位要在運用志工之前，檢具志願服務計畫和立案登記證書影本，送縣政府及該計畫的目的事業主管機關備案（志願服務法第7條）。\n運用結束後二個月內，要把辦理情形函報備查；運用期間在二年以上的，於年度結束後二個月內函報（第7條）。\n例外：協會章程所載存立目的與志願服務計畫相符的，可以免於運用前申請備案，但仍要在年度結束後二個月內，把辦理情形函報備查（第7條第4項）。',[VS(7)]);
  if(/(招|召募|徵|找).{0,2}志工|志工.{0,3}(招募|召募|徵)/.test(t)&&/(先|步驟|流程|要做什麼|要辦什麼|怎麼|如何|要準備|開始)/.test(t)&&!/(備案|報給)/.test(t))
-  return R('協會想招志工：先訂志願服務計畫並備案，召募時把計畫公告','協會想召募志工，依序要做這幾件事：\n1. 訂志願服務計畫：內容要包括志工的召募、訓練、管理、運用、輔導、考核及服務項目（志願服務法第7條）。\n2. 運用前備案：檢具計畫和立案登記證書影本，送縣政府及該計畫的目的事業主管機關備案（第7條）。\n3. 召募時公告志願服務計畫（第6條）。\n4. 志工進來後：辦理基礎訓練和特殊訓練（第9條）、指定專人督導（第11條）、辦理意外事故保險（第16條）、發給志願服務證及服務紀錄冊（第12條）。',[VS(6),VS(7),VS(9),VS(11),VS(12),VS(16)]);
+  return R('協會想招志工：先訂志願服務計畫並備案，召募時把計畫公告','協會想召募志工，依序要做這幾件事：\n1. 訂志願服務計畫：內容要包括志工的召募、訓練、管理、運用、輔導、考核及服務項目（志願服務法第7條）。\n2. 運用前備案：檢具計畫和立案登記證書影本，送縣政府及該計畫的目的事業主管機關備案（第7條）。協會章程所載存立目的與志願服務計畫相符的，可以免於運用前申請備案，但仍要在年度結束後二個月內函報辦理情形備查（第7條第4項）。\n3. 召募時公告志願服務計畫（第6條）。\n4. 志工進來後：辦理基礎訓練和特殊訓練（第9條）、指定專人督導（第11條）、辦理意外事故保險（第16條）、發給志願服務證及服務紀錄冊（第12條）。',[VS(6),VS(7),VS(9),VS(11),VS(12),VS(16)]);
  if(/(招募|召募|招).{0,3}(前|時)/.test(t)&&/公告/.test(t))
   return R('召募志工時要公告志願服務計畫','志願服務運用單位可以自行或聯合召募志工，召募時，應該把志願服務計畫公告（志願服務法第6條）。',[VS(6)]);
  if(/(計畫|計劃)/.test(t)&&/(寫什麼|要寫|內容|包括|包含|要有什麼|怎麼寫|格式)/.test(t))
@@ -7743,7 +7745,7 @@ function patrol66(t){
  if(/(沒有|沒|無).{0,2}(會所|會址|辦公室|辦公處|辦公地點)/.test(t)&&/(怎麼辦|可以嗎|行嗎|能不能|可不可以|要怎麼)/.test(t))
   {const x=generic('協會沒有會所可以嗎');return x&&Object.assign({},x,{title:'社區發展協會沒有獨立會所沒關係，但一定要有登記的會址',summary:'要分兩件事：\n• 沒有獨立的會所或辦公室：本站查到的法規沒有要求一定要有獨立會所，借用或設在住家等做法很常見。\n• 沒有會址：不行。會址是章程必須載明的事項（人民團體法第12條第4款），會址的設置和異動，要經理事會決議通過後報主管機關備查（人民團體會務輔導辦法第8條）。\n\n借來的地點能不能登記為會址，請洽縣府社會處或所在地公所確認。'+tel,statutes:[P(12),G(8)]});}
  // 會員人數不夠
- if(/(人數.{0,2}(不夠|太少|不足|很少|變少|減少))|(會員.{0,2}(太少|不足|很少|變少|減少))|(沒有|沒)(那麼多|足夠|夠)(會員|人)/.test(t)&&!/(出席|開會|大會|投票|表決)/.test(t))
+ if(/(人數.{0,2}(不夠|太少|不足|很少|變少|減少))|(會員.{0,2}(太少|不足|很少|變少|減少))|(沒有|沒)(那麼多|足夠|夠)(會員|人)/.test(t)&&!/(出席|開會|大會|投票|表決|理事會|監事會|理監事|會議)/.test(t))
   return generic('協會會員人數不夠怎麼辦','以上是一般人民團體法的規定；社區發展協會是否另有最低會員數，請洽公所或縣府確認。');
  // 工作會、工作組、小組
  if(/(工作會|工作組|工作小組|工作委員|組別|小組)/.test(t)&&/(要設|一定要|要有|需要設|必須設|哪些|有哪些|要成立)/.test(t))
@@ -8311,13 +8313,13 @@ function patrol93(t){
  return null;
 }
 function patrol92(t){
- if(!/(合作社|社員|社股|股金|股款|入社)/.test(t))return null;
+ if(!/(合作社|社員|社股|股金|股款|入社(?!區))/.test(t))return null;
  if(/(志工|義工|志願服務|社區發展|公會|工會|政黨|基金會)/.test(t)&&!/合作社/.test(t))return null;
  const btn=[{label:'聯絡承辦',view:'contact',sub:''}];
  const A=(title,summary,st,focus,notes)=>Object.assign({direct:true,category:'合作社會務',title,summary,statutes:st,questionState:{focus,domain:'coop'},notes:notes||[],actions:btn});
  const tail='\n其他細節請看您那一社的章程，或洽縣府社會處承辦人員，縣府總機 08-7320415。';
  /* 協會、法人可不可以加入合作社當社員 */
- if((/合作社/.test(t)||/(入社|入股)/.test(t))&&/(協會|社團|團體|法人|公司|企業|學校|基金會)/.test(t)&&/(入股|加入|入社|當.{0,4}社員|成為.{0,4}社員|做.{0,4}社員|認股|參加)/.test(t)&&!/(變成|改成|轉成|變更為|轉型|合併|設立|成立|退)/.test(t))
+ if((/合作社/.test(t)||/(入社(?!區)|入股)/.test(t))&&/(協會|社團|團體|法人|公司|企業|學校|基金會)/.test(t)&&/(入股|加入|入社|當.{0,4}社員|成為.{0,4}社員|做.{0,4}社員|認股|參加)/.test(t)&&!/(變成|改成|轉成|變更為|轉型|合併|設立|成立|退)/.test(t))
   return A('協會或法人可以加入合作社當社員，但法人只限非營利的，而且只能加入有限責任或保證責任合作社',
    '依合作社法第12條第1項，法人只能當有限責任或保證責任合作社的社員，而且這個法人必須是非營利的。所以營利的公司不行，非營利的法人（例如已經辦理法人登記的社團法人）可以。\n入社的程序是：要有社員二人以上介紹，或以書面請求；加入有限責任或保證責任合作社，要經理事會同意，並報告社員大會；新社員加入後，合作社要在一個月內報主管機關備查（第14條）。法人當社員時，在社員大會的表決權由代表人行使，每一代表人有一表決權，代表人數依章程規定，最多五人（第49條）。\n沒有辦理法人登記的一般協會，能不能以團體名義入社，本站查到的法規沒有明文，請洽承辦人員確認。'+tail,
    [C(12),C(14),C(49)],'coop-legal-person-member');
@@ -9521,7 +9523,7 @@ function patrol120(t){
   return R('人民團體會務說明','監事和理事（理事長）的任期：都不得超過四年，法規沒有規定兩者一定要一樣或誰比較長','不一定要一樣，法規也沒有規定誰要比較長。人民團體法第20條只規定理事、監事的任期都不得超過四年，實際訂幾年由各協會章程決定；章程如果把監事的任期訂得和理事不同，只要都沒有超過四年，就照章程辦理。\n\n理事長是由理事（或常務理事）選出來的（第17條第2項），理事長的連任以一次為限（第20條）。\n\n如果想調整任期，要提案修改章程，經會員（會員代表）大會決議，再報縣府（第27條、第54條）。',[PT(20),PT(17),PT(27),PT(54)]);
  if(/社區/.test(t)&&/協會/.test(t)&&!/(補助|魅力|好讚|社造|大樓|管委會|社區大學)/.test(t)){
   /* 協會的任務／工作項目 */
-  if(/(做什麼|做甚麼|做哪些|做那些|做些什麼|辦什麼業務|辦哪些業務|辦些什麼|業務有什麼|業務有哪些|要辦什麼事|任務|業務範圍|工作內容|工作項目|工作範圍|負責什麼|有什麼功能|功能是|有什麼用|是幹嘛|是在做|要辦什麼工作|要做的事)/.test(t)&&!/(活動|理事長|會員|會費|每年|年度|一年|開會|報備|備查|決算|預算|錢|經費)/.test(t))
+  if(/(做什麼|做甚麼|做哪些|做那些|做些什麼|辦理(哪些|什麼|甚麼|那些)(事|業務|工作)?|可以辦(哪些|什麼|甚麼|那些)事|能辦(哪些|什麼|甚麼)事|可以做(哪些|什麼)事|辦什麼業務|辦哪些業務|辦些什麼|業務有什麼|業務有哪些|要辦什麼事|任務|業務範圍|工作內容|工作項目|工作範圍|負責什麼|有什麼功能|功能是|有什麼用|是幹嘛|是在做|要辦什麼工作|要做的事)/.test(t)&&!/(活動|理事長|會員|會費|每年|年度|一年|開會|報備|備查|決算|預算|錢|經費)/.test(t))
    return R('社區發展協會','社區發展協會的任務：依自己的章程推動社區發展工作，具體工作項目請洽公所或縣府','社區發展協會是依人民團體法立案的社會團體，依章程推動社區發展工作（社區發展工作要點第4點、第17點）。\n\n協會的「任務」是章程一定要載明的事項（人民團體法第12條第5款），所以每個協會實際要做什麼，請先看自己協會的章程。\n\n社區發展工作要點裡列出的具體工作項目，本站沒有收錄原文，不在這裡轉述；想知道有哪些項目，請洽所在地鄉鎮市公所社會課。',[CDP(4),CDP(17),PT(12)]);
   /* 一定要辦活動嗎 */
   if(/(一定要|必須|要不要|需要|非要).{0,3}(辦|舉辦|做).{0,2}活動|辦活動.{0,2}(一定|必須)|活動.{0,4}(一定要辦|必須辦)/.test(t))
@@ -12849,6 +12851,17 @@ function patrolR232(t){
  return null;
 }
 /* 第234輪：會員、理事自己出錢捐給協會，算不算勸募（原本被答成理事長不能自行募款或難倒小屏）。公益勸募條例第6條第3項。 */
+/* 第235輪：社區發展協會等開會「沒人出席／沒人來」＝出席人數不足 */
+function normalizeQuestionR235(s){
+ s=String(s||'');
+ if(/(社區發展協會|社區協會|社發協會)/.test(s)&&/(立案|成立|設立|籌組)/.test(s)&&/(多久|幾天|幾個月|要等|多長|多少時間|要花)/.test(s)&&!/(補助|魅力|報備|備查|改選|選舉|任期|大會後|解散|登記|法人|成立後|後幾|後多久|幾天內|多久內|月內|內要|內辦|要辦理|應辦理)/.test(s))
+  return /(籌組|申請)/.test(s)&&!/立案/.test(s)?'社團申請成立要等多久':'協會立案要多久';
+ if(/(開會|大會|理事會|監事會|理監事|會議)/.test(s)&&/(都沒人|沒人|沒有人|無人|沒半個人|沒什麼人)(出席|來|到|參加|理)/.test(s)&&!/(通知|請假|委託|代理|解散|合作社|社員|選舉|改選|成立大會|發起)/.test(s))
+  return s.replace(/(都沒人|沒人|沒有人|無人|沒半個人|沒什麼人)(出席|來|到|參加|理)/,'出席人數不足');
+ if(/(志工|義工)/.test(s)&&/(志工|義工)(要|該|得)?(怎麼|如何|怎樣|怎麼樣|要怎麼)(招|徵|募|徵求|招攬)(?!集)/.test(s)&&!/(薪|保險|稅|時數|證)/.test(s))
+  return s.replace(/(志工|義工)(要|該|得)?(怎麼|如何|怎樣|怎麼樣|要怎麼)(招|徵|募|徵求|招攬)/,'想招$1要怎麼辦');
+ return s;
+}
 function normalizeQuestionR234(s){
  s=String(s||'');
  if(/(理事|監事|理監事|幹部|會員|自己人|內部|我)/.test(s)&&/(出錢|捐錢|捐款|捐給|捐)/.test(s)&&/(算不算|算|是不是|屬不屬於|是否|算是).{0,3}(勸募|募款|募捐)/.test(s)&&!/(外面|外界|民眾|路人|社會大眾|網路|臉書|街頭)/.test(s))return '會員捐款算勸募嗎';

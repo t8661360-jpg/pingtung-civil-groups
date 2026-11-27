@@ -25,6 +25,9 @@
     if (intent && (intent.kind === 'dir' || intent.kind === 'staff') && !/^(統一編號|統編)$/.test(kw)) return null;
     if (!kw) return null;
     const keys = [kw];
+    // 第235輪：民眾常把「社區發展協會」簡稱「社區」（例如「社區改選」「社區理事長」「社區章程」），候選題要一併比對
+    const sq = kw.match(/^社區(?!發展|協會|照顧|關懷|據點)(.{2,4})$/);
+    if (sq) { keys.push('社區發展協會' + sq[1], '社區協會' + sq[1], '社區發展協會的' + sq[1], '社區協會的' + sq[1]); }
     const nq = NFK(q).replace(/[。，,.!！、？?]/g, '');
     if (nq && nq !== kw && nq.length <= 8 && !QWORD.test(nq)) keys.push(nq);
     const hits = [];
@@ -37,7 +40,10 @@
     // 依問題長度與多樣性挑 8 題：避免同一開頭重複
     const pick = [], seen = new Set();
     for (const h of hits) {
-      const head = NFK(h).slice(0, Math.max(6, kw.length + 3)); // 關鍵字本身是開頭時，取關鍵字後面幾個字來分辨
+      const nh = NFK(h);
+      const mk = keys.find(k => nh.includes(k)) || kw;
+      // 關鍵字本身是開頭時，取關鍵字後面幾個字來分辨；比對到「社區發展協會＋關鍵字」的別名時，從別名結尾往後取（第235輪）
+      const head = nh.slice(0, Math.max(6, nh.indexOf(mk) + mk.length + 3));
       if (seen.has(head)) continue;
       seen.add(head); pick.push(h);
       if (pick.length >= 8) break;
