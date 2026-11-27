@@ -1,0 +1,15 @@
+const a=require('node:assert/strict');
+const {coopChairAndShare:fn,answerMixed}=require('./verified-mixed-questions.js');
+const text=q=>JSON.stringify(answerMixed(q));
+const original='合作社理事長辭職後找誰代理？社股可以一併領回嗎？';
+a.match(text(original),/一個月內由理事會補選.*未滿六個月.*退還一部或全部/);
+a.equal(fn(original).choices.length,2);
+for(const c of fn(original).choices)a.ok(fn(c.question),c.question);
+a.match(text('一般消費合作社的理事會主席請假兩星期，誰代理？只請假而已，股金不打算領。'),/請假不等於出缺.*由理事互推一人主持當次會議/);
+a.doesNotMatch(text('一般消費合作社的理事會主席請假兩星期，誰代理？只請假而已，股金不打算領。'),/自出缺日起一個月/);
+const no='消費合作社主席只辭職、沒有退社，能要求把股金全數退回嗎？';
+a.match(text(no),/單靠辭職不能請求/);a.equal(fn(no).choices,undefined);
+const w='我辭了勞動合作社理事會主席，又另外申請退社，股金是當場領還是年底做完才能領？';
+a.match(text(w),/不是辭職或提出退社申請當場就能領/);
+a.match(text('一般合作社監事會主席已辭職，誰代理？任期還有六個月。'),/監事會補選.*剛好六個月不屬於/);
+for(const q of ['信用合作社理事主席請假找誰代理？','協會理事長辭職找誰代理？','合作社理事會主席書面辭職，交社址就生效嗎？','一般合作社社員怎樣退股？'])a.equal(fn(q),null,q);

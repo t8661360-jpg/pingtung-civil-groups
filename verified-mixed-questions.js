@@ -1228,7 +1228,48 @@ function creditCoopShareRedemption(q){
  ...(choices?{choiceHeading:'您是要退社，還是只減少持股？',choices}:{})};
 }
 
+function coopChairAndShare(q){
+ const t=String(q||'').normalize('NFKC').replace(/\s/g,'');
+ if(t.length>175||!/合作社/.test(t)||/信用合作社|信合社|保險合作社|聯合社|農會|漁會|工會|公會|協會|清算|解散|罷免|除名|法院|股息|股利/.test(t))return null;
+ const director=/理事會主席|理事主席|理事長/.test(t), supervisor=/監事會主席|監事主席/.test(t);
+ if((director&&supervisor)||(!director&&!supervisor&&!/(?:消費|勞動|一般)?合作社(?:的)?主席/.test(t)))return null;
+ const valid=t.replace(/(?:不是|並未|沒有|尚未|不曾|未|沒有要|不想|不打算)(?:請假|辭職|辭任|出缺|退社|退出|領回股金)/g,'');
+ const resign=/辭職|辭任|辭了.{0,16}(?:理事長|理事會主席|監事會主席)|辭去.{0,12}(?:主席|理事長)|卸任|下台|不做(?:了|主席|理事長)/.test(valid);
+ const vacancy=resign||/出缺|缺額|過世|死亡|離世/.test(valid);
+ const leave=/請假|出差|暫時|休假|不能執行職務|暫不能行使職權/.test(valid)&&!vacancy;
+ const equity=/股金|社股|股份|股款|退股/.test(t)&&!/不打算領|不問股金|不領股金/.test(t);
+ const refund=equity&&/退回|退還|退股|領回|領還|領錢|拿回|怎麼領|何時領|還是年底|能領|當場領|找誰領|一併領/.test(t);
+ const staffing=/誰.{0,5}(?:代理|補選|補位)|(?:誰|怎麼|如何)(?:來)?代理|代理人|誰接|找誰|由誰|怎麼補選|還要補選|互推|主持|補選期限/.test(t);
+ if(!refund&&!staffing&&(!leave||!/代辦|代理|處理/.test(t)))return null;
+ const approvedOut=/退社已生效|已出社|已辦完退社|已完成退社/.test(t);
+ const noOut=/沒有退社|無意退社|不退社|沒有退出|不退出|只辭職|只辭去|僅辭職|(?:還沒|尚未|沒有)申請退社/.test(t)&&!/又另外|另行|另外|同時/.test(t);
+ const requestedOut=!noOut&&(approvedOut||/提出退社|申請退社|另外退社|另行退社|同時退社|辭職又退社/.test(t));
+ const meetingOnly=leave&&/主持|會議主席|代主持/.test(t)&&/社員(?:代表)?大會|理事會|監事會/.test(t);
+ const knownRole=director||supervisor;
+ const meetingName=supervisor?'監事會':'理事會',role=supervisor?'監事':'理事';
+ const settle=/所遺|剩下|還有|剩餘|任期剩/.test(t);
+ const vacancyRule=['真的出缺：由原來的會補選','合作社選舉罷免辦法第7條：'+(knownRole?'自出缺日起一個月內由'+meetingName+'補選主席。所遺任期未滿六個月，得由'+role+'互推一人代理；剛好六個月不屬於這項例外。候補'+role+'是補'+role+'席次，不會直接接任主席。':'自出缺日起一個月內，理事會主席由理事會補選，監事會主席由監事會補選。所遺任期未滿六個月，可由各該會的理事或監事互推一人代理；候補人員不會直接接任主席。')+(settle?'以出缺當天距離原任期屆滿的時間計算，不從提出辭呈但未送達那天算。':'')];
+ const written=['辭職何時生效？','合作社選舉罷免辦法第8條：以書面辭職，送達合作社社址所在地時生效。應保留送達證明、完成交接，並於會議報告。'];
+ const acting=['只請假：先分主持會議和代行其他職務','單純請假不等於主席出缺。依合作社法施行細則第13條，'+(knownRole?'若只是這一場'+meetingName+'的主席缺席，由'+role+'互推一位'+role+'主持。':'理事會或監事會主席缺席，由各該會理事或監事互推一人主持。')+'若要在整段請假期間代簽、用印或對外代表，不可把主持這一次會議當成已取得全部職權；請核對章程、授權紀錄和對外代表人。'];
+ const meetingRow=['社員大會由誰主持','依合作社法施行細則第12條，社員大會或社員代表大會的理事會主席缺席，由理事互推一人；無法產生，才由出席人過半數同意臨時公推一人。臨時大會若由監事、社員或社員代表召集，由出席人過半數同意臨時公推。'];
+ const share=['股金不是主席職務的一部分','辭主席不等於退社；單靠辭職不能請求按出社程序退還股金。'+(approvedOut?'若退社已生效，':'若另行自請退社，原則上年度終了時退社、年度終了三個月前提出書面請求（章程可延長至六個月；法人社員可延長至一年）。退社生效後，')+'依合作社法第27、30條及章程請求退還一部或全部。原則以營業年度終了時的財產狀況計算，章程另有規定從其規定；不是辭職或提出退社申請當場就能領。'];
+ const rule=n=>law('合作社選舉罷免辦法','D0050022',n);
+ const detail=n=>law('合作社法施行細則','D0050113',n);
+ const showClarification=refund&&!noOut&&!requestedOut&&!leave;
+ const choices=showClarification?[
+  {label:'只辭主席，仍是社員',question:'一般合作社'+(supervisor?'監事會主席':'理事會主席')+'只辭職、沒有退社，誰代理？股金可以領回嗎？'},
+  {label:'主席已辭，也另行申請退社',question:'一般合作社'+(supervisor?'監事會主席':'理事會主席')+'辭職且另行申請退社，誰代理？股金何時領回？'}
+ ]:null;
+ const memberChair=meetingOnly&&/社員(?:代表)?大會/.test(t);
+ const summary=memberChair?'請假不等於出缺。若是社員大會，理事會主席缺席時，依當次大會的召集方式推選主持人。':leave?'請假不等於出缺。'+(knownRole?'如果是'+meetingName+'缺主持人，由'+role+'互推一人主持當次會議；':'由缺主持人的理事會或監事會，各自互推一人主持當次會議；')+'若問整段請假期間代行職務，要另外核對授權。':refund?'先把主席職務和社員身分分開。辭主席不等於退社；單憑辭職不能按退社程序領回股金。':vacancy?'真正出缺，原則一個月內補選；剩餘任期未滿六個月，才可走此出缺代理例外。':'要先確認是暫不能執行職務，還是主席真的出缺，兩種處理不同。';
+ return {direct:true,category:'合作社會務',title:leave?'合作社主席請假：主持會議和代行職務要分開':refund?'合作社主席辭職與退社領回股金，分開看':'合作社主席暫時代理與出缺補選不同',summary,
+ steps:[...(resign?[written]:[]),...(vacancy||!leave?[vacancyRule]:[]),...(!vacancy?[acting]:[]),...(memberChair?[meetingRow]:[]),...(refund?[share]:[])],
+ refs:[...(vacancy||!leave?[rule(7)]:[]),...(resign?[rule(8)]:[]),...(!vacancy?[detail(13),coop(34)]:[]),...(memberChair?[detail(12)]:[]),...(refund?[coop(26),coop(27),coop(30)]:[])],
+ ...(choices?{choiceHeading:'您只辭職，還是也已另行申請退社？',choices}:{})};
+}
+
 function answerMixed(q){
+ const coopChair=coopChairAndShare(q);if(coopChair)return coopChair;
  const redeemCreditShare=creditCoopShareRedemption(q);if(redeemCreditShare)return redeemCreditShare;
  const coopRepresentatives=coopRepresentativeAssembly(q);if(coopRepresentatives)return coopRepresentatives;
  const stampDuty=associationStampDuty(q);if(stampDuty)return stampDuty;
@@ -1280,6 +1321,6 @@ function answerMixed(q){
     keys.includes('creditor')?'合作社清算：就任後公告與終結報告，分別計算':isCoop?'合作社清算報告與股息上限，分開看':'協會入會資格與會員除名，分開看',
   summary:keys.length===1?topics[keys[0]].line[1]:'你問了兩件事，分別如下。',steps:keys.length>1?keys.map(k=>topics[k].line):[],refs:keys.flatMap(k=>topics[k].laws)};
 }
-if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy,changedMeetingVenue,familyAssemblyProxy,dualBoardVacancies,coopBoardVacancies,creditCooperativeVacancy,schoolParentFiling,associationRegisteredAddress,inspectAndPublishBoardMinutes,temporaryMeetingNotice,withdrawalAndAssemblyRoll,memberMeetingExpenseFunding,missedSupervisorNotice,duesAndAssemblyRights,coopWithdrawalAndAssembly,designatedMeetingConvener,assemblyRepresentativeParticipation,formerMemberGiftReturn,preschoolParentFiling,associationVotingRollDisclosure,associationDirectorsQuorum,creditCoopDepositsAndDividends,associationElectionObjection,associationDelegateReplacement,commerceDelegateReplacement,industryDelegateReplacement,outsideCounterNoiseReferral,deityAssociationManagerReferral,volunteerTravelMealTax,associationStampDuty,coopRepresentativeAssembly,creditCoopShareRedemption};return;}
+if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy,changedMeetingVenue,familyAssemblyProxy,dualBoardVacancies,coopBoardVacancies,creditCooperativeVacancy,schoolParentFiling,associationRegisteredAddress,inspectAndPublishBoardMinutes,temporaryMeetingNotice,withdrawalAndAssemblyRoll,memberMeetingExpenseFunding,missedSupervisorNotice,duesAndAssemblyRights,coopWithdrawalAndAssembly,designatedMeetingConvener,assemblyRepresentativeParticipation,formerMemberGiftReturn,preschoolParentFiling,associationVotingRollDisclosure,associationDirectorsQuorum,creditCoopDepositsAndDividends,associationElectionObjection,associationDelegateReplacement,commerceDelegateReplacement,industryDelegateReplacement,outsideCounterNoiseReferral,deityAssociationManagerReferral,volunteerTravelMealTax,associationStampDuty,coopRepresentativeAssembly,creditCoopShareRedemption,coopChairAndShare};return;}
 root.verifiedMixedQuestionAnswer=answerMixed;
 })(typeof window!=='undefined'?window:globalThis);
