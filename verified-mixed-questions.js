@@ -603,7 +603,36 @@ function withdrawalAndAssemblyRoll(q){
   ]}:{}),
   refs:[guide(10),guide(16),association(27),law('民法','B0000001',54)],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
 }
+function memberMeetingExpenseFunding(q){
+ const t=String(q??'').normalize('NFKC').replace(/\s/g,'');
+ if(t.length>155||!/協會|社會團體/.test(t)||/合作社|工會|公會|農會|漁會|基金會|公司|家長會|管委會|國外/.test(t))return null;
+ if(!/會員(?:[(]?代表[)]?)?大會|協會大會/.test(t)||!/出席費|紀念品|禮品|會議費|場地費|場租/.test(t))return null;
+ if(/高雄市|臺南市|台南市|新北市|臺北市|台北市|臺中市|台中市|桃園市|嘉義縣|花蓮縣|臺東縣|台東縣/.test(t)&&!/屏東縣/.test(t))return null;
+ if(/可以收|要繳|再繳|向會員收|收會員/.test(t)&&!/發給|發會員|發出席費|發紀念品|發禮品/.test(t))return null;
+ if(!/發|補助|核銷|可否|可以|能不能|可不可以/.test(t))return null;
+ const own=/不用.{0,10}補助|不含.{0,10}補助|自有經費|自有資金|自籌款|協會自己的|用會費/.test(t);
+ const county=/(?:屏東縣|屏東縣府|縣府|本縣).{0,13}補助|屏東縣政府對民間團體補助經費作業要點/.test(t)&&!/不用.{0,10}補助|不含.{0,10}補助|沒有.{0,10}補助/.test(t);
+ const special=/專案|成果活動|同一天|同天|同日|另外核定|個別核定|計畫書/.test(t);
+ if(!own&&!county&&/中央補助|教育部補助|文化部補助|國教署補助|其他縣市/.test(t))return null;
+ const grantRefs=[{title:'屏東縣政府對民間團體補助經費作業要點第3點、第5點第2款第6目',source:'https://portal.ptc.edu.tw/bulletin/attachment.php?a_sn=33872&b_sn=B114003910'},{title:'屏東縣政府教育處115年度民間團體補助公告及附件',source:'https://portal.ptc.edu.tw/bulletin/view.php?sn=B114003910'}];
+ const finance=[law('社會團體財務處理辦法','D0050097',11),law('社會團體財務處理辦法','D0050097',19),association(34)];
+ const grant=['屏東縣的一般補助','一般要點把會員大會、理事會／監事會議與例行會議列為不予補助項目。會員大會本身的出席費、紀念品或場地費，不要用這項一般補助核銷。'];
+ const plan=['有專案核定或同一天另辦活動','第3點保留其他法令及相關審查規範。先對照專案核定函、核定經費表和核銷規定。若另有已核定成果活動與大會同日，應分開核對活動內容、費用和憑證；同一天辦理或改列品名，不代表大會的支出就可核銷。'];
+ const ownFunds=['協會自己的經費','縣府補助的排除規定不直接決定自有經費可不可支用。先核對章程、會務用途、預算及有權機關的決議；有預算也不代表任何項目都可以發。規定或個案不清時，支出前請向主管機關確認。'];
+ const article=['一般會員和執行職務的理監事不同','財務處理辦法第19條講的是理事、監事因執行職務所需的支給，不能當作向一般會員發放出席費的依據，也沒有規定會員一律只能領紀念品。'];
+ const actions=[{label:'聯絡承辦',view:'contact',sub:''}];
+ if(!own&&!county)return {direct:true,category:'人民團體財務',title:'會員大會要發出席費或紀念品？先看經費來源',
+  summary:'先分清協會是要支出發給會員，還是要向會員收費；這是兩件事。若是要發給會員，再分縣府補助款和協會自己的經費。',
+  choiceHeading:'選擇支出的經費來源',choices:[
+   {label:'屏東縣府補助款',question:'協會要用屏東縣補助款發會員大會的出席費或紀念品，可以核銷嗎？'},
+   {label:'協會自有經費',question:'協會會員大會想發出席費或紀念品，只用協會自己的錢，可以嗎？'}
+  ],steps:[article],refs:finance,actions};
+ return {direct:true,category:'人民團體財務',title:county?'會員大會費用：屏東縣一般補助不予核銷':'會員大會用自有經費：先確認有沒有支出依據',
+  summary:county?(special?'一般補助不核銷會員大會本身的支出。若另有核定專案，請分開看並核對專案核定項目。':'不能把會員大會的出席費或紀念品列入屏東縣一般補助核銷。'):'若是協會自己的錢，不能直接套用縣府補助規定，也不能逕自認為出席費或紀念品一定可以發。',
+  steps:[...(county?[grant,plan]:[]),...(own?[ownFunds]:[]),article],refs:[...(county?grantRefs:[]),...finance],actions};
+}
 function answerMixed(q){
+ const expenses=memberMeetingExpenseFunding(q);if(expenses)return expenses;
  const withdrawal=withdrawalAndAssemblyRoll(q);if(withdrawal)return withdrawal;
  const boardMinutes=inspectAndPublishBoardMinutes(q);if(boardMinutes)return boardMinutes;
  const address=associationRegisteredAddress(q);if(address)return address;
@@ -634,6 +663,6 @@ function answerMixed(q){
     keys.includes('creditor')?'合作社清算：就任後公告與終結報告，分別計算':isCoop?'合作社清算報告與股息上限，分開看':'協會入會資格與會員除名，分開看',
   summary:keys.length===1?topics[keys[0]].line[1]:'你問了兩件事，分別如下。',steps:keys.length>1?keys.map(k=>topics[k].line):[],refs:keys.flatMap(k=>topics[k].laws)};
 }
-if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy,changedMeetingVenue,familyAssemblyProxy,dualBoardVacancies,coopBoardVacancies,creditCooperativeVacancy,schoolParentFiling,associationRegisteredAddress,inspectAndPublishBoardMinutes,temporaryMeetingNotice,withdrawalAndAssemblyRoll};return;}
+if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy,changedMeetingVenue,familyAssemblyProxy,dualBoardVacancies,coopBoardVacancies,creditCooperativeVacancy,schoolParentFiling,associationRegisteredAddress,inspectAndPublishBoardMinutes,temporaryMeetingNotice,withdrawalAndAssemblyRoll,memberMeetingExpenseFunding};return;}
 root.verifiedMixedQuestionAnswer=answerMixed;
 })(typeof window!=='undefined'?window:globalThis);

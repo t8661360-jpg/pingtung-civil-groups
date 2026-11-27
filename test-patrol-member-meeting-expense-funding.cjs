@@ -1,0 +1,14 @@
+const assert=require('node:assert/strict');
+const {answerMixed,memberMeetingExpenseFunding}=require('./verified-mixed-questions');
+const q='協會要用屏東縣補助款發會員大會的出席費或紀念品，可以核銷嗎？';
+const c=answerMixed(q);assert.match(c.summary,/不能.*屏東縣一般補助核銷/);
+assert.ok(c.refs.some(x=>x.title.includes('第5點第2款第6目')));
+assert.match(c.steps.flat().join(' '),/第3點保留.*核定/);
+const own=answerMixed('協會會員大會想發紀念品，不用縣府補助，只用協會自己的錢，可以嗎？');
+assert.match(own.summary,/不能直接套用縣府補助規定/);assert.ok(!own.refs.some(x=>x.title.includes('第5點第2款第6目')));
+const p=answerMixed('我們協會的屏東縣府專案補助，成果活動和會員大會同天，禮品能核銷嗎？');
+assert.match(p.summary,/核定專案/);assert.match(p.steps.flat().join(' '),/同一天辦理或改列品名/);
+const a=answerMixed('協會開會員大會可以收出席費發給會員嗎，還是只能發紀念品');
+assert.deepEqual(a.choices.map(x=>x.label),['屏東縣府補助款','協會自有經費']);
+for(const q0 of ['出席協會會員大會要繳費嗎？','協會可以收會員大會出席費嗎？','協會理監事可以領薪水嗎，可以領出席費嗎？','合作社要用縣府補助給社員大會出席費可以嗎？','協會要用文化部補助發會員大會紀念品，可以核銷嗎？'])assert.equal(memberMeetingExpenseFunding(q0),null,q0);
+console.log('member meeting expense funding OK');
