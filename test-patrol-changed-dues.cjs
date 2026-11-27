@@ -1,0 +1,10 @@
+const assert=require('node:assert/strict');
+const {answerMixed:A,changedAssociationDues:D}=require('./verified-mixed-questions');
+const all=a=>[a.summary,...a.steps.flat(),...a.refs.map(x=>x.title)].join(' ');
+const x=all(A('協會章程改了會費，已繳年度會費要補差額嗎？會員不同意可以退會嗎？'));
+assert.match(x,/不會因調漲就自動欠差額.*大會通過、報主管機關核備.*從下一年度起適用.*章程的方式提出.*預告最長六個月/);
+assert.match(all(A('一般協會調漲會費，會員已經繳過還要補，不能接受可退會嗎？')),/經核備的章程.*不同意，可以自願退會/);
+assert.match(all(A('協會理事會把會費提高但還沒召開會員大會，可以開始收新費率嗎？')),/還不能開始收新的會費.*報主管機關核備/);
+assert.match(all(A('協會因為會費漲了想退會，可以要求退當年剩下月份嗎？')),/可以依章程.*不一定按剩餘月份退費/);
+for(const q of ['商業同業公會調漲會費會員可以退會嗎？','協會退會後會費可以退嗎？','協會調漲會費以後會公告欠會費名單嗎？','協會怎麼訂常年會費？'])assert.equal(D(q),null,q);
+console.log('association dues adjustment, withdrawal, and refunds stay separate');

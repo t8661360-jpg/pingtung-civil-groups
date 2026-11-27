@@ -291,7 +291,29 @@ function fundraisingDisclosure(q){
   summary:passive?'如果依法屬於勸募團體，捐贈者反對具名仍須辦理徵信，但公開版可以不揭示全名。':'不必一律公開捐贈者全名，但仍要依法徵信、留存及送主管機關備查。',steps:passive?[course,release,records]:[release,explicit?course:general,records],
   refs:[{title:'公益勸募條例施行細則第6條附件二：勸募團體的捐贈清冊與徵信',source:'https://law.moj.gov.tw/LawClass/LawGetFile.ashx?FileId=0000257384&lan=C'},rule(6),rule(14),rule(9),fund(16),...(passive?[fund(6)]:explicit?[fund(18)]:[fund(6),fund(18)])]};
 }
+function changedAssociationDues(q){
+ const t=String(q??'').normalize('NFKC').replace(/\s/g,'');
+ if(t.length>150||!/協會|社會團體/.test(t)||!/會費/.test(t))return null;
+ if(/公會|工會|公司|合作社|農會|漁會|財團法人|除名|停權|捐款|退股|清算|公開|徵信|公告欠費|公布/.test(t))return null;
+ if(!/漲|提高|調高|調整|更改|改了|修改|新費率|改會費|換費率/.test(t))return null;
+ const difference=/差額|補繳|還要補|要補|追繳|追收|繳過|已繳|已經繳|繳了/.test(t);
+ const withdraw=/退會|退出|不當會員/.test(t);
+ const refund=/退費|退.{0,5}(?:剩下|剩餘|當年|金額|會費)|要回|按月退|比例退/.test(t);
+ const before=/尚未|沒開|還沒|沒召開|沒經|未經|理事會|大會|核備|開始收/.test(t);
+ const pending=/尚未|沒開|還沒|沒召開|沒經|未經|只(?:有|經)理事會/.test(t);
+ if(!difference&&!withdraw&&!before&&!refund)return null;
+ const procedures=['先查新會費何時適用','入會費及常年會費的標準和繳納方式應訂入章程；會費數額及繳納方式須經會員（代表）大會通過、報主管機關核備後才可實施。理事會可以提案，但不能只憑理事會決議就開始按新費率收費。'];
+ const arrears=['今年已繳，要不要補差額','不能只因費率提高，就認定先前已繳的會員一定要補。請看經核備的章程、決議所定生效日、適用年度及過渡規定。若寫明從下一年度起適用，就不應拿新費率追補本年度；若決議聲稱追補已結清期間而條件不清，請協會提供書面依據，再向主管機關確認。'];
+ const exit=['不同意，可以自願退會','退會依章程的方式提出並保存送達紀錄，不是等協會把你除名。登記為社團法人者，另依民法第54條原則可退社，章程得約定事務年度末或設預告期，但預告最長六個月。不再具會員身分和退會前已發生的費用義務是兩回事，不能一概互相抵銷。'];
+ const returnMoney=['已繳會費可否要求退回','不一定按剩餘月份退費。應看已由理事會擬訂、經會員（代表）大會通過的退費原則及章程；不要把退會當作已繳費用當然按比例退。'];
+ const finance=law('社會團體財務處理辦法','D0050097',14);
+ return {direct:true,category:'人民團體會務與財務',title:'調漲會費後是否補差額、可否退會，分開看',
+  summary:pending&&!difference&&!withdraw&&!refund?'只有理事會通過，還不能開始收新的會費；要先完成大會通過和報主管機關核備。':difference?'已繳的會費不會因調漲就自動欠差額。先查新規定哪一天生效、從哪一期起算。':withdraw?'可以依章程提出自願退會；是否退費不是同一問題。':'先看大會決議、核備和適用年度；調整會費不等於一律追補或退費。',
+  steps:[procedures,...(difference?[arrears]:[]),...(withdraw?[exit]:[]),...(refund?[returnMoney]:[])],
+  refs:[association(12),association(33),finance,...(withdraw?[law('民法','B0000001',54)]:[])]};
+}
 function answerMixed(q){
+ const dues=changedAssociationDues(q);if(dues)return dues;
  const donationDisclosure=fundraisingDisclosure(q);if(donationDisclosure)return donationDisclosure;
  const docs=publishDocumentPrivacy(q);if(docs)return docs;
  const fund=overdueFundraising(q);if(fund)return fund;
@@ -309,6 +331,6 @@ function answerMixed(q){
     keys.includes('creditor')?'合作社清算：就任後公告與終結報告，分別計算':isCoop?'合作社清算報告與股息上限，分開看':'協會入會資格與會員除名，分開看',
   summary:keys.length===1?topics[keys[0]].line[1]:'你問了兩件事，分別如下。',steps:keys.length>1?keys.map(k=>topics[k].line):[],refs:keys.flatMap(k=>topics[k].laws)};
 }
-if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure};return;}
+if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues};return;}
 root.verifiedMixedQuestionAnswer=answerMixed;
 })(typeof window!=='undefined'?window:globalThis);
