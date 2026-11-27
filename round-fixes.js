@@ -38,8 +38,21 @@ function normalizeQuestion221(s){
  if(/(退會|退出|不想當會員)/.test(s))s=s.replace(/(?:終身|永久|榮譽|贊助)會員/g,'會員');
  return s;
 }
+/* 第222輪（根源）：口語同義詞——
+   「理事長是無給職／義務職嗎」＝理事長有薪水嗎（否則被當成團體名稱去查名冊）；
+   「會員可不可以一人多票」＝會員是不是一人一票；「成立多久要辦理立案」＝成立大會後多久要立案；
+   「里長一定要當理事長」＝里長會自動成為理事長嗎（避免被「當理事要不要登記」規則搶走） */
+function normalizeQuestion222(s){
+ s=String(s||'');
+ if(/(理事|監事|幹部|理監事)/.test(s)&&!/(合作社|社員|工會|公會)/.test(s))s=s.replace(/(?:是不是|是否|算不算|算)(?:無給職|義務職|有給職|無薪職)|是(?:無給職|義務職|有給職|無薪職|不支薪)(?:的)?(?:嗎|呢)?/g,'有薪水嗎').replace(/有給職嗎/g,'有薪水嗎');
+ if(/會員/.test(s)&&!/(合作社|社員|股金|理事|監事)/.test(s))s=s.replace(/(?:可不可以|可以|能不能|能)?(?:一人|一個人|一位會員|一個會員)(?:可不可以|可以|能不能|能)?(?:投|有)?(?:多票|兩票|二票|好幾票|多張票|兩張票)(?:嗎|呢)?/g,'一人一票嗎');
+ s=s.replace(/成立(?:後)?(?:多久|幾天|多少天|多長時間)(?:內)?(?:要|得|須)?(?:去|要去)?(?:辦理|辦)?立案/g,'成立後幾天內要立案');
+ s=s.replace(/(里長|村長|村里長).{0,3}(?:一定|必須|都要|就要|得)(?:要)?(?:當|擔任|兼)(?:本|這個|協會的)?(?:社區)?(?:協會)?(?:的)?理事長/g,'$1會自動成為理事長');
+ s=s.replace(/(?:變更|更換|異動)(?:理事長|負責人|會長)/g,'理事長換人');
+ return s;
+}
 function normalizeQuestion(q){
- return normalizeQuestion221(normalizeQuestion216(normalizeQuestion215(normalizeQuestion214(normalizeQuestion212(normalizeQuestion210(normalizeQuestion209(normalizeQuestion208(normalizeQuestion207(normalizeQuestion206(normalizeQuestion202(normalizeQuestion201(normalizeQuestion200(normalizeQuestion194(normalizeQuestion193(normalizeQuestion192(normalizeQuestion191(normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(normalizeQuestionU2(fixTyposU1(q)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
+ return normalizeQuestion222(normalizeQuestion221(normalizeQuestion216(normalizeQuestion215(normalizeQuestion214(normalizeQuestion212(normalizeQuestion210(normalizeQuestion209(normalizeQuestion208(normalizeQuestion207(normalizeQuestion206(normalizeQuestion202(normalizeQuestion201(normalizeQuestion200(normalizeQuestion194(normalizeQuestion193(normalizeQuestion192(normalizeQuestion191(normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(normalizeQuestionU2(fixTyposU1(q))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
 }
 /* 第200輪（根源）：入會退會與會員資格換問法——
    「忘記繳／忘了繳／漏繳會費」＝沒繳會費（原本「忘記繳會費會被退會嗎」被當成退費）；
@@ -3684,11 +3697,11 @@ function electionHowTo(t){
 }
 function chairChangeTodo(t){
  if(!/理事長/.test(t)||!/(換人|換了|變更|異動|更換|改選後|新任|交接後|上任|換(個|一個|掉)?(新的?)?理事長|理事長(要|想|得)?換)/.test(t))return null;
- if(!/(怎麼辦|怎麼弄|怎麼做|要辦什麼|要做什麼|要辦哪些|手續|流程|要通知|要報|程序|法院|變更登記)/.test(t))return null;
+ if(!/(怎麼辦|怎麼弄|怎麼做|要辦什麼|要做什麼|要辦哪些|手續|流程|要通知|要報|多久|幾天|幾日|期限|報備|備查|備案|通知|程序|法院|變更登記)/.test(t))return null;
  if(/合作社|社員|聘約|員工|總幹事|統編|國稅|扣繳|銀行|開戶|印鑑|圖記|交接|移交|不交/.test(t))return null;
  return{direct:true,category:'選舉與改選',title:'理事長換人之後要辦的事：報縣府核備、交接、法院和國稅局、銀行的變更',
- summary:'理事長換人（不管是改選還是中途補選），後面有幾件事要接著辦：\n\n1. 報縣府核備：30日內把會議紀錄和新的理監事簡歷冊（負責人名冊）報縣府（人民團體法第54條）。\n2. 交接：前任把立案證書、圖記、帳冊、檔案造冊移交，新理事長就任後15日內會同監交人接收完畢（人民團體會務輔導辦法第18條）。\n3. 法院：已經辦法人登記的協會，要向法院登記處辦理理事長的變更登記。\n4. 國稅局：統一編號不用重新申請，但要辦扣繳單位的負責人變更。\n5. 銀行、郵局：更換帳戶的負責人和印鑑。\n\n如果理事長是任期中出缺，要在出缺之日起一個月內補選；剩下的任期不到6個月的，可以依章程規定或由常務理事互推一人代理（人民團體選舉罷免辦法第17條）。',
- statutes:[P(54),G(18),ER(17)],notes:['法院、國稅局和銀行各自要哪些文件，請直接向該機關確認。'],actions:[{label:'下載改選書表',view:'forms',sub:'改選'}]};
+ summary:'理事長換人（不管是改選還是中途補選），後面有幾件事要接著辦：\n\n1. 報縣府核備：新的選任職員簡歷冊（負責人名冊）有異動，要在30日內報請縣府核備（人民團體法第54條）；改選的會員（會員代表）大會紀錄，要在閉會後30日內報請備查（人民團體會務輔導辦法第12條第2項）。\n2. 交接：前任把立案證書、圖記、帳冊、檔案造冊移交，新理事長就任後15日內會同監交人接收完畢（人民團體會務輔導辦法第18條）。\n3. 法院：已經辦法人登記的協會，要向法院登記處辦理理事長的變更登記。\n4. 國稅局：統一編號不用重新申請，但要辦扣繳單位的負責人變更。\n5. 銀行、郵局：更換帳戶的負責人和印鑑。\n\n如果理事長是任期中出缺，要在出缺之日起一個月內補選；剩下的任期不到6個月的，可以依章程規定或由常務理事互推一人代理（人民團體選舉罷免辦法第17條）。',
+ statutes:[P(54),G(12),G(18),ER(17)],notes:['法院、國稅局和銀行各自要哪些文件，請直接向該機關確認。'],actions:[{label:'下載改選書表',view:'forms',sub:'改選'}]};
 }
 function byElection(t){
  if(/^(協會|我們協會|本會)?的?(理事|監事|理監事)(人數)?(不夠|不足|缺額|少了|出缺|缺人)了?(怎麼辦|要補選嗎|要不要補選)?[嗎呢？?]*$/.test(t))t=t+'補選怎麼辦';
@@ -3912,6 +3925,12 @@ function communityPatrol(t){
  if(!/(社區發展協會|社區協會|社區)/.test(t))return null;
  if(/合作社|社員|魅力社區|好讚|社造|補助|勸募|社區大學|大樓|管委會/.test(t))return null;
  const cat='社區發展協會';
+ if(/成立(大會)?後?.{0,3}(幾天|多久|幾日|期限|幾個月)/.test(t)&&/立案/.test(t)&&!/(許可|籌組|籌備|發起|會員|理事|解散)/.test(t))
+  return{direct:true,category:cat,title:'社區發展協會成立大會後30日內，要報縣府核准立案',summary:'要在成立大會後三十日內，檢具章程、會員名冊、選任職員簡歷冊，報請主管機關核准立案，核准後發給立案證書（人民團體法第10條）。社區發展協會的設立適用人民團體法（社區發展工作要點第17點）。\n縣府核准立案要花幾天，法規沒有寫，請洽承辦人員。',
+  statutes:[P(10),CDP(17)],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
+ if(/會員/.test(t)&&/(一人一票|一人.{0,2}票|每人.{0,2}票|一權)/.test(t)&&!/(住|歲|年齡|設籍|理事|監事|代理|委託|視訊|通訊|郵寄)/.test(t))
+  return{direct:true,category:cat,title:'社區發展協會的會員大會也是一人一票：每一位會員（會員代表）只有一權',summary:'是。社區發展協會適用人民團體法（社區發展工作要點第17點），人民團體法第16條規定：會員（會員代表）有表決權、選舉權、被選舉權與罷免權，每一會員（會員代表）為一權。所以不能一個人投多票。\n章程如果有訂團體會員、贊助會員等類別，各類會員有沒有表決權，要看章程怎麼寫（第12條第7、8款）。',
+  statutes:[P(16),P(12),CDP(17)],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
  const act=[{label:'聯絡承辦',view:'contact',sub:''}];
  const asked=/(幾個(?!月)|幾人|幾名|幾位|多少人|名額)/.test(t);
  if(/(理事|監事|理監事)/.test(t)&&asked&&!/常務|召集人|出席|職權|查核|委託|代理|開會|才能|通知|走了|辭|罷免|同意|決議|解任|不夠|不足|[一二兩三四五六七八九十]人|圈|選票|連任|任期|出缺|剩|最少|至少|\d/.test(t)){
@@ -3924,7 +3943,7 @@ function communityPatrol(t){
   return{direct:true,category:cat,title:'社區發展協會的理事、監事可以連任，理事長只能連任一次',summary:'可以。理事、監事除法律另有規定或章程另有限制外，連選得連任；但理事長的連任以一次為限（人民團體法第20條）。\n社區發展協會適用人民團體法及相關規定（社區發展工作要點第17點），所以章程如果訂得更嚴，要照章程辦理。',statutes:[P(20),CDP(17)],questionState:{focus:'chair-term',domain:'social'},notes:['已連任一次的理事長，下一屆不能再當選理事長，但仍可以當選理事。'],actions:[{label:'看改選流程',view:'meet',sub:'m-elect'}]};
  if(/(年度計畫|年度工作計畫|工作計畫|年度預算|收支預算)/.test(t)&&/(什麼時候|何時|幾月|期限|多久|要送|要報|送件|報備)/.test(t))
   return{direct:true,category:cat,title:'年度工作計畫和預算：會計年度開始前編好，連同決算在年度終了後3個月內提大會通過再報備查',summary:'依社會團體財務處理辦法第11條：理事會要在會計年度開始前編造年度工作計畫及收支預算表；會計年度終了後三個月內，編造上年度工作報告、會計報告，連同當年度工作計畫、收支預算表，提經會員（會員代表）大會通過後，報請主管機關備查。\n會計年度以曆年為準，是每年1月1日到12月31日（第10條）。換句話說，大會要在年度終了後三個月內開完並送件。\n社區發展協會適用人民團體法及相關規定（社區發展工作要點第17點）。送公所還是縣府，請先洽所在地公所承辦確認。',statutes:[F(11),F(10),CDP(17)],questionState:{focus:'annual-plan',domain:'social'},notes:['因故來不及開大會的，可先經理事會及監事會（或聯席會議）通過，事後提報大會追認，再報請備查（第11條）。'],actions:act};
- if((/備查/.test(t)||(/(報|送|交|呈報)/.test(t)&&/(公所|縣府|縣政府|主管機關|每年|年度)/.test(t)))&&/(哪些|什麼|項目|事項|資料|文件|要報)/.test(t)&&!/補助|活動/.test(t))
+ if((/備查/.test(t)||(/(報|送|交|呈報)/.test(t)&&/(公所|縣府|縣政府|主管機關|每年|年度)/.test(t)))&&/(哪些|什麼|項目|事項|資料|文件|要報)/.test(t)&&!/補助|活動|換人|換屆|換新|改選|新任|新理事長|卸任|接任|異動/.test(t))
   return{direct:true,category:cat,title:'社區發展協會每年要報備查的事項：會員大會紀錄、年度工作計畫與預算、決算報告',summary:'依法規明文，主要有三項：\n1. 會員大會紀錄：閉會後三十日內報請主管機關備查（人民團體會務輔導辦法第12條）。\n2. 年度工作報告、會計報告（決算），連同當年度工作計畫、收支預算表：會計年度終了後三個月內提大會通過，報請主管機關備查（社會團體財務處理辦法第11條）。\n3. 改選完成後的理監事資料等，請依改選流程另外辦理。\n社區發展協會適用人民團體法及相關規定（社區發展工作要點第17點）。實際是送公所還是縣府、要附哪些表件，各單位可能有補充要求，請先洽所在地公所承辦。',statutes:[G(12),F(11),CDP(17)],questionState:{focus:'annual-report',domain:'social'},notes:['其餘各鄉鎮的額外要求，本站查無統一規定，請洽承辦。'],actions:[{label:'看改選流程',view:'meet',sub:'m-elect'},{label:'聯絡承辦',view:'contact',sub:''}]};
  if(/(做什麼活動|辦什麼活動|辦哪些活動|活動.{0,5}(才算|至少|一定要)|(一年|每年|年度).{0,4}(幾場|幾次|幾個活動)|才算有(做事|運作|在運作))/.test(t))
   return{direct:true,category:cat,title:'法規沒有規定每年一定要辦幾場活動，但有幾件事每年一定要做',summary:'本站查到的人民團體法及相關辦法，沒有規定協會每年一定要辦幾場活動；活動要依章程載明的任務，以及年度工作計畫辦理。\n不過有幾件事是每年一定要做的：\n1. 會員大會每年至少召開一次定期會議（人民團體法第25條）。\n2. 年度工作計畫、收支預算和決算，要提大會通過後報備查（社會團體財務處理辦法第11條）。\n3. 理事會、監事會每六個月至少開一次（人民團體法第43條）。\n如果長期完全沒有運作，可能被認定為會務不正常，請見相關說明。',statutes:[P(25),F(11),P(43)],questionState:{focus:'community-activity',domain:'social'},notes:['年度要辦什麼活動，請洽公所或縣府承辦了解是否有輔導或考核的要求。'],actions:act};
@@ -5319,7 +5338,7 @@ function patrol11(t){
   return Object.assign({},base,{category:'改選與任期',title:'新一屆的任期，從召開本屆第一次理事會的那一天起算',
   summary:'理事、監事的任期，是從召開本屆第一次理事會的那一天開始算（人民團體選舉罷免辦法第28條），不是從選舉當天算起。\n\n選出理事、監事之後，要在大會閉會的第7日起至第15日內，分別召開理事會、監事會；逾期沒有召集的，由得票最多的理事、監事，或由主管機關指定的理事、監事召集；實在無法在期限內召開，可以報請主管機關核准延長（同辦法第12條第1項）。\n\n國際性社會團體的章程如果另有規定，並且報經主管機關核准，則依章程規定。',
   statutes:[E(28),E(12)]});
- if(/(候選人|參選|被選舉人|被選|提名|競選|想當理事|想當監事|要當理事|要當監事|想選理事|想選監事|當理事|當監事|參加(理事|監事|理監事)?(選舉|競選))/.test(t)&&/(登記|報名|先報|事先|名單|要不要|一定要|需要|先繳|要繳|繳什麼|繳哪些|什麼資料|什麼文件|什麼證明|填什麼|怎麼報)/.test(t)&&!/(保證金|幾個|幾人|名額|資格|年齡|限制)/.test(t))
+ if(/(候選人|參選|被選舉人|被選|提名|競選|想當理事|想當監事|要當理事|要當監事|想選理事|想選監事|當理事|當監事|參加(理事|監事|理監事)?(選舉|競選))/.test(t)&&/(登記|報名|先報|事先|名單|要不要|一定要|需要|先繳|要繳|繳什麼|繳哪些|什麼資料|什麼文件|什麼證明|填什麼|怎麼報)/.test(t)&&!/(保證金|幾個|幾人|名額|資格|年齡|限制|里長|村長)/.test(t))
   return Object.assign({},base,{category:'改選與任期',title:'候選人不一定要先登記：要看選票用哪一種方式，被選舉人也不限於名單上的人',
   summary:'不一定。選票的做法有三種，由理事會擇一：一、把全體被選舉人的姓名都印在選票上，由選舉人圈選；二、只印空白格位，由選舉人自己填寫；三、印出候選人參考名單，另外留與應選名額同額的空白格位（人民團體選舉罷免辦法第6條第1項）。\n\n如果用第三種，參考名單可以依章程規定或會員大會決議，由理事會提出；也可以由會員向團體登記，登記人數要和應選名額相同或更多，登記不足時由理事會決議提名補足。不過被選舉人不限於名單上的人（同條第2項）。\n\n所以要不要先登記，要看貴會章程和這次選票採用哪一種方式，請先看章程，有疑問請洽承辦人員或縣府總機 08-7320415。',
   statutes:[E(6)]});
