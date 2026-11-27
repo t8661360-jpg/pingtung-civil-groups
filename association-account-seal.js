@@ -1,9 +1,36 @@
 (function(root){
 'use strict';
 function law(name,code,n){return {title:name+'第'+n+'條',source:'https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode='+code+'&flno='+n};}
+function postalAccountProtection(t){
+ if(!/郵局|中華郵政|郵政存簿/.test(t)||!/存摺|存折|存簿|儲金簿|印鑑|帳戶|戶頭|網路郵局|行動郵局/.test(t))return null;
+ if(/個人(?:戶|帳戶|名下)|私人帳戶|自己的帳戶|信用合作社|信合社|合作社|農會|漁會|劃撥|郵政匯票|金融卡/.test(t))return null;
+ const held=/(?:被|由)?(?:前任|卸任|原任|舊任|上任|前理事長).{0,20}(?:不交|不給|留著|保管|留有|拿走|拿著|手[上中裡]|拒絕|不還)|(?:不交|不給|不還|拒絕移交|交不出).{0,12}(?:存摺|存折|存簿|儲金簿|印鑑)|(?:存摺|存折|存簿|儲金簿|印鑑).{0,14}(?:沒交接|未交接|拿不回|不在團體手上)/.test(t);
+ const lost=/遺失|丟了|被偷|被搶|不見|找不到|脫離控制/.test(t);
+ const reported=/已(?:經)?掛失|掛失後|掛失了|掛失完|已(?:經)?止付|只掛失/.test(t);
+ const protective=/掛失|止付|保護帳戶|暫停|鎖帳|凍結|停用|被領走|亂領|冒領|被轉走|不認得|不明轉帳|可疑交易|不是我們轉/.test(t);
+ if(!held&&!lost&&!reported&&!protective)return null;
+ const suspect=/不認得|不明轉帳|可疑交易|不是我們轉|冒領|被轉走|盜領/.test(t);
+ const digital=/網路|語音|行動郵局|電子/.test(t);
+ return {direct:true,category:'人民團體財務與改選',questionState:{focus:'compound'},
+ title:reported&&digital?'郵局團體戶：掛失存摺不等於網路郵局停用':'郵局團體戶：存摺或印鑑失去控制，先聯絡郵局',
+ summary:reported&&digital?'只掛失存摺，不會因此一律終止電話語音或網路服務。電話受理時郵局可因安全考量另行暫停；請立即確認這一戶哪些功能仍開啟，必要時明確請郵局停用。':'先聯絡原開戶郵局或中華郵政24小時客服，詢問能否先辦暫予止付及何時生效；不用等完成改選更印才詢問。'+(held?'存摺或印鑑在前任手中，請照實說明，不要說成遺失。':''),
+ steps:[
+  ['現在可以先做什麼','撥中華郵政24小時客服 0800-700-365；手機請撥付費電話 (04)2354-2030。由現任有權代表團體的人說明情況，請郵局確認身分、代表權、可以採用的保護措施及生效狀態；不要把開戶資訊、密碼、帳號或證件貼到小屏。'],
+  ['確認網路、電話語音及交易範圍','僅掛失存摺通常不會同時終止網路及電話語音。若怕電子交易仍可使用，請明確提出要一併停用網路及語音，並向郵局確認各項服務是否停止、何時生效。電話受理時郵局依約可以另行停止或暫停相關服務，但不能預設已凍結所有交易。'+(suspect?'如發現不認得的交易，立即告知郵局並保留日期、金額及交易紀錄，請郵局查核，不要等到更印才反映。':'')],
+  ['再到原開戶郵局核對補辦與更印','法人或團體的郵政存簿帳戶是非通儲戶，應回原開戶郵局確認補辦；這類存簿帳戶不得領用金融卡。請依郵局要求備妥改選或代表權證明、團體文件、身分證件和印鑑；何人到場、能否同時補辦或改留印鑑，以郵局確認為準。'],
+  ['帳戶保護與協會內部交接分開','可留下書面催交以及會議紀錄。若是整屆改選，應按人民團體會務輔導辦法第18條列冊、由新任理事長會同監交人接收；未交存摺本身不等於協會圖記已失效，也不等於郵局已止付。']
+ ],refs:[
+  {title:'中華郵政115.03開戶約定書：壹、五、六與貳、一（三）',source:'https://www.post.gov.tw/post/download/%E9%83%B5%E6%94%BF%E5%AD%98%E7%B0%BF%E5%8A%83%E6%92%A5%E5%84%B2%E9%87%91%E9%96%8B%E6%88%B6%E7%B4%84%E5%AE%9A%E6%9B%B8.pdf'},
+  {title:'中華郵政：存簿掛失補副、暫予止付與24小時客服',source:'https://www.post.gov.tw/post/internet/Customer_service/index.jsp?ID=16020402&defaultAllOpen=1&sn=79B1AEF4-BBE8-43F9-82DF-A1BAB4326880'},
+  {title:'郵政儲金匯兌法第15條',source:'https://www.post.gov.tw/post/internet/Law/index.jsp?ID=1701&ch_class_id=16&law_ch_no=211&law_id=211'},
+  law('人民團體會務輔導辦法','D0020094',18)
+ ]};
+}
 function associationAccountSeal(q){
  const t=String(q||'').normalize('NFKC').replace(/\s/g,'');
  if(t.length>185||!/協會|社會團體/.test(t)||/不是(?:協會|社會團體)|(?:是|我們|本)(?:一間|一家)?(?:合作社|信合社|公會|農會|漁會|工會|基金會)|(?:農會|漁會)(?:自己|本身)的?理事長/.test(t))return null;
+ const protection=postalAccountProtection(t);
+ if(protection)return protection;
  const institution=/農會|漁會|郵局|信合社|信用合作社|金融機構|銀行/;
  const account=/帳戶|帳號|戶頭|團體戶|存摺|存款|開戶|留存|印鑑卡/;
  const seal=/印鑑|用印|印章|大小章|蓋章|圖記|印信/;
