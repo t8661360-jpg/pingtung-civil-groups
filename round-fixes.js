@@ -226,7 +226,7 @@ function normalizeQuestionR232(s){
  return s;
 }
 function normalizeQuestion(q){
- return normalizeQuestionR232(normalizeQuestionR229(normalizeQuestionR228(normalizeQuestionR227(normalizeQuestionR225(normalizeQuestionR223(normalizeQuestion223(normalizeQuestion222(normalizeQuestion221(normalizeQuestion216(normalizeQuestion215(normalizeQuestion214(normalizeQuestion212(normalizeQuestion210(normalizeQuestion209(normalizeQuestion208(normalizeQuestion207(normalizeQuestion206(normalizeQuestion202(normalizeQuestion201(normalizeQuestion200(normalizeQuestion194(normalizeQuestion193(normalizeQuestion192(normalizeQuestion191(normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(normalizeQuestionU5(normalizeQuestionU3(normalizeQuestionU4(normalizeQuestionU2(normalizeQuestionU6(normalizeQuestionU8(normalizeQuestionU7(fixTyposU1(q)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
+ return normalizeQuestionR233(normalizeQuestionR232(normalizeQuestionR229(normalizeQuestionR228(normalizeQuestionR227(normalizeQuestionR225(normalizeQuestionR223(normalizeQuestion223(normalizeQuestion222(normalizeQuestion221(normalizeQuestion216(normalizeQuestion215(normalizeQuestion214(normalizeQuestion212(normalizeQuestion210(normalizeQuestion209(normalizeQuestion208(normalizeQuestion207(normalizeQuestion206(normalizeQuestion202(normalizeQuestion201(normalizeQuestion200(normalizeQuestion194(normalizeQuestion193(normalizeQuestion192(normalizeQuestion191(normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(normalizeQuestionU5(normalizeQuestionU3(normalizeQuestionU4(normalizeQuestionU2(normalizeQuestionU6(normalizeQuestionU8(normalizeQuestionU7(fixTyposU1(q))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
 }
 /* 第200輪（根源）：入會退會與會員資格換問法——
    「忘記繳／忘了繳／漏繳會費」＝沒繳會費（原本「忘記繳會費會被退會嗎」被當成退費）；
@@ -355,6 +355,9 @@ function normalizeQuestion176(s){
   if(/(招募|召募|招|找|徵|募)(到)?(新)?(志工|義工)|運用(志工|義工)|成立.{0,3}志工隊/.test(s)&&/(登記|報備|通報|申報|報名冊)/.test(s)&&!/(時數|簽到|服務紀錄|紀錄冊|服務證|出勤)/.test(s))
    s=s.replace(/(登記|報備|通報|申報)/g,'備案');
   s=s.replace(/(志工|義工)(們)?(說|講|嚷)?(要|想|準備)?(集體)?(罷工|罷做|抗議不來|一起不來)/g,'$1不想做了');
+  /* 第233輪：「協會用志工要先備案嗎」沒說「計畫」，被當成問能不能成立志工隊（開頭答成「可以」） */
+  if(/(用|使用|運用|招|召募|招募|找)(了|到)?(新)?(志工|義工)/.test(s)&&/(要不要|要|需要|需不需要|用不用|得|須|先).{0,3}(備案|報備|核備)(嗎|呢|啊|喔)?/.test(s)&&!/(計畫|時數|簽到|紀錄冊|服務證|出勤)/.test(s))
+   s='志願服務計畫要不要備案';
  }
  return s;
 }
@@ -3274,7 +3277,7 @@ function volunteerMore(t){
   return{direct:true,category:'志願服務',title:'志工要上兩種課：基礎訓練和特殊訓練',
   summary:'志工要接受兩種教育訓練，由運用志工的單位（例如協會）負責辦理（志願服務法第9條）：\n1. 基礎訓練：課程內容由中央主管機關（衛生福利部）統一訂定。\n2. 特殊訓練：課程由各目的事業主管機關或運用單位，依服務的需要自己訂定。\n\n參加運用單位提供的教育訓練，也是志工的義務（志願服務法第15條）。完成訓練之後，才由運用單位申請發給志願服務證和服務紀錄冊。',
   statutes:[VS(9),VS(15)],notes:['屏東縣志願服務的承辦人是社會處曾雅怡（08-7320415 轉 5317）。'],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
- if(/(時數|紀錄冊.{0,4}用|有什麼用|好處|福利|優待|證明|升學|加分|就業|履歷|學分|換什麼|換獎|兌換)/.test(t)&&!/怎麼申請|榮譽卡怎麼/.test(t))
+ if(/(時數|紀錄冊.{0,4}用|有什麼用|好處|福利|優待|證明|升學|加分|就業|履歷|學分|換什麼|換獎|兌換)/.test(t)&&!/怎麼申請|榮譽卡怎麼|金牌|銀牌|銅牌|獎牌|得獎|領獎/.test(t))
   return{direct:true,category:'志願服務',title:'志工服務時數的用處：申請榮譽卡、服務績效證明，表現優良可以獲得獎勵',
   summary:'服務時數主要有三個用途：\n1. 志願服務榮譽卡：服務年資滿三年、服務時數達300小時以上，可以向縣府申請。憑卡進入收費的公立風景區、未編定座次的康樂場所和文教設施，可以免費（志願服務法第20條）。\n2. 服務績效證明書：服務成績良好的志工，因為升學、進修、就業需要，運用單位可以發給證明（志願服務法第17條）。\n3. 獎勵：志願服務表現優良的，應給予獎勵，並可以列入升學、就業的部分成績（志願服務法第19條）。\n\n時數要登記在志願服務紀錄冊裡，由運用單位登錄才算數。',
   statutes:[VS(20),VS(17),VS(19)],notes:['屏東縣志願服務的承辦人是社會處曾雅怡（08-7320415 轉 5317）。']};
@@ -8169,7 +8172,7 @@ function patrol91(t){
   summary:'志願服務法沒有規定志工一定要繳交良民證或無犯罪紀錄證明。\n\n志工的召募，由志願服務運用單位自行或聯合辦理，召募時要把志願服務計畫公告（第6條第1項）；志願服務計畫要包括志工的召募、訓練、管理、運用、輔導、考核及服務項目（第7條第2項），所以召募條件由運用單位在計畫中訂定。\n\n另外，必須具專門執業證照的工作，要由具證照的志工擔任（第13條）。\n\n若服務對象或服務項目另有其他法令規定的資格限制，本站沒有查證，請洽縣府社會處承辦人員。'+tail,
   statutes:[VS(6),VS(7),VS(13)]});
  /* 4. 志工用私人車輛接送 */
- if(/(私人車|自己的車|自家車|自用車|個人車|私家車|自己開車|開車|載|接送|騎車|機車|汽車)/.test(t)&&/(志工|義工)/.test(t)&&!/(交通費|油錢|油資|補助|車馬費|車資|報酬)/.test(t))
+ if(/(私人車|自己的車|自家車|自用車|個人車|私家車|自己開車|開車|(?<![登記刊轉下上承所])載|接送|騎車|機車|汽車)/.test(t)&&/(志工|義工)/.test(t)&&!/(交通費|油錢|油資|補助|車馬費|車資|報酬)/.test(t))
   return Object.assign({},base,{title:'志工用自己的車接送長輩或民眾：志願服務法沒有專門規定，但運用單位要確保安全並辦意外保險',
   summary:'志願服務法沒有針對志工使用私人車輛接送長輩或民眾另訂規定。\n\n運用單位可以注意的法律義務有：依志工的工作內容與特點，確保志工在安全及衛生的適當環境下服務（第10條）；為志工辦理意外事故保險（第16條）；志工依運用單位的指示服務時，因故意或過失不法侵害他人權利，由運用單位負損害賠償責任，志工有故意或重大過失時，運用單位可以向志工求償（第22條）。\n\n至於私人車輛的汽機車保險是否涵蓋、接送特定對象（例如身心障礙者、長照服務對象）有沒有另外的資格或車輛規定，本站沒有查證，請洽縣府社會處承辦人員。'+tail,
   statutes:[VS(10),VS(16),VS(22)]});
@@ -12770,9 +12773,40 @@ function patrolR232(t){
   [PT(58),PT(59),G(27),{title:'訴願法第14條',source:LAW+'A0030020'}]);
  return null;
 }
+/* 第233輪：想當志工去哪裡報名（原本難倒小屏）。志願服務法第3條、第6條、第9條、第12條。 */
+function normalizeQuestionR233(s){
+ s=String(s||'');
+ if(/(志工|義工)/.test(s)&&/(滿|做滿|服務滿|做了|服務了)(三年|3年|3 年)/.test(s)&&/(有什麼|有啥|有沒有|可以得到|能得到|拿到什麼|有什麼好處|有優待)/.test(s)&&!/(保險|薪|稅)/.test(s))return '志願服務榮譽卡是什麼';
+ if(/榮譽卡/.test(s)&&/(去哪|哪裡|哪邊|在哪|向誰|找誰|跟誰|哪個單位|哪個機關)/.test(s)&&/(申請|辦|領|拿|換|核發)/.test(s))return '志工服務滿幾年可以申請榮譽卡';
+ return s;
+}
+function patrolR233(t){
+ if(!/(志工|義工|志願服務|服務紀錄冊|志願服務證)/.test(t))return null;
+ if(/(合作社|社員|工會|公會|政黨|基金會|魅力|勸募|補助|薪|勞保|僱|雇)/.test(t))return null;
+ const EX=/(協會要|我們協會|我們社團|本會|協會想|社團想|時數|簽到|紀錄冊|服務證|榮譽卡|不想|(?<!要)不要|不能|退出)/;
+ const V=n=>({title:'志願服務法第'+n+'條',source:LAW+'D0050131'});
+ if(/(志工隊|志工團|志願服務隊|義工隊)/.test(t)&&/(隊長|領隊|召集人|小隊長|幹部|組織架構|分組|排班)/.test(t))
+  return{direct:true,category:'志願服務',title:'志工隊要不要設隊長：志願服務法沒有規定，管理方式寫在志願服務計畫裡',
+  summary:'志願服務法沒有規定志工隊一定要設隊長或幹部。法規要求的是：志願服務計畫要包括志工的召募、訓練、管理、運用、輔導、考核及服務項目（志願服務法第7條第2項），而且運用單位要指定專人負責志願服務的督導（第11條）。\n\n所以要不要設隊長、怎麼分組排班，由協會自己在志願服務計畫或規章裡訂；志工要遵守運用單位訂定的規章（第15條第1項第2款）。\n\n其他細節請洽縣府社會處承辦人員，縣府總機 08-7320415。',
+  statutes:[V(7),V(11),V(15)],notes:[],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
+ if(/(志工證|服務證|志願服務證|紀錄冊)/.test(t)&&/照片|相片|大頭照|貼照/.test(t)&&!/(拍照|放網路|上網|公開|臉書|FB|社群)/.test(t))
+  return{direct:true,category:'志願服務',title:'志工證要不要貼照片：要，服務證要印志工照片，紀錄冊也要登載照片',
+  summary:'要。志願服務證要印製中央主管機關指定的志願服務標誌和志工照片（志願服務證及服務紀錄冊管理辦法第3條第2項）；運用單位也要把志工的照片登載在服務紀錄冊（管理辦法第4條第2項）。\n\n照片屬於志工的個人資料，運用單位只能用在辦理志願服務證、紀錄冊這類目的，不要拿去做其他用途。\n\n其他細節請洽縣府社會處承辦人員，縣府總機 08-7320415。',
+  statutes:[{title:'志願服務證及服務紀錄冊管理辦法第3條',source:LAW+'D0050132'},{title:'志願服務證及服務紀錄冊管理辦法第4條',source:LAW+'D0050132'}],notes:[],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
+ if(/(志工|義工)/.test(t)&&/(協會|單位|社團|會裡|會內|公家|公用)?.{0,3}(東西|財產|物品|器材|設備|資源|物資|文具|用品|鑰匙)/.test(t)&&/(拿|帶|借|搬|領).{0,8}(回家|回去|走)/.test(t)&&/(可以|能不能|可不可以|能帶|能拿|行不行|允許|准不准|可否)/.test(t)&&!/(怎麼辦|弄壞|毀損|偷|竊|私吞|侵占|不還|沒還|不見|遺失|被拿)/.test(t))
+  return{direct:true,category:'志願服務',title:'志工可以把協會的東西帶回家嗎：法規只規定要妥善保管，能不能帶走看單位規章',
+  summary:'志願服務法規定，志工有義務妥善保管志願服務運用單位提供的可利用資源（志願服務法第15條第1項第8款），也要遵守運用單位訂定的規章（第15條第1項第2款）。\n\n至於東西能不能帶回家、借用要不要登記，法規沒有明文規定，要看協會自己的規章或志願服務計畫；沒有經過同意就帶走，容易引起誤會，建議先向負責督導的人說明、登記。\n\n其他細節請洽縣府社會處承辦人員，縣府總機 08-7320415。',
+  statutes:[V(15)],notes:[],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
+ if(!EX.test(t)&&/(想|要|願意|有意願|有意|有興趣|有心|打算|可以)(去|來|來去)?(當|做|成為|加入|參加|擔任|報名)(志工|義工|志願服務|志工隊)|(報名|登記|申請)(當|做|成為|加入|擔任)?(志工|義工)/.test(t)&&/(去哪|哪裡|哪邊|在哪|向誰|找誰|跟誰|報名|登記|窗口|管道|要怎麼加入|怎麼加入|如何加入)/.test(t))
+  return{direct:true,category:'志願服務',title:'想當志工去哪裡報名：向想服務的志願服務運用單位報名，志願服務法沒有訂統一的報名窗口',
+  summary:'想當志工，請直接向您想服務的單位詢問和報名。志工是由「志願服務運用單位」召募的，運用單位指的是運用志工的機關、機構、學校、法人或經政府立案的團體（志願服務法第3條第3款），召募時要把志願服務計畫公告（第6條第1項）。\n\n志願服務法沒有規定一個統一的報名窗口。加入之後，運用單位要辦理基礎訓練和特殊訓練（第9條），完成教育訓練後，由運用單位發給志願服務證及服務紀錄冊（第12條）。\n\n如果想知道縣內有哪些單位在招志工，請洽縣府社會處承辦人員，縣府總機 08-7320415。',
+  statutes:[V(3),V(6),V(9),V(12)],notes:[],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
+ return null;
+}
 function verifiedRoundAnswer(q,ctx){
  let x=null;
- try{x=patrolR232(norm(q))}catch(e){x=null}
+ try{x=patrolR233(norm(q))}catch(e){x=null}
+ if(!x) try{x=patrolR232(norm(q))}catch(e){x=null}
  if(!x) try{x=patrolR228(norm(q))}catch(e){x=null}
  if(!x){try{x=patrolR227(norm(q))}catch(e){x=null}}
  if(!x){try{x=patrolR226(norm(q))}catch(e){x=null}}
