@@ -1,0 +1,13 @@
+'use strict';
+const assert=require('node:assert/strict');
+const {route}=require('./association-records-and-term');
+const rec=route('協會會議紀錄作業只想報縣府，但有人要求整份公開，能把還沒遮的簽到表也和決議一起上網嗎？');
+assert.match(rec.summary,/不要.*公開上網.*報備、會員查閱和對外公開/);
+assert.match(rec.steps[0][1],/會員（代表）大會紀錄閉會後30日內.*通常留存/);
+assert.match(route(rec.choices[0].question).steps[0][1],/閉會後30日內.*不能把報送當作網上公開授權/);
+assert.match(route(rec.choices[1].question).steps[0][1],/原則上.*留存.*不能一律套/);
+const term=route('我是屏東縣一般協會，當選理事長不等於就任嗎？任期要從會員大會還是第一次理事會開始？');
+assert.match(term.summary,/不等於當天已由新理事長就任.*本屆第一次理事會/);
+assert.match(term.steps[0][1],/第17條.*互選.*第41條/);
+assert.match(term.steps[2][1],/就任後.*15日內/);
+for(const q of ['合作社社員大會紀錄要報主管機關，簽到表也可以公開嗎？','協會理事長任期從第一次理事會開始，銀行印鑑要現在換嗎？','一般協會理監事改選後理事長可以不用召集會議嗎？'])assert.equal(route(q),null,q);
