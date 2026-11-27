@@ -1,0 +1,12 @@
+const a=require('node:assert/strict');
+const r=require('./association-roster-record-correction.js').route;
+const x=r('協會會員是團體派的代表，改選完團體改派，新代表可以接理事職務嗎？同一份會議紀錄要改人名嗎？');
+a.match(x.summary,/新代表不能直接接任.*事後改派把原人名換成新人/);
+a.match(x.steps.flat().join(' '),/原任應解任、由候補依次遞補.*保留原件及更正原因/);
+const y=r('社區協會沒記錄會員簽到表，報給縣府後可以補嗎？如果只是理事會有差嗎？');
+a.equal(y.choices.length,2);
+const [existing,missing]=y.choices.map(c=>r(c.question));
+a.match(existing.summary,/原始簽到表.*補送/);
+a.match(missing.summary,/不能倒填或代簽/);
+for(const v of [existing,missing]) a.match(v.steps.flat().join(' '),/閉會後30日.*理事會及監事會的紀錄原則自行留存/);
+a.equal(r('合作社社員大會當天沒有簽到，已報縣府可補件嗎？'),null);

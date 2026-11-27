@@ -1605,6 +1605,8 @@ async function ask(q){
   if(termDeposit){financeMeetingPlanner=null;renderAnswer(q,termDeposit);return;}
   const directorBank=typeof window.verifiedAssociationDirectorBankChange==="function"?window.verifiedAssociationDirectorBankChange(q):null;
   if(directorBank){financeMeetingPlanner=null;renderAnswer(q,directorBank);return;}
+  const rosterCorrection=typeof window.verifiedAssociationRosterRecordCorrection==="function"?window.verifiedAssociationRosterRecordCorrection(q):null;
+  if(rosterCorrection){financeMeetingPlanner=null;renderAnswer(q,rosterCorrection);return;}
   const repEligibility=typeof window.verifiedCoopAssociationRepresentativeEligibility==="function"?window.verifiedCoopAssociationRepresentativeEligibility(q):null;
   if(repEligibility){financeMeetingPlanner=null;renderAnswer(q,repEligibility);return;}
   const representative=typeof window.verifiedAssociationRepresentativeCandidate==="function"?window.verifiedAssociationRepresentativeCandidate(q):null;
@@ -2139,6 +2141,7 @@ touch();
 <script src="cooperative-grant-and-dividend.js?v=20261127-no-restricted-dividend"></script>
 <script src="cooperative-equipment-grant-aftercare.js?v=20261127-grant-aftercare"></script>
 <script src="cooperative-activity-grant-route.js?v=20261127-coop-use"></script>
+<script src="association-roster-record-correction.js?v=20261127-roster-record"></script>
 <script src="coop-association-representative-eligibility.js?v=20261127-rep-eligibility"></script>
 <script src="association-representative-candidate.js?v=1"></script>
 <script src="association-designated-donation-cooperative-deficit.js?v=1"></script>
