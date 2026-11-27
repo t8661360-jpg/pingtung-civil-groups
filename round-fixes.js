@@ -62,8 +62,17 @@ function normalizeQuestion222(s){
  s=s.replace(/(?:變更|更換|異動)(?:理事長|負責人|會長)/g,'理事長換人');
  return s;
 }
+/* 佇列 #53（根源）：「大小章／公章／關防／協會章」遺失、損壞＝圖記遺失（sealChange 只認印章、圖記、印信，口語「大小章」落到固定用語） */
+function normalizeQuestion223(s){
+ s=String(s||'');
+ if(/(大小章|大章|公章|關防|協會章|團體章|社團章|會章(?!程))/.test(s)&&/(不見|遺失|弄丟|掉了|找不到|損壞|壞掉|壞了|破損|毀損|被偷|失竊)/.test(s)&&!/(合作社|社員|解散|清算|移交|交接|不交|不還)/.test(s))
+  s=s.replace(/大小章|公章|關防|協會章|團體章|社團章|會章(?!程)/g,'圖記').replace(/大章/g,'圖記');
+ /* 佇列 #58：其他正規化會把「家長會長」改成「家長理事長」，這裡還原 */
+ s=s.replace(/家長理事長/g,'家長會長');
+ return s;
+}
 function normalizeQuestion(q){
- return normalizeQuestion222(normalizeQuestion221(normalizeQuestion216(normalizeQuestion215(normalizeQuestion214(normalizeQuestion212(normalizeQuestion210(normalizeQuestion209(normalizeQuestion208(normalizeQuestion207(normalizeQuestion206(normalizeQuestion202(normalizeQuestion201(normalizeQuestion200(normalizeQuestion194(normalizeQuestion193(normalizeQuestion192(normalizeQuestion191(normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(normalizeQuestionU3(normalizeQuestionU2(fixTyposU1(q)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
+ return normalizeQuestion223(normalizeQuestion222(normalizeQuestion221(normalizeQuestion216(normalizeQuestion215(normalizeQuestion214(normalizeQuestion212(normalizeQuestion210(normalizeQuestion209(normalizeQuestion208(normalizeQuestion207(normalizeQuestion206(normalizeQuestion202(normalizeQuestion201(normalizeQuestion200(normalizeQuestion194(normalizeQuestion193(normalizeQuestion192(normalizeQuestion191(normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(normalizeQuestionU3(normalizeQuestionU2(fixTyposU1(q))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
 }
 /* 第200輪（根源）：入會退會與會員資格換問法——
    「忘記繳／忘了繳／漏繳會費」＝沒繳會費（原本「忘記繳會費會被退會嗎」被當成退費）；
@@ -1545,8 +1554,8 @@ function memberExpulsion(t){
 }
 function sealChange(t){
  if(!/(印鑑|印信|圖記|印章|大印|官章)/.test(t))return null;
- if(!/(變更|換|改|不見|遺失|補發|損壞|壞掉|壞了|破損|弄丟|更換|新刻)/.test(t))return null;
- return{category:'人民團體會務說明',title:'圖記遺失、損壞或要換新：法規沒有補發制度，自己重刻再把新印模送縣府備查',summary:'圖記（協會的印信）由協會自行製用，拓具印模送縣府備查，規格長、寬、直徑或短徑要在3公分以上（人民團體法第10條第2項）。法規只有立案證書遺失、毀損才有補（換）發（人民團體會務輔導辦法第3條），沒有圖記補發的規定。\n\n所以圖記遺失、損壞要換新的，做法是：\n1. 自己重新刻一顆，規格要符合3公分以上。\n2. 拓具新圖記的印模，送縣府備查。\n\n實務上建議先經理事會討論，並把理事會紀錄一起附上；縣府實際要附哪些文件、舊圖記遺失要不要另外聲明作廢，法規沒有明文，請洽承辦確認。\n\n另外，已辦法人登記的協會、銀行的印鑑，各有各的辦理方式，請向法院登記處、銀行確認。',statutes:[P(10),G(3)],questionState:{focus:'seal-change',domain:'social'},notes:['改選時，法規要求的是移交：新舊任理事長要連同立案證書、圖記一起移交，並於十五日內接收完畢（人民團體會務輔導辦法第18條）。屆期未完成移交者，主管機關得註銷原立案證書重新發給，原備查之圖記失其效力。'],actions:[{label:'下載改選書表',view:'forms',sub:'改選'},{label:'聯絡承辦',view:'contact',sub:''}]};
+ if(!/(變更|換|改|不見|遺失|補發|損壞|壞掉|壞了|破損|弄丟|更換|新刻|找不到|掉了|被偷|失竊)/.test(t))return null;
+ return{category:'人民團體會務說明',title:'圖記遺失、損壞或要換新：法規沒有補發制度，自己重刻再把新印模送縣府備查',summary:'圖記（協會的大印，也就是常說的「大章」）由協會自行製用，拓具印模送縣府備查，規格長、寬、直徑或短徑要在3公分以上（人民團體法第10條第2項）。法規只有立案證書遺失、毀損才有補（換）發（人民團體會務輔導辦法第3條），沒有圖記補發的規定。\n\n所以圖記遺失、損壞要換新的，做法是：\n1. 自己重新刻一顆，規格要符合3公分以上。\n2. 拓具新圖記的印模，送縣府備查。\n\n實務上建議先經理事會討論，並把理事會紀錄一起附上；縣府實際要附哪些文件、舊圖記遺失要不要另外聲明作廢，法規沒有明文，請洽承辦確認。\n\n另外，已辦法人登記的協會、銀行的印鑑，各有各的辦理方式，請向法院登記處、銀行確認。',statutes:[P(10),G(3)],questionState:{focus:'seal-change',domain:'social'},notes:['改選時，法規要求的是移交：新舊任理事長要連同立案證書、圖記一起移交，並於十五日內接收完畢（人民團體會務輔導辦法第18條）。屆期未完成移交者，主管機關得註銷原立案證書重新發給，原備查之圖記失其效力。'],actions:[{label:'下載改選書表',view:'forms',sub:'改選'},{label:'聯絡承辦',view:'contact',sub:''}]};
 }
 function noHandover(t){
  if(!/(不交接|不移交|沒移交|沒有移交|沒有交接|沒交接|還沒移交|拒絕移交|不肯交|不交|不還|不給|不肯移交|拒絕交|拒交|霸占|扣住|帶走|拿走|帶回家|藏起來|扣著|私吞)/.test(t)||!/(移交|交接|印章|圖記|證書|帳|存摺|資料|理事長|前任|卸任|舊任)/.test(t))return null;
@@ -11947,9 +11956,19 @@ function cross1127(t,ctx){
   return merge('理事長辭職的程序，以及銀行印鑑變更',['理事長辭職了怎麼辦','理事長換人銀行印鑑要怎麼換']);
  return null;
 }
+/* 佇列 #58：學校家長會不是依人民團體法向縣府社會處立案的團體。條文已核對 mojLawSplitJSON H0070001 國民教育法第48條（最新異動 2023-06-21）。 */
+function parentAssoc223(t){
+ if(!/家長會/.test(t)||/(家長協會|家長聯合會|家長聯盟|家長團體|家長會長協會|家長會聯合會)/.test(t))return null;
+ if(/(協會|社團|理事|監事|公會|合作社|社區|基金會|志工)/.test(t))return null;
+ if(!/(改選|選舉|會長|委員|成立|立案|報|備查|縣府|社會處|找誰|哪個單位|主管|章程|任期|連任|罷免|交接|開會|怎麼辦|要不要|需不需要)/.test(t))return null;
+ return{direct:true,category:'業務分流',title:'學校家長會不是向社會處立案的協會：改選怎麼報，依縣府的家長會自治法規',
+ summary:'學校的學生家長會，是依國民教育法在學校設立的組織，由在學學生的家長為會員組成，並冠上該校的名稱；它的組織章程、委員人數、委員產生方式、任期、選舉罷免、經費和運作，由學校所在地的縣（市）主管機關會商家長團體後，以自治法規訂定（國民教育法第48條第2項）。\n\n所以家長會不是依人民團體法向縣府社會處立案的協會，家長會長改選要不要報、報給誰，不歸這個櫃檯，要看屏東縣的家長會自治法規。請洽孩子就讀的學校，或撥縣府總機 08-7320415 請總機轉教育處。\n\n如果是家長另外依人民團體法成立的「家長協會」這類社會團體，那才是向社會處辦理改選報備。',
+ statutes:[{title:'國民教育法第48條',source:LAW+'H0070001'}],notes:['國民教育法適用國民小學和國民中學；高中職的家長會另依高級中等教育法相關規定辦理。'],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
+}
 function verifiedRoundAnswer(q,ctx){
  let x=null;
- try{x=cross1127(norm(q),ctx)}catch(e){x=null}
+ try{x=parentAssoc223(norm(q))}catch(e){x=null}
+ if(!x){try{x=cross1127(norm(q),ctx)}catch(e){x=null}}
  if(!x){try{x=patrol220(norm(q))}catch(e){x=null}}
  return x||verifiedRoundAnswerCore(q,ctx);
 }
