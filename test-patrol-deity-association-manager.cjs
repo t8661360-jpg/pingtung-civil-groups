@@ -1,0 +1,10 @@
+const assert=require('node:assert/strict');const {answerMixed,deityAssociationManagerReferral:f}=require('./verified-mixed-questions');
+const a=answerMixed('神明會管理人怎麼改選');
+assert.match(a.summary,/不是協會理事長改選.*規約和會員或信徒名冊/);
+assert.deepEqual(a.choices.map(x=>x.label),['還在會內選任','已選好，要改土地登記']);
+assert.match(answerMixed(a.choices[0].question).summary,/不能一律用過半數/);
+assert.match(answerMixed(a.choices[1].question).summary,/先向民政主管機關備查，再辦土地登記/);
+assert.match(answerMixed('屏東神明會選好新管理人，土地登記還掛舊的人，要找民政還是地政？').steps.flat().join(' '),/土地所在地地政事務所.*08-7320415/);
+assert.doesNotMatch(JSON.stringify(f('高雄神明會選好管理人，土地登記要變更怎麼辦？')),/08-7320415/);
+for(const q of ['另外依人民團體法立案的宗教協會理事長怎麼改選？','祭祀公業法人管理人換人要去哪裡辦？','已登記寺廟換負責人要到哪裡辦？','神明會土地要如何申報？'])assert.equal(f(q),null,q);
+console.log('deity association manager referral OK');

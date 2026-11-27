@@ -1046,7 +1046,34 @@ function outsideCounterNoiseReferral(q){
   steps:[...(explicitHome||uncertain?[police]:[]),...(business||uncertain?[env]:[]),docs],
   refs:[{title:'噪音管制法第6條與第9條',source:'https://oaout.moenv.gov.tw/Law/LawContent.aspx?id=FL015471'},{title:'環境部：近鄰噪音與環境噪音分流',source:'https://www.moenv.gov.tw/affairs/atmospheric-environment/noise-vibration-and-non-ionizing-radiation/noise-control-and-reporting-of-noisy-vehicles/1674.html'},...(business||uncertain?[{title:'環境部：各縣市環保報案中心電話',source:'https://ww3.moenv.gov.tw/Public/Tel_list.aspx'}]:[])]};
 }
+function deityAssociationManagerReferral(q){
+ const t=String(q??'').normalize('NFKC').replace(/\s/g,'');
+ if(t.length>165||!/神明會/.test(t)||/不是神明會|並非神明會|祭祀公業法人|另.{0,9}人民團體法|另.{0,8}立案.{0,6}協會|分別.{0,7}怎麼|宗教財團法人/.test(t))return null;
+ if(!/管理人|負責人|會員同意|信徒同意/.test(t)||!/改選|變更|選任|重選|換|過世|死亡|遞補|登記|報備|備查|誰|同意|門檻/.test(t))return null;
+ const land=/土地登記|地政|謄本|地籍|不動產登記|土地.{0,7}(?:變更|更名|還掛)/.test(t);
+ const internal=/只(?:想|問|辦|是).{0,10}(?:會內|內部|不改土地)|(?:不涉及|不會變更|不改)土地/.test(t);
+ const explicitLand=land&&!internal;
+ const votes=/多少人|幾人|過半|幾成|門檻|多少.{0,9}同意|幾.{0,8}同意/.test(t);
+ const ready=/選好|已選|新管理人|管理人已/.test(t);
+ const outside=/高雄|台南|臺南|台北|臺北|新北|花蓮|臺東|台東|台中|臺中|嘉義|南投|基隆|桃園|宜蘭|彰化|苗栗|雲林|澎湖|金門|連江/.test(t)&&!/屏東/.test(t);
+ const county=!outside?'若在屏東縣，可撥縣府總機 08-7320415，請轉民政處宗教禮俗業務。':'請向所在地縣市政府民政局（處）確認，不套用屏東縣程序。';
+ const selection=['會內怎麼選管理人','先確認確屬神明會，並核對有效規約、召集人、現會員或信徒資格及選任方式。不要直接套協會的理監事選舉門檻，也不能把地籍清理的土地申報或名冊更正同意比例當成管理人選任票數。可先備規約、既有名冊及選任會議紀錄或同意文件，讓主管機關確認。'];
+ const landStep=['土地登記還記載舊管理人','如果確認是非法人神明會，要辦土地管理人變更，內政部函釋的辦理順序是先向民政主管機關備查，再向土地所在地地政事務所辦理。請先備選任證明、會議紀錄、既有規約與名冊及土地謄本供核對；土地登記名義已改為法人、或其實是寺廟、祭祀公業等，程序不同，請依實際登記查證。'];
+ const arrange=['承辦窗口','神明會並非人民團體改選櫃檯受理的案件。先向所在地縣市民政局（處）查證團體型態、申報或名冊是否驗印及當地應備文件。'+county+'請不要把土地謄本、身分證或信徒名單貼在櫃檯。'];
+ const unknown=!explicitLand&&!internal&&!votes&&!ready;
+ return {direct:true,category:'民政業務分流',title:explicitLand?'神明會土地管理人變更：先找民政，再確認地政登記':'神明會管理人改選：先看規約與現任資格，洽民政單位',
+  summary:explicitLand?'確認屬非法人神明會且要變更土地登記管理人時，先向民政主管機關備查，再辦土地登記。不要使用協會改選書表。':
+   votes?'不能一律用過半數或照人民團體選舉規則計票。先查有效規約、現會員或信徒資格與選任方式，請民政主管機關確認。':
+   '神明會管理人改選，不是協會理事長改選。先查規約和會員或信徒名冊，再找民政局（處）確認備查程序。',
+  ...(unknown&&!outside?{choiceHeading:'您要辦哪一個步驟？',choices:[
+   {label:'還在會內選任',question:'神明會只問會內管理人改選，需要多少會員同意？'},
+   {label:'已選好，要改土地登記',question:'屏東的非法人神明會已選好管理人，土地登記還掛舊人，要辦變更嗎？'}
+  ]}:{}),
+  steps:explicitLand?[landStep,arrange,selection]:[selection,arrange],
+  refs:[{title:'內政部：祭祀公業及神明會的區分',source:'https://www.moi.gov.tw/cp.aspx?n=160'},{title:'內政部：土地申報與民政窗口',source:'https://www.moi.gov.tw/News_Content.aspx?n=18683&s=207972&sms=9015'},...(explicitLand?[{title:'內政部祭祀公業及神明會法令彙編：非法人神明會土地管理人變更',source:'https://www.civil.taichung.gov.tw/media/640744/1090507-108%E5%B9%B4%E5%BA%A6%E7%89%88%E7%A5%AD%E7%A5%80%E5%85%AC%E6%A5%AD%E5%8F%8A%E7%A5%9E%E6%98%8E%E6%9C%83%E6%B3%95%E4%BB%A4%E5%BD%99%E7%B7%A8.pdf'}]:[])]};
+}
 function answerMixed(q){
+ const deityManager=deityAssociationManagerReferral(q);if(deityManager)return deityManager;
  const noiseReferral=outsideCounterNoiseReferral(q);if(noiseReferral)return noiseReferral;
  const industryDelegate=industryDelegateReplacement(q);if(industryDelegate)return industryDelegate;
  const commerceDelegate=commerceDelegateReplacement(q);if(commerceDelegate)return commerceDelegate;
@@ -1093,6 +1120,6 @@ function answerMixed(q){
     keys.includes('creditor')?'合作社清算：就任後公告與終結報告，分別計算':isCoop?'合作社清算報告與股息上限，分開看':'協會入會資格與會員除名，分開看',
   summary:keys.length===1?topics[keys[0]].line[1]:'你問了兩件事，分別如下。',steps:keys.length>1?keys.map(k=>topics[k].line):[],refs:keys.flatMap(k=>topics[k].laws)};
 }
-if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy,changedMeetingVenue,familyAssemblyProxy,dualBoardVacancies,coopBoardVacancies,creditCooperativeVacancy,schoolParentFiling,associationRegisteredAddress,inspectAndPublishBoardMinutes,temporaryMeetingNotice,withdrawalAndAssemblyRoll,memberMeetingExpenseFunding,missedSupervisorNotice,duesAndAssemblyRights,coopWithdrawalAndAssembly,designatedMeetingConvener,assemblyRepresentativeParticipation,formerMemberGiftReturn,preschoolParentFiling,associationVotingRollDisclosure,associationDirectorsQuorum,creditCoopDepositsAndDividends,associationElectionObjection,associationDelegateReplacement,commerceDelegateReplacement,industryDelegateReplacement,outsideCounterNoiseReferral};return;}
+if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy,changedMeetingVenue,familyAssemblyProxy,dualBoardVacancies,coopBoardVacancies,creditCooperativeVacancy,schoolParentFiling,associationRegisteredAddress,inspectAndPublishBoardMinutes,temporaryMeetingNotice,withdrawalAndAssemblyRoll,memberMeetingExpenseFunding,missedSupervisorNotice,duesAndAssemblyRights,coopWithdrawalAndAssembly,designatedMeetingConvener,assemblyRepresentativeParticipation,formerMemberGiftReturn,preschoolParentFiling,associationVotingRollDisclosure,associationDirectorsQuorum,creditCoopDepositsAndDividends,associationElectionObjection,associationDelegateReplacement,commerceDelegateReplacement,industryDelegateReplacement,outsideCounterNoiseReferral,deityAssociationManagerReferral};return;}
 root.verifiedMixedQuestionAnswer=answerMixed;
 })(typeof window!=='undefined'?window:globalThis);
