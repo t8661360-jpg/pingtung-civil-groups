@@ -32,4 +32,20 @@ assert.deepEqual(identify(closing),['report','interest']);
 assert.match(lines(closing),/20日內[\s\S]*不得超過百分之十/);
 assert.equal(answer('合作社清算人剛就任幾天內要呈報主管機關？社股的年息最高多少？'),null);
 assert.equal(answer('合作社清算人幾天內要催告債權人並報送？社股的年息最高多少？'),null);
+const corporation='股份有限公司股息最高多少？合作社清算報告多久要送？';
+const companySecond='合作社清算報告多久要送？股份有限公司股息最高多少？';
+for(const q of [corporation,companySecond]){
+ assert.match(lines(q),/不適用合作社/);
+ assert.match(lines(q),/20日內/);
+ assert.doesNotMatch(lines(q),/不得超過百分之十/);
+ assert.ok(answer(q).refs.some(x=>x.title==='公司法第232條'));
+}
+assert.deepEqual(identify(corporation),['companyInterest','report']);
+assert.deepEqual(identify(companySecond),['report','companyInterest']);
+assert.match(answer('股份有限公司股息上限多少？').summary,/不適用合作社/);
+assert.equal(answer('股份有限公司股息多少、合作社清算報告多久要送？'),null);
+assert.equal(answer('銀行存款利息有上限嗎？合作社清算報告多久要送？'),null);
+const twoStages='合作社清算人上任多久要公告催報債權？清算結束後幾天要向主管機關送報告？';
+assert.match(lines(twoStages),/就任後十五日內.*申報期限不得少於十五日.*分別通知[\s\S]*20日內.*分送各社員/);
+assert.deepEqual(identify('清算結束後幾天要向主管機關送報告？合作社清算人上任多久要公告催報債權？'),['report','creditor']);
 console.log('verified mixed questions OK');

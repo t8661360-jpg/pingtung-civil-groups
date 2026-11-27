@@ -4,7 +4,13 @@ const association=n=>law('人民團體法','D0050091',n);
 const coop=n=>law('合作社法','D0050112',n);
 function law(title,code,n){return {title:title+'第'+n+'條',source:'https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode='+code+'&flno='+n};}
 const shareInterest=/股息|社股(?:的)?(?:年)?息|股金(?:的)?(?:年)?利息/;
+const stockCompany=/股份有限公司|股份公司/;
+const companyRef=n=>law('公司法','J0080001',n);
 const topics={
+ companyInterest:{hit:t=>stockCompany.test(t)&&/股息|股利|紅利/.test(t)&&/上限|多少|最高|有沒有限制|限制|幾%|幾成/.test(t),
+  line:['股份有限公司股息','不適用合作社的社股年息上限。依公司法的一般盈餘分派規則，公司應先彌補虧損並依法提列法定盈餘公積；通常按股東持股比例分派。法律另有規定或涉及特別股時須另核對，不能套用合作社的固定上限。'],laws:[companyRef(232),companyRef(235)]},
+ creditor:{hit:t=>/清算/.test(t)&&/就任|上任|到任/.test(t)&&/公告|催報|催告/.test(t)&&/債權/.test(t)&&/多久|幾天|幾日|何時|期限|什麼時候/.test(t),
+  line:['清算人就任後的債權公告','清算人應在就任後十五日內公告催告債權人申報；債權申報期限不得少於十五日。已知的債權人另須分別通知。這不是清算終結的報告期限。'],laws:[coop(64)]},
  report:{hit:t=>/清算/.test(t)&&/多久|幾天|幾日|何時|期限|什麼時候/.test(t)
   && !/就任|上任|到任|報明債權|催告債權人|聲請解散登記/.test(t)
   && (/報告|呈報|報送/.test(t)||(/完成清算|清算(?:事務)?(?:完成|結束|終了|終結|完畢|完結)|清算完了/.test(t)&&/報(?:縣府|主管機關)|主管機關.{0,6}備查/.test(t))),
@@ -19,12 +25,26 @@ const topics={
 function identify(q){
  const t=String(q??'').normalize('NFKC').replace(/\s/g,'');
  if(t.length>130||/信用合作社|儲蓄互助社|農會|漁會|工會|公會|商業團體|職業團體|財團法人|管委會|信用部/.test(t))return null;
+ const chunks=t.split(/[?？。；;！!]|[,，](?=(?:那|還|另|以及|而|同時|另外|又))|另外|還想問/).filter(x=>x.length>2);
  const c=/合作社/.test(t),a=/協會|社會團體|人民團體/.test(t);
+ const financeExclusion=/清算(?:剩餘|賸餘)財產|遺產|股息扣繳|課稅|欠稅|銀行|貸款|借款|存款/;
+ if(/公司/.test(t)){
+  if(a||financeExclusion.test(t)||/特別股|資本公積|開業前|解散分配/.test(t))return null;
+  if(!c&&chunks.length===1&&topics.companyInterest.hit(chunks[0]))return ['companyInterest'];
+  if(c&&chunks.length===2){
+   const legs=chunks.map(x=>topics.companyInterest.hit(x)&&!/合作社/.test(x)?'companyInterest':/合作社/.test(x)&&!/公司/.test(x)&&topics.report.hit(x)?'report':null);
+   if(legs.includes('companyInterest')&&legs.includes('report'))return legs;
+  }
+  return null;
+ }
+ if(c&&!a&&chunks.length===2&&!financeExclusion.test(t)){
+  const legs=chunks.map(x=>topics.creditor.hit(x)?'creditor':topics.report.hit(x)?'report':null);
+  if(legs.includes('creditor')&&legs.includes('report'))return legs;
+ }
  if(c===a)return null;
  if(c&&/清算(?:剩餘|賸餘)財產|遺產|股息扣繳|課稅|欠稅|銀行|貸款|借款|存款/.test(t))return null;
  if(a&&/基金退還|退費|自願退會|章程要怎麼改/.test(t))return null;
  const keys=c?['report','interest']:['admission','expulsion'];
- const chunks=t.split(/[?？。；;！!]|[,，](?=(?:那|還|另|以及|而|同時|另外|又))|另外|還想問/).filter(x=>x.length>2);
  if(chunks.length>2)return null;
  if(chunks.length===2&&chunks.some(x=>!keys.some(k=>topics[k].hit(x))))return null;
  if(!keys.every(k=>topics[k].hit(t)))return null;
@@ -35,8 +55,9 @@ function answerMixed(q){
  const keys=identify(q);if(!keys)return null;
  const isCoop=keys.includes('report');
  return {direct:true,category:isCoop?'合作社財務':'人民團體會務說明',
-  title:isCoop?'合作社清算報告與股息上限，分開看':'協會入會資格與會員除名，分開看',
-  summary:'你問了兩件事，分別如下。',steps:keys.map(k=>topics[k].line),refs:keys.flatMap(k=>topics[k].laws)};
+  title:keys.includes('companyInterest')?(isCoop?'股份有限公司股息與合作社清算報告，分開看':'股份有限公司股息依公司法，不是合作社社股年息'):
+    keys.includes('creditor')?'合作社清算：就任後公告與終結報告，分別計算':isCoop?'合作社清算報告與股息上限，分開看':'協會入會資格與會員除名，分開看',
+  summary:keys.length===1?topics[keys[0]].line[1]:'你問了兩件事，分別如下。',steps:keys.length>1?keys.map(k=>topics[k].line):[],refs:keys.flatMap(k=>topics[k].laws)};
 }
 if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed};return;}
 root.verifiedMixedQuestionAnswer=answerMixed;
