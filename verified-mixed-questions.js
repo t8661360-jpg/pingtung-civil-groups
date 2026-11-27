@@ -650,7 +650,27 @@ function missedSupervisorNotice(q){
  steps:[...(yearEnd?[review]:[]),...(joint?[jointStep]:[board,jointStep]),recheck],
  refs:[guide(11),association(29),...(yearEnd?[association(34),law('社會團體財務處理辦法','D0050097',11)]:[])],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
 }
+function duesAndAssemblyRights(q){
+ const t=String(q??'').normalize('NFKC').replace(/\s/g,'');
+ if(t.length>150||!/協會|社會團體/.test(t)||/合作社|工會|公會|農會|漁會|公司|財團法人|基金會|管委會|公開|貼上網|退款|退費|補差額|調漲會費|可以.{0,5}除名|要如何除名/.test(t))return null;
+ if(!/大會/.test(t)||!/欠費|欠.{0,9}會費|沒繳.{0,5}會費|未繳.{0,5}會費|會費.{0,5}(?:還沒繳|沒繳|未繳|逾期)/.test(t)
+  ||!/進場|出席|投票|表決|名冊|扣掉|刪掉|除去|人數|人頭|資格|停權/.test(t))return null;
+ const guide=n=>law('人民團體會務輔導辦法','D0020094',n);
+ const election=/投票|改選|選舉|罷免/.test(t);
+ const refs=[association(12),association(14),association(16),association(27),guide(10),guide(16)];
+ if(election)refs.push(law('人民團體選舉罷免辦法','D0050093',5));
+ const steps=[
+  ['先查是否仍有會員身分','人民團體法沒有一律規定欠繳會費就退會或失去權利。先向協會查現行章程與適用規定、欠費時間、催繳或相關紀錄、及所主張的效果。章程如有明文，也要看是否符合法令和個案要件，不能臨時加一條或把欠費直接當作已退會、已除名。'],
+  ['進場出席和投票分開','請理事會審定並留存應出席名冊。會員原本具出席資格，沒有依法限制出席的依據時，不因欠費而不能進場或從應出席人數扣掉。限制投票也不等於不准出席；如依法有特定權利限制，要在審定名冊上記明，不能用臨時刪名取代。'],
+  ['名冊審定後才有爭議','保留原審定名冊、通知、繳費或補繳證明及會籍異動依據。若臨近開會仍有爭議，請在會前請承辦核對，別在開會當天只依口頭指示刪名。']
+ ];
+ if(election)steps.push(['選舉名冊另有註記','辦理規範所列選舉或罷免時，名冊上若有人依法沒有選舉權、被選舉權或罷免權，依選罷辦法第5條註明；不是因為要選舉，就可以把欠費的會員全部刪掉。']);
+ return {direct:true,category:'人民團體會務說明',title:'欠繳會費，不等於從會員大會名冊刪除',
+  summary:'不能只因欠會費就刪名、拒絕出席或禁止投票。要分別查會員身分、出席資格及投票權有沒有依法受限。',
+  steps,refs,actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
+}
 function answerMixed(q){
+ const duesRights=duesAndAssemblyRights(q);if(duesRights)return duesRights;
  const missed=missedSupervisorNotice(q);if(missed)return missed;
  const expenses=memberMeetingExpenseFunding(q);if(expenses)return expenses;
  const withdrawal=withdrawalAndAssemblyRoll(q);if(withdrawal)return withdrawal;
@@ -683,6 +703,6 @@ function answerMixed(q){
     keys.includes('creditor')?'合作社清算：就任後公告與終結報告，分別計算':isCoop?'合作社清算報告與股息上限，分開看':'協會入會資格與會員除名，分開看',
   summary:keys.length===1?topics[keys[0]].line[1]:'你問了兩件事，分別如下。',steps:keys.length>1?keys.map(k=>topics[k].line):[],refs:keys.flatMap(k=>topics[k].laws)};
 }
-if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy,changedMeetingVenue,familyAssemblyProxy,dualBoardVacancies,coopBoardVacancies,creditCooperativeVacancy,schoolParentFiling,associationRegisteredAddress,inspectAndPublishBoardMinutes,temporaryMeetingNotice,withdrawalAndAssemblyRoll,memberMeetingExpenseFunding,missedSupervisorNotice};return;}
+if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy,changedMeetingVenue,familyAssemblyProxy,dualBoardVacancies,coopBoardVacancies,creditCooperativeVacancy,schoolParentFiling,associationRegisteredAddress,inspectAndPublishBoardMinutes,temporaryMeetingNotice,withdrawalAndAssemblyRoll,memberMeetingExpenseFunding,missedSupervisorNotice,duesAndAssemblyRights};return;}
 root.verifiedMixedQuestionAnswer=answerMixed;
 })(typeof window!=='undefined'?window:globalThis);
