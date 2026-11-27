@@ -244,7 +244,38 @@ function overdueFundraising(q){
   summary:compare?'不要把兩種款項混在一起退款或動支。分別核對實際勸募時間、許可與財物使用計畫。':'不能因活動延期就沿用已到期的許可。逾期勸募所得須返還；無法返還時先報主管機關，不可自行轉捐。',
   steps,refs:[article(7),article(12),article(22),...(compare?[article(19)]:[])]};
 }
+function publishDocumentPrivacy(q){
+ const t=String(q??'').normalize('NFKC').replace(/\s/g,'');
+ if(t.length>155||!/協會|社會團體|人民團體/.test(t))return null;
+ if(/合作社|公會|工會|農會|漁會|基金會|公司|管委會|選舉|罷免|公開徵信|勸募許可|公益勸募|所得稅|補助核銷/.test(t))return null;
+ const publicUse=/公告|公布|公開|張貼|貼(?:在|到)|上網|放到|上傳|群組|轉傳|對外/.test(t);
+ if(!publicUse)return null;
+ const finance=/收支|財務|決算|收費明細|會費|繳費/.test(t)&&/會員姓名|每(?:位|個|一位|一個)會員|會員個人|逐筆.{0,5}(?:列|姓名)|欠費名單|未繳.{0,6}名單|繳費名單/.test(t);
+ const signature=/(?:會議|大會|會)紀錄|(?:會議|大會|會)記錄/.test(t)&&/簽名|簽章|簽字|簽署|印章/.test(t);
+ if(!finance&&!signature)return null;
+ const assembly=/會員(?:[（(]?代表[）)]?)?大會|會員代表會議|協會大會/.test(t);
+ const board=/理事會|監事會|理監事聯席/.test(t);
+ if(signature&&assembly&&board)return null;
+ const steps=[],refs=[];
+ if(finance){
+  steps.push(['財務收支仍須公告','協會要定期公告真實的財務收支，但可以公布收支分類、會費合計及決算摘要，不必列出每位會員姓名、個別繳費金額或欠費名單。']);
+  steps.push(['有疑問可個別通知','如果只是提醒繳費或核對帳款，可個別通知相關會員。會員群組不是可以任意散布個別欠費、繳費資料的場合；仍須核對使用目的和必要範圍。']);
+  refs.push(law('社會團體財務處理辦法','D0050097',20));
+ }
+ if(signature){
+  const guide=law('人民團體會務輔導辦法','D0020094',12);
+  steps.push(['原始會議紀錄','團體應保存原本並供會員（會員代表）查閱。這不等於須把可辨識個人的簽名、印章或完整附件公開到網站；如只為公告會務，可另做不含可識別個資的摘要。']);
+  if(assembly||board)steps.push(meetingMinutesStep(board));
+  else steps.push(['是否需要報備','若是會員（代表）大會紀錄，閉會後三十日內另報主管機關備查；理事會、監事會或聯席會議的決議，依法須送件時才按規定辦理。']);
+  refs.push(guide);
+ }
+ steps.push(['個資使用界線','即使章程或會議決議允許公告，也不等於符合個資法。應核對資料是否為原蒐集目的所必要；超出時須另有法定事由。未確認前不要公開姓名、個別繳費或簽名。']);
+ refs.push(law('個人資料保護法','I0050021',5),law('個人資料保護法','I0050021',20));
+ return {direct:true,category:'人民團體會務說明',title:finance?'公告協會收支，不必公開每位會員的繳費資料':'公開會議紀錄，不等於公開簽名與個資',
+  summary:finance?'公布年度收支和揭露每名會員的繳費資料，是兩件事。':'一般規定沒有要求上網公開會議紀錄的簽名。供會員查閱與依法送主管機關，是不同的義務。',steps,refs};
+}
 function answerMixed(q){
+ const docs=publishDocumentPrivacy(q);if(docs)return docs;
  const fund=overdueFundraising(q);if(fund)return fund;
  const annual=yearEndAuditVacancy(q);if(annual)return annual;
  const coopRegistry=coopRegistryPrivacy(q);if(coopRegistry)return coopRegistry;
@@ -260,6 +291,6 @@ function answerMixed(q){
     keys.includes('creditor')?'合作社清算：就任後公告與終結報告，分別計算':isCoop?'合作社清算報告與股息上限，分開看':'協會入會資格與會員除名，分開看',
   summary:keys.length===1?topics[keys[0]].line[1]:'你問了兩件事，分別如下。',steps:keys.length>1?keys.map(k=>topics[k].line):[],refs:keys.flatMap(k=>topics[k].laws)};
 }
-if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising};return;}
+if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy};return;}
 root.verifiedMixedQuestionAnswer=answerMixed;
 })(typeof window!=='undefined'?window:globalThis);
