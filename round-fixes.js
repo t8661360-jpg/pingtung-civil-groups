@@ -97,6 +97,16 @@ function normalizeQuestionU6(s){
    4. 錯字「監是」＝監事。
    5. 「跟農會、學校、廟、公所一起辦活動」＝協會可以跟其他團體合辦活動嗎（原本難倒小屏）。
    6. 「理事長可以同時當兩個協會的總幹事」＝理事長可以兼別的協會的總幹事（原本答成工作人員資格）。 */
+/* 理解把關第8輪（2026-11-27，根源）：
+   1. 「理事長說今年沒錢不開大會了，這樣可以嗎？會被解散嗎」＝會員大會可以不開嗎（原本被「沒錢＋解散」的規則搶答成「沒有錢也可以解散」）。
+   2. 「理監事選舉的候選人可以自己當監票員嗎」＝候選人可以當監票員嗎（原本答成監事會召集人）。 */
+function normalizeQuestionU8(s){
+ s=String(s||'');
+ if(!/合作社|社員|公會|工會|社區發展|理事會|監事會|理監事會/.test(s)&&/(不開|不想開|不要開|沒開|沒有開|不召開|不辦)(會員)?大會/.test(s)&&/(沒錢|沒有錢|沒經費|沒有經費|經費不夠|經費不足|錢不夠|沒預算|太窮|(會被|會不會被|會遭|被)(解散|廢止|撤銷|處罰|罰))/.test(s)&&!/(想|要|打算|準備|怎麼|如何)解散/.test(s))s='會員大會可以不開嗎';
+ if(!/合作社|社員|公會|工會|社區發展|理事會|監事會|理監事會/.test(s)&&/(會員)?大會.{0,8}(延到|延至|拖到|改到|移到|延後到|順延到)明年|今年.{0,6}(會員)?大會.{0,4}(不開|不辦|停開)/.test(s))s='會員大會可以不開嗎';
+ s=s.replace(/^.*?(?:理監事|理事|監事)?(?:選舉|改選)?(?:的)?候選人(?:可以|能不能|可不可以|能)?(?:自己)?(?:當|擔任|兼|做)(?:監票員|監票|開票員|唱票員|發票員|選務人員)(?:嗎)?.*$/,'候選人可以擔任監票員嗎');
+ return s;
+}
 function normalizeQuestionU7(s){
  s=String(s||'');
  s=s.replace(/(?<![總])監是(?![否不])/g,'監事');
@@ -202,7 +212,7 @@ function normalizeQuestionR229(s){
  return s;
 }
 function normalizeQuestion(q){
- return normalizeQuestionR229(normalizeQuestionR228(normalizeQuestionR227(normalizeQuestionR225(normalizeQuestionR223(normalizeQuestion223(normalizeQuestion222(normalizeQuestion221(normalizeQuestion216(normalizeQuestion215(normalizeQuestion214(normalizeQuestion212(normalizeQuestion210(normalizeQuestion209(normalizeQuestion208(normalizeQuestion207(normalizeQuestion206(normalizeQuestion202(normalizeQuestion201(normalizeQuestion200(normalizeQuestion194(normalizeQuestion193(normalizeQuestion192(normalizeQuestion191(normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(normalizeQuestionU5(normalizeQuestionU3(normalizeQuestionU4(normalizeQuestionU2(normalizeQuestionU6(normalizeQuestionU7(fixTyposU1(q)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
+ return normalizeQuestionR229(normalizeQuestionR228(normalizeQuestionR227(normalizeQuestionR225(normalizeQuestionR223(normalizeQuestion223(normalizeQuestion222(normalizeQuestion221(normalizeQuestion216(normalizeQuestion215(normalizeQuestion214(normalizeQuestion212(normalizeQuestion210(normalizeQuestion209(normalizeQuestion208(normalizeQuestion207(normalizeQuestion206(normalizeQuestion202(normalizeQuestion201(normalizeQuestion200(normalizeQuestion194(normalizeQuestion193(normalizeQuestion192(normalizeQuestion191(normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(normalizeQuestionU5(normalizeQuestionU3(normalizeQuestionU4(normalizeQuestionU2(normalizeQuestionU6(normalizeQuestionU8(normalizeQuestionU7(fixTyposU1(q))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
 }
 /* 第200輪（根源）：入會退會與會員資格換問法——
    「忘記繳／忘了繳／漏繳會費」＝沒繳會費（原本「忘記繳會費會被退會嗎」被當成退費）；
@@ -1817,6 +1827,7 @@ function investStocks(t){
 function membershipRefused(t){
  if(!/(入會|加入|成為會員|當會員|會員)/.test(t))return null;
  if(!/(拒絕|不讓|不准|被擋|不通過|不同意|退件|被拒|拒收|不收)/.test(t))return null;
+ if(/發言|講話|說話|提問|發表意見|表達意見|提案|投票|表決|列席|旁聽|進場|入場|參加大會|出席/.test(t)&&!/(入會|加入|成為會員|當會員)/.test(t))return null; // 理解把關第8輪：「大會主席可以不讓會員發言嗎」不是入會被拒
  if(/合作社/.test(t))return null;
  if(/公會|職業團體|律師|醫師|會計師|技師|地政士/.test(t))return{category:'人民團體會務說明',title:'職業團體不得拒絕具會員資格者入會',summary:'職業團體（例如公會）以組織區域內從事該行職業者為會員，不得拒絕具有會員資格者入會（人民團體法第37條）。如果您符合資格卻被拒絕，可以先以書面請公會說明理由，仍未獲處理時，向主管機關（縣府社會處）反映。\n各專業法（例如醫師法、律師法）另有入會規定的，依各該法律。',statutes:[P(37)],questionState:{focus:'membership-refused',domain:'pro'},notes:[],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
  return{category:'人民團體會務說明',title:'協會入會依章程，一般須經理事會通過；被拒絕可先請協會說明理由',summary:'一般協會（社會團體）的入會資格與程序由章程訂定（人民團體法第12條）；一般做法是填入會申請書、經理事會審查通過、繳納會費後成為會員，實際程序請看各協會自己的有效章程。法律沒有規定社會團體「不得拒絕」入會，這點與職業團體不同（職業團體依人民團體法第37條不得拒絕具資格者）。\n如果您被拒絕：\n1. 先以書面請協會說明拒絕理由，並核對章程的會員資格條件。\n2. 若協會以章程沒有規定的條件拒絕，或程序不符章程，可以向縣府承辦人反映。',statutes:[P(12),P(37)],questionState:{focus:'membership-refused',domain:'social'},notes:['理事會審查入會時，應依章程所定的資格條件，不宜以章程以外的理由拒絕。'],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
@@ -2029,6 +2040,7 @@ function supervisorChairmanElection(t){
  if(/^(協會|社區發展協會|我們協會|本會)?的?監事(要)?(怎麼選|怎麼產生|如何產生|誰選)/.test(t))return null;
  if(/不開會|不召開|不肯|拒絕|不執行/.test(t))return null;
  if(/副|解除|罷免|理事/.test(t))return null;
+ if(/監票|開票|唱票|發票員|選務|候選人/.test(t))return null; // 理解把關第8輪：「理監事選舉的候選人可以當監票員嗎」不是在問監事會召集人
  return {title:'監事會召集人（常務監事）：條文只規定常務監事三人以上時互推一人，其餘看章程',summary:'人民團體法第17條第2項規定，監事名額在三人以上的，可以互選常務監事，名額不得超過監事總額的三分之一；常務監事在三人以上時，要互推一人為監事會召集人。監事會議由監事會召集人（常務監事）召集（人民團體會務輔導辦法第11條）。實際怎麼產生，要看協會經縣府核備的章程。',statutes:[P(17),G(11)]};
 }
 
@@ -6518,7 +6530,7 @@ function patrol36(t){
   return R('清算人找不到人當：先看章程和大會決議，再由理事長擔任，還是找不到就由縣府選任','沒有辦法人登記的協會，清算人的產生順序是：\n1. 依章程或會員（會員代表）大會的決議；\n2. 章程沒有規定、或會員大會開不成時，由理事長或章程所定的代理人擔任清算人；\n3. 清算人還是無法產生時，由主管機關（縣府）選任（人民團體會務輔導辦法第27條）。\n已經辦理法人登記的協會，除法律另有規定外，依民法的規定辦理。',[M(27)]);
  if(/(理事長|理事|負責人).{0,4}(跑掉|跑了|失聯|聯絡不上|找不到|消失|不見|跑路|失蹤|不理|不處理)/.test(t)&&dis&&!/(清算人)/.test(t))
   return R('理事長失聯也要解散：仍要由會員大會決議，理事長不開會時可連署請求或請縣府指定人召集','解散一定要經會員（會員代表）大會決議，出席人數要過半數，出席人數三分之二以上同意（人民團體法第27條、第59條第5款），不會因為理事長失聯就自動解散。\n理事長聯絡不上、沒辦法召集時：\n1. 理事過半數，或會員（會員代表）五分之一以上，可以書面連署，請理事長召開臨時會員大會；\n2. 理事長收到連署後30日內沒有開完會，縣府可以依人民團體法第32條，指定一位理事召集（人民團體會務輔導辦法第15條）。\n解散後清算人怎麼產生，請看人民團體會務輔導辦法第27條：章程沒規定或大會開不成時由理事長或代理人擔任，無法產生時由縣府選任。',[P2(27),P2(32),M(15),M(27)]);
- if(/(沒錢|沒有錢|沒經費|沒有經費|沒財產|沒有財產|一毛錢|帳戶空|戶頭空|窮|負債|欠債)/.test(t)&&/(解散|結束|收掉|關掉)/.test(t)&&/(怎麼|如何|可以|能不能|可不可以|嗎|想|要|打算|準備|該不該|應不應該)/.test(t)&&!/(欠錢怎麼辦|還欠)/.test(t))
+ if(/(沒錢|沒有錢|沒經費|沒有經費|沒財產|沒有財產|一毛錢|帳戶空|戶頭空|窮|負債|欠債)/.test(t)&&/(解散|結束|收掉|關掉)/.test(t)&&/(怎麼|如何|可以|能不能|可不可以|嗎|想|要|打算|準備|該不該|應不應該)/.test(t)&&!/(欠錢怎麼辦|還欠)/.test(t)&&!/(不開|沒開|不召開|沒有開|沒召開|停開|不想開|不要開)(會員)?(大會|會)/.test(t))  /* 理解把關第8輪：「沒錢不開大會，會被解散嗎」問的是不開大會的後果，不是想解散 */
   return R('沒有錢也可以解散：程序和一般解散一樣，要經會員大會決議','協會沒有錢、沒有財產，並不影響解散。人民團體法第59條列的解散情形，沒有以財產多寡為條件。\n一樣要開會員（會員代表）大會，出席人數過半數，出席人數三分之二以上同意解散（人民團體法第27條）；之後辦理清算，清算人的產生看人民團體會務輔導辦法第27條。\n如果還有欠款，清算時要先清償債務；本站查不到債務還不完要怎麼處理的明文，請電洽承辦人員確認。',[P2(27),P2(59),M(27)]);
  if((/會員.{0,6}(剩|少於|不到|太少|只剩|不足|低於)/.test(t)&&(/(人|個)/.test(t)||/太少/.test(t))||/(會員|協會|社團).{0,4}(變很少|越來越少|變少|剩好少|剩很少)|人數(不夠|不足|太少|變少)/.test(t))&&/(解散|廢止|撤銷|立案|被|繼續|維持|存在|還能|還可以|運作)/.test(t)&&!/(出席|開會|投票|選舉|表決|連署|發起|成立|社區)/.test(t))
   return R('會員少到幾個人會被解散：法規沒有訂人數下限','人民團體法沒有規定「會員少於幾人就要解散」。30人以上是組織團體時，發起人的人數要求（人民團體法第8條），不是成立後的會員人數下限。\n不過會員太少，常會連開會都湊不齊；團體長期沒有開會、任期屆滿沒有改選，主管機關可以先警告、限期改善，屆期未改善或情節重大才會進一步處分（人民團體法第58條）。\n如果會員確定無法維持運作，要由會員（會員代表）大會決議解散（第27條、第59條第5款）。',[P2(8),P2(58),P2(59),P2(27)]);
@@ -12280,7 +12292,7 @@ function cross1127(t,ctx){
   if(a&&a.summary&&/其他團體/.test(a.title))return Object.assign({},a,{direct:true,title:'在不同團體分別當理事、監事：人民團體法沒有禁止；同一個團體裡理事和監事才不能互兼',questionState:qs4});
  }
  /* 沒錢、付不出薪水＋可不可以（直接）解散 */
- if(/解散/.test(t)&&/(沒錢|沒有錢|沒經費|沒有經費|付不出|發不出|付不起|繳不出|撐不下去|入不敷出|經費不足|經費不夠|錢不夠|沒收入|沒有收入)/.test(t)&&!/(補助|核銷|清算|剩下的錢|剩餘|賸餘|設備|社區|怎麼解散|如何解散)/.test(t)){
+ if(/解散/.test(t)&&/(沒錢|沒有錢|沒經費|沒有經費|付不出|發不出|付不起|繳不出|撐不下去|入不敷出|經費不足|經費不夠|錢不夠|沒收入|沒有收入)/.test(t)&&!/(不開|沒開|不召開|沒有開|沒召開|停開|不想開|不要開)(會員)?(大會|會)/.test(t)&&!/(補助|核銷|清算|剩下的錢|剩餘|賸餘|設備|社區|怎麼解散|如何解散)/.test(t)){
   const a=sub('協會沒錢了可以解散嗎');
   if(a&&a.summary&&/沒有錢/.test(a.title))return Object.assign({},a,{direct:true,questionState:qs4});
  }

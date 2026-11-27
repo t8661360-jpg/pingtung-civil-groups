@@ -473,6 +473,42 @@
     return null;
   }
   if (typeof window !== 'undefined') window.__understandingGuard7 = understandingGuard7;
+  /* ── 理解把關第8輪（2026-11-27）──
+     A. 「會員欠繳會費兩年，但他是候補理事，可以遞補嗎」：問的是欠費（停權）的人能不能遞補、出席、投票，答案完全沒談會費或停權 → 選單。
+     B. 「新理事長想換一家銀行，存摺要怎麼處理」：問換往來銀行，答案只談原銀行的印鑑變更 → 選單。
+     C. 「合作社社員大會跟協會會員大會可以同一天一起開嗎」：同一句同時講合作社和另一種團體，答案兩種都沒談到 → 選單。
+     D. 「會員大會主席可以不讓會員發言嗎」：問開會發言的權利，答案沒談到發言 → 選單。
+     E. 「講師費可以給多少，要扣稅嗎」：問金額標準，答案只談扣稅、沒有金額標準 → 保留答案，開頭明講金額這部分沒把握。
+     用 scripts/site-smoke.mjs 全部 CHECKS 驗證過不會擋掉已答對的題目。 */
+  function understandingGuard8(q, a) {
+    if (!a || !a.title || a.unanswered || a.guarded) return null;
+    if (/您是不是要問|難倒小屏|想先確認|暫時無法回覆|兩件事|兩種團體/.test(a.title)) return null;
+    const fs = a.questionState && a.questionState.focus;
+    if (fs === 'guard-menu' || fs === 'keyword-menu' || fs === 'clarify' || fs === 'compound') return null;
+    if (a.category === '業務分流' || a.category === '打招呼' || a.category === '團體查詢' || (a.groups && a.groups.length)) return null;
+    const raw = NFK(q); if (raw.length < 6) return null;
+    const at = answerText(a);
+    /* A */
+    if (/欠繳|欠費|欠會費|沒繳會費|未繳會費|沒有繳會費|會費沒繳|會費沒有繳|會費欠|停權/.test(raw) && /候補|遞補|理事|監事|投票|選舉權|被選舉|參選|出席|表決/.test(raw) && !((/會費|欠繳|欠費/.test(raw) ? /會費|欠繳|欠費/ : /停權/).test(at)))
+      return menu2(q, ['沒繳會費的會員可以投票嗎', '欠繳會費的人可以參選理事嗎', '被停權的會員可以遞補理事嗎', ...similar(q, 5)], '');
+    /* B */
+    if (/(換|改|轉)(到|成|去)?(一家|別家|另一家|另外一家|其他|新的|別的)(往來)?銀行|(換|更換|改換)(往來)?銀行|銀行(要換|想換|換掉|換別家)/.test(raw) && !/印鑑|印章|負責人|簽名|簽章/.test(raw) && !/合作社/.test(raw) && !/開戶|新戶|結清|銷戶|換銀行|更換銀行|轉存/.test(at))
+      return menu2(q, ['協會怎麼開銀行帳戶', ...similar(q, 6)], '');
+    /* C */
+    if (/合作社/.test(raw) && /(協會|公會|工會|社團)/.test(raw.replace(/合作社/g, '')) && !/合作社/.test(at) && !/(協會|公會|社團)/.test(NFK(a.title)))
+      return menu2(q, similar(q, 7), '您問到兩種團體，小屏怕答錯方向。');
+    /* D */
+    if (/發言|講話|發表意見|表達意見|提問|麥克風/.test(raw) && /(不讓|不准|禁止|限制|打斷|不給|拒絕|關掉|不能|不要講|別講|不要說|不要再講|閉嘴|停止)/.test(raw) && !/發言|講話|意見/.test(at))
+      return menu2(q, similar(q, 7), '');
+    /* E */
+    const fee = raw.match(/(講師費|鐘點費|出席費|車馬費|交通費|誤餐費|便當費|餐費|稿費|主持費|顧問費)(?:可以|要|能|最多|一次|一小時|一節)?.{0,8}(給多少|多少錢|多少|上限|最多|標準|行情)/);
+    if (fee && !new RegExp(fee[1] + '.{0,20}(標準|上限|最高|以下|每(小時|節|次))').test(at) && !/金額.{0,6}(看|依|由|沒有規定)|沒有(規定|訂).{0,8}(金額|多少)|固定金額/.test(at)) {
+      if (!new RegExp(/講師費|鐘點費/.test(fee[1]) ? '講師費|鐘點費' : fee[1]).test(at)) return menu2(q, similar(q, 7), '');
+      return { ...a, guarded: true, summary: '您問的「' + fee[1] + '可以給多少」，本站查不到已核對的金額標準，建議您電洽承辦人員；下面先回答其他部分。\n\n' + (a.summary || '') };
+    }
+    return null;
+  }
+  if (typeof window !== 'undefined') window.__understandingGuard8 = understandingGuard8;
   function guard(q, a) {
     try { const w4 = ghostwrite4(q, a); if (w4) return w4; } catch (e) {}
     try { const c = compareGuard(q, a) || compareTopic(q, a) || compound(q, a); if (c) return c; } catch (e) {}
@@ -480,6 +516,7 @@
     try { const u3 = understandingGuard3(q, a); if (u3) return u3; } catch (e) {}
     try { const u4 = understandingGuard5(q, a); if (u4) return u4; } catch (e) {}
     try { const u7 = understandingGuard7(q, a); if (u7) return u7; } catch (e) {}
+    try { const u8 = understandingGuard8(q, a); if (u8) return u8; } catch (e) {}
     try { const u6 = understandingGuard6(q, a); if (u6) return u6; } catch (e) {}
     try {
       if (!a || a.direct || a.questionState || a.unanswered || !a.title) return null;
