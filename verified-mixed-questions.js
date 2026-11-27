@@ -357,11 +357,12 @@ function formerMemberArrearsPrivacy(q){
 }
 function changedMeetingVenue(q){
  const t=String(q??'').normalize('NFKC').replace(/\s/g,'');
- if(t.length>155||/社員|合作社|工會|公會|農會|漁會|公司|基金會|管委會|里民大會|視訊|投開票所|籌備|成立大會|議程改了|(?:改|變更|更換).{0,2}(?:登記|立案|章程).{0,2}(?:會址|地址)|不是開會地點/.test(t))return null;
+ if(t.length>155||/社員|合作社|工會|公會|農會|漁會|公司|基金會|管委會|里民大會|視訊|投開票所|籌備|成立大會|議程改了/.test(t)||negatesMeetingVenue(t))return null;
+ if(/(?:改|變更|更換).{0,2}(?:登記|立案|章程).{0,2}(?:會址|地址)/.test(t)&&!negatesRegisteredAddress(t))return null;
  const assembly=/會員(?:[(]?代表[)]?)?大會|協會大會/.test(t);
  const board=/理事會|監事會|理監事(?:聯席)?會/.test(t);
  if(!assembly&&!board&&!/會議|開會/.test(t))return null;
- if(!/(?:場地|會場|會議地點|開會地點|會議室|地點|地址)(?:有)?(?:改|換|異動|變更)|(?:換|更換|改|更改|變更)(?:了|個)?(?:場地|會場|會議地點|開會地點|會議室|地點|地址)|(?:換|移|挪|改)(?:到|去|至)[^，,。？?；;]{0,20}(?:會議室|會場|活動中心|禮堂|樓)/.test(t))return null;
+ if(!/(?:場地|會場|會議地點|開會地點|會議室|地點|地址)(?:有)?(?:改|換|異動|變更)|(?:換|更換|改|更改|變更)(?:了|個)?(?:會員大會|理事會|監事會)?(?:場地|會場|會議地點|開會地點|會議室|地點|地址)|(?:換|移|挪|改)(?:到|去|至)[^，,。？?；;]{0,20}(?:會議室|會場|活動中心|禮堂|樓)/.test(t))return null;
  const guide=n=>law('人民團體會務輔導辦法','D0020094',n);
  const schedule=['只換地點：通知寫清楚','依章程或團體採用的通知方式，儘快把正確的新地點、原訂日期與時間，以及必要的議程或辨識資訊通知每一位應出席的人，並保留送達紀錄。若日期也變了，就不能當成只換地點處理。'];
  const short=['離開會日不到法定通知期間怎麼辦？','上述條文規定一般的會前通知期間，但未另定只換地點是否一律重新起算，也不能說原通知一定有效。若已很接近開會日，更新通知後，請向主管機關確認能否照原日召開或須另訂日期；不要把臨時換地點直接當作緊急臨時會議。'];
@@ -502,7 +503,35 @@ function schoolParentFiling(q){
    {label:'另外立案的家長協會',question:'我們是另外立案的家長協會，理事長改選要報誰？'}
   ],refs:[schoolLaw,ministryRef]};
 }
+function negatesRegisteredAddress(t){
+ return /(?:沒(?:有)?要?|不用|不必|不會|並非要|不是要|不是)(?:異動|改|更換|變更)?(?:登記|立案)?(?:會址|登記地址)|(?:登記|立案)會址(?:不變|沒改|不改)/.test(t);
+}
+function negatesMeetingVenue(t){
+ return /(?:不是|沒有要|不用|並非)(?:改|換|變更|更換|異動)?(?:會議室|開會地點|會議地點|會場|開會場地)/.test(t);
+}
+function associationRegisteredAddress(q){
+ const t=String(q??'').normalize('NFKC').replace(/\s/g,'');
+ if(t.length>155||!/協會|社會團體/.test(t)||/合作社|工會|公會|公司|基金會|財團法人|農會|漁會|政黨|銀行|稅籍|跨縣|外縣市|不同縣市/.test(t)||negatesRegisteredAddress(t))return null;
+ const registered=/登記會址|立案會址|登記地址|立案地址|遷地址|遷址|遷會址|換會址|改會址|搬.{0,7}會址|搬辦公室|會址.{0,4}(?:變更|異動)/.test(t);
+ if(!registered||!/改|換|異動|搬|遷|變更/.test(t)||!/怎麼|如何|要不要|需要|要|能|可否|須|嗎|報備|備查|核備/.test(t))return null;
+ if(/選舉地點|改期|視訊|原日期|日期不變/.test(t)&&!negatesMeetingVenue(t))return null;
+ const newChair=/換理事長|理事長換人|理事長.{0,5}(?:異動|改選|變更)|(?:改選|補選)理事長/.test(t);
+ const exact=/完整(?:的)?門牌|章程.{0,10}(?:全址|完整地址)|章程.{0,10}寫(?:了|有)?門牌/.test(t);
+ const nationwide=/全國性|全國級|立案主管機關.{0,3}內政部/.test(t);
+ const guide=n=>law('人民團體會務輔導辦法','D0020094',n);
+ const office=['登記會址異動：先決議，再備查','先由理事會決議，將變更後會址報原立案主管機關備查。可先準備載明新址的理事會議紀錄及新址使用證明；如向屏東縣府辦理，實際書表及附件請由承辦確認。這不是臨時更換開會場地。'];
+ const amended=['是否也要修改章程','對照現行章程：若條文寫明舊門牌，或搬遷會改到條文明載的區域，就要另外辦理修章；不能只靠理事會決議改章程。若新址仍符合現行條文且不需改章程，不因換門牌就另開會員大會。章程異動應於三十日內報主管機關核備；已登記為社團法人者，修章另須核對民法第53條並辦理法院登記事項變更。'];
+ const chair=['理事長變更：與會址分開核對','理事長須依章程和選舉程序產生。選任職員簡歷冊或負責人名冊異動，應於三十日內報主管機關核備；如有會員（代表）大會紀錄，大會閉會後三十日內另須送備查。不要因等待會址資料而錯過理事長異動的期限。'];
+ const combined=['可否同一份公文送件',nationwide?'全國性團體可參考內政部改選申報指引：同時需變更會址時，加附新會址使用同意書；仍需備齊會址決議及改選資料。':'兩項可以一併準備，但法律上的備查和核備各有要件。是否可同一份公文併送，請向原立案主管機關確認；未確認不要假定一件會自動辦完兩項。'];
+ const refs=[guide(8),association(12),association(27),association(54),law('民法','B0000001',53)];
+ if(newChair)refs.push(guide(12));
+ if(newChair&&nationwide)refs.push({title:'內政部：全國及省級社會團體改選申報',source:'https://www.moi.gov.tw/News_toggle3.aspx?PageSize=200&_CSN=1633&n=8361&page=1&sms=9015'});
+ return {direct:true,category:'人民團體會務說明',title:newChair?'遷會址與理事長異動：先分清兩項程序':'變更協會登記會址：理事會決議後報備查',
+  summary:newChair?'會址變更和理事長異動是兩項程序，可以一併準備，不能用一項取代另一項。':exact?'章程寫的是舊門牌，搬家就涉及修章；除了理事會辦會址異動，也要走修章程序。':'您問的是協會的登記會址，不是開會通知。先經理事會決議通過，再報原立案主管機關備查。',
+  steps:[office,...(newChair?[chair,combined]:[]),amended],refs,actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
+}
 function answerMixed(q){
+ const address=associationRegisteredAddress(q);if(address)return address;
  const parent=schoolParentFiling(q);if(parent)return parent;
  const creditVacancy=creditCooperativeVacancy(q);if(creditVacancy)return creditVacancy;
  const coopVacancy=coopBoardVacancies(q);if(coopVacancy)return coopVacancy;
@@ -529,6 +558,6 @@ function answerMixed(q){
     keys.includes('creditor')?'合作社清算：就任後公告與終結報告，分別計算':isCoop?'合作社清算報告與股息上限，分開看':'協會入會資格與會員除名，分開看',
   summary:keys.length===1?topics[keys[0]].line[1]:'你問了兩件事，分別如下。',steps:keys.length>1?keys.map(k=>topics[k].line):[],refs:keys.flatMap(k=>topics[k].laws)};
 }
-if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy,changedMeetingVenue,familyAssemblyProxy,dualBoardVacancies,coopBoardVacancies,creditCooperativeVacancy,schoolParentFiling};return;}
+if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy,changedMeetingVenue,familyAssemblyProxy,dualBoardVacancies,coopBoardVacancies,creditCooperativeVacancy,schoolParentFiling,associationRegisteredAddress};return;}
 root.verifiedMixedQuestionAnswer=answerMixed;
 })(typeof window!=='undefined'?window:globalThis);
