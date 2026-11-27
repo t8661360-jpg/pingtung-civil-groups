@@ -1540,6 +1540,8 @@ async function ask(q){
   if(admission){renderAnswer(q,admission);return;}
   const wages=typeof window.verifiedAssociationWagesAnswer==="function"?window.verifiedAssociationWagesAnswer(q):null;
   if(wages){renderAnswer(q,wages);return;}
+  const ledgerLoss=typeof window.verifiedAssociationLedgerLoss==="function"?window.verifiedAssociationLedgerLoss(q):null;
+  if(ledgerLoss){renderAnswer(q,ledgerLoss);return;}
   const accountSeal=typeof window.verifiedAssociationAccountSeal==="function"?window.verifiedAssociationAccountSeal(q):null;
   if(accountSeal){renderAnswer(q,accountSeal);return;}
   const withdrawal=typeof window.verifiedQuorumWithdrawal==="function"?window.verifiedQuorumWithdrawal(q):null;
@@ -1954,6 +1956,7 @@ touch();
 <script src="association-charter-address.js?v=1"></script>
 <script src="association-roster-handover.js?v=1"></script>
 <script src="association-public-election.js?v=1"></script>
+<script src="association-ledger-loss.js?v=1"></script>
 <script src="in-kind-donation-distinction.js?v=1"></script>
 <script src="meeting-convening-distinction.js?v=1"></script>
 <script src="answer-arbiter.js?v=20261127-292"></script>
