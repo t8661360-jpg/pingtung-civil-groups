@@ -1574,6 +1574,8 @@ async function ask(q){
   if(charterApplicability){financeMeetingPlanner=null;renderAnswer(q,charterApplicability);return;}
   const dissolutionNotice=typeof window.verifiedAssociationDissolutionNotice==="function"?window.verifiedAssociationDissolutionNotice(q):null;
   if(dissolutionNotice){financeMeetingPlanner=null;renderAnswer(q,dissolutionNotice);return;}
+  const priorBalance=typeof window.verifiedAssociationPriorBalance==="function"?window.verifiedAssociationPriorBalance(q):null;
+  if(priorBalance){financeMeetingPlanner=null;renderAnswer(q,priorBalance);return;}
   const decisionAudit=typeof window.verifiedAssociationDecisionAudit==="function"?window.verifiedAssociationDecisionAudit(q):null;
   if(decisionAudit){financeMeetingPlanner=null;renderAnswer(q,decisionAudit);return;}
   const reportKind=typeof window.verifiedAssociationFinanceReportKind==="function"?window.verifiedAssociationFinanceReportKind(q):null;
@@ -2116,6 +2118,7 @@ touch();
 <script src="association-overdue-term-signing.js?v=20261127-contract-rent"></script>
 <script src="association-expulsion-agenda-guild-collection.js?v=20261127-exp-vote"></script>
 <script src="verified-clause-routing.js?v=1"></script>
+<script src="association-budget-prior-balance.js?v=20261127-prior-balance"></script>
 <script src="association-finance-report-kind.js?v=20261127-two-periods"></script>
 <script src="association-minutes-filing-kind.js?v=1"></script>
 <script src="association-decision-audit.js?v=1"></script>
