@@ -669,7 +669,35 @@ function duesAndAssemblyRights(q){
   summary:'不能只因欠會費就刪名、拒絕出席或禁止投票。要分別查會員身分、出席資格及投票權有沒有依法受限。',
   steps,refs,actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
 }
+function coopWithdrawalAndAssembly(q){
+ const t=String(q??'').normalize('NFKC').replace(/\s/g,'');
+ if(t.length>160||!/合作社/.test(t)||/信用合作社|保險合作社|合作社聯合社|社員代表大會|準社員|協會|公會|工會|股東|農會|漁會/.test(t))return null;
+ if(!/退社|出社/.test(t)||!/社員大會|大會|沒到場|沒來開會|缺席/.test(t)
+  ||!/算|計|扣|名簿|名冊|人數|門檻|成會/.test(t))return null;
+ const absent=/(?:沒(?:有)?到場|沒(?:有)?出席|不出席|沒來|缺席|請假).{0,22}(?:當.{0,5}退社|視為退社|扣|剔除|刪掉|當作出社)/.test(t);
+ const pending=/尚未生效|還沒生效|未生效|還沒到年底|還沒到年度終了|只提出|只送了?|剛(?:送|交|提出)|申請(?:已)?送了|已(?:經)?提(?:出|交).{0,8}(?:退社|申請)/.test(t);
+ const effective=!pending&&/(?:退社|出社)(?:確定)?(?:已)?生效|(?:已經|已).{0,9}退社|退社(?:後|之後)已/.test(t);
+ const refund=/股金|退股/.test(t);
+ const steps=[
+  ['開會門檻怎麼算','一般合作社的社員大會須有全體社員過半數出席，才可開會。例如符合資格的社員共20人，至少要11人出席。這是成會門檻，不是表決門檻；一般決議另外看出席社員是否過半數同意。'],
+  ['先核對退社生效日與社員名簿','在這次大會前已生效、確定不再具社員身分的人，不列入這次大會的全體社員人數。只交申請、到開會時還未生效的，若仍具社員身分，原則上仍列入；即使不來，也不是實際出席。請核對第35條社員名簿、書面申請及送達、營業年度與章程，留存異動依據。'],
+  ['自請退社何時生效','依第27條，自請退社原則上於年度終了時辦理，須提前三個月提出書面請求。章程可延長提前期間：自然人最長六個月，法人社員最長一年。先確認該社營業年度的終了日，不把送申請當天當作退社日。']
+ ];
+ if(absent)steps.unshift(['缺席不是退社','單純沒到場或請假，不屬第26條的出社事由。若主張依章程事由除名，還須依法經社務會出席理事、監事四分之三以上議決、書面通知當事人並報告社員大會；不能把缺席直接等同於已退社。']);
+ if(refund)steps.push(['退股金與成會是兩件事','已出社者可依章程請求退還部分或全部股金；第30條原則依營業年度終了時的財產計算，章程另有規定從其規定。不要拿是否已領股金，代替確認退社是否生效。']);
+ return {direct:true,category:'合作社會務',title:'合作社退社：先確認生效，再算社員大會出席門檻',
+  summary:absent?'不能因為社員沒到場就當他退社、直接扣人。要先確認社員身分是否仍有效。':
+   pending?'只送退社申請，開會時尚未生效且仍是社員，仍列入全體社員人數。':
+   effective?'若退社已在這次社員大會前生效，不再列入這次大會的全體社員人數。':
+   '先看退社在開會前是否已生效。已生效不列入；還未生效且仍有社員身分，則列入。',
+  ...(!absent&&!pending&&!effective?{choiceHeading:'請確認開會當天的退社狀態',choices:[
+   {label:'開會前已生效',question:'合作社社員退社已生效，這次社員大會還要算進全體人數嗎？'},
+   {label:'僅申請、還未生效',question:'合作社社員只提出退社申請、還沒生效，這次社員大會還要算進全體人數嗎？'}
+  ]}:{}),steps,refs:[coop(26),coop(27),...(absent?[coop(28)]:[]),coop(35),coop(48),...(refund?[coop(30)]:[])],
+  actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
+}
 function answerMixed(q){
+ const coopWithdrawal=coopWithdrawalAndAssembly(q);if(coopWithdrawal)return coopWithdrawal;
  const duesRights=duesAndAssemblyRights(q);if(duesRights)return duesRights;
  const missed=missedSupervisorNotice(q);if(missed)return missed;
  const expenses=memberMeetingExpenseFunding(q);if(expenses)return expenses;
@@ -703,6 +731,6 @@ function answerMixed(q){
     keys.includes('creditor')?'合作社清算：就任後公告與終結報告，分別計算':isCoop?'合作社清算報告與股息上限，分開看':'協會入會資格與會員除名，分開看',
   summary:keys.length===1?topics[keys[0]].line[1]:'你問了兩件事，分別如下。',steps:keys.length>1?keys.map(k=>topics[k].line):[],refs:keys.flatMap(k=>topics[k].laws)};
 }
-if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy,changedMeetingVenue,familyAssemblyProxy,dualBoardVacancies,coopBoardVacancies,creditCooperativeVacancy,schoolParentFiling,associationRegisteredAddress,inspectAndPublishBoardMinutes,temporaryMeetingNotice,withdrawalAndAssemblyRoll,memberMeetingExpenseFunding,missedSupervisorNotice,duesAndAssemblyRights};return;}
+if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy,changedMeetingVenue,familyAssemblyProxy,dualBoardVacancies,coopBoardVacancies,creditCooperativeVacancy,schoolParentFiling,associationRegisteredAddress,inspectAndPublishBoardMinutes,temporaryMeetingNotice,withdrawalAndAssemblyRoll,memberMeetingExpenseFunding,missedSupervisorNotice,duesAndAssemblyRights,coopWithdrawalAndAssembly};return;}
 root.verifiedMixedQuestionAnswer=answerMixed;
 })(typeof window!=='undefined'?window:globalThis);
