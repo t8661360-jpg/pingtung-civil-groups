@@ -1,0 +1,28 @@
+'use strict';
+const a=require('node:assert/strict');
+const {route}=require('./cooperative-contract-representation');
+const {charterBeforeAssembly:charter}=require('./meeting-convening-distinction');
+const both=route('合作社理事主席也是協會理事長，兩邊要簽租約，我可以同時代表雙方簽名嗎？');
+a.match(both.steps[0][1],/雙方各自依法所作的事前許諾.*雙方是否依法事後承認/);
+a.match(both.steps[1][1],/不等於直接與該理事本人訂約/);
+a.ok(!both.refs.some(x=>x.source.endsWith('flno=39')));
+const personal=route('合作社要租理事本人名下的房子，理事主席能代表合作社簽租約嗎？');
+a.match(personal.summary,/由監事代表/);
+a.ok(personal.refs.some(x=>x.source.endsWith('flno=39')));
+a.ok(!personal.refs.some(x=>x.source.endsWith('flno=106')));
+const separated=route('協會跟合作社要簽合作協議，兩邊各由不同合法代表簽，還算同一人的雙方代理嗎？');
+a.match(separated.summary,/不是同一人的雙方代理.*各自核對章程、決議和授權/);
+a.equal(route('合作社要向理事的配偶承租房子，理事主席能代表合作社簽約嗎？'),null);
+a.equal(route('合作社要簽租約。不是理事本人名下的房子，理事主席能簽嗎？'),null);
+a.equal(route('合作社理事主席可以同時當協會理事長嗎？'),null);
+const m=charter('協會理事長沒開理事會就自行決定召開會員大會，章程明定先經理事會決議，還能這樣開嗎？');
+a.match(m.summary,/不能僅憑召集權自行略過/);
+a.match(m.steps[0][1],/名冊.*不能代替章程要求的召開決議/);
+a.match(m.steps[1][1],/不能用內部規定堵住合法請求/);
+a.equal(charter('協會章程沒寫要先經理事會決議，理事長可以召開會員大會嗎？'),null);
+a.equal(charter('合作社主席沒開理事會就召集社員大會，章程明定先經理事會決議。'),null);
+
+const open=route('合作社跟協會要簽契約，兩邊應該找誰簽？');
+a.equal(open.choices.length,2);
+a.match(route(open.choices[0].question).summary,/雙方代理問題/);
+a.match(route(open.choices[1].question).summary,/不是同一人的雙方代理/);

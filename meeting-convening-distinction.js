@@ -28,9 +28,22 @@ function veto(t){
   summary:'不能把會員大會、理事會和監事會混作同一種。三者的召集人、請求門檻及期限不同；請先選你說的會議。',
   choiceHeading:'你是問哪一種會議？',choices:[{label:'會員（代表）大會',question:'一般協會的理事長可以自己決定不召開會員大會嗎？'},{label:'理事會',question:'一般協會的理事長可以自己決定不召開理事會嗎？'},{label:'監事會',question:'一般協會的監事會召集人可以自己決定不召開監事會嗎？'}]};
 }
+function charterBeforeAssembly(q){
+ const t=String(q??'').normalize('NFKC').replace(/\s/g,'');
+ if(t.length>178||!/協會|人民團體|社會團體/.test(t)||!/會員(?:代表)?大會|定期大會/.test(t)||!/理事長|會長/.test(t)
+ ||!/章程.{0,8}(?:明定|規定|載明|寫|要求).{0,15}(?:先|應經|須經|要經).{0,6}理事會.{0,4}(?:決議|通過)|(?:先經|需經|須經|應經)理事會.{0,4}(?:決議|通過).{0,5}(?:依|是)章程/.test(t)
+ ||!/沒(?:有|經|開)|未(?:經|開)|不用|不開|跳過|自行|自己|先寄|已開/.test(t)
+ ||/合作社|工會|公會|農會|漁會|公司|成立大會|罷免|除名|改選|解散|改章程|財務決算/.test(t))return null;
+ return {direct:true,category:'協會會務｜會員大會召集與章程',title:'理事長有召集權，但不能跳過章程要求的先行理事會決議',
+  summary:'依題目所述，章程明定須先經理事會決議，理事長不能僅憑召集權自行略過。召集人是誰、是否已完成章程所定程序，是兩件事。',
+  steps:[['還沒開：依章程先補齊程序','人民團體法第25條由理事長召集定期或臨時會員大會；第22條要求理事、監事依法律、章程與大會決議執行職務。依現行有效章程先確認理事會決議事項、門檻與紀錄，再由理事長按規定召集。會前審定出席名冊是會務輔導辦法第10條的另一件事，不能代替章程要求的召開決議。'],
+  ['已發通知或已經開會：不要直接認定有效或無效','留下章程、通知及會議紀錄，向主管機關確認補正、重行通知或爭議處理。一般大會應依第10條於會前15日通知；若是臨時大會依法由會員書面連署或監事會函請，另有第15條程序，不能用內部規定堵住合法請求。']],
+  refs:[assoc(22),assoc(25),guide(10),guide(15),{title:'內政部：理事長執行職務仍應遵守法令與章程',source:'https://www.moi.gov.tw/News_Content.aspx?n=14119&s=220131'}],questionState:{focus:'compound'}};
+}
 function answer(q){
  const t=String(q??'').normalize('NFKC').replace(/\s/g,'');
  if(/合作社|公會|工會|公司|董事|財團法人|農會|漁會|大廈|業主委員會|理監事聯席|公務人員協會|工業會/.test(t))return null;
+ const approval=charterBeforeAssembly(q);if(approval)return approval;
  const refusal=veto(t);
  if(refusal)return refusal;
  if(/會員(?:代表)?大會/.test(t))return null;
@@ -52,6 +65,7 @@ function answer(q){
    ['請主管機關處理','若連續召集三次以上未成會，或未在法定期限內開完臨時監事會，主管機關得依人民團體法第32條及輔導辦法第14條指定一名監事召集。若監事會召集人無正當理由不開超過二個會次，則另依第30條處理解除職務、另行改推；不是理事長自行解任或取代。']],
   refs:[guide(11),guide(13),guide(14),assoc(30),assoc(32)]};
 }
-if(typeof module!=='undefined'&&module.exports){module.exports={answer};return;}
+if(typeof module!=='undefined'&&module.exports){module.exports={answer,charterBeforeAssembly};return;}
 root.verifiedMeetingConveningAnswer=answer;
+root.verifiedCharterBeforeAssembly=charterBeforeAssembly;
 })(typeof window!=='undefined'?window:globalThis);
