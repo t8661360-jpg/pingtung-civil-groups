@@ -1534,6 +1534,8 @@ async function ask(q){
   if(wages){renderAnswer(q,wages);return;}
   const accountSeal=typeof window.verifiedAssociationAccountSeal==="function"?window.verifiedAssociationAccountSeal(q):null;
   if(accountSeal){renderAnswer(q,accountSeal);return;}
+  const chairVote=typeof window.verifiedAssociationChairVote==="function"?window.verifiedAssociationChairVote(q):null;
+  if(chairVote){renderAnswer(q,chairVote);return;}
   const verifiedMixed=typeof window.verifiedMixedQuestionAnswer==="function"?window.verifiedMixedQuestionAnswer(q):null;
   if(verifiedMixed){renderAnswer(q,verifiedMixed);return;}
   const shownQ=q;const prevQ=convo.length?convo[convo.length-1].q:"";
@@ -1924,6 +1926,7 @@ touch();
 <script src="association-admission-equality.js?v=1"></script>
 <script src="association-account-seal.js?v=2"></script>
 <script src="association-decision-audit.js?v=1"></script>
+<script src="association-chair-vote.js?v=1"></script>
 <script src="in-kind-donation-distinction.js?v=1"></script>
 <script src="meeting-convening-distinction.js?v=1"></script>
 <script src="answer-arbiter.js?v=20261127-290"></script>
