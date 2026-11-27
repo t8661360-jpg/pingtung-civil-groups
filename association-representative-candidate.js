@@ -16,7 +16,7 @@ const options=[
 ];
 function representative(q){
  const t=String(q||'').normalize('NFKC').replace(/\s/g,'');
- if(!t||t.length>225||!/協會|社會團體|人民團體|上級團體/.test(t)||!/會員代表|代表制|代表大會/.test(t)||!/理事長|理事|監事/.test(t)||!/資格|可|能|提名|當選|一定|是不是/.test(t)||/合作社|農會|漁會|工會|公會|體育團體|公司|罷免|選舉票|委託出席/.test(t))return null;
+ if(!t||t.length>225||!/協會|社會團體|人民團體|上級團體/.test(t)||!/會員代表|代表制|代表大會/.test(t)||!/理事長|理事|監事/.test(t)||!/資格|可|能|提名|當選|一定|是不是/.test(t)||/合作社|農會|漁會|工會|公會|體育團體|公司|罷免|選舉票|委託出席/.test(t)||/(同時|兼任?|也是|又是|又當|也當).{0,6}監事|監事(和|跟|與|兼|又是|也是).{0,4}會員代表/.test(t))return null;
  const u=/上級人民團體|上級團體|下級團體.{0,8}(?:派|選)/.test(t);
  const elected=/已依法當選理事|已當選理事/.test(t)&&!/還沒當選|未當選/.test(t);
  const simple=/還沒當選理事|尚未當選理事|不是理事/.test(t);

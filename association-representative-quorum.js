@@ -8,7 +8,7 @@ const formats=[{label:'會員代表大會',question:'一般協會依法召開會
 function read(t,pattern){const v=t.match(pattern);return v?Number(v[1]):null;}
 function route(q){
  const raw=String(q??'').trim(),t=raw.normalize('NFKC').replace(/\s/g,'');
- if(!t||t.length>235||!/協會|社會團體|人民團體/.test(t)||/合作社|社員|公會|工會|農會|漁會|股東|基金會|管委會|社團法人|法人登記|成立大會|改選|選舉|罷免|除名|臨時大會|監事會/.test(t))return null;
+ if(!t||t.length>235||!/協會|社會團體|人民團體/.test(t)||/合作社|社員|公會|工會|農會|漁會|股東|基金會|管委會|社團法人|法人登記|成立大會|改選|選舉|罷免|除名|臨時大會|監事會|任期|屆次|重算|重新算/.test(t))return null;
  const literalRep=/會員代表大會/.test(t);
  const topics=/成會|過半|應出席|應到|出席人數|幾(?:個)?人.{0,5}(?:開會|成會)|算誰/.test(t);
  if(!topics||(!literalRep&&!/會員代表/.test(t)&&!/(?:全體會員大會|正式會員大會).{0,12}代表大會/.test(t)))return null;
