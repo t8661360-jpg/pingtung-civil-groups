@@ -312,7 +312,29 @@ function changedAssociationDues(q){
   steps:[procedures,...(difference?[arrears]:[]),...(withdraw?[exit]:[]),...(refund?[returnMoney]:[])],
   refs:[association(12),association(33),finance,...(withdraw?[law('民法','B0000001',54)]:[])]};
 }
+function resignationAndMeeting(q){
+ const t=String(q??'').normalize('NFKC').replace(/\s/g,'');
+ if(t.length>145||!/協會|社會團體/.test(t)||!/理事長/.test(t)||!/辭職|請辭|辭掉|不做了/.test(t))return null;
+ if(/合作社|公會|工會|農會|漁會|公司|基金會|董事|過世|死亡|解散|銀行|印鑑|統編|撤回辭職|只剩.{0,5}(?:理事|監事)|各只剩/.test(t))return null;
+ const assembly=/會員(?:[（(]?代表[）)]?)?大會|開大會|召集大會/.test(t);
+ const board=/理事會/.test(t);
+ const supervision=/監事會/.test(t);
+ if(!assembly&&!board&&!supervision)return null;
+ if(!/能開|能不能開|可以開|怎麼開|能召集|誰召集|誰來|主持|召集|主持人|代開|還能|還可不可以/.test(t))return null;
+ if(!assembly&&!board&&supervision)return null;
+ const oral=/口頭|只說|沒有書面|沒寫|還沒准|還沒通過|還沒決議/.test(t);
+ const effective=/已生效|已經生效|已准辭|已經准辭|准辭後|決議通過.{0,6}辭職|已出缺|確定出缺/.test(t);
+ const initial=['只口頭請辭，或未經決議','理事長辭職須書面提出，經理事會決議准辭，並於會員（代表）大會報告。只有口頭表示或尚未經理事會准辭，不能因此當作已出缺或換召集人。'];
+ const vacancy=['已准辭並出缺','原則自出缺之日起一個月內補選。所遺任期不足六個月，得在出缺後一個月內依章程，或由常務理事互推一人代理；未設常務理事，由理事互推。不能只因有副理事長，就當然取得召集或主持權。'];
+ const meeting=['理事會與會員大會能不能開','理事會與會員（代表）大會一般由理事長依法召集。已有合法補選者或有權的代理人時，由有權的人依各會議程序辦理；沒有合法召集人時，不能自行指定監事或認定副理事長可代開。依人民團體法第32條，這兩類會議不能依法召開時，得由主管機關指定理事一人召集。能召集不等於已符合開會門檻。'];
+ const steps=[...(effective&&!oral?[vacancy]:oral&&!effective?[initial]:[initial,vacancy]),meeting];
+ if(supervision)steps.push(['監事會另看召集人','監事會由監事會召集人依法召集。理事長辭職不會讓理事會自動取得監事會的召集權；監事會不能依法召開時，主管機關得指定監事一人召集。']);
+ return {direct:true,category:'人民團體會務說明',title:'理事長請辭，會議能不能開要看合法召集人',
+  summary:oral&&!effective?'口頭請辭不生效，監事不會因此取得理事會召集權。':effective&&!oral?'准辭後也不是一律不能開會，但副理事長不會因稱謂就當然能召集或主持。':'可以依法辦理，但要先確認理事長是尚未准辭，還是已經出缺，以及誰有權召集。',
+  steps,refs:[law('人民團體選舉罷免辦法','D0050093',27),law('人民團體選舉罷免辦法','D0050093',17),association(25),association(32),law('人民團體會務輔導辦法','D0020094',10),law('人民團體會務輔導辦法','D0020094',11)]};
+}
 function answerMixed(q){
+ const resign=resignationAndMeeting(q);if(resign)return resign;
  const dues=changedAssociationDues(q);if(dues)return dues;
  const donationDisclosure=fundraisingDisclosure(q);if(donationDisclosure)return donationDisclosure;
  const docs=publishDocumentPrivacy(q);if(docs)return docs;
@@ -331,6 +353,6 @@ function answerMixed(q){
     keys.includes('creditor')?'合作社清算：就任後公告與終結報告，分別計算':isCoop?'合作社清算報告與股息上限，分開看':'協會入會資格與會員除名，分開看',
   summary:keys.length===1?topics[keys[0]].line[1]:'你問了兩件事，分別如下。',steps:keys.length>1?keys.map(k=>topics[k].line):[],refs:keys.flatMap(k=>topics[k].laws)};
 }
-if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues};return;}
+if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting};return;}
 root.verifiedMixedQuestionAnswer=answerMixed;
 })(typeof window!=='undefined'?window:globalThis);
