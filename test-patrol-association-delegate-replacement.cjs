@@ -1,0 +1,11 @@
+const assert=require('node:assert/strict');
+const {answerMixed,associationDelegateReplacement:f}=require('./verified-mixed-questions');
+const first=answerMixed('團體會員派的代表換人了，新代表可以接原來代表的理事職位嗎');
+assert.match(first.summary,/不可以自動接任.*喪失代表資格.*依序遞補/);
+assert.ok(first.refs.some(x=>x.title==='人民團體法第23條'));
+assert.match(answerMixed('團體會員改派在協會的代表已生效，舊代表原本當選監事，還能做嗎？').summary,/原任監事應即解任/);
+assert.match(answerMixed('團體會員只換了自己負責人，還沒有發函改派在協會的代表，原代表卸任理事了嗎？').summary,/不能直接認定原代表就卸任/);
+assert.match(answerMixed('協會的團體會員已正式改派，新代表本來是第二名候補理事，可以跳過第一名嗎？').summary,/不能跳過候補順位/);
+assert.match(answerMixed('新代表能直接當監事嗎？我們的團體會員更換代表已生效。').summary,/應即解任/);
+for(const q of ['商業同業公會的團體會員改派代表可直接做理事嗎？','合作社社員代表改派後原監事是否解任？','協會的團體會員代表可以委託另一位代表出席嗎？'])assert.equal(f(q),null,q);
+console.log('association delegate replacement OK');

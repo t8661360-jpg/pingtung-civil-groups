@@ -952,7 +952,30 @@ function associationElectionObjection(q){
   refs:[reg(25),reg(26),{title:'內政部：人民團體選舉、罷免與團體自治',source:'https://www.moi.gov.tw/News_Content.aspx?n=15255&s=216275'}],
   actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
 }
+function associationDelegateReplacement(q){
+ const t=String(q??'').normalize('NFKC').replace(/\s/g,'');
+ if(t.length>175||!/團體會員|法人會員/.test(t)||!/代表/.test(t)
+  ||/合作社|公會|工會|農會|漁會|公司股東|董事會|上級團體|下級團體|聯合會/.test(t))return null;
+ if(!/改派|改推|更替|更換|換人|換了|換掉|換成|變更|新代表|出缺|代表資格/.test(t)
+  ||!/理事|監事|理監事/.test(t))return null;
+ const pending=/未(?:正式)?改派|尚未.{0,9}(?:改派|生效)|還沒.{0,11}(?:改派|生效)|還沒有.{0,10}(?:改派|生效)|只(?:更換|換).{0,11}(?:負責人|理事長)|未收到.{0,7}(?:函|通知)/.test(t);
+ const effective=!pending&&/(?:改派|換人|更換|變更).{0,12}(?:已生效|已經生效|正式生效)|已(?:經)?(?:正式)?改派|已(?:經)?喪失代表資格|改派生效/.test(t);
+ const alternate=/候補|跳過|順位|遞補/.test(t);
+ const qualifiedRole=/監事/.test(t)&&!/理事|理監事/.test(t)?'監事':/理事/.test(t)&&!/監事|理監事/.test(t)?'理事':'理事或監事';
+ const same=['原代表的職務：先核對所憑的資格','若當初是以團體會員所派代表的身分當選，改派生效並使原代表喪失該資格時，依人民團體法第23條應即解任。受選任的是代表這位自然人，不是團體會員單位本身；新代表有代表資格，不表示同時取得選任職務。'];
+ const succession=['由候補依序遞補，不是由新代表接班','理事缺額由候補理事、監事缺額由候補監事依序遞補。有章程或法令所定類別比例的選舉，缺額依同類候補順位處理。遞補後若該組仍未達章程定額三分之二，依法補選足額。新代表即使在候補名單上，也不能跳過原順位；須同時具備依法遞補的資格。'];
+ const check=['僅換團體內部負責人，不一定是改派','先核對外部協會章程關於代表產生方式、團體會員的改派決定或通知、代表名冊與生效日期。章程可能規定由特定職務當然擔任，也可能需要另行推派。不能只看更換負責人或有無一封函就認定原代表資格已喪失，也不要逕行認定有別的會員身分即可保留原職。資格或生效日期有爭議時，請由原立案主管機關核對。'];
+ return {direct:true,category:'選舉與改選',title:'團體會員改派代表，不會自動移轉理事或監事席次',
+  summary:pending?'只換團體會員自己的負責人，不能直接認定原代表就卸任。要核對章程、是否已有效改派，及原代表資格是否確實喪失。':
+   alternate?'不能跳過候補順位。產生缺額後，依原理事或監事的候補名單遞補，不因是新代表就優先。':
+   effective?'若改派已生效，且原代表因而喪失當選時所憑的代表資格，原任'+qualifiedRole+'應即解任；新代表不能直接接任。':
+   '不可以自動接任。若改派使原當選者喪失代表資格，原任理事或監事應即解任，由當屆候補依序遞補。',
+  steps:pending?[check,same,succession]:[same,succession,check],
+  refs:[association(13),association(17),association(23),law('人民團體選舉罷免辦法','D0050093',17),law('人民團體選舉罷免辦法','D0050093',19),{title:'內政部函釋：改派團體會員代表不得逕接理監事席次',source:'https://www.moi.gov.tw/News_Content.aspx?n=14119&s=256716'},{title:'內政部函釋：當選者是代表本人，不是團體會員',source:'https://www.moi.gov.tw/News_Content.aspx?n=14119&s=256747'}],
+  actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
+}
 function answerMixed(q){
+ const delegateReplacement=associationDelegateReplacement(q);if(delegateReplacement)return delegateReplacement;
  const electionObjection=associationElectionObjection(q);if(electionObjection)return electionObjection;
  const creditDeposits=creditCoopDepositsAndDividends(q);if(creditDeposits)return creditDeposits;
  const votingRoll=associationVotingRollDisclosure(q);if(votingRoll)return votingRoll;
@@ -995,6 +1018,6 @@ function answerMixed(q){
     keys.includes('creditor')?'合作社清算：就任後公告與終結報告，分別計算':isCoop?'合作社清算報告與股息上限，分開看':'協會入會資格與會員除名，分開看',
   summary:keys.length===1?topics[keys[0]].line[1]:'你問了兩件事，分別如下。',steps:keys.length>1?keys.map(k=>topics[k].line):[],refs:keys.flatMap(k=>topics[k].laws)};
 }
-if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy,changedMeetingVenue,familyAssemblyProxy,dualBoardVacancies,coopBoardVacancies,creditCooperativeVacancy,schoolParentFiling,associationRegisteredAddress,inspectAndPublishBoardMinutes,temporaryMeetingNotice,withdrawalAndAssemblyRoll,memberMeetingExpenseFunding,missedSupervisorNotice,duesAndAssemblyRights,coopWithdrawalAndAssembly,designatedMeetingConvener,assemblyRepresentativeParticipation,formerMemberGiftReturn,preschoolParentFiling,associationVotingRollDisclosure,associationDirectorsQuorum,creditCoopDepositsAndDividends,associationElectionObjection};return;}
+if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy,changedMeetingVenue,familyAssemblyProxy,dualBoardVacancies,coopBoardVacancies,creditCooperativeVacancy,schoolParentFiling,associationRegisteredAddress,inspectAndPublishBoardMinutes,temporaryMeetingNotice,withdrawalAndAssemblyRoll,memberMeetingExpenseFunding,missedSupervisorNotice,duesAndAssemblyRights,coopWithdrawalAndAssembly,designatedMeetingConvener,assemblyRepresentativeParticipation,formerMemberGiftReturn,preschoolParentFiling,associationVotingRollDisclosure,associationDirectorsQuorum,creditCoopDepositsAndDividends,associationElectionObjection,associationDelegateReplacement};return;}
 root.verifiedMixedQuestionAnswer=answerMixed;
 })(typeof window!=='undefined'?window:globalThis);
