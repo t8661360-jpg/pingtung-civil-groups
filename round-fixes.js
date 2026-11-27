@@ -111,8 +111,17 @@ function normalizeQuestionR223(s){
  if(!/合作社|社員|股金|工會|社區/.test(s))s=s.replace(/(?:幾年|多久|隔多久|多少年|每隔幾年|每幾年)(?:就)?(?:要|得|需要|必須)?(?:改選|換屆|重選)(?:一次|一回|1次)?/g,'任期多久');
  return s;
 }
+/* 第225輪（根源，解散與清算）：「散夥」＝解散；「解散議決」＝解散決議（原本答成難倒小屏、選單） */
+function normalizeQuestionR225(s){
+ s=String(s||'');
+ if(!/合作社|社員|股金|工會|社區|公司|合夥/.test(s)){
+  s=s.replace(/散夥/g,'解散');
+ }
+ s=s.replace(/解散(?:案)?議決/g,'解散決議').replace(/議決解散/g,'決議解散');
+ return s;
+}
 function normalizeQuestion(q){
- return normalizeQuestionR223(normalizeQuestion223(normalizeQuestion222(normalizeQuestion221(normalizeQuestion216(normalizeQuestion215(normalizeQuestion214(normalizeQuestion212(normalizeQuestion210(normalizeQuestion209(normalizeQuestion208(normalizeQuestion207(normalizeQuestion206(normalizeQuestion202(normalizeQuestion201(normalizeQuestion200(normalizeQuestion194(normalizeQuestion193(normalizeQuestion192(normalizeQuestion191(normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(normalizeQuestionU5(normalizeQuestionU3(normalizeQuestionU4(normalizeQuestionU2(fixTyposU1(q)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
+ return normalizeQuestionR225(normalizeQuestionR223(normalizeQuestion223(normalizeQuestion222(normalizeQuestion221(normalizeQuestion216(normalizeQuestion215(normalizeQuestion214(normalizeQuestion212(normalizeQuestion210(normalizeQuestion209(normalizeQuestion208(normalizeQuestion207(normalizeQuestion206(normalizeQuestion202(normalizeQuestion201(normalizeQuestion200(normalizeQuestion194(normalizeQuestion193(normalizeQuestion192(normalizeQuestion191(normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(normalizeQuestionU5(normalizeQuestionU3(normalizeQuestionU4(normalizeQuestionU2(fixTyposU1(q))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
 }
 /* 第200輪（根源）：入會退會與會員資格換問法——
    「忘記繳／忘了繳／漏繳會費」＝沒繳會費（原本「忘記繳會費會被退會嗎」被當成退費）；
@@ -191,7 +200,7 @@ function normalizeQuestion169(s){
  if(/(脫會|脫離(本|我們|這個|那個)?(協會|社團|學會|團體|組織)|脫團)/.test(s))s=s.replace(/脫會|脫團/g,'退會').replace(/脫離(本|我們|這個|那個)?(協會|社團|學會|團體|組織)/g,'退會');
  if(/出會/.test(s)&&/(要|該|應該|需要)(寫|填|交|提|附)/.test(s)&&!/章程/.test(s))s=s.replace(/出會/g,'退會');
  if(/(過世|死亡|往生|去世|走了|逝世)/.test(s)&&/(會員|會籍)/.test(s)&&/(接手|承接|繼承|頂替|換我|讓我|我可以接|我能接|我來接|我可以當|我可不可以接)/.test(s)&&!/(理事|監事|理事長|總幹事)/.test(s))s='會員過世子女可以繼承會籍嗎';
- if(/(會員|協會|社團)(人數)?(不夠|不足|太少|很少)(人數)?/.test(s)&&/(廢止|解散|撤銷|立案被|被廢|被解)/.test(s)&&!/(開會|出席|投票|選舉|籌組|發起)/.test(s))s='會員太少會被廢止嗎';
+ if(/(會員|協會|社團)(人數)?(不夠|不足|太少|很少)(人數)?/.test(s)&&/(廢止|解散|撤銷|立案被|被廢|被解)/.test(s)&&!/(開會|出席|投票|選舉|籌組|發起)/.test(s)&&(/被/.test(s)||!/(想|自己|可以|能不能|可不可以|打算|準備).{0,4}(解散|結束|收掉|關掉)/.test(s)))s='會員太少會被廢止嗎';
  if(/(協會|社團|本會|我們)(只|才)?(剩|剩下)[零一二三四五六七八九十百\d]+(個|位|人)?會員/.test(s)&&/(怎麼辦|怎麼樣|會怎樣|如何)/.test(s)&&!/(開會|出席|投票|選舉)/.test(s))s=s.replace(/(協會|社團|本會|我們)(只|才)?(剩|剩下)([零一二三四五六七八九十百\d]+)(個|位|人)?會員.*$/,'會員只剩$4個人協會還能維持嗎');
  if(/會員(只|才)?(剩|剩下)[零一二三四五六七八九十百\d]+(個|人|位)(了|而已)?/.test(s)&&/(怎麼辦|怎麼樣|會怎樣|如何)/.test(s)&&!/(開會|出席|投票|選舉)/.test(s))s=s.replace(/(怎麼辦|怎麼樣|會怎樣|如何)/,'協會還能維持嗎');
  return s;
@@ -9757,7 +9766,7 @@ function patrol132(t){
  if(/清算人/.test(t)&&/(幾個|幾人|幾位|人數|一個人|一位|兩個|二人|多少人|可以多人|可不可以多人|要不要多人)/.test(t))
   return mk('清算人要幾個人：法規沒有訂人數','人民團體會務輔導辦法第27條只規定誰來當清算人：沒有辦法人登記的協會，依章程或會員（會員代表）大會決議；章程沒規定或大會開不成時，由理事長或章程所定代理人擔任；還是產生不了，由縣府選任。條文沒有訂清算人的人數，本站查不到明文。\n人數請在解散大會時一併決議，並先洽承辦人員確認。',[G(27)]);
  if(/(解散|歇業|結束|收掉)/.test(t)&&/(員工|職員|工作人員|總幹事|幹事|助理|會計|聘僱的人)/.test(t)&&/(怎麼辦|怎麼處理|怎麼安排|資遣|遣散|終止|要不要|預告|補償|工作)/.test(t)&&!/(理事|監事|志工)/.test(t))
-  return mk('協會解散後員工怎麼辦：員工與協會的勞動契約要依法終止，若適用勞基法要預告並給資遣費','協會解散前，要先處理和員工的契約。若員工與協會是勞動契約、且適用勞動基準法，雇主歇業時可以預告終止契約（勞動基準法第11條第1款），預告期間依年資：滿3個月未滿1年10日前、滿1年未滿3年20日前、3年以上30日前（第16條）；並依第17條發給資遣費，在終止契約30日內發給。\n協會的員工是否適用勞動基準法，本站查不到明文，請先洽縣府或勞工主管機關確認。解散決議本身不會自動終止契約，薪資、資遣費和勞保、健保退保的細節，請向承辦人員或勞工主管機關確認。',[L(11),L(16),L(17)]);
+  return mk('協會解散後員工怎麼辦：員工與協會的勞動契約要依法終止，若適用勞基法要預告並給資遣費','協會解散前，要先處理和員工的契約。若員工與協會是勞動契約、且適用勞動基準法，雇主歇業時可以預告終止契約（勞動基準法第11條第1款），預告期間依年資：滿3個月未滿1年10日前、滿1年未滿3年20日前、3年以上30日前（第16條）；資遣費要看適用哪一種退休金制度：適用勞工退休金條例新制的勞工，每滿1年發給二分之一個月平均工資，未滿1年按比例計給，最高6個月平均工資，終止契約後30日內發給（勞工退休金條例第12條）；選擇繼續適用勞基法舊制的勞工，每滿1年發給1個月平均工資，未滿1年按比例計給，未滿1個月以1個月計，同樣30日內發給（勞基法第17條）。\n協會的員工是否適用勞動基準法，本站查不到明文，請先洽縣府或勞工主管機關確認。解散決議本身不會自動終止契約，薪資、資遣費和勞保、健保退保的細節，請向承辦人員或勞工主管機關確認。',[L(11),L(16),L(17),{title:'勞工退休金條例第12條',source:LAW+'N0030020'}]);
  if(/解散/.test(t)&&/章程/.test(t)&&/(沒寫|沒有寫|沒訂|沒有訂|沒規定|沒有規定|沒有.{0,4}條款|沒條款|沒列|沒有列|漏寫|沒提)/.test(t)&&!/(剩餘財產|賸餘財產|財產|歸誰|歸屬)/.test(t))
   return mk('章程沒寫解散的規定也可以解散：直接依人民團體法，經會員大會出席三分之二以上同意','可以。人民團體法第12條列的章程應載明事項裡沒有「解散」這一項，解散是依法律辦理：會員（會員代表）大會決議解散，是法定的解散原因之一（人民團體法第59條第1項第5款），要有會員過半數出席、出席人數三分之二以上同意（第27條第5款）。\n章程若另有解散的程序，要一併遵守；沒寫的話，就照法律的規定辦。',[P(12),P(27),P(59)]);
  return null;
@@ -12239,9 +12248,32 @@ function patrolR224b(t){
  summary:'要看是不是「犯罪經判決確定，而且正在執行中」。符合的話，依'+L+'第17條不得擔任會員代表，喪失代表資格，原派的會員要另派代表補充；理事、監事喪失會員代表資格，依第25條第1款應即解任，缺額由候補理事、候補監事依次遞補。\n\n如果只是被起訴、還沒判決確定，或判決確定但不在執行中（例如已執行完畢），條文沒有這項規定，請洽承辦人員確認。另外褫奪公權尚未復權、受監護宣告尚未撤銷、受破產宣告尚未復權，也一樣不得為會員代表（第17條）。\n\n個案怎麼適用，請洽縣府社會處承辦人員，縣府總機 08-7320415。',
  statutes:[A(17),A(25)],notes:[],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
 }
+
+/* 第225輪（解散與清算換問法）：「人太少想解散可以嗎」原答選單；「清算人的責任／要做什麼」原答成「誰來當清算人」。
+   依據（皆已對 statutes.json.gz 原文核對）：人民團體法§27、§59；人民團體會務輔導辦法§27；民法§37、§40、§41、§42。 */
+function patrolR225(t){
+ if(!/解散|清算/.test(t))return null;
+ if(/(合作社|社員|公會|工會|政黨|基金會|寺廟|宮廟|公司|社區)/.test(t))return null;
+ const act=[{label:'看解散流程',view:'task',sub:'dissolve'},{label:'聯絡承辦',view:'contact',sub:''}];
+ const call='\n\n個案怎麼適用，請洽縣府社會處承辦人員，縣府總機 08-7320415。';
+ const PT=n=>({title:'人民團體法第'+n+'條',source:LAW+'D0050091'});
+ const GU=n=>({title:'人民團體會務輔導辦法第'+n+'條',source:LAW+'D0020094'});
+ const CV=n=>({title:'民法第'+n+'條',source:LAW+'B0000001'});
+ const mk=(title,summary,statutes)=>({direct:true,category:'人民團體會務說明',title,summary:summary+call,statutes,notes:[],actions:act});
+ if(/清算人/.test(t)&&/(責任|職務|職責|任務|工作|做什麼|要做哪些|負責什麼|負責哪些|要辦什麼|要辦哪些|要處理什麼|要處理哪些)/.test(t)&&!/(誰|選|報酬|薪|領|找不到|報備|產生)/.test(t))
+  return mk('清算人要做什麼：了結現務、收取債權並還債、把剩餘財產交給應得的人',
+  '人民團體會務輔導辦法第27條規定，沒有辦法人登記的協會，清算也要準用民法清算的規定辦理。民法規定清算人的職務有三項（民法第40條第1項）：\n1. 了結現務；\n2. 收取債權，清償債務；\n3. 移交剩餘財產給應得的人。\n清算到終結為止，在清算必要的範圍內，協會視為還存在（民法第40條第2項）。\n\n有辦法人登記的協會，清算屬於法院監督（民法第42條第1項）。清算人違反法院監督命令或妨礙檢查，可處五千元以下罰鍰（民法第43條）。\n清算人個人要負什麼責任，本站查不到更多明文，請洽承辦人員。',
+  [GU(27),CV(40),CV(42),CV(43)]);
+ if(/(人太少|人很少|人不多|人數太少|人數很少|人數不多|會員太少|會員很少|會員不多|會員變少|會員越來越少|人越來越少|成員太少|成員不多)/.test(t)&&/想|要|打算|準備|可以|能不能|可不可以|行不行/.test(t)&&/解散|結束|收掉|關掉/.test(t)&&!/(被解散|會被|廢止|撤銷|限期|立案|成立|發起)/.test(t))
+  return mk('會員人數太少也可以自己決定解散：要經會員大會決議',
+  '可以。人民團體法第59條第1項第5款規定，經會員（會員代表）大會決議解散的，團體就應予解散；會員人數少不是障礙，但程序一樣要開會員大會。\n決議的門檻是：會員（會員代表）過半數出席，出席人數三分之二以上同意（人民團體法第27條第5款）。\n如果會員少到連大會都湊不到法定出席人數，可以先請縣府承辦人員說明目前狀況，看怎麼辦理。',
+  [PT(27),PT(59)]);
+ return null;
+}
 function verifiedRoundAnswer(q,ctx){
  let x=null;
- try{x=patrolR224b(norm(q))}catch(e){x=null}
+ try{x=patrolR225(norm(q))}catch(e){x=null}
+ if(!x){try{x=patrolR224b(norm(q))}catch(e){x=null}}
  if(!x){try{x=patrolR224(norm(q))}catch(e){x=null}}
  if(!x){try{x=patrolR223(norm(q))}catch(e){x=null}}
  if(!x){try{x=parentAssoc223(norm(q))}catch(e){x=null}}
