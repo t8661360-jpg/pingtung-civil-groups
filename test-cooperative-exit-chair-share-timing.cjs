@@ -1,0 +1,11 @@
+const assert=require('node:assert/strict');
+const {route}=require('./cooperative-exit-chair-share-timing.js');
+const a=route('合作社理事會主席退社又有股金未領，是不是先等領股金才算出社？');
+assert.match(a.summary,/不用等領股金/);assert.equal(a.choices.length,2);
+assert.match(JSON.stringify(a.steps),/確有出缺/);
+assert.match(route(a.choices[0].question).summary,/不能先當成已退社/);
+assert.match(route(a.choices[1].question).summary,/不用等股金到帳才出社/);
+const r=route('合作社社員退社已生效，但是還沒領到股金，算出社了嗎？');
+assert.match(r.summary,/不用等股金到帳才出社/);
+assert.equal(r.steps.length,2);
+for(const q of ['信用合作社退社還沒領股金，要等到帳才算出社嗎？','協會會員退會後股金未領，才生效嗎？','合作社退社後怎麼計算股金？','合作社主席辭職沒有退社，股金一定要退嗎？'])assert.equal(route(q),null,q);
