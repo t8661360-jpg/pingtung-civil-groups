@@ -832,7 +832,7 @@ async function saveChunked(coll,rows,metaExtra){
 async function loadAll(force){
   if(loadPromise&&!force)return loadPromise;
   loadPromise=(async()=>{
-    const base=document.baseURI.replace(/[^/]*$/,"")+"data/";const DV="?v=20261126-250";
+    const base=document.baseURI.replace(/[^/]*$/,"")+"data/";const DV="?v=20261127-251";
     const jf=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);return r.json()};
     const jgz=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);const b=new Uint8Array(await r.arrayBuffer());if(b[0]!==31||b[1]!==139)return JSON.parse(new TextDecoder().decode(b));if(typeof DecompressionStream==="undefined")throw new Error("gzip unsupported");const text=await new Response(new Blob([b]).stream().pipeThrough(new DecompressionStream("gzip"))).text();return JSON.parse(text)};
     const [d,s,k,f]=await Promise.allSettled([jf(base+"directory.json"+DV),jf(base+"staff.json"+DV),jgz(base+"knowledge.json.gz"+DV).catch(()=>jf(base+"knowledge.json"+DV)),jf(base+"forms-catalog.json?v=20261105-5")]);
@@ -936,7 +936,7 @@ function specificName(q){
     const suf=cand.match(new RegExp("("+SUFFIX+")$"));const pre=suf?cand.slice(0,-suf[1].length):cand;
     if(!pre&&/^屏東縣/.test(full)&&suf&&!/^(協會|學會|公會|合作社|社區發展協會)$/.test(suf[1]))return full;
     if(!pre||pre.length<2||GENERIC_PREFIX.test(pre))continue;
-    if(/(可以|能不能|可不可以|能否|是否|要不要|怎麼|如何|加入|參加|申請|檢舉|投訴|陳情|舉報|魅力社區|要問|找誰|電話是|多少錢|有什麼|差在哪|不一樣|差別|有沒有立案|可以有|幾個|成立|籌組|跟|要查|一個村|一個里|是協會|算不算|算人民團體|一個|哪個|某個|朋友|我們|每年|第一步|兩個|合併|負責|欠錢|債務|聯絡方式|一個人|換地址|別的鄉鎮|幾個協會|未滿|未成年|\d+歲|十八歲)/.test(pre))continue;
+    if(/(可以|能不能|可不可以|能否|是否|要不要|怎麼|如何|加入|參加|申請|檢舉|投訴|陳情|舉報|魅力社區|要問|找誰|電話是|多少錢|有什麼|差在哪|不一樣|差別|有沒有立案|可以有|幾個|成立|籌組|跟|要查|一個村|一個里|是協會|算不算|算人民團體|一個|哪個|某個|朋友|我們|每年|第一步|兩個|合併|改制|升格|重算|屆次|負責|欠錢|債務|聯絡方式|一個人|換地址|別的鄉鎮|幾個協會|未滿|未成年|\d+歲|十八歲)/.test(pre))continue;
     if(/^(志工|義工)[幫可能要算是需有會被做]/.test(pre))continue;
     if(/^(社區發展|社會|職業|人民)/.test(cand)&&pre.length<=4)continue;
     const preN=norm(pre);const town=TOWNS.find(t=>preN.startsWith(norm(t))||(norm(t).slice(0,-1)!=="屏東"&&preN.startsWith(norm(t).slice(0,-1))));
@@ -1519,6 +1519,8 @@ async function ask(q){
   q=String(q||"").trim();if(!q||busy)return;
   if(!financeMeetingPlanner&&typeof window.createFinanceMeetingPlanner==="function")financeMeetingPlanner=window.createFinanceMeetingPlanner({board,showAnswer:renderAnswer});
   if(financeMeetingPlanner&&financeMeetingPlanner(q))return;
+  const inKind=typeof window.verifiedInKindDonationAnswer==="function"?window.verifiedInKindDonationAnswer(q):null;
+  if(inKind){renderAnswer(q,inKind);return;}
   const verifiedMixed=typeof window.verifiedMixedQuestionAnswer==="function"?window.verifiedMixedQuestionAnswer(q):null;
   if(verifiedMixed){renderAnswer(q,verifiedMixed);return;}
   const shownQ=q;const prevQ=convo.length?convo[convo.length-1].q:"";
@@ -1878,8 +1880,8 @@ touch();
   route();
 })();
 </script>
-<script src="feedback-collector.js?v=20261126-250"></script>
-<script src="round-fixes.js?v=20261126-250"></script>
+<script src="feedback-collector.js?v=20261127-251"></script>
+<script src="round-fixes.js?v=20261127-251"></script>
 <script src="ordinary-association-notice.js?v=1"></script>
 <script src="member-expulsion-phrasing.js?v=1"></script>
 <script src="founding-meeting-notice.js?v=1"></script>
@@ -1905,13 +1907,14 @@ touch();
 <script src="director-absence-clarification.js?v=1"></script>
 <script src="association-finance-meeting-month.js?v=3"></script>
 <script src="verified-mixed-questions.js?v=5"></script>
-<script src="answer-arbiter.js?v=20261126-250"></script>
-<script src="question-understanding.js?v=20261126-250"></script>
-<script src="counter-upgrade.js?v=20261126-250"></script>
-<script src="keyword-menu.js?v=20261126-250a"></script>
-<script src="ai-assist.js?v=20261126-250"></script>
-<script src="answer-guard.js?v=20261126-250b"></script>
-<script src="festive.js?v=20261126-250" defer></script>
+<script src="in-kind-donation-distinction.js?v=1"></script>
+<script src="answer-arbiter.js?v=20261127-251"></script>
+<script src="question-understanding.js?v=20261127-251"></script>
+<script src="counter-upgrade.js?v=20261127-251"></script>
+<script src="keyword-menu.js?v=20261127-251a"></script>
+<script src="ai-assist.js?v=20261127-251"></script>
+<script src="answer-guard.js?v=20261127-251b"></script>
+<script src="festive.js?v=20261127-251" defer></script>
 </body>
 </html>
 

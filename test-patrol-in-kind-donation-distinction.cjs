@@ -1,0 +1,16 @@
+const assert=require('node:assert/strict');
+const {answerDonation:answer}=require('./in-kind-donation-distinction');
+const single='協會只收民眾主動送來的物資，這算公開勸募嗎？';
+const mixed='協會把民眾主動送來的物資全部免費轉贈，年度所得稅一定要列收入嗎？需要公益勸募許可嗎？';
+const first=answer(single), second=answer(mixed);
+const body=a=>a.steps.map(x=>x.join('：')).join('\n');
+assert.match(body(first),/沒有對外發起募集，不是第7條所指須先申請許可/);
+assert.match(body(first),/開收據、定期公開徵信、依指定用途使用.*五個月內/);
+assert.doesNotMatch(body(first),/所得稅法/);
+assert.match(body(second),/第11條第4項.*未轉售.*創設目的.*登記簿及證明/);
+assert.match(body(second),/免費轉贈本身並不代表全部條件/);
+assert.match(body(second),/個人.*簽章.*機關團體.*收據/);
+assert.ok(second.refs.some(x=>x.title.includes('09900359720')));
+assert.match(body(answer('協會收到民眾主動捐贈的物資後出售，年度所得稅可以免列收入嗎？')),/不能用這道財政部函令/);
+for(const q of ['協會在網路上公開募集物資是否要申請許可？','協會已經發文募集物資，民眾主動捐贈，要公益勸募許可嗎？','有公益勸募許可的協會在勸募活動期間收到物資，怎麼開收據？','合作社受贈物資要報稅嗎？'])assert.equal(answer(q),null,q);
+console.log('in-kind donation distinction OK');
