@@ -1562,6 +1562,10 @@ let financeMeetingPlanner;
 async function ask(q){
   q=String(q||"").trim();if(!q||busy)return;
   if(!financeMeetingPlanner&&typeof window.createFinanceMeetingPlanner==="function")financeMeetingPlanner=window.createFinanceMeetingPlanner({board,showAnswer:renderAnswer});
+  const expulsionDisclosure=typeof window.verifiedAssociationExpulsionDisclosure==="function"?window.verifiedAssociationExpulsionDisclosure(q):null;
+  if(expulsionDisclosure){financeMeetingPlanner=null;renderAnswer(q,expulsionDisclosure);return;}
+  const chairDateCharter=typeof window.verifiedChairDateCharter==="function"?window.verifiedChairDateCharter(q):null;
+  if(chairDateCharter){financeMeetingPlanner=null;renderAnswer(q,chairDateCharter);return;}
   const recordsAndTerm=typeof window.verifiedAssociationRecordsAndTerm==="function"?window.verifiedAssociationRecordsAndTerm(q):null;
   if(recordsAndTerm){financeMeetingPlanner=null;renderAnswer(q,recordsAndTerm);return;}
   const coopQuorumVolunteer=typeof window.verifiedAssociationCoopQuorumVolunteerGrant==="function"?window.verifiedAssociationCoopQuorumVolunteerGrant(q):null;
@@ -2146,7 +2150,8 @@ touch();
 <script src="association-cooperative-conversion.js?v=1"></script>
 <script src="board-vacancy-count.js?v=1"></script>
 <script src="payroll-date-guidance.js?v=1"></script>
-<script src="charter-meeting-date.js?v=20261127-shorthand"></script>
+<script src="charter-meeting-date.js?v=20261127-date-scope"></script>
+<script src="association-expulsion-disclosure.js?v=1"></script>
 <script src="association-land-agent.js?v=1"></script>
 <script src="company-association-membership.js?v=1"></script>
 <script src="mail-election-results.js?v=1"></script>
