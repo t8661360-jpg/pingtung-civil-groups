@@ -19,13 +19,40 @@ const base={direct:true,category:'一般協會會議｜除名與議程',question
 const unknown=s=>/不確定|不知道|不清楚|分不清|看不出|忘了/.test(s);
 function expulsionPart(s){
  if(!/協會|社會團體|人民團體/.test(s)||!/除名|開除會員/.test(s)||/公會|合作社|工會|不是除名|非除名|罷免(?:理事|監事|理事長)/.test(s))return null;
- if(!/臨時(?:會員|代表)?大會|臨時動議|議程|理事會.{0,16}(?:除名|開除會員)|(?:除名|開除會員).{0,10}理事會/.test(s))return null;
+ if(!/臨時(?:會員|代表)?大會|臨時動議|臨時(?:增加|加上|加|塞|提出?).{0,12}(?:案|議題|表決|這個|這件|這題)|議程|理事會.{0,16}(?:除名|開除會員)|(?:除名|開除會員).{0,10}理事會/.test(s))return null;
  const board=/理事會.{0,16}(?:直接|表決|決定|可以|能不能).{0,14}(?:除名|開除會員)|(?:除名|開除會員).{0,15}只經理事會/.test(s)&&!/臨時(?:會員|代表)?大會|臨時動議/.test(s);
- const notListed=/沒(?:有)?(?:寫|列)|未(?:列|列入|寫|通知)|現場.{0,10}(?:臨時|加案|才提|才說)|臨時動議/.test(s);
+ const floorWording=/臨時(?:增加|加上|加|塞|提出?).{0,12}(?:案|議題|表決|這個|這件|這題)|現場.{0,10}(?:臨時|加案|才提|才說)/.test(s);
+ const notListed=floorWording||/沒(?:有)?(?:寫|列)|未(?:列|列入|寫|通知)|現場.{0,10}(?:臨時|加案|才提|才說)|臨時動議/.test(s);
  const listed=!notListed&&/已(?:經)?(?:列|寫).{0,8}(?:議程|除名|通知)|通知.{0,8}已經列|議程.{0,6}有寫/.test(s);
  const unsure=unknown(s)&&/通知|議程/.test(s)&&!board;
  const summary=board?'不能由理事會直接除名。理事會可查明事由與提案，除名須由會員（代表）大會依法決議。':unsure?'先查看通知和議程是否列有除名案；不清楚前不要直接認定現場能表決。會員除名仍屬大會職權。':listed?'若通知已列除名案，依法召集的臨時會員大會可以依章程及法定門檻審議，不是臨時會議就一律不能除名。':notListed?'通知未列、現場才提除名，不能一概說可以、有效或無效。先核對章程及通知程序；較穩妥是正式列議程後依法通知。':'依法召集的臨時會員大會與現場臨時動議不是一回事。若已列議程且程序正確，仍須符合重大事由及法定表決門檻。';
  return {summary,steps:board?[vote]:[vote,notice,...(!listed?[floor]:[])],unsure,board};
+}
+const nums='[0-9一二三四五六七八九十百零〇兩]{1,6}';
+function number(s){
+ if(!s)return 0;
+ if(/^\d+$/.test(s))return Number(s);
+ const digits='零一二三四五六七八九';
+ let total=0, curr=0;
+ for(const c of s){
+   if(c==='百'||c==='十'){total+=(curr||1)*(c==='百'?100:10);curr=0;}
+   else {const d=digits.indexOf(c==='兩'?'二':c==='〇'?'零':c);if(d<0)return 0;curr=curr*10+d;}
+ }
+ return total+curr;
+}
+function voteNumbers(t){
+ if(!/幾(?:個|人|票)|多少(?:個|人|票)?|人數.{0,4}怎麼算|同意.{0,4}門檻/.test(t))return null;
+ const phrase=new RegExp('('+nums+')(?:位|名|個人|人|個會員)');
+ const p=n=>Number.isInteger(n)&&n>=1&&n<=999;
+ const attendedRaw=t.match(new RegExp('(?:實際出席|實到|到場|(?<!應)出席(?:有|人數為|人數是)?|簽到)(?:了|有)?('+nums+')(?:位|名|個人|人|個會員)'))?.[1]??t.match(new RegExp('('+nums+')(?:位|名|個人|人|個會員)(?:實際)?(?:出席|到場)'))?.[1];
+ const totalRaw=t.match(new RegExp('(?:應出席(?:會員)?|全體會員(?:總共)?|會員總數(?:為|是)?|有表決權的會員共|全體|全會共|全會總共|會員一共|會員總共)('+nums+')(?:位|名|個人|人|個會員)'))?.[1];
+ const attended=number(attendedRaw), total=number(totalRaw), generic=number(t.match(phrase)?.[1]);
+ if(p(attended)&&p(total)&&attended>total)return {line:'出席人數不能大於應出席總數，先核對名冊再算。'};
+ if(p(attended)&&p(total)&&attended<=total/2)return {line:'應出席 '+total+' 人而實到 '+attended+' 人，沒有過半，不能直接表決除名。'};
+ if(p(attended))return {line:'若以實際出席 '+attended+' 人計算，需至少 '+Math.ceil(attended*2/3)+' 票同意。'+(p(total)?'':'還要核對出席是否超過全體應出席者半數。')};
+ if(p(total))return {line:'應出席總數 '+total+' 人，至少 '+(Math.floor(total/2)+1)+' 人出席才成會；同意票要依實際出席人數另算，不能以總數直接算。'};
+ if(p(generic))return {line:'若 '+generic+' 人是實到，至少 '+Math.ceil(generic*2/3)+' 票同意；若是全體應出席，先要 '+(Math.floor(generic/2)+1)+' 人到場，還得看實到人數才能算同意票。',generic};
+ return null;
 }
 function collectionPart(s){
  return /公司|行號/.test(s)&&/同業公會|商業公會/.test(s)&&/名義|代收|要我.{0,6}匯|匯到公司|匯到.{0,6}公司/.test(s)&&/收款|繳費|款項|匯|費用|會費|報名費/.test(s);
@@ -44,10 +71,12 @@ function agendaCollection(q){
  }
  if(!x)return null;
  const mixed=c>=0&&e!==c;
+ const calc=!mixed&&!x.board?voteNumbers(t):null;
  const choicePrefix=mixed?'股份有限公司以同業公會名義收款要怎麼查？另外':'';
  const choices=[{label:'通知已列除名案',question:choicePrefix+'一般協會臨時會員大會，通知已列除名議程，能決議嗎？'},{label:'通知未列，現場才提',question:choicePrefix+'一般協會臨時會員大會通知未列除名，現場能加案或表決嗎？'}];
  const collectSummary='公司是公會會員，不等於有權代收；先獨立核對委託、受款戶名與收據。';
- return {...base,title:mixed?'公會代收款與協會除名，是兩個不同問題':x.board?'理事會不能直接取代會員大會除名':'先分清臨時會員大會與現場臨時提除名',summary:mixed?(c<e?collectSummary+' '+x.summary:x.summary+' '+collectSummary):x.summary,steps:mixed?(c<e?[check,effect,...x.steps]:[...x.steps,check,effect]):x.steps,refs:mixed?[...collRefs,...exRefs]:exRefs,...(x.unsure?{choiceHeading:'開會通知是否已列除名？',choices}:{})};
+ const numericChoices=calc?.generic?[{label:'這是實際出席人數',question:'一般協會會員大會實際出席'+calc.generic+'人，要幾票同意除名？可現場臨時加這個議題嗎？'},{label:'這是全體應出席數',question:'一般協會會員大會全體會員'+calc.generic+'人，要幾票同意除名？可現場臨時加這個議題嗎？'}]:null;
+ return {...base,title:mixed?'公會代收款與協會除名，是兩個不同問題':x.board?'理事會不能直接取代會員大會除名':calc?'會員除名的同意票和臨時提案分開算':'先分清臨時會員大會與現場臨時提除名',summary:mixed?(c<e?collectSummary+' '+x.summary:x.summary+' '+collectSummary):calc?calc.line+' '+x.summary:x.summary,steps:mixed?(c<e?[check,effect,...x.steps]:[...x.steps,check,effect]):x.steps,refs:mixed?[...collRefs,...exRefs]:exRefs,...(numericChoices?{choiceHeading:'您說的人數是指哪一種？',choices:numericChoices}:x.unsure?{choiceHeading:'開會通知是否已列除名？',choices}:{})};
 }
 if(typeof module!=='undefined'&&module.exports){module.exports={agendaCollection};return;}
 root.verifiedAssociationAgendaGuildCollection=agendaCollection;
