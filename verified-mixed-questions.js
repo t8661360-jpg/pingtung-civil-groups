@@ -823,7 +823,42 @@ function preschoolParentFiling(q){
   steps:[...(!attached?[stand]:[]),...(!independent?[joined]:[]),...(!attached&&!founding&&!elsewhere?[county]:[]),...(!attached&&!founding?[docs]:[])],
   refs:[rule,...(!elsewhere&&!attached&&!founding?[education]:[])]};
 }
+function associationVotingRollDisclosure(q){
+ const t=String(q??'').normalize('NFKC').replace(/\s/g,'');
+ if(t.length>170||!/協會|社會團體/.test(t)||/合作社|公會|工會|農會|漁會|基金會|公司|管委會|股東|罷免|欠費/.test(t))return null;
+ const roll=/投票(?:人|者)?(?:名冊|名單)|選舉人(?:名冊|名單)|選舉(?:名冊|名單)|(?:改選|理監事).{0,9}(?:名冊|名單)/.test(t);
+ if(!roll)return null;
+ const postal=/通訊(?:選舉|投票|表決)|郵寄|寄(?:送|紙本|出)?(?:選票|投票單)|寄.{0,8}表決/.test(t);
+ const visible=/放上網|公開|公布|公告|張貼|貼.{0,5}(?:網站|官網|網路|臉書|社群)|哪.{0,4}(?:看|閱覽)|怎麼看|查閱|閱覽/.test(t);
+ if(!postal&&!visible)return null;
+ const results=/選出.{0,5}結果|當選(?:名單|結果)|選舉結果|改選結果/.test(t);
+ const resultOnly=results&&/不上網|不公開|不放.{0,8}名冊|不公布|只(?:公布|公告|貼)/.test(t)&&!postal;
+ const internal=!postal&&!resultOnly&&/會內|協會內|限定會員|只給會員|給會員閱覽/.test(t)&&!/上網|公開|官網|臉書/.test(t);
+ const decision=/修章|章程(?:變更|修改)|議案|決算|預算|提案|解散/.test(t);
+ const election=/理監事(?:通訊)?(?:選舉|改選|補選)|理事.{0,5}監事(?:通訊)?(?:選舉|改選|補選)|選(?:理監事|理事|監事)|(?:理監事|理事|監事).{0,8}(?:選舉|改選|補選)/.test(t);
+ const elect=n=>law('人民團體選舉罷免辦法','D0050093',n);
+ const privacy=[law('個人資料保護法','I0050021',5),law('個人資料保護法','I0050021',20)];
+ const roster=['選舉人名冊供會員閱覽，不是公告給所有人','選罷辦法第5條所定的名冊包含姓名、聯絡電話、地址及必要註記，供會員核對資格。§23的通訊選舉名冊也依這些要求處理。沒有確認個資利用的合法依據前，不要把整份名冊貼到公開網站或社群。出席或選務的公開說明可用無法辨識個人的統計摘要。'];
+ const regular=['普通選舉或大會的名冊','一般理事、監事或會員代表的選舉，理事會原則上在召開會議十五日前審定選舉人名冊，提供會員閱覽；大會的應出席名冊另依會務輔導辦法第10條辦理。請向協會確認受控的查閱方式。'];
+ const mailing=['章程有規定才可採理監事紙本通訊選舉','開票日四十五日前，由理事會召開會議審定資格、造冊供會員閱覽；開票日三十日前依名冊印製並寄送紙本通訊選舉票。團體還須訂通訊選舉辦法，經理事會議通過、報主管機關備查。章程未訂明則不能直接用這項程序。'];
+ const votes=['會員大會的一般議案不是理監事選舉','第23條不能用來寄選票取代大會的一般議案表決。例如修章，應依法召開會員（代表）大會，並經出席人數三分之二以上同意。章程依法訂明的視訊會議是另個概念，不等同通訊投票。'];
+ const announce=['選舉結果和選舉人名冊是兩件事','按選務規則宣布理監事選舉結果，不須把全體選舉人名冊一起放上網。依第25條，投票截止後須當場開票並宣布結果；另作公開公告時，仍應核對公告目的、依據與必要欄位，不附個人電話、住址或其他非必要資料。'];
+ const split=postal&&!decision&&!election;
+ const choices=[{label:'選理事、監事',question:'協會想採理監事紙本通訊選舉，投票名冊能公開上網嗎？'},{label:'表決一般議案',question:'協會想用通訊投票表決大會一般議案，投票名冊能公開上網嗎？'}];
+ return {direct:true,category:'人民團體會務說明',
+  title:resultOnly?'可分開處理選舉結果與選舉人名冊':'選舉名冊不能直接公開，通訊投票要先分用途',
+  summary:resultOnly?'宣布選舉結果，不等於公開全體選舉人名冊，也不必把兩者綁在一起。':
+   internal?'會員可依規定向協會查閱審定的選舉人名冊；這和對外公開不同。':
+   decision&&postal?'不能用理監事通訊選舉的規定代替大會議案表決；名冊供會員閱覽，不可當作公開名單。':
+   !postal?'選舉人名冊供會員查閱，不等於能對外公開；未確認合法依據前，不要把含個人資料的名冊放到公開網站。':
+   '提供會員閱覽，不等於能公開完整名冊。要辦通訊投票，得先分清是選理事、監事，還是表決一般議案。',
+  ...(split?{choiceHeading:'這次通訊投票要辦什麼？',choices}:{}),
+  steps:[...(resultOnly?[announce]:[]),roster,...(postal&&(election||split)?[mailing]:[]),...(postal&&(decision||split)?[votes]:[]),...(!postal&&!resultOnly?[regular]:[])],
+  refs:[elect(5),...privacy,...(resultOnly?[elect(25)]:[]),...(postal?[elect(23)]:[]),...(postal&&(decision||split)?[association(25),association(27)]:[]),...(!postal&&!resultOnly?[law('人民團體會務輔導辦法','D0020094',10)]:[])],
+  actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
+}
 function answerMixed(q){
+ const votingRoll=associationVotingRollDisclosure(q);if(votingRoll)return votingRoll;
  const giftReturn=formerMemberGiftReturn(q);if(giftReturn)return giftReturn;
  const coopWithdrawal=coopWithdrawalAndAssembly(q);if(coopWithdrawal)return coopWithdrawal;
  const duesRights=duesAndAssemblyRights(q);if(duesRights)return duesRights;
@@ -862,6 +897,6 @@ function answerMixed(q){
     keys.includes('creditor')?'合作社清算：就任後公告與終結報告，分別計算':isCoop?'合作社清算報告與股息上限，分開看':'協會入會資格與會員除名，分開看',
   summary:keys.length===1?topics[keys[0]].line[1]:'你問了兩件事，分別如下。',steps:keys.length>1?keys.map(k=>topics[k].line):[],refs:keys.flatMap(k=>topics[k].laws)};
 }
-if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy,changedMeetingVenue,familyAssemblyProxy,dualBoardVacancies,coopBoardVacancies,creditCooperativeVacancy,schoolParentFiling,associationRegisteredAddress,inspectAndPublishBoardMinutes,temporaryMeetingNotice,withdrawalAndAssemblyRoll,memberMeetingExpenseFunding,missedSupervisorNotice,duesAndAssemblyRights,coopWithdrawalAndAssembly,designatedMeetingConvener,assemblyRepresentativeParticipation,formerMemberGiftReturn,preschoolParentFiling};return;}
+if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy,changedMeetingVenue,familyAssemblyProxy,dualBoardVacancies,coopBoardVacancies,creditCooperativeVacancy,schoolParentFiling,associationRegisteredAddress,inspectAndPublishBoardMinutes,temporaryMeetingNotice,withdrawalAndAssemblyRoll,memberMeetingExpenseFunding,missedSupervisorNotice,duesAndAssemblyRights,coopWithdrawalAndAssembly,designatedMeetingConvener,assemblyRepresentativeParticipation,formerMemberGiftReturn,preschoolParentFiling,associationVotingRollDisclosure};return;}
 root.verifiedMixedQuestionAnswer=answerMixed;
 })(typeof window!=='undefined'?window:globalThis);

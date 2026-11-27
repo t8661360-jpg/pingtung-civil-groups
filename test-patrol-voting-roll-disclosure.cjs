@@ -1,0 +1,12 @@
+const assert=require('node:assert/strict');
+const {answerMixed,associationVotingRollDisclosure:f}=require('./verified-mixed-questions');
+const generic=answerMixed('社區發展協會想把投票名冊放上網，會員大會要用通訊投票可以嗎？');
+assert.deepEqual(generic.choices.map(x=>x.label),['選理事、監事','表決一般議案']);
+assert.match(generic.summary,/不等於能公開完整名冊/);
+assert.match(answerMixed(generic.choices[0].question).steps.flat().join(' '),/開票日四十五日前.*開票日三十日前.*紙本通訊選舉票/);
+assert.match(answerMixed(generic.choices[1].question).summary,/不能用理監事通訊選舉/);
+assert.match(answerMixed('我們協會想用寄選票來表決修章，可以順便把投票名冊公布嗎？').steps.flat().join(' '),/三分之二/);
+assert.match(answerMixed('協會只公布理監事選出的結果，不上網放選舉人名冊，可以嗎？').summary,/不必把兩者綁在一起/);
+assert.match(answerMixed('會員在協會內怎麼看理監事投票名冊？').steps.flat().join(' '),/十五日前審定選舉人名冊/);
+for(const q of ['合作社社員代表通訊投票名冊可公開上網嗎？','協會只問會費欠款名冊能不能公開？','協會想辦理監事通訊選舉，章程要先改嗎？'])assert.equal(f(q),null,q);
+console.log('voting roll disclosure OK');
