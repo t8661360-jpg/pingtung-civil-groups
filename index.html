@@ -1548,6 +1548,8 @@ async function ask(q){
   if(guildPractice){renderAnswer(q,guildPractice);return;}
   const withdrawElection=typeof window.verifiedWithdrawalElection==="function"?window.verifiedWithdrawalElection(q):null;
   if(withdrawElection){renderAnswer(q,withdrawElection);return;}
+  const charterAddress=typeof window.verifiedCharterAddress==="function"?window.verifiedCharterAddress(q):null;
+  if(charterAddress){renderAnswer(q,charterAddress);return;}
   const verifiedMixed=typeof window.verifiedMixedQuestionAnswer==="function"?window.verifiedMixedQuestionAnswer(q):null;
   if(verifiedMixed){renderAnswer(q,verifiedMixed);return;}
   const shownQ=q;const prevQ=convo.length?convo[convo.length-1].q:"";
@@ -1945,6 +1947,7 @@ touch();
 <script src="charity-sale-fundraising.js?v=1"></script>
 <script src="donation-receipt-identity.js?v=1"></script>
 <script src="association-withdrawal-election.js?v=1"></script>
+<script src="association-charter-address.js?v=1"></script>
 <script src="in-kind-donation-distinction.js?v=1"></script>
 <script src="meeting-convening-distinction.js?v=1"></script>
 <script src="answer-arbiter.js?v=20261127-292"></script>
