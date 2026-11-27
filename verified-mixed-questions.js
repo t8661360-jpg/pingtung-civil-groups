@@ -577,7 +577,34 @@ function temporaryMeetingNotice(q){
  summary:notEmergency?'沒有緊急事故，不能用前一日送達的例外，應遵守原有的通知期限。':'一般臨時會議仍適用原通知期限；因緊急事故召集，才有前一日送達的例外。',
  steps,refs:[...(assembly?[associationRef]:[]),...(board?[guideRef]:[]),...(deferred&&assembly?[{title:'內政部函釋：會員大會延期與通知',source:'https://www.moi.gov.tw/News_Content.aspx?n=14119&s=220065&sms=12360'}]:[])]};
 }
+function withdrawalAndAssemblyRoll(q){
+ const t=String(q??'').normalize('NFKC').replace(/\s/g,'');
+ if(t.length>150||!/協會|社會團體/.test(t)||/合作社|社員大會|工會|公會|農會|漁會|公司|基金會|財團法人|董事|理事會.{0,6}出席|退費|開除|除名|欠會費|欠費|停權/.test(t))return null;
+ if(!/大會/.test(t)||!/退會|退出|不當會員|退社/.test(t)
+    ||!/人數|人頭|應出席|名冊|出席資格|還要算|還算|扣掉|扣除|成會/.test(t))return null;
+ const noWithdrawal=/沒有退會|未申請退會|沒退會/.test(t);
+ if(noWithdrawal&&!/請假|缺席/.test(t))return null;
+ const pending=/還沒生效|還未生效|尚未生效|未生效|只是.{0,5}(?:提出|送出)|才.{0,4}(?:提出|送出)/.test(t);
+ const effective=!pending&&!/(?:不確定|不知道|不清楚).{0,10}生效|是否已(?:經)?生效/.test(t)&&/已(?:經)?生效|確定生效|退會生效後|已經退會|已完成退會/.test(t);
+ const rosterFixed=/名冊.{0,7}(?:已|審定完|早就)|審定後|審完名冊|名冊定案/.test(t);
+ const guide=n=>law('人民團體會務輔導辦法','D0020094',n);
+ const first=['先確認退會何時生效','收到申請不等於已退會。先查章程的退會方式、送達與生效日。若是已登記的社團法人，民法第54條原則上得退社，但章程可以約定事務年度終了或預告期，預告期最長六個月。'];
+ const roll=['應出席名冊怎麼處理','理事會通常須在大會十五日前審定應出席資格，會籍仍應隨時更新。退會若在審定前已生效，就不列作當時有資格的會員；若在審定後才生效，請保留原審定名冊、退會生效及會籍異動紀錄，會前請承辦確認應出席名冊如何處理，不要自行從原名冊扣人。'];
+ const attendance=['應出席人數和實際出席人數不同','一般會員（代表）大會以應出席人員為基準，要過半數出席；實際出席以簽到或報到計算。已審定具資格的會員若只是請假，或退會仍未生效，不能只因這些原因就從應出席人數扣掉。'];
+ if(noWithdrawal)return {direct:true,category:'人民團體會務說明',title:'會員只是請假，不會從應出席人數扣掉',
+  summary:'要算。仍具資格且在審定名冊上的會員，即使請假也要計入應出席人數；沒到場不算實際出席，依法委託出席的另依規定計算。',
+  steps:[attendance],refs:[guide(10),guide(16),association(27),association(42)]};
+ return {direct:true,category:'人民團體會務說明',title:'退會是否生效，與會員大會怎麼算應出席人數',
+  summary:pending?'如果退會還沒生效，且原本具有出席資格，不能只因收到申請就把人扣掉。':effective?(rosterFixed?'請先核對退會生效日與名冊審定日。若審定後才生效，先更新會籍並確認名冊作法，不要直接扣人。':'退會在審定名冊前已生效者，不列入當時有資格的會員；名冊已審定才生效則要另確認。'):'只收到退會申請，不能直接把會員從應出席人數扣掉。先確認退會是否已生效。',
+  steps:[first,roll,attendance],
+  ...(!pending&&!effective?{choiceHeading:'確認退會狀態',choices:[
+   {label:'退會已生效',question:'協會會員退會已生效，會員大會應出席人數怎麼算？'},
+   {label:'只提出、還沒生效',question:'協會會員退會還沒生效，會員大會應出席人數怎麼算？'}
+  ]}:{}),
+  refs:[guide(10),guide(16),association(27),law('民法','B0000001',54)],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
+}
 function answerMixed(q){
+ const withdrawal=withdrawalAndAssemblyRoll(q);if(withdrawal)return withdrawal;
  const boardMinutes=inspectAndPublishBoardMinutes(q);if(boardMinutes)return boardMinutes;
  const address=associationRegisteredAddress(q);if(address)return address;
  const parent=schoolParentFiling(q);if(parent)return parent;
@@ -607,6 +634,6 @@ function answerMixed(q){
     keys.includes('creditor')?'合作社清算：就任後公告與終結報告，分別計算':isCoop?'合作社清算報告與股息上限，分開看':'協會入會資格與會員除名，分開看',
   summary:keys.length===1?topics[keys[0]].line[1]:'你問了兩件事，分別如下。',steps:keys.length>1?keys.map(k=>topics[k].line):[],refs:keys.flatMap(k=>topics[k].laws)};
 }
-if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy,changedMeetingVenue,familyAssemblyProxy,dualBoardVacancies,coopBoardVacancies,creditCooperativeVacancy,schoolParentFiling,associationRegisteredAddress,inspectAndPublishBoardMinutes,temporaryMeetingNotice};return;}
+if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy,changedMeetingVenue,familyAssemblyProxy,dualBoardVacancies,coopBoardVacancies,creditCooperativeVacancy,schoolParentFiling,associationRegisteredAddress,inspectAndPublishBoardMinutes,temporaryMeetingNotice,withdrawalAndAssemblyRoll};return;}
 root.verifiedMixedQuestionAnswer=answerMixed;
 })(typeof window!=='undefined'?window:globalThis);

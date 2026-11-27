@@ -1,0 +1,13 @@
+const assert=require('node:assert/strict');
+const {answerMixed,withdrawalAndAssemblyRoll}=require('./verified-mixed-questions');
+const a=answerMixed('協會在會員大會前收到了會員退會申請，還能把他算進應出席人數嗎？');
+assert.match(a.summary,/只收到退會申請.*不能直接.*扣掉/);
+assert.deepEqual(a.choices.map(x=>x.label),['退會已生效','只提出、還沒生效']);
+assert.match(answerMixed(a.choices[0].question).summary,/在審定名冊前已生效者，不列入/);
+assert.match(answerMixed(a.choices[1].question).summary,/退會還沒生效.*不能只因收到申請/);
+const b=answerMixed('協會會員大會的退會已生效，不過名冊早已審定，大會出席人數怎麼算？');
+assert.match(b.summary,/核對退會生效日與名冊審定日/);
+assert.match(b.steps.flat().join(' '),/通常須在大會十五日前審定.*會籍仍應隨時更新.*保留原審定名冊/);
+assert.match(answerMixed('協會會員大會有人請假沒有退會，還要計入應出席人數嗎？').summary,/即使請假也要計入應出席人數/);
+for(const q of ['會員欠會費和退會不一樣，協會會員大會資格可以先扣掉嗎？','合作社社員退社後，社員大會的法定人數怎麼算？','協會改了會費，我想退會，會費能不能退？'])assert.equal(withdrawalAndAssemblyRoll(q),null,q);
+console.log('withdrawal and assembly roll OK');
