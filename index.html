@@ -1526,6 +1526,8 @@ async function ask(q){
   if(inKind){renderAnswer(q,inKind);return;}
   const convening=typeof window.verifiedMeetingConveningAnswer==="function"?window.verifiedMeetingConveningAnswer(q):null;
   if(convening){renderAnswer(q,convening);return;}
+  const admission=typeof window.verifiedAssociationAdmissionAnswer==="function"?window.verifiedAssociationAdmissionAnswer(q):null;
+  if(admission){renderAnswer(q,admission);return;}
   const wages=typeof window.verifiedAssociationWagesAnswer==="function"?window.verifiedAssociationWagesAnswer(q):null;
   if(wages){renderAnswer(q,wages);return;}
   const verifiedMixed=typeof window.verifiedMixedQuestionAnswer==="function"?window.verifiedMixedQuestionAnswer(q):null;
@@ -1915,6 +1917,7 @@ touch();
 <script src="association-finance-meeting-month.js?v=5"></script>
 <script src="verified-mixed-questions.js?v=53"></script>
 <script src="association-wages-and-signing.js?v=1"></script>
+<script src="association-admission-equality.js?v=1"></script>
 <script src="in-kind-donation-distinction.js?v=1"></script>
 <script src="meeting-convening-distinction.js?v=1"></script>
 <script src="answer-arbiter.js?v=20261127-285"></script>
