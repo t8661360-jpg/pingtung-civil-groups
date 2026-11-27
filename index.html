@@ -1583,6 +1583,8 @@ async function ask(q){
   if(overdueTerm){financeMeetingPlanner=null;renderAnswer(q,overdueTerm);return;}
   const representative=typeof window.verifiedAssociationRepresentativeCandidate==="function"?window.verifiedAssociationRepresentativeCandidate(q):null;
   if(representative){financeMeetingPlanner=null;renderAnswer(q,representative);return;}
+  const grantChange=typeof window.verifiedCooperativeGrantChange==="function"?window.verifiedCooperativeGrantChange(q):null;
+  if(grantChange){financeMeetingPlanner=null;renderAnswer(q,grantChange);return;}
   const designated=typeof window.verifiedDesignatedDonationCoopDeficit==="function"?window.verifiedDesignatedDonationCoopDeficit(q):null;
   if(designated){financeMeetingPlanner=null;renderAnswer(q,designated);return;}
   const deficit=typeof window.verifiedAssociationDeficitLiability==="function"?window.verifiedAssociationDeficitLiability(q):null;
@@ -2062,7 +2064,7 @@ touch();
 <script src="association-event-private-contact.js?v=1"></script>
 <script src="association-notice-dispatch-delivery.js?v=1"></script>
 <script src="association-deficit-personal-liability.js?v=1"></script>
-<script src="cooperative-activity-grant-route.js?v=1"></script>
+<script src="cooperative-activity-grant-route.js?v=20261127-coop-use"></script>
 <script src="association-representative-candidate.js?v=1"></script>
 <script src="association-designated-donation-cooperative-deficit.js?v=1"></script>
 <script src="association-cooperative-court-certificate.js?v=1"></script>
