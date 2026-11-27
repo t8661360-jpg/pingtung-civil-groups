@@ -16,3 +16,5 @@ assert.match(financeReportKind(a.choices[1].question).summary,/保留來文「�
 assert.match(financeReportKind('縣府要求補協會期中收支報表，指定截至民國115年6月30日，這份財報期間怎麼填？').summary,/保留來文「截至民國115年6月30日」/);
 for(const q of ['協會八月開會員大會，這次收支決算要做哪一年？','合作社財務報告縣府說要補，不確定哪個期間？','協會要填公益勸募財務報告的期間，縣府有說嗎？'])assert.equal(financeReportKind(q),null,q);
 console.log('財務報告種類、指定日期與原會議流程分流通過');
+const uncertain=financeReportKind('協會要補會計報告，不確定是去年決算還是今年期中，能先填哪個期間？');
+assert.equal(uncertain?.choices?.length,4);

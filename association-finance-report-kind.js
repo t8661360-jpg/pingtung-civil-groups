@@ -20,12 +20,12 @@ const tpl={direct:true,category:'社會團體財務報表｜期間辨識',questi
 function financeReportKind(q){
  const t=String(q||'').normalize('NFKC').replace(/\s/g,'');
  if(!t||t.length>230||!/財務(?:報告|報表|資料)|財報|會計(?:報告|報表)|收支(?:報告|報表)|決算/.test(t)||!/協會|社會團體|團體財務|我們的團體/.test(t)||/合作社|社員|工會|公會|農會|漁會|財團法人|公司|基金會|國際性|補助|核銷|勸募|報稅|所得稅|解散/.test(t))return null;
- const notice=/縣府|來文|公文|通知|補件|補正|要求補|會議還沒排|會議還沒定|大會來不及|大會未能如期/.test(t);
+ const notice=/縣府|來文|公文|通知|補件|補正|要求補|要補|請補|會議還沒排|會議還沒定|大會來不及|大會未能如期/.test(t);
  const period=/期間|起訖|哪一年|哪年度|時段|填今年|填去年|截止|截至|算到|做到|哪一段|哪一期|先填/.test(t);
  if(!notice||!period)return null;
  const cutoff=t.match(/(?:截至|截止(?:到|日為)?)(?:本年度|當年|今年|去年|(?:民國)?\d{2,4}年)?(?:\d{1,2}|[一二三四五六七八九十]{1,2})月(?:(?:\d{1,2}|[一二三四五六七八九十]{1,3})[日號]|底)?/)?.[0];
  const still=choices[3].question===q;
- const maybe=/不確定|看不出|看不懂|分不清|不知道.{0,12}(?:類|哪一|去年|今年|期中)|沒寫.{0,6}(?:類|報表|期間)|沒說.{0,6}(?:類|報表|期間)/.test(t)&&!/確定是/.test(t);
+ const maybe=/不確定|看不出|看不懂|分不清|不知道.{0,12}(?:類|哪一|去年|今年|期中)|沒寫.{0,6}(?:類|報表|期間)|沒說.{0,6}(?:類|報表|期間)/.test(t)&&!/(?<!不)確定是/.test(t);
  if(still||maybe)return {...tpl,title:'先辨報告種類，再填期間',summary:'先不要直接填今年或猜截止日。縣府要補的可能是年度決算、期中收支或改選交接，三者期間不同。',steps:[askIssuer,annual,interim],refs:refs.slice(0,2),...(!still?{choiceHeading:'通知寫的是哪一種？',choices:cutoff?choices.map((c,i)=>i===1?{...c,question:'協會補件的會計報告，確定是期中收支，通知寫'+cutoff+'，期間怎麼填？'}:c):choices}:{})};
  if(/上年度決算|去年決算|(?:民國)?\d{2,4}年(?:度)?決算/.test(t))return {...tpl,title:'年度決算：填指定會計年度的完整曆年',summary:'以該會計年度的1月1日至12月31日填列。大會尚未排定不會改變會計期間；若來文指定別的年度，按該年度填。',steps:[annual,review],refs:refs.slice(0,2)};
  if(/期中收支|期中(?:財務|報告)|期中.*(?:截至|截止)/.test(t)){
