@@ -10,11 +10,25 @@ const SIMP='册冊劝勸协協会會员員长長补補办辦县縣么麼请請�
 const SIMPRE=new RegExp('['+SIMP.split('').filter((c,i)=>i%2===0).join('')+']');
 function simp2trad(s){if(!SIMPRE.test(s))return s;let o='';for(const c of s){const i=SIMP.indexOf(c);o+=(i>=0&&i%2===0)?SIMP[i+1]:c}return o}
 /* 理解強化第1輪：常見同音錯字先改回正字，後面的規則才認得（理是長＝理事長、監是會＝監事會、總幹是＝總幹事） */
+/* 理解把關第2輪（根源）：
+   1. 台語式寫法＝國語：阮＝我們、欲＝要、（愛）按怎＝（要）怎麼、毋＝不、偌濟＝多少、偌久＝多久、敢會使…＝可以…嗎、進前＝之前、佗位＝哪裡、啥物＝什麼
+      （原本「阮協會敢會使收捐款」「理事長毋做矣欲按怎」整句對不上，被答成難倒小屏）。
+   2. 「捐款…可以抵多少稅／抵掉稅／抵所得稅」＝捐款抵稅（交給「請洽國稅局」規則；原本「抵多少稅」中間夾字，被答成協會所得稅免稅條件）。 */
+function normalizeQuestionU2(s){
+ s=String(s||'');
+ if(/阮|按怎|毋|偌濟|偌久|敢會使|敢會當|敢通|佗位|啥物|進前|欲/.test(s)){
+  s=s.replace(/敢(?:會使|會當|通)([^，,。？?！!]*)/g,(m,x)=>'可以'+x.replace(/嗎$/,'')+'嗎')
+   .replace(/阮/g,'我們').replace(/愛按怎/g,'要怎麼').replace(/欲按怎/g,'要怎麼').replace(/按怎/g,'怎麼').replace(/欲/g,'要')
+   .replace(/毋(?=[\u4e00-\u9fff])/g,'不').replace(/矣/g,'了').replace(/偌濟/g,'多少').replace(/偌久/g,'多久').replace(/進前/g,'之前').replace(/佗位/g,'哪裡').replace(/啥物/g,'什麼').replace(/會使/g,'可以').replace(/才著/g,'才對');
+ }
+ if(/捐/.test(s)&&!/合作社|社員/.test(s))s=s.replace(/抵(?:多少|掉|到|得了|得到|一些|一點|所得|綜所|個人所得)+稅/g,'抵稅').replace(/抵稅(?:額|金)?(?:多少|上限)/g,'抵稅');
+ return s;
+}
 function fixTyposU1(q){
  return String(q||'').replace(/理是長|裡事長|里事長|理市長|李事長/g,'理事長').replace(/理監是|理間事|裡監事/g,'理監事').replace(/常務監是/g,'常務監事').replace(/監是會|鑑事會/g,'監事會').replace(/理是會|裡事會|里事會/g,'理事會').replace(/總幹是|總幹士|總幹市/g,'總幹事').replace(/會原大會|會圓大會|會員大匯/g,'會員大會').replace(/改撰|改癬/g,'改選').replace(/會廢/g,'會費').replace(/辭值|詞職|辭直/g,'辭職');
 }
 function normalizeQuestion(q){
- return normalizeQuestion216(normalizeQuestion215(normalizeQuestion214(normalizeQuestion212(normalizeQuestion210(normalizeQuestion209(normalizeQuestion208(normalizeQuestion207(normalizeQuestion206(normalizeQuestion202(normalizeQuestion201(normalizeQuestion200(normalizeQuestion194(normalizeQuestion193(normalizeQuestion192(normalizeQuestion191(normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(fixTyposU1(q)))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
+ return normalizeQuestion216(normalizeQuestion215(normalizeQuestion214(normalizeQuestion212(normalizeQuestion210(normalizeQuestion209(normalizeQuestion208(normalizeQuestion207(normalizeQuestion206(normalizeQuestion202(normalizeQuestion201(normalizeQuestion200(normalizeQuestion194(normalizeQuestion193(normalizeQuestion192(normalizeQuestion191(normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(normalizeQuestionU2(fixTyposU1(q))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
 }
 /* 第200輪（根源）：入會退會與會員資格換問法——
    「忘記繳／忘了繳／漏繳會費」＝沒繳會費（原本「忘記繳會費會被退會嗎」被當成退費）；
@@ -5290,7 +5304,7 @@ function patrol11(t){
   return Object.assign({},base,{category:'改選與任期',title:'改選由理事會負責辦理：審定會員名冊、決定選票方式、安排選務人員',
   summary:'選舉由團體的理事會負責（還在籌備階段的團體由籌備會負責）。理事會要在開會15日前審定會員（會員代表）的資格，造好名冊，讓會員閱覽（人民團體選舉罷免辦法第5條）；並決定選票採用哪一種方式（第6條）。\n\n選舉當天要確定監票、發票、唱票、記票等選務人員，並說明投票程序、檢查票匭、核對身分、投票開票和宣布結果（第8條）。\n\n理事、監事要在任期屆滿前一個月內改選（第21條）。',
   statutes:[E(5),E(6),E(8),E(21)]});
- if(el&&/(一定|必須|非要|要不要|可不可以不|能不能不|可以不|能不開|不開|一定要|要開|需要開|得開|需開)/.test(t)&&/(開大會|大會|集會|開會)/.test(t)&&!/(視訊|線上|網路|通知|幾天|人數|過半)/.test(t))
+ if(el&&/(一定|必須|非要|要不要|可不可以不|能不能不|可以不|能不開|不開|一定要|要開|需要開|得開|需開)/.test(t)&&/(開大會|大會|集會|開會)/.test(t)&&!/(視訊|線上|網路|通知|幾天|人數|過半|颱風|停班|停課|天災|地震|豪雨|停電|淹水|疫情)/.test(t))
   return Object.assign({},base,{category:'改選與任期',title:'改選原則上要集會辦理：理事、監事由會員大會選出，章程有訂才能用通訊選舉',
   summary:'理事、監事要從會員（會員代表）中選舉產生（人民團體法第17條），選舉原則上要在同一地點以集會方式辦理，不能在國外、大陸地區、香港或澳門辦理（人民團體選舉罷免辦法第3條）。\n\n只有章程裡已經訂明可以通訊選舉，才可以改用通訊選舉，而且要依第23條的時程印製、寄送選票，並訂定辦法報主管機關備查。\n\n理事長則是選出理事、常務理事之後，由理事會選出（人民團體法第17條第2項）。',
   statutes:[P(17),E(3),E(23)]});
@@ -6563,7 +6577,7 @@ function patrol56(t){
   const a=staffResignReport('總幹事異動要報縣府嗎');if(a)return Object.assign({},a,{direct:true});
  }
  // 3 總幹事任期
- if(/(總幹事|秘書長|工作人員|員工|幹事)/.test(t)&&!board&&/(任期|做幾年|幹幾年|聘幾年|聘期|聘多久|做多久|幾年一任|一任幾年)/.test(t))
+ if(/(總幹事|秘書長|工作人員|員工|幹事)/.test(t)&&!board&&/(任期|做幾年|幹幾年|聘幾年|聘期|聘多久|做多久|幾年一任|一任幾年)/.test(t)&&!/(兼任|兼|由理事|由監事)/.test(t))
   return A('總幹事等工作人員沒有法定任期：聘期看勞動契約，和理事、監事的任期不同','法規沒有規定總幹事等工作人員的任期。社會團體工作人員管理辦法只規定，工作人員由理事會訂資格條件、經理事會通過聘僱（第3條），解聘也要經理事會通過（第6條），並且除了勞動基準法第11、12、13條但書的情形，不得解聘（第6條）。\n聘多久、要不要訂期限，依雙方的勞動契約和勞動法令。\n理事、監事才有「每屆任期不得超過四年」的限制（人民團體法第20條），不要和工作人員搞混。',[SW(3),SW(6),P(20)]);
  // 4 員額人數
  if(staff&&!board&&(/(幾個|幾位|幾名|多少人|多少個|員額|人數|至少|最少|最多|上限)/.test(t)&&/(請|聘|設|置|要有|需要|才夠|應該|要多少|最少|至少|最多|上限)/.test(t)||/(只請|只聘|只有|只要).{0,3}(一個|一位|一名|1個|1位).{0,3}(幹事|總幹事|工作人員|員工|會計)/.test(t))&&!/(會員|出席|開會|大會|理事會)/.test(t))
@@ -9556,7 +9570,7 @@ function patrol126(t){
   const a=patrol56('協會一定要請總幹事嗎');if(a&&a.title)return Object.assign({},a,{direct:true});
  }
  /* 六、員工、總幹事的任期（含「和理事長一樣嗎」的比較問法；交給既有的「沒有法定任期」答案） */
- if(STAFF.test(t)&&/(任期|做幾年|幹幾年|聘幾年|聘期|聘多久|做多久|幾年一任|一任幾年|一屆|幾屆|連任)/.test(t)&&!/(理事長|理事|監事).{0,4}(連任|幾屆|一屆)(?!.{0,6}(員工|總幹事|工作人員|幹事))/.test(t.replace(/(總幹事|秘書長|工作人員|員工|幹事|職員).{0,6}(任期|連任|一屆)/g,'$1'))){
+ if(STAFF.test(t)&&/(任期|做幾年|幹幾年|聘幾年|聘期|聘多久|做多久|幾年一任|一任幾年|一屆|幾屆|連任)/.test(t)&&!/(理事長|理事|監事).{0,4}(連任|幾屆|一屆)(?!.{0,6}(員工|總幹事|工作人員|幹事))/.test(t.replace(/(總幹事|秘書長|工作人員|員工|幹事|職員).{0,6}(任期|連任|一屆)/g,'$1'))&&!/(兼任|兼|由理事|由監事)/.test(t)){
   const a=patrol56('總幹事的任期是多久');if(a&&a.title)return Object.assign({},a,{direct:true});
  }
  return null;
@@ -10194,7 +10208,7 @@ function patrol141(t){
  if(/(範本|範例|樣本|模板|格式|版本)/.test(t)&&/(不用|不必|不一定|一定要|一定得|必須|可以不|非得|不照|照著|自己(擬|訂|定|寫|設計)|能不能不)/.test(t)&&!/(下載|哪裡|在哪|去哪)/.test(t))
   return R('章程可以不照縣府範本、自己訂嗎：法規沒有規定一定要用範本，但法定要寫的事項不能少','人民團體法只規定章程要載明哪些事項（第12條，共13款），沒有規定一定要用縣府的範本。章程的訂定與變更，要經會員（會員代表）大會出席人數三分之二以上同意（第27條第1款）。\n縣府公告的範本放在本站「書表下載」頁，可以參考。自己擬的章程，建議確定§12 所列事項都有寫，並先請承辦人員看過再送件。',[PA(12),PA(27)],[{label:'前往書表下載',view:'forms',sub:''},{label:'聯絡承辦',view:'contact',sub:''}]);
  // (d) 章程要不要發給會員／會員能不能要求看章程
- if(/(會員|入會)/.test(t)&&/((發|給|送|交|提供|公開|放|張貼|看|查閱|閱覽|索取|要求).{0,6}章程|章程.{0,6}(發|給|送|交|提供|公開|看得到|查閱|閱覽|索取))/.test(t)&&!/(範本|下載|遺失|丟|不見|修改|修正|某|別的|其他協會|別人的|拒絕入會|入會被)/.test(t)&&!/(縣府|承辦|公所)/.test(t))
+ if(/(會員|入會)/.test(t)&&/((發|給|送|交|提供|公開|放|張貼|看|查閱|閱覽|索取|要求).{0,6}章程|章程.{0,6}(發|給|送|交|提供|公開|看得到|查閱|閱覽|索取))/.test(t)&&!/(範本|下載|遺失|丟|不見|修改|修正|某|別的|其他協會|別人的|拒絕入會|入會被)/.test(t)&&!/(縣府|承辦|公所)/.test(t)&&!/(解散|清算|剩|賸|財產|分給|分配)/.test(t))
   return R('章程要不要發給會員、會員能不能要求看章程：法規沒有明文','人民團體法和會務輔導辦法沒有規定協會要把章程發給每位會員，也沒有訂會員查閱章程的程序，所以怎麼做要看協會自己的規定。\n法規有明文的是：理事會要在大會15日前審定會員名冊並提供會員閱覽（會務輔導辦法第10條）；各種會議紀錄要自行留存，提供會員（會員代表）查閱（第12條）。\n章程是會員權利義務的依據（人民團體法第12條第8款），建議協會在入會時提供，或放在會所、網站讓會員查閱。',[PG(10),PG(12),PA(12)]);
  // (e) 決議和章程不一樣聽誰的／決議違反章程有效嗎
  if(/(決議|表決|通過|議決)/.test(t)&&/(不一樣|不同|衝突|違反|不符|牴觸|抵觸|不合|以哪個為準|聽誰|有效|無效|算數|算不算)/.test(t)&&!/(法律|法令|人民團體法|法規)/.test(t)&&!/(罷免|選舉|改選)/.test(t))
@@ -10600,7 +10614,7 @@ function patrol154(t){
  if(/會員/.test(t)&&/(電話|手機|地址|住址|個資|個人資料|資料|聯絡方式|聯絡資料|生日|身分證|身份證)/.test(t)&&/(給別人|給外人|給人|給別的|給其他會員|給別的會員|給會員|公開|公布|公佈|公告|貼|網站|臉書|粉專|群組|別人看|外人看|被看|曝光|外流|洩漏|外洩|給誰看|誰可以看)/.test(t)&&!/(廠商|業者|推銷|行銷|直銷|保險|賣|別的用途|其他用途|另作他用|名冊|志工|報縣府|通報|報備|備查)/.test(t)&&!/(外流|洩漏|洩露|外洩|流出|被駭|被偷|被盜|被竊).{0,8}(怎麼辦|怎麼處理|怎麼補救|如何|要通知|要不要通知|責任)/.test(t))
   return R('會員的電話、地址等個人資料可不可以給別人或公開：原則上不可以，要先取得會員同意','原則上不可以。協會蒐集會員的個人資料，是為了辦理會務；依個人資料保護法，利用個人資料要在蒐集的特定目的必要範圍內（第20條第1項），並要依誠實信用的方法、不能超過特定目的的必要範圍（第5條）。\n所以把會員的電話、地址等放到網站、群組，或提供給會務以外的人，屬於目的外利用，除非符合第20條第1項但書列的例外情形（例如法律明文規定、經當事人同意等）；最單純的做法是先取得會員本人同意。\n另外，人民團體會務輔導辦法第10條規定的是：召開大會前造具的出席名冊「提供會員閱覽」，法規沒有規定可以給非會員。',[PDPA(5),PDPA(20),{title:'人民團體會務輔導辦法第10條',source:LAW+'D0020094'}]);
  // (b) 會員一定要參加活動、可不可以規定出席
- if(/會員/.test(t)&&((/(一定要|一定得|必須|強制|硬性|規定|要求|義務)/.test(t)&&/(參加|出席|來)/.test(t)&&/(活動|聚會|聚餐|開會|開.{0,3}次會|大會|例會|義務)/.test(t))||(/(不參加|沒參加|不出席|缺席|不來|都不來)/.test(t)&&/(活動|聚會|聚餐)/.test(t)&&/(處理|怎麼辦|處罰|怎樣|怎麼樣|可以罰)/.test(t)&&!/(除名|退會|開除)/.test(t)))&&!/(理事|監事|理監事|委託|代理|代表|退會|除名|罰|罰款|處罰|會費)/.test(t)&&!/(一定要|必須|一定得).{0,3}(來|出席|參加).{0,2}(開會|大會|例會)/.test(t))
+ if(/會員/.test(t)&&((/(一定要|一定得|必須|強制|硬性|規定|要求|義務)/.test(t)&&/(參加|出席|來)/.test(t)&&/(活動|聚會|聚餐|開會|開.{0,3}次會|大會|例會|義務)/.test(t))||(/(不參加|沒參加|不出席|缺席|不來|都不來)/.test(t)&&/(活動|聚會|聚餐)/.test(t)&&/(處理|怎麼辦|處罰|怎樣|怎麼樣|可以罰)/.test(t)&&!/(除名|退會|開除)/.test(t)))&&!/(理事|監事|理監事|委託|代理|代表|退會|除名|罰|罰款|處罰|會費)/.test(t)&&!/(出席人數|法定人數|幾人|多少人|過半|一樣|相同|不同|差別)/.test(t)&&!/(一定要|必須|一定得).{0,3}(來|出席|參加).{0,2}(開會|大會|例會)/.test(t))
   return R('會員一定要參加活動嗎：法規沒有規定，會員的義務由章程訂','人民團體法沒有規定會員一定要參加協會的活動或聚會。會員的權利與義務，是章程要載明的事項（人民團體法第12條第8款），所以能不能要求會員出席，要看章程怎麼寫。\n就算章程有寫，法規也沒有規定處罰的方式；要把會員除名，必須是違反法令、章程或不遵守會員大會決議，而且危害團體情節重大，並經會員（會員代表）大會決議（第14條），不能由理事長或理事會直接處罰。\n想知道自己的協會怎麼規定，請先看協會的章程。',[P(12),P(14)]);
  // (c) 退會證明
  if(/退會/.test(t)&&/(證明|證書|證明書)/.test(t)||/(證明).{0,6}(已經|已)?(退會|不是會員|退出)/.test(t))

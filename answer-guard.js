@@ -26,7 +26,7 @@
      只重組既有的已核對答案，不新增任何內容。 */
   const TYPES = [['合作社', /合作社/], ['社區發展協會', /社區發展協會|社區協會/], ['公會', /公會|商業會|工業會|職業團體/], ['工會', /工會/], ['基金會', /基金會|財團法人/], ['協會', /協會|社會團體|社團(?!法人)/]];
   const typesOf = t => { let x = NFK(t); const out = []; for (const [n, re] of TYPES) { if (re.test(x)) { out.push(n); x = x.replace(new RegExp(re.source, 'g'), '＿'); } } return out; };
-  const COMPARE = /一樣嗎|一不一樣|一樣不一樣|有沒有一樣|相同嗎|是否相同|有什麼不同|有何不同|有什麼不一樣|哪裡不同|哪裡不一樣|差別|差在哪|差異|有什麼差|怎麼分|(跟|和|與).{2,14}(一樣|相同)|比較/;
+  const COMPARE = /一樣嗎|一不一樣|一樣不一樣|有沒有一樣|相同嗎|是否相同|有什麼不同|有何不同|有什麼不一樣|哪裡不同|哪裡不一樣|差別|差在哪|差異|有什麼差|怎麼分|(跟|和|與).{2,14}(一樣|相同)|比較|各是|各要|各幾|各多|各有|各自|分別/;
   const ASK = /[?？]|嗎|呢$|怎麼|如何|怎樣|可以|可不可以|能不能|能否|是否|幾|多久|多少|誰|哪|什麼|甚麼|啥|要不要|需不需要|有沒有|會不會|算不算|一定要/;
   const fixedUnknown = q => { try { if (typeof reportUnanswered === 'function') reportUnanswered(q); } catch (e) {}
     return { category: '其他', title: '抱歉，這個問題難倒小屏了', summary: '抱歉，這個問題難倒小屏了，小屏暫時無法回答喔！建議您先電洽承辦人員詢問～縣府總機 08-7320415 轉社會處承辦人', notes: [], actions: [{ label: '聯絡承辦', view: 'contact', sub: '' }, { label: '回到常見問題', view: 'home', sub: '' }], unanswered: true, guarded: true }; };
@@ -152,8 +152,107 @@
     }
     return null;
   }
+  /* ── 理解把關第2輪（2026-11-27）──
+     接在第1輪（比較題把關、一句問兩件事分開回答）後面：第1輪沒有接手的題目，再看一次「問句」和「答案」是不是同一件事。
+     補的是：捐款抵稅一律請洽國稅局；大樓管委會改用既有的業務分流、學校家長會用固定用語；一句問兩件事而分不開回答時，
+     答案沒談到其中一個問句的重點就出選單；「順便／同時」辦兩件事只答一件；問句的關鍵細節（颱風停班、住院、被罰）答案完全沒提到。
+     每個條件都用 scripts/site-smoke.mjs 全部 CHECKS 驗證過不會擋掉已答對的題目。 */
+  const esc = w => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const group = (ask, ans) => ({ ask: new RegExp(ask.map(esc).join('|'), 'i'), ans: new RegExp((ans || ask).map(esc).join('|'), 'i') });
+  // 細節主題：問句提到、答案完全沒提到 → 答案沒有在答這個細節
+  const DETAILS = [
+    group(['颱風', '停班', '停課', '天災', '地震', '豪雨', '停電', '淹水'], ['颱風', '停班', '停課', '天災', '地震', '豪雨', '停電', '淹水', '不可抗力', '緊急事故', '延期', '延後', '改期']),
+    group(['住院', '中風', '開刀', '失智', '昏迷', '重病', '病倒'], ['住院', '中風', '開刀', '失智', '昏迷', '重病', '生病', '因故', '不能視事', '不能執行', '無法執行', '不能行使', '出缺', '請假', '代理', '代行', '辭職', '監護', '輔助宣告']),
+    group(['便當', '餐盒', '誤餐', '餐費'], ['便當', '餐盒', '誤餐', '餐費', '餐點', '膳']),
+    group(['被罰', '罰款', '罰錢', '罰鍰', '受罰', '會罰', '開罰', '處罰'], ['罰', '處分', '警告', '撤銷', '限期', '整理', '廢止', '解散', '撤免', '停權', '沒有規定', '沒有明文', '註銷', '繳回', '追繳', '收回', '停止補助', '不予補助'])
+  ];
+  // 混合問題用的主題詞：每組第一個字串是代表名，其餘是同義說法
+  const PART_TOPICS = [['連任', '連選', '續任'], ['任期', '任滿', '屆滿', '做幾年', '當幾年', '幾年一任'], ['兼任', '兼', '同時當', '同時擔任', '擔任', '充任'], ['會計', '出納', '財務人員'], ['總幹事', '秘書長', '工作人員', '幹事', '員工'],
+    ['配偶', '親屬', '三等親', '三親等', '親戚', '夫妻', '老婆', '太太', '先生', '兒子', '女兒', '家人'], ['會址', '地址', '遷址', '搬家', '搬遷'], ['改名', '名稱', '會名', '名字', '更名'], ['收據'], ['捐款', '捐贈', '捐錢', '捐助'],
+    ['剩餘財產', '剩下的錢', '賸餘', '剩餘', '餘款', '剩的錢'], ['解散', '清算'], ['章程'], ['通知'], ['出席', '到場', '法定人數', '流會'], ['委託', '代理出席', '委託書'], ['補選', '遞補', '候補'], ['辭職', '請辭'], ['改選', '選舉', '投票', '選票'],
+    ['會費', '入會費', '常年會費', '年費'], ['補助', '核銷'], ['統編', '統一編號'], ['開戶', '帳戶', '存摺'], ['法人', '法院'], ['理事長'], ['常務理事'], ['常務監事'], ['監事', '理監事'], ['理事', '理監事'], ['會員大會', '社員大會', '大會'], ['理事會', '監事會', '理監事會'],
+    ['圖記', '印信', '印章'], ['立案證書', '證書'], ['預算', '決算', '財務報表', '報表'], ['工作計畫', '工作報告'], ['薪水', '薪資', '酬勞', '車馬費', '出席費'], ['罷免'], ['除名', '開除', '退會', '出會'], ['入會', '加入'], ['成立', '籌組', '籌備', '設立', '立案'], ['視訊', '線上', '遠距'], ['紀錄', '記錄'], ['勸募', '募款'], ['股金', '股息', '盈餘', '結餘'], ['分會', '分支'], ['查帳', '查核', '稽核', '看帳', '審核帳'], ['稅']
+  ].map(g => ({ name: g[0], re: new RegExp(g.map(esc).sort((x, y) => y.length - x.length).join('|')) }));
+  const ACTIONS = [['會址', '地址', '遷址', '搬家', '搬遷'], ['改名', '名稱', '會名', '名字', '更名'], ['圖記', '印信'], ['立案證書'], ['統編', '統一編號'], ['開戶', '銀行帳戶', '存摺'], ['法人登記', '社團法人'], ['解散'], ['理事長變更', '換理事長', '理事長換人', '新理事長']]
+    .map(g => ({ name: g[0], re: new RegExp(g.map(esc).join('|')) }));
+  const QMARK = /[?？]|嗎|呢$|幾|多少|多久|誰|哪|可以|可不可以|能不能|能否|是否|要不要|需不需要|怎麼|如何|怎樣|還是|有沒有|會不會|算不算|什麼|甚麼/;
+  const answerText = a => NFK([a.title, a.summary, (a.steps || []).join(''), (a.notes || []).join(''), (a.docs || []).join(''), (a.guide || []).join(''), (a.where || []).join('')].join('｜'));
+  const topicsIn = s => { let t = NFK(s); const out = []; for (const g of PART_TOPICS) { if (g.re.test(t)) { out.push(g); t = t.replace(new RegExp(g.re.source, 'g'), '＿'); } } return out; };
+  function splitParts(raw) {
+    return String(raw || '').normalize('NFKC').split(/[，,；;。？?！!\n]+|另外|還有|順便|以及|同時也|然後/).map(s => s.replace(/\s+/g, '').replace(/^(也|又|再|那|那麼|請問|想問|想請問)+/, '')).filter(s => s.length >= 4);
+  }
+  // 從已驗證題庫挑「同一種團體、同一個主題」的問題當選單
+  function pickByTopic(test, topics, n) {
+    const list = (typeof window.keywordQuestions === 'function' && window.keywordQuestions()) || [];
+    const sc = [];
+    for (const c of list) { const t = NFK(c); if (!test(t)) continue; let k = 0; for (const g of topics) if (g.re.test(t)) k++; if (k) sc.push([k, t.length, c]); }
+    sc.sort((x, y) => (y[0] - x[0]) || (x[1] - y[1]));
+    const out = [], seen = new Set();
+    for (const [, , c] of sc) { const h = NFK(c).slice(0, 7); if (seen.has(h)) continue; seen.add(h); out.push(c); if (out.length >= n) break; }
+    return out;
+  }
+  function fixedPhrase2(q, rel) {
+    let sf = [], line = '';
+    try { sf = staffFor(detectType(q), detectCat(q)) || []; line = contactLine(sf) || ''; } catch (e) {}
+    try { if (typeof reportUnanswered === 'function') reportUnanswered(q); } catch (e) {}
+    return { category: '其他', title: '抱歉，這個問題難倒小屏了', summary: '抱歉，這個問題難倒小屏了，小屏暫時無法回答喔！建議您先電洽承辦人員詢問～' + line + '小屏已經把這個問題記下來，會請承辦人員補上答案，下次您再問就有囉。',
+      staff: sf, related: rel || [], notes: [], steps: [], docs: [], laws: [], actions: [{ label: '聯絡承辦', view: 'contact', sub: '' }, { label: '回到常見問題', view: 'home', sub: '' }], unanswered: true, guarded: true, questionState: { focus: 'guard-menu' } };
+  }
+  function menu2(q, rel, why) {
+    const seen = new Set(), list = [];
+    for (const x of rel) { if (!x || seen.has(x)) continue; seen.add(x); list.push(x); if (list.length >= 8) break; }
+    if (list.length < 2) for (const x of similar(q, 3, 0.15)) { if (!seen.has(x)) { seen.add(x); list.push(x); } } // 找不到夠像的問題時放寬一點，仍然沒有才用固定用語
+    if (!list.length) return fixedPhrase2(q, list);
+    return { direct: true, category: '請選擇問題', title: '您是不是要問以下相關的問題？',
+      summary: (why || '小屏不確定有沒有聽懂您的問題，怕直接回答會答錯。') + '請點選下面最接近您想問的問題；都不是的話，請換個說法再問一次，或電洽承辦人員。',
+      related: list, steps: [], docs: [], laws: [], notes: [], actions: [], questionState: { focus: 'guard-menu' }, guarded: true };
+  }
+  function understandingGuard(q, a) {
+    if (!a || !a.title || a.unanswered || a.guarded) return null;
+    if (/您是不是要問|難倒小屏|想先確認|暫時無法回覆/.test(a.title)) return null;
+    const fs = a.questionState && a.questionState.focus;
+    if (fs === 'guard-menu' || fs === 'keyword-menu' || fs === 'clarify') return null;
+    if ((a.groups && a.groups.length) || a.category === '團體查詢' || a.category === '打招呼') return null;
+    const raw = NFK(q); if (raw.length < 8) return null;
+    const at = answerText(a);
+    // 0. 捐款抵稅：只答「請洽國稅局」
+    if (/捐/.test(raw) && /抵.{0,4}稅|節稅|扣除額|列舉扣除/.test(raw) && !/合作社|社員/.test(raw) && !/國稅局/.test(a.title)) {
+      try { const tax = verifiedRoundAnswer('捐款可以抵稅嗎', {}); if (tax && /國稅局/.test(tax.title || '')) return Object.assign({}, tax, { direct: true, guarded: true }); } catch (e) {}
+    }
+    if (a.category === '業務分流') return null;
+    // 1. 不是本櫃檯的對象（大樓管委會、學校家長會）：答案沒有在談它，就不拿協會的答案硬配
+    const oos = raw.match(/公寓大廈|管委會|管理委員會|(?:大樓|社區)的?主委|家長會|家長委員/);
+    if (oos) {
+      const condo = !/家長/.test(oos[0]);
+      if (!(condo ? /管委會|管理委員會|公寓大廈/.test(at) : /家長會|家長委員/.test(at))) {
+        if (condo) { try { const r = verifiedRoundAnswer('公寓大廈管理委員會要怎麼成立', {}); if (r && r.category === '業務分流') return Object.assign({}, r, { direct: true, guarded: true }); } catch (e) {} }
+        return fixedPhrase2(q, []);
+      }
+    }
+    // 3. 一句問兩件事：每一個問句的重點，答案都要有談到
+    const parts = splitParts(q).filter(p => QMARK.test(p)).map(p => ({ p, ts: topicsIn(p) })).filter(x => x.ts.length);
+    if (parts.length >= 2) {
+      const cov = x => x.ts.filter(g => g.re.test(at)).length / x.ts.length;
+      const miss = parts.filter(x => cov(x) < 0.6);
+      if (miss.length) {
+        const rel = []; const per = Math.max(2, Math.floor(8 / parts.length));
+        for (const x of parts) rel.push(...similar(x.p, per));
+        return menu2(q, rel, '您一次問了不只一件事，小屏怕只答到其中一半。');
+      }
+    }
+    // 3b. 「順便／一起／同時」辦兩件事（例如改名＋換會址）：兩件事答案都要有談到
+    if (/順便|一起|同時|一併|另外|還有/.test(raw)) {
+      const acts = ACTIONS.filter(g => g.re.test(raw));
+      if (acts.length >= 2 && acts.some(g => !g.re.test(at))) { const rel = []; for (const g of acts) rel.push(...pickByTopic(t => !/合作社/.test(t) || /合作社/.test(raw), [g], 3)); return menu2(q, rel.length >= 2 ? rel : similar(q, 8), '您一次問了不只一件事，小屏怕只答到其中一半。'); }
+    }
+    // 4. 問句裡的關鍵細節，答案完全沒提到
+    for (const d of DETAILS) if (d.ask.test(raw) && !d.ans.test(at)) return menu2(q, [a.title.length <= 30 && !a.direct ? a.title : '', ...similar(q, 7)], '');
+    return null;
+  }
+  if (typeof window !== 'undefined') window.__understandingGuard2 = understandingGuard;
   function guard(q, a) {
     try { const c = compareGuard(q, a) || compareTopic(q, a) || compound(q, a); if (c) return c; } catch (e) {}
+    try { const u = understandingGuard(q, a); if (u) return u; } catch (e) {}
     try {
       if (!a || a.direct || a.questionState || a.unanswered || !a.title) return null;
       if ((typeof exactArticleAnswer === 'function' && exactArticleAnswer(q)) || (typeof focusedQuestionAnswer === 'function' && focusedQuestionAnswer(q))) return null; // 會被其他已核對答案取代

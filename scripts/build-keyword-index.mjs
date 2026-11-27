@@ -9,7 +9,7 @@ const CHECKS = Function(block.replace('const CHECKS =', 'return'))();
 const isQ = s => /[?？嗎呢]|怎|如何|可以|能不能|幾|什麼|哪|誰|是否|要不要|多久|多少|為何|為什麼|一定要/.test(s);
 const set = new Set();
 /* 檢查項目本身就是預期「出選單／難倒小屏」的題目（把關測試題），不能再拿來當選單候選題 */
-const guardOnly = want => (Array.isArray(want) ? want : [want]).some(w => /您是不是要問|難倒小屏/.test(String(w)));
+const guardOnly = want => (Array.isArray(want) ? want : [want]).some(w => /您是不是要問|難倒小屏|您一次問了不只一件事|不是這個櫃檯/.test(String(w)));
 for (const [q, want] of CHECKS) if (!guardOnly(want) && q.length >= 6 && q.length <= 30 && isQ(q) && !/第\s*\d+\s*條|^\d/.test(q)) set.add(q.trim());
 let kb = [];
 try { const d = JSON.parse(zlib.gunzipSync(fs.readFileSync('data/knowledge.json.gz')).toString()); kb = Array.isArray(d) ? d : (Object.values(d).find(Array.isArray) || []); } catch (e) {}
