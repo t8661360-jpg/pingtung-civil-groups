@@ -13,4 +13,11 @@ for(const q of ['公司董事改選要報哪裡','公司董事長改選要去哪
 for(const q of ['協會理事長怎麼選','公司行號可否入會','協會的錢可以存在農會嗎','農會歸誰管','漁會理事長怎麼選']){
  const a=ask(q);assert.doesNotMatch(a?.title??'',/農會理事長由理事互選|公司董事改選不是/,q);
 }
+for(const q of ['協會的錢可以存在農會嗎','協會的錢可以存農會嗎','協會可以在農會開戶嗎','社區發展協會的錢可以存在農會嗎','協會的錢可以存在信用合作社嗎','我們協會可以在郵局開帳戶嗎','協會經費能不能存漁會']){
+ const a=ask(q);assert.match(a?.title??'',/^可以：協會的錢可以存在/,q);
+ assert.match(a.summary,/社會團體財務處理辦法第16條/);assert.match(a.summary,/共同蓋章（同辦法第17條）/);
+}
+for(const q of ['協會理事長換人了農會帳戶要怎麼辦','協會的錢可以放在理事長的戶頭嗎','協會可以跟農會借錢嗎','協會的錢要存在哪裡','合作社社員股金可以存農會嗎']){
+ const a=ask(q);assert.doesNotMatch(a?.title??'',/^可以：協會的錢可以存在/,q);
+}
 console.log('farm/company routing OK');
