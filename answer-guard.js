@@ -222,7 +222,7 @@
     let sf = [], line = '';
     try { sf = staffFor(detectType(q), detectCat(q)) || []; line = contactLine(sf) || ''; } catch (e) {}
     try { if (typeof reportUnanswered === 'function') reportUnanswered(q); } catch (e) {}
-    return { category: '其他', title: '抱歉，這個問題難倒小屏了', summary: '抱歉，這個問題難倒小屏了，小屏暫時無法回答喔！建議您先電洽承辦人員詢問～' + line + '小屏已經把這個問題記下來，會請承辦人員補上答案，下次您再問就有囉。',
+    return { category: '其他', title: '抱歉，這個問題難倒小屏了', summary: '目前無法確認答案，也不能保證何時能補上。若是團體會務，可補充團體類型和要辦的事項再問；請勿貼姓名、證號或完整公文。團體會務也可選「聯絡承辦」核對；其他業務，請洽原主辦機關。',
       staff: sf, related: rel || [], notes: [], steps: [], docs: [], laws: [], actions: [{ label: '聯絡承辦', view: 'contact', sub: '' }, { label: '回到常見問題', view: 'home', sub: '' }], unanswered: true, guarded: true, questionState: { focus: 'guard-menu' } };
   }
   function menu2(q, rel, why) {

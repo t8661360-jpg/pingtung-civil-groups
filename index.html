@@ -1513,7 +1513,7 @@ function smartFallback(q,kb){
   else if(!parts.staff&&!kb&&!parts.summary){const t=detectType(q),c=detectCat(q);const sf=staffFor(t,c);if(sf.length)parts.staff=sf}
   if(!parts.summary){
     const sf=staffFor(detectType(q),detectCat(q));
-    reportUnanswered(q);return{category:"其他",title:"抱歉，這個問題難倒小屏了",summary:"抱歉，這個問題難倒小屏了，小屏暫時無法回答喔！建議您先電洽承辦人員詢問～"+contactLine(sf)+"小屏已經把這個問題記下來，會請承辦人員補上答案，下次您再問就有囉。",staff:sf,notes:[],actions:[{label:"聯絡承辦",view:"contact",sub:""},{label:"回到常見問題",view:"home",sub:""}],unanswered:true};
+    reportUnanswered(q);return{category:"其他",title:"抱歉，這個問題難倒小屏了",summary:"目前無法確認答案，也不能保證何時能補上。若是團體會務，可補充團體類型和要辦的事項再問；請勿貼姓名、證號或完整公文。團體會務也可選「聯絡承辦」核對；其他業務，請洽原主辦機關。",staff:sf,notes:[],actions:[{label:"聯絡承辦",view:"contact",sub:""},{label:"回到常見問題",view:"home",sub:""}],unanswered:true};
   }
   return{related:parts.related||[],category:parts.category||"服務說明",title:parts.title||"小屏的回覆",summary:parts.summary,steps:parts.steps||[],docs:parts.docs||[],where:parts.where||[],guide:parts.guide||[],laws:parts.laws||[],notes:parts.notes||[],refs:parts.refs||[],groups:parts.groups||[],dirMeta:parts.dirMeta||"",staff:parts.staff||[],actions:parts.actions||[]};
 }
@@ -2004,7 +2004,7 @@ touch();
 <script src="keyword-menu.js?v=20261127-300"></script>
 <script src="ai-assist.js?v=20261127-300"></script>
 <script src="ai-understand.js?v=1"></script>
-<script src="answer-guard.js?v=20261127-300"></script>
+<script src="answer-guard.js?v=20261127-300-fallback1"></script>
 <script src="festive.js?v=20261127-300" defer></script>
 </body>
 </html>
