@@ -20,4 +20,6 @@ for(const q of ['協會的錢可以存在農會嗎','協會的錢可以存農會
 for(const q of ['協會理事長換人了農會帳戶要怎麼辦','協會的錢可以放在理事長的戶頭嗎','協會可以跟農會借錢嗎','協會的錢要存在哪裡','合作社社員股金可以存農會嗎']){
  const a=ask(q);assert.doesNotMatch(a?.title??'',/^可以：協會的錢可以存在/,q);
 }
+for(const q of ['農會會員代表怎麼選','農會總幹事怎麼選出來的'])assert.doesNotMatch(ask(q)?.title??'',/農會理事長由理事互選/,q);
+for(const q of ['協會理事長換人了農會帳戶要怎麼辦','協會在漁會的戶頭要換負責人嗎','理事長改選後農會存摺印鑑要換嗎'])assert.match(ask(q)?.title??'',/^要。.*(負責人|印鑑)/,q);
 console.log('farm/company routing OK');
