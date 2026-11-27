@@ -1558,9 +1558,14 @@ function smartFallback(q,kb){
   }
   return{related:parts.related||[],category:parts.category||"服務說明",title:parts.title||"小屏的回覆",summary:parts.summary,steps:parts.steps||[],docs:parts.docs||[],where:parts.where||[],guide:parts.guide||[],laws:parts.laws||[],notes:parts.notes||[],refs:parts.refs||[],groups:parts.groups||[],dirMeta:parts.dirMeta||"",staff:parts.staff||[],actions:parts.actions||[]};
 }
-let financeMeetingPlanner;
+let financeMeetingPlanner, postponedProxyDateQuestion;
 async function ask(q){
   q=String(q||"").trim();if(!q||busy)return;
+  const heldDateQuestion=postponedProxyDateQuestion;postponedProxyDateQuestion=null;
+  if(heldDateQuestion&&window.isPostponedProxyDateReply?.(q)){
+    const matched=window.verifiedAssociationPostponedProxy?.(heldDateQuestion+"；續問日期："+q);
+    if(matched){financeMeetingPlanner=null;postponedProxyDateQuestion=matched.followNewDate?heldDateQuestion:null;renderAnswer(q,matched);return;}
+  }
   if(!financeMeetingPlanner&&typeof window.createFinanceMeetingPlanner==="function")financeMeetingPlanner=window.createFinanceMeetingPlanner({board,showAnswer:renderAnswer});
   const canceledGrantInKind=typeof window.verifiedAssociationCanceledGrantInKind==="function"?window.verifiedAssociationCanceledGrantInKind(q):null;
   if(canceledGrantInKind){financeMeetingPlanner=null;renderAnswer(q,canceledGrantInKind);return;}
@@ -1597,7 +1602,7 @@ async function ask(q){
   const coopQuorumVolunteer=typeof window.verifiedAssociationCoopQuorumVolunteerGrant==="function"?window.verifiedAssociationCoopQuorumVolunteerGrant(q):null;
   if(coopQuorumVolunteer){financeMeetingPlanner=null;renderAnswer(q,coopQuorumVolunteer);return;}
   const postponedProxy=typeof window.verifiedAssociationPostponedProxy==="function"?window.verifiedAssociationPostponedProxy(q):null;
-  if(postponedProxy){financeMeetingPlanner=null;renderAnswer(q,postponedProxy);return;}
+  if(postponedProxy){financeMeetingPlanner=null;postponedProxyDateQuestion=postponedProxy.followNewDate?q:null;renderAnswer(q,postponedProxy);return;}
   const charterTiming=typeof window.verifiedCharterMeetingDate==="function"?window.verifiedCharterMeetingDate(q):null;
   if(charterTiming){
     const expulsion=/除名|開除會員/.test(q)&&typeof window.verifiedAssociationAgendaGuildCollection==="function"?window.verifiedAssociationAgendaGuildCollection(q):null;
@@ -1686,6 +1691,8 @@ async function ask(q){
   if(coopLease){financeMeetingPlanner=null;renderAnswer(q,coopLease);return;}
   const deceasedShares=typeof window.verifiedCooperativeHeirShares==="function"?window.verifiedCooperativeHeirShares(q):null;
   if(deceasedShares){financeMeetingPlanner=null;renderAnswer(q,deceasedShares);return;}
+  const creditExitVote=typeof window.verifiedCreditCooperativeExitVote==="function"?window.verifiedCreditCooperativeExitVote(q):null;
+  if(creditExitVote){financeMeetingPlanner=null;renderAnswer(q,creditExitVote);return;}
   const exitShareTiming=typeof window.verifiedCooperativeExitShareTiming==="function"?window.verifiedCooperativeExitShareTiming(q):null;
   if(exitShareTiming){financeMeetingPlanner=null;renderAnswer(q,exitShareTiming);return;}
   const grantDividend=typeof window.verifiedCoopGrantAndDividend==="function"?window.verifiedCoopGrantAndDividend(q):null;
@@ -2205,7 +2212,7 @@ touch();
 <script src="association-meeting-finance-sequence.js?v=1"></script>
 <script src="association-canceled-grant-in-kind.js?v=1"></script>
 <script src="association-coop-quorum-volunteer-grant.js?v=20261127-coop-formula"></script>
-<script src="association-postponed-proxy.js?v=1"></script>
+<script src="association-postponed-proxy.js?v=20261128-cross-year"></script>
 <script src="association-representative-quorum.js?v=20261127-316"></script>
 <script src="coop-farm-verified-split.js?v=1"></script>
 <script src="association-filing-and-donation-scope.js?v=1"></script>
@@ -2236,6 +2243,7 @@ touch();
 <script src="union-dues-social-donation-sale.js?v=20261127-union-sale"></script>
 <script src="cooperative-expired-chair-lease.js?v=20261127-contract-kind"></script>
 <script src="cooperative-heir-shares.js?v=20261127-inherited-shares"></script>
+<script src="credit-cooperative-exit-vote.js?v=1"></script>
 <script src="cooperative-exit-chair-share-timing.js?v=20261128-exit-vote"></script>
 <script src="cooperative-grant-and-dividend.js?v=20261127-no-restricted-dividend"></script>
 <script src="cooperative-equipment-grant-aftercare.js?v=20261127-grant-aftercare"></script>
