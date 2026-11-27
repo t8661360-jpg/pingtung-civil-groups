@@ -21,3 +21,14 @@ assert.match(JSON.stringify(after.steps),/不因候選人兼監票就自動認�
 const absent=route('會員大會已選完理事，我沒出席；聽說候選人兼當唱票員，現在可用第25條提出異議嗎？');
 assert.match(absent.summary,/沒有出席.*不能逕把自己當成同條的出席異議人/);
 assert.doesNotMatch(a.summary,/書面異議|也章程/);
+const routineMixed=route('民間團體的理監事會例行會議可以申請縣府活動補助嗎？協會還沒有報預決算是不是同一件事？');
+assert.match(routineMixed.summary,/例行會議本身不予補助.*財務資料.*補助資格/);
+assert.match(routineMixed.steps[0][1],/第5點第2款第6目/);
+assert.match(routineMixed.steps[1][1],/第5點第3款第4目.*補報不能把例行會議費變成可以補助/);
+const routineOnly=route('屏東協會會員大會的費用，場租可以申請活動補助嗎？');
+assert.match(routineOnly.title,/例行會議不在屏東通案補助項目內/);
+assert.equal(routineOnly.steps.length,1);
+const financeFirst=route('屏東協會去年年度決算忘了報，另外理事會例會能申請活動補助嗎？');
+assert.match(financeFirst.summary,/例行會議本身不予補助.*團體補助資格/);
+assert.equal(route('屏東協會會員大會的費用能申請中央公益彩券補助嗎？'),null);
+assert.equal(route('彰化縣協會例行會議可不可以申請縣府活動補助？'),null);
