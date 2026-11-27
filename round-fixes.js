@@ -27,8 +27,19 @@ function normalizeQuestionU2(s){
 function fixTyposU1(q){
  return String(q||'').replace(/理是長|裡事長|里事長|理市長|李事長/g,'理事長').replace(/理監是|理間事|裡監事/g,'理監事').replace(/常務監是/g,'常務監事').replace(/監是會|鑑事會/g,'監事會').replace(/理是會|裡事會|里事會/g,'理事會').replace(/總幹是|總幹士|總幹市/g,'總幹事').replace(/會原大會|會圓大會|會員大匯/g,'會員大會').replace(/改撰|改癬/g,'改選').replace(/會廢/g,'會費').replace(/辭值|詞職|辭直/g,'辭職');
 }
+/* 第221輪（根源）：入會退會口語——
+   「不想繼續／再當會員」＝不想當會員（退會）；「退了會」＝退會後；終身、永久、榮譽、贊助會員問退會＝一般會員退會 */
+function normalizeQuestion221(s){
+ s=String(s||'');
+ if(/合作社|社員|社區|工會|公會/.test(s))return s;
+ s=s.replace(/不想(?:再|繼續|還要)(?:當|做)(?:這個|協會的|本會的)?會員/g,'不想當會員').replace(/退了會/g,'退會後');
+ if(!/章程/.test(s))s=s.replace(/會員權利義務/g,'會員有什麼權利和義務').replace(/會員權利(?:有哪些|有什麼|是什麼|怎麼算)/g,'會員有哪些權利');
+ if(/會員|會籍/.test(s)&&!/(理事|監事|候選)/.test(s))s=s.replace(/(?:撤銷|剝奪|拿掉|廢掉)(會員)?(資格|會籍)/g,'取消會員資格').replace(/(資格|會籍)(.{0,4})被(?:撤銷|剝奪|拿掉|廢掉)/g,'$1$2被取消');
+ if(/(退會|退出|不想當會員)/.test(s))s=s.replace(/(?:終身|永久|榮譽|贊助)會員/g,'會員');
+ return s;
+}
 function normalizeQuestion(q){
- return normalizeQuestion216(normalizeQuestion215(normalizeQuestion214(normalizeQuestion212(normalizeQuestion210(normalizeQuestion209(normalizeQuestion208(normalizeQuestion207(normalizeQuestion206(normalizeQuestion202(normalizeQuestion201(normalizeQuestion200(normalizeQuestion194(normalizeQuestion193(normalizeQuestion192(normalizeQuestion191(normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(normalizeQuestionU2(fixTyposU1(q))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
+ return normalizeQuestion221(normalizeQuestion216(normalizeQuestion215(normalizeQuestion214(normalizeQuestion212(normalizeQuestion210(normalizeQuestion209(normalizeQuestion208(normalizeQuestion207(normalizeQuestion206(normalizeQuestion202(normalizeQuestion201(normalizeQuestion200(normalizeQuestion194(normalizeQuestion193(normalizeQuestion192(normalizeQuestion191(normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(normalizeQuestionU2(fixTyposU1(q)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
 }
 /* 第200輪（根源）：入會退會與會員資格換問法——
    「忘記繳／忘了繳／漏繳會費」＝沒繳會費（原本「忘記繳會費會被退會嗎」被當成退費）；
@@ -2941,6 +2952,10 @@ function nonCompliance(t){
  statutes:[P(58),P(59)],notes:['補正時請照實記載日期，不要用倒填日期的會議紀錄。'],actions:[{label:'看改選流程',view:'meet',sub:'m-elect'},{label:'聯絡承辦',view:'contact',sub:''}]};
 }
 function memberEligibilityOutside(t){
+ const restrictQ=/(入會|會員|加入|只收|只讓|招收|招募)/.test(t)&&/(限制|限定|只收|只讓|只能|只有|僅限|規定).{0,8}(本縣|屏東|縣內|本地|當地|居民|設籍|戶籍|住民|在地)/.test(t)&&/(可以|可不可以|能不能|行不行|嗎|合法)/.test(t)&&!/(理事|監事|發起人|補助|社區|合作社|社員|公會)/.test(t);
+ if(restrictQ)return{direct:true,category:'人民團體會務說明',title:'協會可不可以限制只有本縣居民才能入會：可以，由章程的會員資格訂定',
+ summary:'可以。人民團體法把「組織區域」和「會員入會、出會與除名」都列為章程要載明的事項（第12條第3款、第7款），也沒有規定會員一定要設籍在哪裡，所以要不要訂「設籍或居住在本縣」這類條件，由協會在章程的會員資格裡決定。\n\n要注意：\n• 條件要寫進章程才算數；章程原本沒有、想新增，要經會員大會修改章程（第27條），再報縣府核備（第54條）。\n• 實際入會的審查程序，也看章程怎麼寫。\n\n其他細節請洽縣府社會處承辦人員，縣府總機 08-7320415。',
+ statutes:[P(12),P(27),P(54)],notes:['公會等職業團體不得拒絕具有會員資格的人入會（人民團體法第37條），和一般協會不同。'],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
  if(!/(外縣市|別的縣市|其他縣市|外地|不住屏東|外國人|外籍|新住民|沒有戶籍|戶籍不在|(入會|加入|會員).{0,8}(設籍|戶籍|住在|住屏東|居住|要住)|(設籍|戶籍|住在).{0,6}(入會|加入|才能當會員|才可以當會員))/.test(t))return null;
  if(!/(加入|入會|會員|參加)/.test(t)||/理事|監事|發起人|補助|社區/.test(t))return null;
  if(/合作社|社員/.test(t))return null;
@@ -3753,8 +3768,8 @@ function boardMeetingHowTo(t){
  statutes:[P(43),G(11),P(29),P(31),G(12)],notes:['公會等職業團體的理事會、監事會是每3個月至少一次（第29條）。'],actions:[{label:'看會議辦理說明',view:'meet',sub:'m-board'}]};
 }
 function memberQuitHowTo(t){
- if(!/(退會|退出(協會|本會|社團|團體)|不想(再)?當會員|不當會員|退社團)/.test(t)||/合作社|社員|退會費|退費|名冊|公會|強制/.test(t))return null;
- if(!/(怎麼辦|手續|程序|流程|可以|怎麼退|要不要|需要|怎麼做)/.test(t))return null;
+ if(!/(退會|退出(協會|本會|社團|團體)|(想|要|欲)退出|會員.{0,3}退出|不想(再)?當會員|不當會員|退社團)/.test(t)||/合作社|社員|退會費|退費|名冊|公會|強制/.test(t))return null;
+ if(!/(怎麼辦|手續|程序|流程|可以|怎麼退|要不要|需要|怎麼做|怎樣|怎麼樣|如何|能不能|行不行)/.test(t))return null;
  return{direct:true,category:'人民團體會務說明',title:'會員想退會：人民團體法沒有規定手續，照章程辦，一般是書面向協會提出',
  summary:'可以退會。參加或不參加團體是個人的自由，協會不能強留。\n\n• 手續：人民團體法沒有規定退會的手續。會員的入會、出會要寫在章程裡（第12條），所以請先看章程；一般的做法是用書面向協會聲明退會，由理事會備查後，從會員名冊移除。已完成法人登記的協會，民法第54條規定社員原則上可隨時退社，章程可以限定在事務年度終了或經過預告期間（不得超過六個月）後才准退社。\n• 名冊：協會要隨時更新會籍資料（人民團體會務輔導辦法第10條），退會的人不再算進應出席人數。\n• 已經繳的會費退不退：入會費、常年會費如有退費需要，要由理事會訂退費原則、提會員大會通過後辦理（社會團體財務處理辦法第14條），不是一律退，也不是一律不退。\n• 如果您是理事或監事，退會就喪失會員資格，理監事的職務也跟著解任，由候補的人遞補（第23條）。\n\n另外，法律上的「出會」還有三種情形：死亡、喪失會員資格、被會員大會決議除名（第15條）。',
  statutes:[P(12),P(15),P(23),{title:'民法第54條',source:LAW+'B0000001'},G(10)],notes:[]};
@@ -4050,7 +4065,7 @@ function membershipPatrol(t){
   return Object.assign({},base,{title:'欠會費不能由理事長直接開除；除名要符合法定事由，並經大會三分之二以上同意',
   summary:'人民團體法沒有規定欠繳會費就自動除名。會員除名只有在違反法令、章程或不遵守大會決議，致危害團體情節重大時，才能由會員大會決議（第14條），而且要出席人數三分之二以上同意（第27條）。\n欠費會有什麼後果，要看章程的「會員之權利與義務」和「出會與除名」條款（第12條第7、8款）；理事會應先催繳並留下紀錄。',
   statutes:[P(14),P(27),P(12)]});
- if((/(新會員|新入會|入會的人|剛入會)/.test(t)||/(會員|人數).{0,3}(增加|新增|變多|多了|多一)|有人(入會|加入)/.test(t))&&/(報|備查|核備|縣府|通知)/.test(t)&&!/(費|理事|監事|大會)/.test(t))
+ if((/(新會員|新入會|入會的人|剛入會)/.test(t)||(/(入會|加入)/.test(t)&&/(名單|名冊|資料|文件)/.test(t)&&/(送|交|報|給|提供|填).{0,2}(縣府|縣政府|社會處|政府)/.test(t))||/(會員|人數).{0,3}(增加|新增|變多|多了|多一)|有人(入會|加入)/.test(t))&&/(報|備查|核備|縣府|縣政府|社會處|通知)/.test(t)&&!/(費|理事|監事|大會)/.test(t))
   return Object.assign({},base,{title:'新會員入會不用逐一報縣府；協會自己更新會籍資料',
   summary:'人民團體法規定立案後要在30日內報縣府核備的，是章程、選任職員簡歷冊和負責人名冊的異動（第54條），沒有列會員名冊，所以新會員入會不用逐一報縣府備查。\n協會要建立會籍資料，會員入會、出會時隨時更新（人民團體會務輔導辦法第10條）。縣府在個別案件（例如改選報備）要求附會員名冊時，請依承辦人通知辦理。',
   statutes:[P(54),G(10)]});
@@ -4688,17 +4703,37 @@ function patrol26(t){
  return null;
 }
 function patrol25(t){
- if(!/(入會|加入|退會|出會|除名|會員證|會員卡|不當會員|退出)/.test(t))return null;
+ if(!/(入會|加入|退會|出會|除名|會員證|會員卡|不當會員|退出|(取消|撤銷|剝奪|拿掉|廢掉).{0,3}(會員)?(資格|會籍)|(會員|會籍|資格).{0,4}(被|可以被|能被|會被)(取消|撤銷|剝奪|拿掉|廢掉))/.test(t))return null;
  if(/合作社|社員|公會|工會|政黨|基金會|商業|工業|寺廟|宗教|稅|志工|魅力|社區發展/.test(t))return null;
  const base={direct:true,category:'人民團體會務說明',notes:[],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
  const tail='\n其他細節請洽縣府社會處承辦人員，縣府總機 08-7320415。';
+ /* 入會有沒有試用期 */
+ if(/(入會|加入|會員).{0,6}(試用|觀察期|考察期)|(試用|觀察|考察).{0,3}(會員|期)/.test(t)&&!/(員工|工作人員|聘|僱|雇|薪|勞)/.test(t))
+  return Object.assign({},base,{title:'入會有沒有試用期：人民團體法沒有規定，要看協會章程',
+  summary:'人民團體法沒有規定入會要有試用期（觀察期）。「會員入會、出會與除名」是章程要載明的事項（人民團體法第12條第7款），所以要不要設試用期，要看協會章程有沒有訂；想新增，要經會員大會修改章程（第27條），再報縣府核備（第54條）。'+tail,
+  statutes:[P(12),P(27),P(54)]});
+ /* 入會可不可以線上申請 */
+ if(/(入會|加入).{0,6}(線上|網路|上網|網站|電子|email|Email|信箱|LINE|Line|line)|(線上|網路|上網|電子).{0,4}(申請|報名|辦理|填).{0,3}(入會|加入)/.test(t)&&!/(成立|籌組|籌備|立案|發起)/.test(t))
+  return Object.assign({},base,{title:'入會可不可以線上申請：人民團體法沒有規定方式，看協會章程和協會自己的作法',
+  summary:'人民團體法沒有規定入會一定要用書面或一定要到現場，入會的資格和程序是章程要載明的事項（人民團體法第12條第7款），所以請直接向想加入的協會詢問有沒有收線上申請，或先看它的章程。\n本站的「線上申辦」，是協會辦理對縣府的申請與報備用的，不是用來加入協會。'+tail,
+  statutes:[P(12)]});
+ /* 會員的資格可以被取消嗎 */
+ if(/(取消|撤銷|剝奪|拿掉|廢掉).{0,3}(會員)?(資格|會籍)|(會員|會籍|資格).{0,4}(被|可以被|能被|會被)(取消|撤銷|剝奪|拿掉|廢掉)/.test(t)&&/會員|會籍/.test(t)&&!/(理事|監事|理事長|候選)/.test(t))
+  return Object.assign({},base,{title:'會員的資格可以被取消嗎：要依法經大會決議除名，或依章程規定喪失資格',
+  summary:'可以，但不是理事長或理事會一句話就能取消。\n• 除名：會員違反法令、章程或不遵守會員（會員代表）大會決議，而且危害團體情節重大，才可以經大會決議除名（人民團體法第14條），要有出席人數三分之二以上同意（第27條）。\n• 喪失會員資格：會員資格的條件由章程訂定（第12條第7款）；不符合資格而喪失，也屬於出會（第15條）。\n欠繳會費、沒來開會，本身不會自動喪失資格，要看章程怎麼訂。'+tail,
+  statutes:[P(14),P(15),P(27),P(12)]});
+ /* 停權跟除名差在哪 */
+ if(/停權/.test(t)&&/除名/.test(t)&&/(不同|差|分別|一樣|不一樣|有什麼|區別)/.test(t))
+  return Object.assign({},base,{title:'停權和除名不一樣：停權是暫停部分權利，除名是喪失會員資格',
+  summary:'兩者不一樣。\n• 除名：會員違反法令、章程或不遵守會員（會員代表）大會決議，而且危害團體情節重大，才可以經大會決議除名（人民團體法第14條），要有出席人數三分之二以上同意（第27條），除名後就出會（第15條）。\n• 停權：不是人民團體法列的出會情形，法律沒有統一規定事由和程序，由團體在章程或理事會決議中訂定停哪些權利、停多久（內政部112年11月2日台內團字第1100137213號函）；停權通常是暫停表決權、選舉權、被選舉權和罷免權（第16條），人還是會員。\n\n所以停權要先看章程有沒有依據，不是理事長一個人說了算。'+tail,
+  statutes:[P(14),P(15),P(27),P(16),MOI_SUSPEND]});
  /* 退會跟除名差在哪 */
  if(/除名/.test(t)&&/(退會|出會|不同|差|分別|一樣|不一樣|有什麼)/.test(t)&&!/(退費|會費)/.test(t))
   return Object.assign({},base,{title:'退會是會員自己提出，除名是協會經大會決議處分',
   summary:'兩者不一樣。退會是會員自己決定不再參加，手續依章程規定（「會員入會、出會與除名」是章程要載明的事項，人民團體法第12條第7款）。\n除名是協會對會員的處分：會員違反法令、章程或不遵守會員（會員代表）大會決議，而且危害團體情節重大，才可以經會員（會員代表）大會決議除名（第14條），決議要有出席人數三分之二以上同意（第27條第2款）。\n所以不是理事長或理事會一句話就能除名。'+tail,
   statutes:[P(12),P(14),P(27)]});
  /* 退會要不要理事會同意 */
- if(/退會|出會|不當會員|退出/.test(t)&&/(同意|核准|批准|審查|通過|點頭)/.test(t)&&!/(會費|退費|不准|不讓|不給|不同意|拒絕)/.test(t))
+ if(/退會|出會|不當會員|退出/.test(t)&&/(同意|核准|批准|審查|通過|點頭|備查|通知理事會|報理事會|告知理事會)/.test(t)&&!/(會費|退費|不准|不讓|不給|不同意|拒絕)/.test(t))
   return Object.assign({},base,{title:'退會要不要經理事會同意：法規沒有規定，看章程；一般是書面通知協會',
   summary:'人民團體法沒有規定退會必須經理事會同意。會員的出會程序是章程要載明的事項（第12條第7款），請先看您協會的章程怎麼寫。\n已完成法人登記的協會，民法第54條規定社員原則上可隨時退社；章程可以限定在事務年度終了，或經過預告期間後才准退社，預告期間不得超過六個月。民法這條沒有寫退社要經理事會同意；沒有完成法人登記的協會是否直接適用，請洽縣府承辦。\n一般的做法是用書面向協會聲明退會，由理事會備查後，從會員名冊移除；協會要隨時更新會籍資料（人民團體會務輔導辦法第10條）。'+tail,
   statutes:[P(12),{title:'民法第54條',source:LAW+'B0000001'},G(10)]});
@@ -4708,7 +4743,7 @@ function patrol25(t){
   summary:'人民團體法和會務輔導辦法沒有規定協會一定要發會員證。要不要發、長什麼樣子，屬於協會內部管理，請看章程或理事會的決定。\n會員的入會、出會要寫在章程裡（人民團體法第12條第7款）。協會要建立會籍資料並隨時更新（人民團體會務輔導辦法第10條）。'+tail,
   statutes:[P(12),G(10)]});
  /* 第138輪：入會要附什麼文件、身分證影本、填表（法規無明文；個資法§5） */
- if(/(入會|加入).{0,6}(附|繳交|檢附|交|準備|提供|帶).{0,4}(什麼|哪些|文件|證件|身分證|身份證|影本|照片|資料|證明)|(入會|加入).{0,4}(要|需要|需).{0,2}(填|寫).{0,3}(表|資料)|(入會|加入).{0,4}(填|寫)(表|資料)/.test(t)&&!/(成立|籌組|籌備|立案|發起|退會|退出)/.test(t)&&!(/(申請書|申請單|表格|表單)/.test(t)&&!/(附|檢附|身分證|身份證|影本|文件|證件|照片)/.test(t)))
+ if(/(入會|加入).{0,6}(附|繳交|檢附|交|準備|提供|帶).{0,4}(什麼|哪些|文件|證件|身分證|身份證|影本|照片|資料|證明)|(入會|加入).{0,4}(要|需要|需).{0,2}(填|寫).{0,3}(表|資料)|(入會|加入).{0,4}(填|寫)(表|資料)/.test(t)&&!/(成立|籌組|籌備|立案|發起|退會|退出)/.test(t)&&!/(縣府|縣政府|社會處|主管機關)/.test(t)&&!(/(申請書|申請單|表格|表單)/.test(t)&&!/(附|檢附|身分證|身份證|影本|文件|證件|照片)/.test(t)))
   return Object.assign({},base,{title:'入會要填什麼、附什麼文件（含身分證影本）：法規沒有規定，看協會章程和申請書',
   summary:'人民團體法沒有規定入會要填哪些表、附哪些文件，也沒有規定一定要附身分證影本。入會的資格和程序是章程要載明的事項（人民團體法第12條第7款），所以請向想加入的協會詢問，或先看它的章程；一般會請您填入會申請書。\n協會向您蒐集個人資料（例如身分證影本），依個人資料保護法第5條，不能超出特定目的的必要範圍，並要與蒐集目的有正當合理的關聯。對協會要求附的文件有疑問，可以先請協會說明用途。'+tail,
   statutes:[P(12),{title:'個人資料保護法第5條',source:'https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=I0050021'}]});
@@ -6741,7 +6776,7 @@ function patrol62(t){
  if(/(不想(再)?(當|做)會員|不(要|想)(再)?(當|做)會員|要退會|想退會|退會要)/.test(t)&&/(跟誰|找誰|向誰|問誰|交給誰|跟哪|找哪|去哪|到哪|哪裡)/.test(t))
   return A('想退會：向您加入的協會表示，一般用書面','退會是向您加入的協會表示，不是向縣府辦理。會員的入會、出會與除名是章程要載明的事項（人民團體法第12條第7款），手續請先看協會章程。\n一般的做法是用書面向協會提出，由協會更新會籍資料（人民團體會務輔導辦法第10條）。'+tail,[P(12),G(10)]);
  // 想入會：去哪裡、找誰、直接報名
- if(/(入會|加入(協會|本會|社團|團體)?|當(協會|本會)?會員|報名.{0,4}會員|會員.{0,4}報名)/.test(t)&&/(去哪|找誰|哪裡|跟誰|向誰|直接|怎麼報名|在哪|到哪|報名)/.test(t)&&!/(退會|不想|不要|退出|費|拒絕|不讓|不准|除名|名冊|縣府要|報縣府)/.test(t))
+ if(/(入會|加入(協會|本會|社團|團體)?|當(協會|本會)?會員|報名.{0,4}會員|會員.{0,4}報名)/.test(t)&&/(去哪|找誰|哪裡|跟誰|向誰|直接|怎麼報名|在哪|到哪|報名)/.test(t)&&!/(退會|不想|不要|退出|費|拒絕|不讓|不准|除名|名冊|縣府要|報縣府|線上|網路|上網|電子|LINE|Line|line)/.test(t))
   return A('想入會：向您想加入的協會申請，資格和程序看它的章程','入會是向您想加入的協會申請。會員的入會、出會與除名是章程要載明的事項（人民團體法第12條第7款），資格和程序各協會不同，請先向協會索取章程或入會申請書。\n一般的做法是填申請書、由理事會審查、繳納入會費和常年會費後成為會員；入會費和常年會費的數額與繳納方式要經會員大會通過並報縣府核備（人民團體法第33條）。\n不知道有哪些協會，可以到本站「查詢立案團體」看。'+tail,[P(12),P(33)]);
  // 會員資格給別人（口語說法）
  if(/(會員資格|會籍|會員身分|會員身份|會員名額)/.test(t)&&/(給別人|讓給|轉給|送給|過戶|給家人|給親戚|給兒子|給女兒|給小孩|換人)/.test(t)&&!/(除名|退會)/.test(t))
