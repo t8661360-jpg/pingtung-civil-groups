@@ -1072,7 +1072,36 @@ function deityAssociationManagerReferral(q){
   steps:explicitLand?[landStep,arrange,selection]:[selection,arrange],
   refs:[{title:'內政部：祭祀公業及神明會的區分',source:'https://www.moi.gov.tw/cp.aspx?n=160'},{title:'內政部：土地申報與民政窗口',source:'https://www.moi.gov.tw/News_Content.aspx?n=18683&s=207972&sms=9015'},...(explicitLand?[{title:'內政部祭祀公業及神明會法令彙編：非法人神明會土地管理人變更',source:'https://www.civil.taichung.gov.tw/media/640744/1090507-108%E5%B9%B4%E5%BA%A6%E7%89%88%E7%A5%AD%E7%A5%80%E5%85%AC%E6%A5%AD%E5%8F%8A%E7%A5%9E%E6%98%8E%E6%9C%83%E6%B3%95%E4%BB%A4%E5%BD%99%E7%B7%A8.pdf'}]:[])]};
 }
+function volunteerTravelMealTax(q){
+ const t=String(q||'').normalize('NFKC').replace(/\s/g,'');
+ if(t.length>185||!/志工|志願服務者/.test(t)||!/報稅|所得|扣繳|扣稅|免稅|課稅|繳稅|列單|憑單|申報|稅務/.test(t))return null;
+ if(/印花稅|營業稅|捐贈扣除|公益勸募|外籍|境外/.test(t))return null;
+ const expenses=/誤餐|餐費|交通費|車資|車馬費/.test(t);
+ const estimate=/每月固定|每個月固定|固定.{0,10}(?:津貼|補助|一筆|車馬|誤餐|交通費)|定額.{0,6}(?:津貼|補助)|不論.{0,8}(?:出勤|服務|次數)|包月|餐券|禮券/.test(t);
+ const perService=/按次|按.{0,5}次數|依.{0,8}次數|實際.{0,8}次數|每次(?:服務|值勤|出勤)|有.{0,5}(?:服務|值勤|出勤).{0,7}(?:才|就)發/.test(t);
+ const orgIncome=/(?:協會|團體|運用單位)(?:自己|本身)?(?:有)?(?:收到|收進|收的|領到|取得|收到的款)|(?:政府|縣府|公所|機關)(?:給|補助|撥給|支付)(?:我們)?(?:的)?(?:協會|團體)|委辦費|委託契約收入/.test(t);
+ const person=/(?:發(?:給)?|給付給?|補助給|付給|發放給?)志工|志工(?:個人|本身|拿到|領到|領取|領的|要報|報稅)|我(?:是志工|領到)/.test(t);
+ if(!expenses&&!estimate&&!orgIncome)return null;
+ const relief=['志工個人的交通費或誤餐費','依志願服務法提供服務、按實際服務次數給付，且符合適用支給標準的交通費或誤餐費，依財政部台財稅字第09404548760號令，可免納個人所得稅，不用把這筆符合條件的費用列入個人綜合所得。志願服務法第16條允許運用單位視需要補助。'];
+ const fixed=['固定津貼、餐券或禮券要另外看','與實際服務次數無關的固定津貼，或性質未明的餐券、禮券，不能直接套用按實際服務次數給付交通費或誤餐費的免稅規則。要看給付性質、發放條件及紀錄，不先判定必然免稅或一定是薪資。'];
+ const organization=['協會自己的收入不是志工個人所得','政府補助或委辦款是協會收款時，不能套用志工個人的免稅規則。請先區分核定的補助與承接服務的契約對價，依核定函或契約、收款憑證與團體的申報條件判斷；不能因為拿來支付志工費用就認定免稅。'];
+ const proof=['承辦會計要留什麼資料？','保存服務日期與次數、適用的支給標準、領款及付款憑證。若問的是協會要不要扣繳、列單或開憑單，應把個人所得與協會的申報義務分開，按實際給付資料向國稅局確認，可撥 0800-000-321。'];
+ const orgOnly=orgIncome&&!person;
+ const unknown=!orgIncome&&!perService&&!estimate;
+ const rows=orgOnly?[organization,proof]:[relief,...(estimate||!perService?[fixed]:[]),...(orgIncome?[organization]:[]),proof];
+ const choices=unknown?[
+  {label:'按實際服務次數給交通費或誤餐費',question:'志工按實際服務次數領交通費或誤餐費，要報個人所得稅嗎？'},
+  {label:'每月固定津貼／餐券，不按次給',question:'每月固定發給志工的津貼或餐券要報稅嗎？'},
+  {label:'協會自己收到補助或委辦款',question:'縣府補助協會志工送餐經費，協會自己收到的款也免稅嗎？'}
+ ]:undefined;
+ return {direct:true,category:'稅務',title:orgOnly?'協會收款與志工個人免稅，不能混在一起':estimate&&!perService?'志工固定津貼不能直接套用免稅規則':'志工交通費和誤餐費：符合條件可免納個人所得稅',
+ summary:orgOnly?'協會自己收到的款不能用志工個人的免稅函令判斷。需先區分補助或契約對價。':orgIncome?'兩種收款分開看。志工的交通費或誤餐費符合條件可免納個人所得稅；協會收到的款不因此免稅。':estimate&&!perService?'固定津貼若不按實際服務次數給付，不能只因叫作「志工津貼」就視為免稅。':unknown?'符合志願服務法、按實際服務次數且依適用標準給付的交通費或誤餐費，可免納個人所得稅。先確認您問的是哪一種給付。':'符合志願服務法，並按實際服務次數及適用標準發給的交通費或誤餐費，可免納個人所得稅。',
+ steps:rows,refs:[{title:'財政部台財稅字第09404548760號令（志工交通費或誤餐費）',source:'https://law-out.mof.gov.tw/LawContent.aspx?id=GL006128'},law('志願服務法','D0050131',16),law('所得稅法','G0340003',14)],
+ ...(choices?{choiceHeading:'這筆錢是付給誰、怎麼發放？',choices}:{})};
+}
+
 function answerMixed(q){
+ const volunteerTax=volunteerTravelMealTax(q);if(volunteerTax)return volunteerTax;
  const deityManager=deityAssociationManagerReferral(q);if(deityManager)return deityManager;
  const noiseReferral=outsideCounterNoiseReferral(q);if(noiseReferral)return noiseReferral;
  const industryDelegate=industryDelegateReplacement(q);if(industryDelegate)return industryDelegate;
@@ -1120,6 +1149,6 @@ function answerMixed(q){
     keys.includes('creditor')?'合作社清算：就任後公告與終結報告，分別計算':isCoop?'合作社清算報告與股息上限，分開看':'協會入會資格與會員除名，分開看',
   summary:keys.length===1?topics[keys[0]].line[1]:'你問了兩件事，分別如下。',steps:keys.length>1?keys.map(k=>topics[k].line):[],refs:keys.flatMap(k=>topics[k].laws)};
 }
-if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy,changedMeetingVenue,familyAssemblyProxy,dualBoardVacancies,coopBoardVacancies,creditCooperativeVacancy,schoolParentFiling,associationRegisteredAddress,inspectAndPublishBoardMinutes,temporaryMeetingNotice,withdrawalAndAssemblyRoll,memberMeetingExpenseFunding,missedSupervisorNotice,duesAndAssemblyRights,coopWithdrawalAndAssembly,designatedMeetingConvener,assemblyRepresentativeParticipation,formerMemberGiftReturn,preschoolParentFiling,associationVotingRollDisclosure,associationDirectorsQuorum,creditCoopDepositsAndDividends,associationElectionObjection,associationDelegateReplacement,commerceDelegateReplacement,industryDelegateReplacement,outsideCounterNoiseReferral,deityAssociationManagerReferral};return;}
+if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy,changedMeetingVenue,familyAssemblyProxy,dualBoardVacancies,coopBoardVacancies,creditCooperativeVacancy,schoolParentFiling,associationRegisteredAddress,inspectAndPublishBoardMinutes,temporaryMeetingNotice,withdrawalAndAssemblyRoll,memberMeetingExpenseFunding,missedSupervisorNotice,duesAndAssemblyRights,coopWithdrawalAndAssembly,designatedMeetingConvener,assemblyRepresentativeParticipation,formerMemberGiftReturn,preschoolParentFiling,associationVotingRollDisclosure,associationDirectorsQuorum,creditCoopDepositsAndDividends,associationElectionObjection,associationDelegateReplacement,commerceDelegateReplacement,industryDelegateReplacement,outsideCounterNoiseReferral,deityAssociationManagerReferral,volunteerTravelMealTax};return;}
 root.verifiedMixedQuestionAnswer=answerMixed;
 })(typeof window!=='undefined'?window:globalThis);
