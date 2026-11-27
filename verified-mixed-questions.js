@@ -696,6 +696,37 @@ function coopWithdrawalAndAssembly(q){
   ]}:{}),steps,refs:[coop(26),coop(27),...(absent?[coop(28)]:[]),coop(35),coop(48),...(refund?[coop(30)]:[])],
   actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
 }
+function designatedMeetingConvener(q){
+ const t=String(q??'').normalize('NFKC').replace(/\s/g,'');
+ if(t.length>165||!/協會|社會團體|人民團體/.test(t)||/合作社|公會|工會|農會|漁會|董事會|公司|基金會|里長|鄉長|公所|補選|辭職|辭任|出缺|聯席/.test(t))return null;
+ if(!/召集|開(?:會|理事會|監事會|大會)|流會/.test(t)
+  ||!/(?:縣府|主管機關|社會處|縣政府|政府|承辦).{0,16}(?:指定|指派)|(?:指定|指派).{0,12}(?:召集|誰來開|誰開)|指定誰/.test(t))return null;
+ const a=/會員(?:代表)?大會|臨時大會/.test(t);
+ const b=/理事會/.test(t)&&!/先(?:開|召開)理事會/.test(t);
+ const s=/監事會/.test(t)&&(!a||/(?:開|召集)(?:臨時)?監事會|監事會.{0,10}(?:未開|沒開|不能開|無法開|流會)|(?:大會|理事會).{0,4}(?:與|和|跟|及|、)監事會/.test(t));
+ const guide=n=>law('人民團體會務輔導辦法','D0020094',n);
+ const joint=b&&s;
+ const noKind=!a&&!b&&!s;
+ const askFromSupervisor=/監事會.{0,24}(?:發函|書面|請|要求).{0,14}(?:會員大會|召開|開會)/.test(t);
+ const roleA=['臨時會員（會員代表）大會｜指定理事','過半數理事或五分之一以上會員（會員代表）書面連署，或由監事會正式發函請求。理事長自收到連署或發函後三十日內應開完；屆期未完成，主管機關得指定一名理事召集。不能由個別監事自行召集，也不是監事會一發函就指定。應出席人員以最近一次經理事會審定的名冊為限。'];
+ const roleB=['理事會｜指定理事','過半數理事書面連署召開臨時理事會，理事長於收到後十五日內應開完；無法親自召集時，依章程所定代理程序辦理，仍須在期限內開完。連續召集三次以上均未成會，或依法連署後未在十五日內開完，主管機關得指定一名理事召集。'];
+ const roleS=['監事會｜指定監事','過半數監事書面連署召開臨時監事會，監事會召集人（常務監事）於收到後十五日內應開完；無法親自召集時，依章程所定代理程序辦理，仍須在期限內開完。連續召集三次以上均未成會，或依法連署後未在十五日內開完，主管機關得指定一名監事召集。不必先由理事會同意。'];
+ const prep=['如何把程序說清楚','書面連署或監事會請求臨時大會的函件，應雙掛號寄給相應的召集人，取得掛號回執後報主管機關備查。若請求主管機關指定，保留章程、連署或函件、回執及歷次開會通知與流會紀錄，供核對。指定限於召集該場會議，不是任命理事長，也不取代法定出席和決議門檻。'];
+ const refs=[association(32),...((b||s||noKind)?[guide(13),guide(14)]:[]),...((a||noKind)?[guide(15)]:[])];
+ return {direct:true,category:'人民團體會務說明',title:noKind?'報請指定召集人：先選哪一種會議':'協會會議不能依法召開：由主管機關按會議種類指定召集人',
+  summary:noKind?'不是一律先開理事會。請先選哪一種會議開不了：會員大會、理事會，或監事會。':
+   joint?'理事會與監事會要各自判斷。理事會指定一名理事，監事會指定一名監事，不能用同一個指定取代兩邊的程序。':
+   a&&!b&&!s?(askFromSupervisor?'監事會正式發函請求臨時會員大會，理事長收到後三十日內仍未開完，主管機關得指定一名理事召集；不是由監事自行召集。':'會員大會不能依法召開時，主管機關得指定一名理事；臨時大會的書面請求和三十日規則如下。'):
+   s&&!b?'符合條件時，主管機關得指定一名監事召集監事會，沒有一律先開理事會的要求。':
+   '符合法定條件時，主管機關得指定一名理事召集，並不是任命新的理事長。',
+  ...(noKind?{choiceHeading:'選擇無法召開的會議',choices:[
+   {label:'會員大會',question:'協會會員大會無法依法召開，要如何報請主管機關指定召集人？'},
+   {label:'理事會',question:'協會理事會無法依法召開，要如何報請主管機關指定召集人？'},
+   {label:'監事會',question:'協會監事會無法依法召開，要如何報請主管機關指定召集人？'}
+  ]}:{}),
+  steps:noKind?[]:[...(a?[roleA]:[]),...(b?[roleB]:[]),...(s?[roleS]:[]),prep],
+  refs,actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
+}
 function answerMixed(q){
  const coopWithdrawal=coopWithdrawalAndAssembly(q);if(coopWithdrawal)return coopWithdrawal;
  const duesRights=duesAndAssemblyRights(q);if(duesRights)return duesRights;
@@ -708,6 +739,7 @@ function answerMixed(q){
  const creditVacancy=creditCooperativeVacancy(q);if(creditVacancy)return creditVacancy;
  const coopVacancy=coopBoardVacancies(q);if(coopVacancy)return coopVacancy;
  const dual=dualBoardVacancies(q);if(dual)return dual;
+ const designated=designatedMeetingConvener(q);if(designated)return designated;
  const familyProxy=familyAssemblyProxy(q);if(familyProxy)return familyProxy;
  const venue=changedMeetingVenue(q);if(venue)return venue;
  const temporary=temporaryMeetingNotice(q);if(temporary)return temporary;
@@ -731,6 +763,6 @@ function answerMixed(q){
     keys.includes('creditor')?'合作社清算：就任後公告與終結報告，分別計算':isCoop?'合作社清算報告與股息上限，分開看':'協會入會資格與會員除名，分開看',
   summary:keys.length===1?topics[keys[0]].line[1]:'你問了兩件事，分別如下。',steps:keys.length>1?keys.map(k=>topics[k].line):[],refs:keys.flatMap(k=>topics[k].laws)};
 }
-if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy,changedMeetingVenue,familyAssemblyProxy,dualBoardVacancies,coopBoardVacancies,creditCooperativeVacancy,schoolParentFiling,associationRegisteredAddress,inspectAndPublishBoardMinutes,temporaryMeetingNotice,withdrawalAndAssemblyRoll,memberMeetingExpenseFunding,missedSupervisorNotice,duesAndAssemblyRights,coopWithdrawalAndAssembly};return;}
+if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy,changedMeetingVenue,familyAssemblyProxy,dualBoardVacancies,coopBoardVacancies,creditCooperativeVacancy,schoolParentFiling,associationRegisteredAddress,inspectAndPublishBoardMinutes,temporaryMeetingNotice,withdrawalAndAssemblyRoll,memberMeetingExpenseFunding,missedSupervisorNotice,duesAndAssemblyRights,coopWithdrawalAndAssembly,designatedMeetingConvener};return;}
 root.verifiedMixedQuestionAnswer=answerMixed;
 })(typeof window!=='undefined'?window:globalThis);
