@@ -1134,7 +1134,67 @@ function associationStampDuty(q){
  ...(choices?{choiceHeading:'這份租約有沒有兼作收據？',choices}:{})};
 }
 
+function coopRepresentativeAssembly(q){
+ const t=String(q||'').normalize('NFKC').replace(/\s/g,'');
+ if(t.length>175||!/合作社|信合社/.test(t)||!/代表/.test(t)||/儲蓄互助社|農會|漁會|公會|合作社聯合社|保險合作社|初選|出缺|補選|候補|辭職|辭任|股息|股金|清算|解散|合併|轉型|查詢名冊|有幾家/.test(t))return null;
+ const creditRe=/信用合作社|信合社/;
+ const regularRe=/(?:一般(?:的)?|普通|消費|生產|運銷|勞動|住宅|員生|交通)合作社/;
+ const credit=creditRe.test(t), regular=regularRe.test(t.replace(/信用合作社/g,''));
+ const proxy=credit&&/代理|委託|把票交給|代投/.test(t)&&/大會|投票|表決|選舉|缺席|出席/.test(t);
+ const isElection=/選(?:舉|理事|監事|理監事|社員代表)|改選/.test(t);
+ const ordinaryMotion=/一般議案|議案表決|一般表決|通過議案|例行議案/.test(t);
+ const seat=/幾(?:席|個|名|位)(?:社員)?代表|代表.{0,9}(?:幾個|幾名|幾位|幾席|幾人|多少|人數|名額|任期|任幾年|當幾年)|(?:選|推選|選出)(?:多少|幾|[0-9,]+)(?:個|名|位|席)?(?:社員)?代表|代表大會.{0,7}(?:嗎|能|可|嗎)|(?:能|可|要|能否|得否)(?:不)?(?:以|夠)?(?:召)?開(?:社員)?代表大會|代表大會.{0,18}(?:多少|幾年|幾人)|(?:代表制|代表大會).{0,15}(?:門檻|條件|章程|人數|怎麼選|怎麼開|怎麼辦)|(?:能|可)(?:不)?(?:以|夠)?選(?:出)?(?:社員)?代表/.test(t);
+ if(!seat&&!proxy)return null;
+ if(!proxy&&/代表.*(?:報備|函報|會議紀錄|通知何時|寄通知|開會通知|監事會|理事席次)/.test(t)&&!/幾(?:席|個|名|位|人)|多少|任期/.test(t))return null;
+ const creditLaw=n=>law('信用合作社法','G0380058',n);
+ const creditRules=n=>law('信用合作社社員代表理事監事經理人應具備資格條件及選聘辦法','G0380069',n);
+ const regularRules=law('合作社選舉罷免辦法','D0050022',4);
+ function toNumber(raw){
+  if(/^\d[\d,]*$/.test(raw)){const n=Number(raw.replace(/,/g,''));return Number.isSafeInteger(n)&&n>0?n:null;}
+  const digits='零一二三四五六七八九', units={十:10,百:100,千:1000};
+  let partial=0,total=0,prev=10000;
+  for(const c of raw){if(c in units){if(units[c]>=prev)return null;prev=units[c];total+=(partial||1)*units[c];partial=0;}else partial=c==='兩'?2:digits.indexOf(c);}
+  return total+partial||null;
+ }
+ function counts(x){
+  const nums=[...x.matchAll(/(\d{1,3}(?:,\d{3})+|\d+|[零一二兩三四五六七八九十百千]+)(?:名|位|個)?(?:正式)?社員|社員(?:總)?人數(?:有|為|是|達|共|[:：])?(\d{1,3}(?:,\d{3})+|\d+|[零一二兩三四五六七八九十百千]+)(?!歲|天|月|年|位代表)/g)].map(m=>toNumber(m[1]||m[2])).filter(Boolean);
+  return [...new Set(nums)];
+ }
+ const unique=counts(t),n=unique.length===1?unique[0]:null;
+ const separate=(re)=>{
+  const candidates=[...new Set(t.replace(/(?<=\d),(?=\d{3}(?:\D|$))/g,'').split(/[，,；;。？?！!]/).filter(s=>re.test(s)).flatMap(counts))];
+  return candidates.length===1?candidates[0]:null;
+ };
+ const quotedNumber=(v,cap,isCredit)=>{
+  if(!v)return '';
+  if(v<=200)return '以'+v+'名社員而言，未超過200人，不能依這條改開社員代表大會。';
+  const x=Math.max(51,Math.min(cap,v/10));
+  if(!Number.isInteger(x))return v+'名社員的10%是'+x+'，名額取整請按該社選舉規定與主管機關確認，不自行四捨五入。';
+  return v+'名社員，'+(isCredit?'依法為':'依名額原則推算為')+x+'名社員代表'+(v/10<51?'（最低51名）':v/10>cap?'（最高'+cap+'名）':'')+'。';
+ };
+ const cCount=quotedNumber(credit&&regular?separate(creditRe)||(n&&/同樣|各有|都是/.test(t)?n:null):n,151,true);
+ const rCount=quotedNumber(credit&&regular?separate(regularRe)||(n&&/同樣|各有|都是/.test(t)?n:null):n,199,false);
+ const cRow=['信用合作社／信合社','依信用合作社法第13條，社員超過200人，得選社員代表並開社員代表大會行使社員大會職權，不是超過就一定要改開。代表人數是社員人數10%，最低51名、最高151名；任期三年，連選得連任。'+cCount];
+ const rRow=['一般合作社','依合作社選舉罷免辦法第4條，社員超過200人可依章程分組選代表；章程未規定但經主管機關核准，也可分組。代表以社員人數10%為原則，最低51名、最高199名。'+rCount+(/任期|任幾年|當幾年/.test(t)?'一般合作社的代表任期請核對該社章程；同辦法第4條未訂一般合作社代表的年數，不能直接套信合社的三年。':'')];
+ const proxyRow=['先分辨是否為信用合作社選舉','信用合作社的選舉，依選聘辦法第27條，選舉人須親自出席，不能委託代理。若是代表大會的一般議案而不是選舉，本條不能直接判定；請核對該社核定章程及議程，必要時洽信用合作社主管機關確認，不直接套人民團體的委託規定。'];
+ const typeMissing=!regular&&!credit;const both=credit&&regular;
+ const nText=n?'有'+n+'名社員，':'';
+ const choices=typeMissing?[
+  {label:'一般合作社（如消費、勞動）',question:'一般合作社'+nText+'可以開社員代表大會嗎？代表要選幾位？'},
+  {label:'信用合作社（信合社）',question:'信用合作社'+nText+'可以開社員代表大會嗎？代表要選幾位？'}
+ ]:proxy&&!isElection&&!ordinaryMotion?[
+  {label:'是選理監事等選舉',question:'信用合作社的社員代表大會要選理監事，不能到場可以委託投票嗎？'},
+  {label:'是一般議案表決',question:'信用合作社的社員代表大會一般議案表決，代表缺席可委託代理嗎？'}
+ ]:null;
+ return {direct:true,category:'合作社會務',title:proxy?'信合社代表大會：選舉和一般議案要分開':both?'一般合作社與信用合作社的代表名額不同':typeMissing?'先確認是哪一類合作社，再看社員代表名額':credit?'信用合作社代表大會：最低51名、最高151名':'一般合作社代表大會：最低51名、最高199名',
+ summary:proxy?(isElection&&!ordinaryMotion?'信用合作社的選舉不能委託投票；選舉人須本人出席。':ordinaryMotion&&!isElection?'一般議案表決不是選舉；不能單憑選舉條文判斷可否委託。':'如果是信用合作社的選舉，不能委託投票；如果是一般議案，請先確認章程和議程。'):both?'兩種合作社使用不同規則，不要把最高199名套到信合社。':typeMissing?'兩類都須超過200名社員才有這個選項，但代表名額上限及程序不同。請選所屬類型。':(credit?cCount:rCount)||'是否可開代表大會，要先確認社員人數是否超過200人。',
+ steps:[...(seat&&((credit||!regular))?[cRow]:[]),...(seat&&((regular||!credit))?[rRow]:[]),...(proxy?[proxyRow]:[])],
+ refs:[...((credit||typeMissing)?[creditLaw(13)]:[]),...((regular||typeMissing)?[regularRules]:[]),...(proxy?[creditRules(27),creditLaw(8)]:[])],
+ ...(choices?{choiceHeading:typeMissing?'您問的是哪一類合作社？':'這次是選舉還是一般議案？',choices}:{})};
+}
+
 function answerMixed(q){
+ const coopRepresentatives=coopRepresentativeAssembly(q);if(coopRepresentatives)return coopRepresentatives;
  const stampDuty=associationStampDuty(q);if(stampDuty)return stampDuty;
  const volunteerTax=volunteerTravelMealTax(q);if(volunteerTax)return volunteerTax;
  const deityManager=deityAssociationManagerReferral(q);if(deityManager)return deityManager;
@@ -1184,6 +1244,6 @@ function answerMixed(q){
     keys.includes('creditor')?'合作社清算：就任後公告與終結報告，分別計算':isCoop?'合作社清算報告與股息上限，分開看':'協會入會資格與會員除名，分開看',
   summary:keys.length===1?topics[keys[0]].line[1]:'你問了兩件事，分別如下。',steps:keys.length>1?keys.map(k=>topics[k].line):[],refs:keys.flatMap(k=>topics[k].laws)};
 }
-if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy,changedMeetingVenue,familyAssemblyProxy,dualBoardVacancies,coopBoardVacancies,creditCooperativeVacancy,schoolParentFiling,associationRegisteredAddress,inspectAndPublishBoardMinutes,temporaryMeetingNotice,withdrawalAndAssemblyRoll,memberMeetingExpenseFunding,missedSupervisorNotice,duesAndAssemblyRights,coopWithdrawalAndAssembly,designatedMeetingConvener,assemblyRepresentativeParticipation,formerMemberGiftReturn,preschoolParentFiling,associationVotingRollDisclosure,associationDirectorsQuorum,creditCoopDepositsAndDividends,associationElectionObjection,associationDelegateReplacement,commerceDelegateReplacement,industryDelegateReplacement,outsideCounterNoiseReferral,deityAssociationManagerReferral,volunteerTravelMealTax,associationStampDuty};return;}
+if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining,assemblyCommunications,assemblyPrivacy,coopRegistryPrivacy,yearEndAuditVacancy,overdueFundraising,publishDocumentPrivacy,fundraisingDisclosure,changedAssociationDues,resignationAndMeeting,formerMemberArrearsPrivacy,changedMeetingVenue,familyAssemblyProxy,dualBoardVacancies,coopBoardVacancies,creditCooperativeVacancy,schoolParentFiling,associationRegisteredAddress,inspectAndPublishBoardMinutes,temporaryMeetingNotice,withdrawalAndAssemblyRoll,memberMeetingExpenseFunding,missedSupervisorNotice,duesAndAssemblyRights,coopWithdrawalAndAssembly,designatedMeetingConvener,assemblyRepresentativeParticipation,formerMemberGiftReturn,preschoolParentFiling,associationVotingRollDisclosure,associationDirectorsQuorum,creditCoopDepositsAndDividends,associationElectionObjection,associationDelegateReplacement,commerceDelegateReplacement,industryDelegateReplacement,outsideCounterNoiseReferral,deityAssociationManagerReferral,volunteerTravelMealTax,associationStampDuty,coopRepresentativeAssembly};return;}
 root.verifiedMixedQuestionAnswer=answerMixed;
 })(typeof window!=='undefined'?window:globalThis);

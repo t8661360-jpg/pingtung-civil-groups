@@ -1,0 +1,17 @@
+const a=require('node:assert/strict');
+const {coopRepresentativeAssembly:fn,answerMixed}=require('./verified-mixed-questions.js');
+const text=q=>JSON.stringify(answerMixed(q));
+a.match(text('信用合作社有1500名社員，可以開代表大會嗎？代表選幾個、任期幾年？'),/依法為150名社員代表.*任期三年/);
+a.match(text('信合社有三百名社員，代表選幾位？'),/依法為51名社員代表/);
+a.match(text('信用合作社有200名社員，可以開代表大會嗎？'),/未超過200人/);
+a.match(text('信用合作社有2,500名社員，代表選幾位？'),/依法為151名社員代表/);
+a.match(text('信用合作社有999名社員，代表選幾位？'),/99.9.*不自行四捨五入/);
+a.match(text('我們是一般消費合作社，有2500名社員，能選幾個社員代表？'),/依名額原則推算為199名社員代表/);
+const cb=fn('合作社有300名社員，代表大會代表幾位？我們還沒確定適用哪種合作社法規。').choices;
+a.equal(cb.length,2);
+for(const c of cb) a.match(fn(c.question).summary,/300名社員.*51名社員代表/);
+const both=text('一般合作社有2500名社員，信用合作社有2000名社員，代表大會各選幾位代表？');
+a.match(both,/2000名社員，依法為151名/);a.match(both,/2500名社員，依名額原則推算為199名/);
+a.match(text('信用合作社的社員代表大會要選理監事，不能到場可以委託投票嗎？'),/不能委託投票/);
+a.match(text('信用合作社的社員代表大會一般議案表決，代表缺席可委託代理嗎？'),/不能單憑選舉條文/);
+for(const q of ['信用合作社理監事出缺誰補？','合作社股息最高多少？','一般合作社社員大會的準社員不投票，那成會人數要算他嗎？','保險合作社有2000名社員能選幾個社員代表？'])a.equal(fn(q),null,q);
