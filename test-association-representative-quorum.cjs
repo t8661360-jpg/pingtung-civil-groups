@@ -1,0 +1,18 @@
+'use strict';
+const assert=require('node:assert/strict');
+const {route}=require('./association-representative-quorum');
+const types=route('屏東協會的會員代表要幾個人才能開會？是全體會員過半還是會員代表過半？');
+assert.match(types.summary,/會員代表大會.*代表過半.*全體會員大會.*會員過半/);
+assert.deepEqual(types.choices.map(c=>c.label),['會員代表大會','全體會員大會']);
+for(const c of types.choices)assert.match(route(c.question).title,/過半成會/);
+const q='協會會員代表大會應到12位，實到6位加上2張合法委託，開會後有人離席，還能修章表決嗎？';
+const a=route(q);
+assert.match(a.summary,/至少7位.*可算8位.*不能只用開會當下的人數保證/);
+assert.deepEqual(a.choices.map(x=>x.label),['沒有正式清查','已清查，還沒提供人數']);
+assert.match(route(a.choices[0].question).summary,/不能.*斷言整場無效/);
+assert.match(route(a.choices[1].question).steps[2][1],/請補上正式清查後.*不要提供姓名/);
+const threshold=route('協會會員代表大會應到12位、有人離席，正式清查後確認含有效代理出席為7位，能修章嗎？');
+assert.match(threshold.summary,/仍達7位門檻.*至少5票/);
+const tooFew=route('協會會員代表大會正式清查後確認含有效代理出席為6位，應出席12位，有人離席還能修章嗎？');
+assert.match(tooFew.summary,/少於7位.*立即宣布散會.*不能再表決/);
+for(const question of ['合作社社員代表大會應到12人，過半數是幾人？','已在法院登記的社團法人協會開會員代表大會修章要多少票？','協會會員代表大會應到12人，有人要投票罷免監事'])assert.equal(route(question),null,question);

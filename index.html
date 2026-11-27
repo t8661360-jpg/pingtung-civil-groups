@@ -1562,6 +1562,23 @@ let financeMeetingPlanner;
 async function ask(q){
   q=String(q||"").trim();if(!q||busy)return;
   if(!financeMeetingPlanner&&typeof window.createFinanceMeetingPlanner==="function")financeMeetingPlanner=window.createFinanceMeetingPlanner({board,showAnswer:renderAnswer});
+  const charterTiming=typeof window.verifiedCharterMeetingDate==="function"?window.verifiedCharterMeetingDate(q):null;
+  if(charterTiming){
+    const expulsion=/除名|開除會員/.test(q)&&typeof window.verifiedAssociationAgendaGuildCollection==="function"?window.verifiedAssociationAgendaGuildCollection(q):null;
+    if(expulsion){
+      financeMeetingPlanner=null;
+      const expFirst=q.search(/除名|開除會員/)<q.search(/改到|改在|改成|改期|延期|延到|延後|提前|換到|挪到|挪去|變更月份/);
+      const timing=["這次延期不等於永久改章程月份",charterTiming.summary];
+      const removal=[["除名及臨時動議另行判斷",expulsion.summary],...(expulsion.steps||[])];
+      renderAnswer(q,{...expulsion,title:"定期會員大會改期，與臨時提除名，是兩件事",summary:"不能只因仍在同一年就略過章程；是否能現場提除名，另看通知、章程與除名程序。",steps:expFirst?[...removal,timing]:[timing,...removal],refs:[...(charterTiming.statutes||[]),...(expulsion.refs||[])]});
+      return;
+    }
+    if(!/除名|開除會員|會費|理監事改選|罷免|合作社|補助|預決算/.test(q)){
+      financeMeetingPlanner=null;renderAnswer(q,{...charterTiming,refs:charterTiming.statutes,questionState:{focus:"compound"}});return;
+    }
+  }
+  const representativeQuorum=typeof window.verifiedAssociationRepresentativeQuorum==="function"?window.verifiedAssociationRepresentativeQuorum(q):null;
+  if(representativeQuorum){financeMeetingPlanner=null;renderAnswer(q,representativeQuorum);return;}
   const coopFarmPair=typeof window.verifiedCoopFarmSplit==="function"?window.verifiedCoopFarmSplit(q,window.verifiedCoopExpiredChairLease,window.verifiedFarmerRepresentative):null;
   if(coopFarmPair){financeMeetingPlanner=null;renderAnswer(q,coopFarmPair);return;}
   const filingDonationScope=typeof window.verifiedAssociationFilingDonationScope==="function"?window.verifiedAssociationFilingDonationScope(q):null;
@@ -2119,7 +2136,7 @@ touch();
 <script src="association-cooperative-conversion.js?v=1"></script>
 <script src="board-vacancy-count.js?v=1"></script>
 <script src="payroll-date-guidance.js?v=1"></script>
-<script src="charter-meeting-date.js?v=1"></script>
+<script src="charter-meeting-date.js?v=20261127-shorthand"></script>
 <script src="association-land-agent.js?v=1"></script>
 <script src="company-association-membership.js?v=1"></script>
 <script src="mail-election-results.js?v=1"></script>
@@ -2135,6 +2152,7 @@ touch();
 <script src="cooperative-address-proof.js?v=1"></script>
 <script src="liquidation-creditor-notice.js?v=2"></script>
 <script src="director-absence-clarification.js?v=1"></script>
+<script src="association-representative-quorum.js?v=1"></script>
 <script src="coop-farm-verified-split.js?v=1"></script>
 <script src="association-filing-and-donation-scope.js?v=1"></script>
 <script src="association-leave-and-court-stages.js?v=1"></script>
