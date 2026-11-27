@@ -69,6 +69,27 @@ function normalizeQuestionU5(s){
  if(/發起人/.test(s)&&!/合作社|社員|公會/.test(s))s=s.replace(/發起人(?:要|需要|得|該)?(?:找|有)?幾個(?![人月年協會社團位名])/,'發起人要幾個人');
  return s;
 }
+/* 理解強化第6輪（2026-11-27，根源）：
+   1. 「我爸爸是會員，我可以代他去開會嗎」＝會員的家人可以代替他出席（原本答成「可以」，沒有提醒代理人也要是會員）
+   2. 「開大會要不要請縣府的人來」＝要不要報請縣府派員列席（原本難倒小屏）
+   3. 「財務報表要給誰審／協會的帳誰來審」＝決算要給誰審（原本出選單或難倒小屏） */
+function normalizeQuestionU6(s){
+ s=String(s||'');
+ const KIN6='(?:爸爸|爸|父親|媽媽|媽|母親|阿公|阿嬤|阿媽|爺爺|奶奶|外公|外婆|哥哥|姊姊|姐姐|弟弟|妹妹|岳父|岳母|公公|婆婆|長輩|伯父|叔叔|阿姨)';
+ if(new RegExp(KIN6).test(s)&&/(會員|大會|開會|投票)/.test(s)&&!/合作社|社員|公會|工會|農會|漁會|理事會|監事會|理監事|我(?:也|自己也|本身也|本人也)是(?:協會的?|本會的?)?會員|不是(?:協會的?|本會的?)?會員|非會員|過世|往生|去世|繼承|會籍/.test(s)){
+  const a=new RegExp('我(?:可以|能不能|可不可以|能|可否)?(?:代替|代|替|幫)(?:他|她|我'+KIN6+'|'+KIN6+')(?:去|出席|參加|到|開|投票|簽到|表決)');
+  const b=new RegExp('(?:可以|能不能|可不可以|能)?(?:由|換|讓)我(?:代替|代|替|幫)?(?:他|她|我'+KIN6+')?(?:去|出席|參加|開會|投票)');
+  if((a.test(s)||(new RegExp('我'+KIN6+'是(?:協會的?|本會的?|社團的?)?(?:會員|理事|監事)').test(s)&&b.test(s)))&&/(可以|能不能|可不可以|行嗎|嗎|能否|可否)/.test(s))
+   s='會員的家人可以代替他出席會員大會嗎';
+ }
+ else if(new RegExp(KIN6).test(s)&&/我(?:也|自己也|本身也|本人也)是(?:協會的?|本會的?)?會員/.test(s)&&/(大會|開會|投票)/.test(s)&&/我(?:可以|能不能|可不可以|能)?(?:代替|代|替|幫)(?:他|她)/.test(s)&&!/合作社|社員|公會|工會|理事會|監事會|理監事|過世|往生|去世/.test(s))
+  s='會員不能去開大會可以請其他會員代理嗎';
+ if(/(大會|開會|改選|選舉)/.test(s)&&!/合作社|社員/.test(s))
+  s=s.replace(/(?:請|找|邀|邀請|叫)(縣府|縣政府|社會處|主管機關|公所)(?:的)?(?:人|人員|長官|承辦|承辦人|承辦人員)(?:過來|來|到場|出席|列席|參加|蒞臨)(?:看|指導|監督|監票)?/g,'報請$1派員列席');
+ if(/(財務報表|財報|帳目|帳冊|帳本|帳|收支|決算書|決算表)/.test(s)&&/(給誰審|誰來審|由誰審|誰審|誰負責審|誰要審|給誰看過|給誰過目|誰審核|誰來審核|由誰審核|給誰審核)/.test(s)&&!/合作社|社員|工會|公會|補助|核銷|勸募|報稅|國稅|會計師|什麼時候編|何時編|多久/.test(s))
+  s=(/社區發展協會|社區協會/.test(s)?'社區發展協會':'協會')+'的決算要給誰審';
+ return s;
+}
 function fixTyposU1(q){
  return String(q||'').replace(/理是長|裡事長|里事長|理市長|李事長/g,'理事長').replace(/理監是|理間事|裡監事/g,'理監事').replace(/常務監是/g,'常務監事').replace(/監是會|鑑事會/g,'監事會').replace(/理是會|裡事會|里事會/g,'理事會').replace(/總幹是|總幹士|總幹市/g,'總幹事').replace(/會原大會|會圓大會|會員大匯/g,'會員大會').replace(/改撰|改癬/g,'改選').replace(/會廢/g,'會費').replace(/辭值|詞職|辭直/g,'辭職');
 }
@@ -121,7 +142,7 @@ function normalizeQuestionR225(s){
  return s;
 }
 function normalizeQuestion(q){
- return normalizeQuestionR225(normalizeQuestionR223(normalizeQuestion223(normalizeQuestion222(normalizeQuestion221(normalizeQuestion216(normalizeQuestion215(normalizeQuestion214(normalizeQuestion212(normalizeQuestion210(normalizeQuestion209(normalizeQuestion208(normalizeQuestion207(normalizeQuestion206(normalizeQuestion202(normalizeQuestion201(normalizeQuestion200(normalizeQuestion194(normalizeQuestion193(normalizeQuestion192(normalizeQuestion191(normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(normalizeQuestionU5(normalizeQuestionU3(normalizeQuestionU4(normalizeQuestionU2(fixTyposU1(q))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
+ return normalizeQuestionR225(normalizeQuestionR223(normalizeQuestion223(normalizeQuestion222(normalizeQuestion221(normalizeQuestion216(normalizeQuestion215(normalizeQuestion214(normalizeQuestion212(normalizeQuestion210(normalizeQuestion209(normalizeQuestion208(normalizeQuestion207(normalizeQuestion206(normalizeQuestion202(normalizeQuestion201(normalizeQuestion200(normalizeQuestion194(normalizeQuestion193(normalizeQuestion192(normalizeQuestion191(normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(normalizeQuestionU5(normalizeQuestionU3(normalizeQuestionU4(normalizeQuestionU2(normalizeQuestionU6(fixTyposU1(q)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
 }
 /* 第200輪（根源）：入會退會與會員資格換問法——
    「忘記繳／忘了繳／漏繳會費」＝沒繳會費（原本「忘記繳會費會被退會嗎」被當成退費）；
@@ -2416,6 +2437,8 @@ function chairDissolve(t){
  /* 第148輪：只有『可以嗎』沒有說誰決定（例如「協會解散可以嗎」）不是在問理事長能不能自己解散，交給一般解散規則 */
  if(!/(理事長|會長|理事會|自行|自己|直接|單方)/.test(t))return null;
  if(/合作社|社員/.test(t))return null;
+ /* 理解強化第6輪：「解散後理事長還要負責嗎／解散之後理事長要做什麼」問的是解散以後的事，不是理事長能不能自己解散 */
+ if(/(解散|收掉|關掉)(?:了)?(?:之後|以後|後)|已經?(?:解散|收掉)|(?:解散|收掉)了(?!嗎|沒)/.test(t)&&!/(可以|能不能|可不可以|能否|想|要不要).{0,6}(解散|收掉|關掉)/.test(t))return null;
  if(/怎麼解散|流程|步驟|程序|要準備|文件|書表|清算/.test(t)&&!/(理事長|會長|自行|自己|單方|直接)/.test(t))return null;
  return{category:'人民團體會務說明',title:'理事長不能自行解散協會：解散是會員大會專屬權，須出席三分之二同意',summary:'不可以。人民團體法第59條列了五種應予解散的情形：經廢止許可、破產、合併或分立、限期整理未如期完成、會員（會員代表）大會決議解散。其中由團體自己決定要不要解散的，只有開會員大會決議這一條：\n\n1. 會員（會員代表）大會決議（第59條第5款）：應有會員過半數出席，出席人數三分之二以上同意（第27條第5款）。理事會、理事長都無權決議解散，只能提案。\n2. 其餘是主管機關處分或法律事實：團體違反法令章程情節重大、限期整理未完成、經廢止許可（第58、59條），或破產、合併、分立，都不是理事長可以決定的。\n\n理事長片面宣布解散會怎樣：在法律上無效，團體仍然存在，立案仍然有效；會員可依第25條連署召開臨時大會另推人選，或請縣府依第32條指定理事召集。若理事長因此停止會務、不召開會議，可依第30條由縣府解除其職務。\n\n真的要解散的程序：大會 15 日前通知並報縣府派員列席（第26條）→ 大會決議解散並選清算人 → 清算（未登記法人者依章程或大會決議，章程未定由理事長或代理人任清算人，會務輔導辦法第27條）→ 剩餘財產依章程或大會決議歸屬，不建議分給會員 → 清算完畢後怎麼向縣府報，法規沒有明文，請洽承辦。\n\n若理事長只是不想做了，正確做法是辭職（選舉罷免辦法第27條），不是解散團體。',statutes:[P(59),P(27),P(58),P(25),P(32),P(30),P(26),G(27),E(27)],notes:['會員人數不足或長期停擺的團體，可由縣府依第58條限期整理；整理不成才會走到解散。'],questionState:{focus:'chair-dissolve',domain:'social'}};
 }

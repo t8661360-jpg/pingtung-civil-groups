@@ -189,6 +189,7 @@
     group(['共用', '合用', '共同使用'], ['共用', '合用', '共同使用', '同一', '共同', '一起']),
     { ask: /(帶|拿).{1,10}(出國|去國外|到國外)|(出國|去國外).{0,6}(把|帶).{1,10}帶去/, ans: /帶|攜|保管|存放|放在|放家/ },
     group(['帶出國', '帶去國外', '帶到國外', '帶回家', '帶回去', '拿回家'], ['帶', '攜', '保管', '存放', '放在', '放家', '拿走', '取走', '交付', '影印', '副本', '抄錄', '閱覽']),
+    { ask: /解散了?(之後|以後|後)(?!.{0,3}(剩|賸|財產|錢))|已經?解散了?/, ans: /解散|清算/ }, // 第6輪：問解散以後的事，答案完全沒談解散或清算
     group(['便當', '餐盒', '誤餐', '餐費'], ['便當', '餐盒', '誤餐', '餐費', '餐點', '膳']),
     group(['被罰', '罰款', '罰錢', '罰鍰', '受罰', '會罰', '開罰', '處罰'], ['罰', '處分', '警告', '撤銷', '限期', '整理', '廢止', '解散', '撤免', '停權', '沒有規定', '沒有明文', '註銷', '繳回', '追繳', '收回', '停止補助', '不予補助'])
   ];
@@ -409,12 +410,40 @@
       statutes: [], notes: [], steps: [], docs: [], laws: [], actions: [{ label: '到書表下載', view: 'forms', sub: '' }, { label: '聯絡承辦', view: 'contact', sub: '' }] };
   }
   if (typeof window !== 'undefined') window.__ghostwrite4 = ghostwrite4;
+  /* ── 理解把關第6輪（2026-11-27）──
+     一句問兩件事，其中一件答案完全沒談到、也找不到已核對的答案（「…可以兼任村長嗎，還有可以兼巡守隊隊長嗎」「會員大會多久開一次？會場可以放鞭炮嗎？」）
+     → 保留原答案，開頭明講另一件小屏沒有把握，不讓民眾以為兩件都答了。
+     用 scripts/site-smoke.mjs 全部 CHECKS 驗證過不會動到已答對的題目。 */
+  const gramsOf6 = part => { const segs = NFK(part).replace(/[^一-鿿0-9a-z]/gi, '').split(new RegExp(STOP3.source, 'g')).filter(x => x && x.length >= 2); const g = []; for (const sg of segs) for (let k = 0; k < sg.length - 1; k++) g.push(sg.slice(k, k + 2)); return g; };
+  function understandingGuard6(q, a) {
+    if (!a || !a.title || a.unanswered || a.guarded) return null;
+    if (/您是不是要問|難倒小屏|想先確認|暫時無法回覆|兩件事|兩種團體/.test(a.title)) return null;
+    const fs = a.questionState && a.questionState.focus;
+    if (fs === 'guard-menu' || fs === 'keyword-menu' || fs === 'clarify' || fs === 'compound') return null;
+    if (a.category === '業務分流' || a.category === '打招呼' || a.category === '團體查詢' || a.category === '聯絡承辦' || (a.groups && a.groups.length)) return null;
+    if (/^您一次問了兩件事/.test(a.summary || '') || (a.steps && a.steps.length)) return null;
+    const at = answerText(a);
+    const parts = splitAsk(q);
+    if (!parts || parts.length !== 2 || parts[0].bg || parts[1].bg) return null;
+    if (/^(如果|假如|要是|萬一|假設|雖然)/.test(parts[0].ask)) return null;
+    const g = parts.map(x => gramsOf6(x.ask)), r = g.map(x => x.length ? x.filter(y => at.includes(y)).length / x.length : 1);
+    const low = i => (r[i] < 0.25 && g[i].length >= 4) || (r[i] === 0 && g[i].length >= 2);
+    const lostI = r[0] >= 0.6 && low(1) ? 1 : (r[1] >= 0.6 && low(0) ? 0 : -1);
+    if (lostI < 0) return null;
+    const lost = parts[lostI].ask, shown = parts[1 - lostI].ask;
+    if (/^(這樣|那這樣|這樣子)?(可以|行|合法|有效|算數|對)(嗎|呢)?$/.test(lost) || /^.{0,6}(也|一樣|同樣)/.test(lost)) return null;
+    const role = (shown.match(/理事長|常務理事|常務監事|理事|監事|總幹事|會員代表|會員|社員/) || [''])[0];
+    if (resolvePart(lost) || (role && !lost.includes(role) && resolvePart(role + lost))) return null; // 另一半其實有已核對的答案，交給分開回答的邏輯，不在這裡說沒有把握
+    return { ...a, guarded: true, summary: '您一次問了兩件事。下面先回答「' + shown + '」的部分；「' + lost + '」這一部分小屏沒有把握，怕答錯，建議您電洽承辦人員，或把這一部分單獨再問一次。\n\n' + (a.summary || '') };
+  }
+  if (typeof window !== 'undefined') window.__understandingGuard6 = understandingGuard6;
   function guard(q, a) {
     try { const w4 = ghostwrite4(q, a); if (w4) return w4; } catch (e) {}
     try { const c = compareGuard(q, a) || compareTopic(q, a) || compound(q, a); if (c) return c; } catch (e) {}
     try { const u = understandingGuard(q, a); if (u) return u; } catch (e) {}
     try { const u3 = understandingGuard3(q, a); if (u3) return u3; } catch (e) {}
     try { const u4 = understandingGuard5(q, a); if (u4) return u4; } catch (e) {}
+    try { const u6 = understandingGuard6(q, a); if (u6) return u6; } catch (e) {}
     try {
       if (!a || a.direct || a.questionState || a.unanswered || !a.title) return null;
       if ((typeof exactArticleAnswer === 'function' && exactArticleAnswer(q)) || (typeof focusedQuestionAnswer === 'function' && focusedQuestionAnswer(q))) return null; // 會被其他已核對答案取代
