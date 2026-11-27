@@ -1,7 +1,7 @@
 (function(root){
 'use strict';
 const refs=[
- {title:'社會團體財務處理辦法第4、11條：會計年度、編造與報送',source:'https://law.moj.gov.tw/LawClass/LawAll.aspx?PCode=D0050097'},
+ {title:'社會團體財務處理辦法第10、11條：會計年度、編造與報送',source:'https://law.moj.gov.tw/LawClass/LawAll.aspx?PCode=D0050097'},
  {title:'人民團體法第34條：監事會審核決算',source:'https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=D0050091&flno=34'},
  {title:'人民團體會務輔導辦法第18條：屆期改選交接',source:'https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=D0020094&flno=18'}
 ];
@@ -19,6 +19,18 @@ const choices=[
 const tpl={direct:true,category:'社會團體財務報表｜期間辨識',questionState:{focus:'compound'}};
 function financeReportKind(q){
  const t=String(q||'').normalize('NFKC').replace(/\s/g,'');
+ const half=t.match(/(民國\d{2,3}年(?:度)?|西元\d{4}年(?:度)?|\d{2,4}年(?:度)?|去年度?|上年度|前一年度|今年度?|本年度|當年度)?(?:的)?上半年(?:的)?(?:帳務|帳|收支|財務|報表|會計報告)/);
+ const year=t.match(/(去年(?:度)?|上年度|前一年度|上會計年度|前一年|同年度|同一年|(?:民國|西元)?\d{2,4}年(?:度)?)(?:的)?(?:正式|整年度|全年)?決算/);
+ const pair=half&&year&&/日期|哪一段|哪兩段|各.{0,5}(?:填|算|抓|看)|期間|起訖|要做到/.test(t);
+ if(t.length<=230&&pair&&/協會|社會團體|理監事聯席會|縣府.{0,8}(?:要求補|通知補)/.test(t)&&!/合作社|社員|工會|公會|農會|漁會|財團法人|公司|基金會|補助|核銷|報稅|所得稅|國際性/.test(t)){
+  const certain=/協會|社會團體/.test(t);
+  const h=half[1]||'今年';
+  const y=/^同/.test(year[1])?h:year[1];
+  const halfLabel=h.replace(/年度?$/,'年');
+  const yrLabel=y.replace(/年度?$/,'年');
+  const head=(certain?'':'若您指的是一般協會，')+halfLabel+'上半年收支是1月1日至6月30日；'+yrLabel+'正式決算是1月1日至12月31日。'+(!half[1]?'這裡先按「今年上半年」理解；若您指另一年，使用那年的上半年。':'')+' 開會月份不會改變帳務期間。';
+  return {...tpl,title:'上半年收支和年度決算，分開看兩個期間',summary:head,steps:[['半年收支與全年決算不能互代','只想看上半年帳，按該年1月至6月列出；年度決算按該年完整曆年。若是縣府正式補件，以公文寫的年度、表名及截止日為準，不把指定年度自行改成今年。'],review],refs:refs.slice(0,2)};
+ }
  if(!t||t.length>230||!/財務(?:報告|報表|資料)|財報|會計(?:報告|報表)|收支(?:報告|報表)|決算/.test(t)||!/協會|社會團體|團體財務|我們的團體/.test(t)||/合作社|社員|工會|公會|農會|漁會|財團法人|公司|基金會|國際性|補助|核銷|勸募|報稅|所得稅|解散/.test(t))return null;
  const notice=/縣府|來文|公文|通知|補件|補正|要求補|要補|請補|會議還沒排|會議還沒定|大會來不及|大會未能如期/.test(t);
  const period=/期間|起訖|哪一年|哪年度|時段|填今年|填去年|截止|截至|算到|做到|哪一段|哪一期|先填/.test(t);
