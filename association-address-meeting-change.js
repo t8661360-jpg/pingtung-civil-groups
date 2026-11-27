@@ -8,8 +8,19 @@ const annual=law('人民團體法','D0050091',25);
 const elections=law('人民團體選舉罷免辦法','D0050093',21);
 const charter=law('人民團體法','D0050091',54);
 const advice={title:'內政部台內社字第8735076號函：會員大會延期後通知',source:'https://www.moi.gov.tw/News_Content.aspx?n=14119&s=220065'};
+const coopRef=n=>law('合作社法','D0050112',n);
+function coopRoute(t){
+ if(!/社員大會/.test(t)||!/社址|登記地址|辦公室.{0,4}搬/.test(t)||!/改期|延期|改日期|日期要改|換.{0,10}(?:場地|開會地點)|改.{0,6}(?:開會地點|場地)|改時間|延後/.test(t)||/不是合作社|信用合作社|信合社|已經開完|已表決|社員代表大會|停止營業/.test(t))return null;
+ const stay=/(?:社址|登記地址).{0,8}(?:沒變|未變|不變|沒搬|不搬|沒有變|沒有搬)|只(?:是)?(?:換|改).{0,6}(?:開會場地|開會地點)|不涉及社址/.test(t);
+ const move=!stay&&/搬|遷|社址也改|登記地址也改|新社址|社址要改/.test(t);
+ const sent=/通知已(?:經)?(?:寄|發)|已(?:經)?寄出|已發.{0,4}通知|之前.{0,6}(?:寄了|通知)/.test(t)&&!/尚未|還沒/.test(t);
+ const meeting=['先處理社員大會的新會期','合作社法第46條規定，社員大會由理事會召集，並於七日前以書面載明召集事由及提議事項通知社員。已發出的舊日期或舊地點通知不能拿來替代新會期，宜由召集方用新資料重新書面通知，保留紀錄。如涉及選舉，另核對選舉公告、書面通知及備查。'];
+ const reg=['真的搬社址，另辦變更登記','社址是合作社法第9條的登記事項，也是第9-1條的章程事項。社址變更原則在一個月內辦理變更登記；若要修改章程，先經社員大會決議，並於決議後一個月內檢具會議紀錄書面申請。只更換社員大會場地，不必因而變更登記社址。'];
+ return {direct:true,category:'合作事業｜社址與社員大會異動',title:'社員大會改期與社址登記，分開辦',summary:(stay?'社址沒有變，不必辦社址變更登記。':move?'若登記社址也搬了，變更登記和大會通知分開辦，不等登記完成才處理社員大會通知。':'若只改會議時間或場地，不等同變更登記社址；先核對社址是否真的異動。')+(sent?'原通知已寄，應按新會期以書面重新通知社員，並留足七日前的期限。':'社員大會應於新會期七日前以書面通知社員。'),steps:stay?[meeting]:[meeting,reg],refs:stay?[coopRef(46)]:[coopRef(46),coopRef(9),coopRef('9-1')],questionState:{focus:'compound'},...(!stay&&!move?{choiceHeading:'社址有跟著異動嗎？',choices:[{label:'社址沒變，只改開會',question:'合作社社員大會要改期，社址沒變，怎麼通知？'},{label:'登記的社址也搬了',question:'合作社社員大會要改期，登記社址也搬了，怎麼分開辦？'}]}:{})};
+}
 function route(q){
  const t=String(q??'').normalize('NFKC').replace(/\s/g,'');
+ if(/合作社|社員大會/.test(t)&&t.length<=240){const cooperative=coopRoute(t);if(cooperative)return cooperative;}
  const isAssembly=/會員(?:代表)?大會|代表大會/.test(t)&&!/不是會員(?:代表)?大會/.test(t);
  const isBoard=/理事會|監事會|理監事聯席/.test(t)&&!/不是.{0,3}(?:理事會|監事會)/.test(t);
  const kind=isAssembly&&!isBoard?'assembly':isBoard&&!isAssembly?'board':'unknown';
