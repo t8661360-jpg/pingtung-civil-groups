@@ -1,5 +1,5 @@
 const assert=require('node:assert/strict');
-const {dateOf,start,meetingType,answer,optionsFor,pairedAnswers}=require('./association-finance-meeting-month');
+const {dateOf,start,meetingType,answer,optionsFor,pairedAnswers,annualPeriod,noticeRule}=require('./association-finance-meeting-month');
 const q='協會8月開會，請問收支報告要做什麼時候';
 assert.deepEqual(start(q).date,{y:null,m:8,d:null});
 assert.equal(start(q).kind,null);
@@ -43,4 +43,16 @@ assert.match(result(start('協會115年8月15日開會員大會，收支決算�
 assert.equal(start('協會114年12月31日做完決算，會員大會收支決算要做到哪天？').date,null);
 for(const x of ['協會9月開會，財務報表做到哪天？也想知道通知要幾天前發？','協會9月開會，財務報表做到哪天？開會通知最晚哪天寄？','協會9月開會，財務報表做到哪天？提前幾天發會議通知？'])assert.equal(start(x).notice,true,x);
 assert.equal(start('協會9月開會員大會，財務報表做到哪天？有收到通知。').notice,false);
+const none=start('協會大會日期沒定，想先知道當年財報要做到哪天，通知又要幾天前發？');
+assert.equal(none.kind,'assembly');
+assert.equal(none.notice,true);
+assert.equal(none.date,null);
+assert.match(annualPeriod(),/上年度1月1日至12月31日.*3月底前/);
+assert.match(noticeRule(none.kind).text,/開會十五日前.*前一日送達/);
+const unknown=start('協會的會議通知要幾天前發？會議日期還沒定，今年財報要做到哪天？');
+assert.equal(unknown.kind,null);
+assert.equal(unknown.notice,true);
+assert.equal(noticeRule(null),null);
+for(const kind of ['board','supervisor','joint'])assert.match(noticeRule(kind).text,/開會七日前.*前一日送達/);
+for(const x of ['合作社社員大會日期未定，財報哪天要做好？','公司股東大會開會日期未定，財報要做到哪天？','協會大會日期未定，補助核銷財報要做到哪天？','協會成立大會日期未定，財報要做到哪天？'])assert.equal(start(x),null,x);
 console.log('association finance meeting date planner OK');

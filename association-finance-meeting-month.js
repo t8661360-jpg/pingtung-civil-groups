@@ -7,7 +7,7 @@ const chinese=['','一','二','三','四','五','六','七','八','九','十','�
 const clean=q=>String(q??'').normalize('NFKC').replace(/\s/g,'');
 function meetingType(q){
  const t=clean(q);
- const assembly=/會員(?:[（(]?代表[）)]?)?大會|會員代表會議|開大會|召開大會|參加大會|^大會$/.test(t);
+ const assembly=/會員(?:[（(]?代表[）)]?)?大會|會員代表會議|開大會|召開大會|參加大會|協會(?:的)?大會(?:日期|時間)?|^大會$/.test(t);
  const joint=/理監事聯席|理事監事聯席/.test(t), broad=/理監事會議|理監事會|理事會[/、或及與]監事會/.test(t);
  const board=/理事會/.test(t), supervisor=/監事會/.test(t);
  if(assembly&&(joint||broad||board||supervisor))return null;
@@ -60,14 +60,14 @@ function optionsFor(state,kind){
 }
 function start(q){
  const t=clean(q);
- if(!/收支報告|收支報表|收支決算|會計報告|財務報告|財務報表|年度決算|決算(?:要做|做到|做哪|要準備)|準備決算/.test(t))return null;
+ if(!/收支報告|收支報表|收支決算|會計報告|財務報告|財務報表|財報|年度決算|決算(?:要做|做到|做哪|要準備)|準備決算/.test(t))return null;
  if(!/開會|會議|大會|理事會|監事會|理監事|召開/.test(t))return null;
  if(!dateOf(t)&&!/什麼時候|哪時|何時|多久前|做到|算到|哪一年|哪年度|哪一年度|哪段|哪一期|哪個期間|起訖|從哪|幾月|哪天|哪個月|什麼日期/.test(t))return null;
- if(/合作社|社員|公會|工會|商業團體|農會|漁會|財團法人|國際性|成立大會|第一次會員大會|補助|核銷|勸募|報稅|所得稅|公告|格式|下載|解散/.test(t))return null;
+ if(/合作社|社員|公會|工會|商業團體|農會|漁會|財團法人|公司|股東|基金會|國際性|成立大會|第一次會員大會|補助|核銷|勸募|報稅|所得稅|公告|格式|下載|解散/.test(t))return null;
  const budget=/預算/.test(t)&&/明年|下年度|次年度/.test(t);
  if(/預算/.test(t)&&!budget)return null;
  const timing='何時|幾天|幾日|什麼時候|哪天|哪一日|多久|哪時';
- const notice=new RegExp('通知(?:單|書)?(?:要|須|應|應該|需要|最晚|最遲|提前)*(?:'+timing+')(?:之前|以前|前)?(?:寄|發|送|通知|寄發|前|[？?。！!，,]|$)|(?:'+timing+'|提前).{0,8}(?:寄|發|送)(?:開會|會議|大會)?通知').test(t);
+ const notice=new RegExp('通知(?:單|書)?(?:又|也|還)?(?:要|須|應|應該|需要|最晚|最遲|提前)*(?:'+timing+')(?:之前|以前|前)?(?:寄|發|送|通知|寄發|前|[？?。！!，,]|$)|(?:'+timing+'|提前).{0,8}(?:寄|發|送)(?:開會|會議|大會)?通知').test(t);
  const kind=meetingType(q),linked=linkedDates(q);
  const state={q,kind,date:null,linked,notice,budget};
  const options=kind?optionsFor(state,kind):uniqueDates(Object.keys(linked.map).length?[]:linked.loose);
@@ -75,13 +75,24 @@ function start(q){
  return state;
 }
 const labelDate=f=>[f.y?f.y+'年':'',f.m+'月',f.d?f.d+'日':''].join('');
+function annualPeriod(y=null){
+ const prior=y?(y-1)+'年（上年度）1月1日至12月31日':'上年度1月1日至12月31日';
+ return '會議日期不會改變年度決算期間：正式年度收支決算做'+prior+'。一般曆年制協會的理事會應在'+(y?y+'年':'當年度')+'3月底前編好上年度工作報告和會計報告，不是到開會當天才開始做。';
+}
+function noticeRule(kind){
+ if(!types[kind])return null;
+ const period=kind==='assembly'?'開會十五日前':'開會七日前';
+ return {
+  text:'一般應於'+period+'通知應出席人員，告知會議種類、時間、地點及議程。只有因緊急事故召集臨時會議，且於開會前一日送達通知，才適用例外；不是前一天寄出就可以。',
+  refs:kind==='assembly'?[law('人民團體法','D0050091',26),law('人民團體會務輔導辦法','D0020094',10)]:[law('人民團體會務輔導辦法','D0020094',11)]
+ };
+}
 function answer({kind,date:f,notice=false,budget=false}){
  if(!types[kind]||!f)return null;
- const prior=f.y?(f.y-1)+'年（上年度）1月1日至12月31日':'上年度1月1日至12月31日';
  const current=f.y?f.y+'年':'當年度';
  const cut=f.m>1? (f.m===3&&!f.y?'2月底':(f.m-1)+'月'+days(f.y??2000,f.m-1)+'日'):
    (f.d>1?'1月'+(f.d-1)+'日':null);
- const general='會議日期不會改變年度決算期間：正式年度收支決算做'+prior+'。一般曆年制協會的理事會應在'+(f.y?f.y+'年':'當年度')+'3月底前編好上年度工作報告和會計報告，不是到開會當天才開始做。';
+ const general=annualPeriod(f.y);
  const process={
   assembly:'先由監事會審核年度決算，再把審核結果和報表提交會員（代表）大會，通過後報主管機關。若因故不能如期開大會，可先由理事會及監事會，或理監事聯席會議通過，之後提大會追認，再報主管機關備查。',
   board:'理事會負責編造上年度會計報告，年度決算還要送監事會審核，再提會員（代表）大會。理事會單獨通過不能代替大會；若大會不能如期開，依規定可由理事會及監事會或理監事聯席會議先通過，再提大會追認。',
@@ -93,10 +104,9 @@ function answer({kind,date:f,notice=false,budget=false}){
  const steps=[general,process[kind],currentInfo+' 這是報表範例，不是法定申報截止日，也不取代正式的年度決算。'];
  const sources=[...refs];
  if(notice){
-  const period=kind==='assembly'?'開會十五日前': '開會七日前';
-  steps.push(['開會通知','一般應於'+period+'通知應出席人員，告知會議種類、時間、地點及議程。只有因緊急事故召集臨時會議，且於開會前一日送達通知，才適用例外；不是前一天寄出就可以。']);
-  if(kind==='assembly')sources.push(law('人民團體法','D0050091',26),law('人民團體會務輔導辦法','D0020094',10));
-  else sources.push(law('人民團體會務輔導辦法','D0020094',11));
+  const rule=noticeRule(kind);
+  steps.push(['開會通知',rule.text]);
+  sources.push(...rule.refs);
  }
  if(budget){
   steps.push(['明年預算','如果「明年」是指會議當年度的下一年，預算應做'+(f.y?(f.y+1)+'年度':'會議的下一年度')+'，由理事會在該會計年度開始前編造工作計畫與收支預算表。這是未來年度的計畫，不是前一年度的實際決算。']);
@@ -132,6 +142,17 @@ function createPlanner({board,showAnswer}){
   const title=el('h2',!s.kind||forceType?'先選這次要開哪種會議':'這次預計哪一天開會？');title.className='atitle';title.tabIndex=-1;
   const section=el('section');section.className='sec';section.setAttribute('aria-label','會議收支報告指引');
   board.replaceChildren(top,title,section);
+  section.append(el('h3','日期未定，也能先確認年度決算'),el('p',annualPeriod(forceType?null:s.date?.y)),
+   el('p','若問的是今年的實際收支，可另外做期中表，以已完成結帳的期間為準，這不是法定截止日。選定開會日期後，可以再看期間範例。'));
+  const rule=s.notice&&!forceType?noticeRule(s.kind):null;
+  if(rule)section.append(el('h3','開會通知'),el('p',rule.text));
+  else if(s.notice)section.append(el('p','開會通知的提前天數要看會議類型。請先選下面的會議類型。'));
+  const sources=el('p','依據：');
+  [refs[0],refs[1],...(rule?.refs??[])].forEach((ref,i)=>{
+   if(i)sources.append('、');
+   const link=el('a',ref.title);link.href=ref.source;link.target='_blank';link.rel='noopener noreferrer';sources.append(link);
+  });
+  section.append(sources);
   if(!s.kind||forceType){
    section.append(el('p','會議類型不同，編製、審核及通過報表的角色也不同。'));
    const row=el('div');row.className='actions';
@@ -177,6 +198,6 @@ function createPlanner({board,showAnswer}){
   active=null;return false;
  };
 }
-if(typeof module!=='undefined'&&module.exports){module.exports={meetingType,dateOf,linkedDates,optionsFor,start,answer,pairedAnswers,createPlanner};return;}
+if(typeof module!=='undefined'&&module.exports){module.exports={meetingType,dateOf,linkedDates,optionsFor,start,answer,annualPeriod,noticeRule,pairedAnswers,createPlanner};return;}
 root.createFinanceMeetingPlanner=createPlanner;
 })(typeof window!=='undefined'?window:globalThis);

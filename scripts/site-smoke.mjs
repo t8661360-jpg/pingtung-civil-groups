@@ -2,6 +2,7 @@
 import { chromium } from 'playwright';
 const BASE = (process.env.BASE_URL || 'https://t8661360-jpg.github.io/pingtung-civil-groups/').replace(/\/?$/, '/');
 const CHECKS = [
+  ['協會大會日期沒定，想先知道當年財報要做到哪天，通知又要幾天前發？', ['上年度1月1日至12月31日','3月底前','不是法定截止日','開會十五日前']],
   ['合作社沒結餘能發股息嗎？如果是信用合作社，股息也一樣嗎？', ['沒有結餘不能發息','當年度沒有盈餘也不得分配','法定盈餘公積']],
   ['信用合作社沒盈餘能發社股股息嗎？一般合作社也有一樣的上限嗎？', ['社股年息不得超過百分之十','當年度沒有盈餘也不得分配','不能從這兩條推論沒有上限']],
   ['協會會員可以把大會委託書交給另一名會員；理事開理事會也能比照嗎？', ['書面委託其他會員','最多代理一人','不得委託他人代理']],
@@ -1838,6 +1839,8 @@ try {
     await page.fill('#q','協會9月開會，財務報表做到哪天？也想知道通知要幾天前發？');
     await page.click('#askform button[type=submit]');
     await page.locator('#board [data-finance-kind="board"]').click({timeout:6000});
+    const partial=await page.locator('#board').innerText();
+    if(!['上年度1月1日至12月31日','不是法定截止日','開會七日前'].every(x=>partial.includes(x))||partial.includes('開會十五日前'))fails.push('財務初答應在填日期前先提供已知決算和通知規則');
     await page.locator('#finance-meeting-date').fill('2027-09-07');
     await page.getByRole('button',{name:'查看報表期間',exact:true}).click();
     const k=await page.locator('#board').innerText();
