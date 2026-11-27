@@ -1,0 +1,24 @@
+const assert=require('node:assert/strict');
+const {scope}=require('./meeting-quorum-kind-clarification');
+const x=scope('開會要多少人出席，分不清我們開的是會員大會還是理事會？');
+assert.equal(x.choices.length,5);
+const expected=['以具應出席資格者為分母','理事會：只算理事','監事會：只算監事','兩邊分開，各要過半'];
+for(let i=0;i<4;i++){const a=scope(x.choices[i].question);assert.ok(a.title.includes(expected[i]));assert.ok(!a.choices);}
+const coop=scope(x.choices[4].question);
+assert.equal(coop.choices.length,4);
+assert.match(scope(coop.choices[3].question).summary,/三分之二出席/);
+const mixed=scope('一般協會理事會和會員大會分別要多少人出席？');
+assert.equal(mixed.steps.length,2);
+assert.ok(mixed.steps[0][0].includes('會員'));
+assert.ok(mixed.steps[1][0].includes('理事'));
+assert.ok(scope('我們社區發展協會的理監事會要幾人出席？').choices);
+for(const q of ['合作社理事選舉要過半嗎？','協會理事只剩六人三人出席能不能開會？','商業同業公會開會要幾個人？','大會開會要帶財報？'])assert.equal(scope(q),null,q);
+const x2=scope('一般人民團體的理監事聯席和合作社的社務會，人數算一樣嗎？');
+assert.match(x2.steps[0][1],/各過半數/);assert.match(x2.steps[1][1],/三分之二出席/);
+const n=scope('應到40人、實到20人，開會要多少人出席？還不確定這是會員大會還是理事會。');
+assert.match(n.steps[0][1],/應到40人、實到20人/);
+assert.match(scope(n.choices[0].question).steps[0][1],/至少21人.{0,25}未達/);
+assert.equal(scope(n.choices[3].question).steps.length,0);
+const coopN=scope(n.choices[4].question);
+assert.match(scope(coopN.choices[3].question).steps[0][1],/至少27人/);
+console.log('會議類型與組織分流通過');
