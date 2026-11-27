@@ -158,8 +158,20 @@ function normalizeQuestionR227(s){
   return '會員名冊要寫什麼';
  return s;
 }
+/* 第228輪（根源，工作人員換問法）：
+   1. 「總幹事（工作人員）要經過理事會同意嗎」＝聘僱要不要經理事會（原本落入選單）。
+   2. 「工作人員可以由志工擔任嗎／讓志工當會計」＝志工可以兼任總幹事或職員嗎（原本答成一般聘僱流程）。 */
+function normalizeQuestionR228(s){
+ s=String(s||'');
+ if(/合作社|社員|工會|公會|公司|政黨|基金會|農會|漁會/.test(s))return s;
+ if(/(總幹事|秘書長|工作人員|會計|出納|幹事|職員)/.test(s)&&/(聘|請|任用|僱用|雇用|找)?.{0,4}(要|需要|須|得|必須).{0,4}(經過|經|給)?.{0,2}理事會.{0,3}(同意|通過|決議|核准|批准)/.test(s)&&!/(薪|待遇|解聘|解僱|資遣|開除|辭退|離職|投票|表決|列席|出席)/.test(s))
+  return '聘總幹事要理事會通過嗎';
+ if(/志工/.test(s)&&/(工作人員|總幹事|秘書長|幹事|職員)/.test(s)&&/(擔任|當|來做|來當|兼|代替|取代|由)/.test(s)&&!/(保險|誤餐|交通|稅|補助|時數|證|會計|出納|管錢|財務)/.test(s))
+  return '志工可以當總幹事嗎';
+ return s;
+}
 function normalizeQuestion(q){
- return normalizeQuestionR227(normalizeQuestionR225(normalizeQuestionR223(normalizeQuestion223(normalizeQuestion222(normalizeQuestion221(normalizeQuestion216(normalizeQuestion215(normalizeQuestion214(normalizeQuestion212(normalizeQuestion210(normalizeQuestion209(normalizeQuestion208(normalizeQuestion207(normalizeQuestion206(normalizeQuestion202(normalizeQuestion201(normalizeQuestion200(normalizeQuestion194(normalizeQuestion193(normalizeQuestion192(normalizeQuestion191(normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(normalizeQuestionU5(normalizeQuestionU3(normalizeQuestionU4(normalizeQuestionU2(normalizeQuestionU6(fixTyposU1(q))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
+ return normalizeQuestionR228(normalizeQuestionR227(normalizeQuestionR225(normalizeQuestionR223(normalizeQuestion223(normalizeQuestion222(normalizeQuestion221(normalizeQuestion216(normalizeQuestion215(normalizeQuestion214(normalizeQuestion212(normalizeQuestion210(normalizeQuestion209(normalizeQuestion208(normalizeQuestion207(normalizeQuestion206(normalizeQuestion202(normalizeQuestion201(normalizeQuestion200(normalizeQuestion194(normalizeQuestion193(normalizeQuestion192(normalizeQuestion191(normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(normalizeQuestionU5(normalizeQuestionU3(normalizeQuestionU4(normalizeQuestionU2(normalizeQuestionU6(fixTyposU1(q)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
 }
 /* 第200輪（根源）：入會退會與會員資格換問法——
    「忘記繳／忘了繳／漏繳會費」＝沒繳會費（原本「忘記繳會費會被退會嗎」被當成退費）；
@@ -12476,9 +12488,37 @@ function patrolR227(t){
   [GU(10),PT(12)]);
  return null;
 }
+/* 第228輪（工作人員換問法）：總幹事出席理事會能不能投票、秘書長和總幹事差別、理事長換人總幹事要不要跟著換、協會沒錢付薪水。
+   依據（已對 statutes.json.gz 原文核對）：社會團體工作人員管理辦法§2、§3、§4、§5、§6、§7；人民團體法§24、§29；勞動基準法§11、§16、§17、§22、§23。 */
+function patrolR228(t){
+ if(/(合作社|社員|工會|公會|公司|政黨|基金會|農會|漁會)/.test(t))return null;
+ const W=n=>({title:'社會團體工作人員管理辦法第'+n+'條',source:LAW+'D0050096'});
+ const PT=n=>({title:'人民團體法第'+n+'條',source:LAW+'D0050091'});
+ const LB=n=>({title:'勞動基準法第'+n+'條',source:LAW+'N0030001'});
+ const A=(title,summary,statutes)=>({direct:true,category:'人民團體會務說明',title,summary,statutes,notes:[],actions:[{label:'聯絡承辦',view:'contact',sub:''}]});
+ const STAFF=/(總幹事|秘書長|工作人員|會計|出納|幹事|員工|職員)/;
+ if(/(總幹事|秘書長|工作人員|會計|出納|幹事|員工|職員).{0,12}(投票|表決|表決權|舉手|一票|算票|算出席|算人數|算在出席|出席人數|發言權|可以選)/.test(t)&&/(理事會|理監事會|理監事聯席會)/.test(t)&&!/(會員大會|大會|配偶|親屬|親戚|迴避|理事長不投票|太太|先生|兒子|女兒)/.test(t))
+  return A('總幹事等工作人員出席理事會：不能投票，也不算出席人數；表決由理事行使',
+  '不可以投票。總幹事、會計等工作人員是協會聘僱、承辦會務業務的人員（社會團體工作人員管理辦法第2條；人民團體法第24條），而且不得由理事、監事擔任（同辦法第4條），所以不是理事會的成員。\n理事會的決議，要有理事過半數出席、出席人數過半數或較多數同意（人民團體法第29條第2項），計算出席和表決的都是理事；總幹事到場列席報告會務、作紀錄，不算在出席人數裡，也沒有表決權。\n各協會做法不同，有疑問可洽縣府總機 08-7320415。',
+  [W(2),W(4),PT(24),PT(29)]);
+ if(/秘書長/.test(t)&&/總幹事/.test(t)&&/(一樣|差別|差在|不同|不一樣|同一個|同一種|差異|哪裡不同|有什麼分別|分別)/.test(t))
+  return A('秘書長和總幹事：法規把它們列為同一個職位的兩種稱呼，用哪一個由協會訂',
+  '社會團體工作人員管理辦法第3條寫的是「秘書長（總幹事）」、「副秘書長（副總幹事）」、「秘書（幹事）」，也就是同一類工作人員的兩種稱呼。\n協會要用哪個職稱、設幾個人、要什麼資格，由理事會配合團體規模、財力和業務需要訂定，依資格條件遴選後提經理事會通過聘僱（同條第2項）。\n不管叫秘書長或總幹事，都是聘僱的工作人員，不能由理事、監事擔任（同辦法第4條）。\n各協會做法不同，有疑問可洽縣府總機 08-7320415。',
+  [W(3),W(4)]);
+ if(/(理事長|會長).{0,6}(換人|改選|卸任|交接|下台|換了|新任|新上任|新的|任期到|改朝換代)|新(理事長|會長)/.test(t)&&STAFF.test(t)&&/(換|跟著|離職|辭|解聘|解僱|留任|走人|繼續|留下|請走|資遣|開除|換掉)/.test(t)&&!/(報縣府|報備|核備|印鑑|印章|存摺|帳戶)/.test(t))
+  return A('理事長換人，總幹事等工作人員不用跟著換；要解聘須經理事會通過，並符合勞基法的事由',
+  '不用跟著換。工作人員是協會聘僱的，不是跟著理事長進退；解聘要由理事會通過，而且除了有勞動基準法第11條、第12條或第13條但書的情形以外，不得解聘（社會團體工作人員管理辦法第6條）。\n要注意的是：協會不得聘僱現任理事長的配偶及三親等以內血親、姻親當工作人員；但在這位理事長接任前就已經聘僱的，不在此限（同辦法第5條），所以原本在職的親屬不用因為理事長換人而離職。\n新理事長想調整人事，要提理事會依上面的規定辦理。\n各協會做法不同，有疑問可洽縣府總機 08-7320415。',
+  [W(5),W(6),LB(11)]);
+ if((/(沒錢|沒有錢|付不出|發不出|給不出|經費不足|財務困難|缺錢|沒經費|周轉不靈|錢不夠|拖欠|欠薪|晚發|延後發|慢點發)/.test(t)||/(先欠|欠).{0,4}(薪|工資)|(補助|經費|款).{0,6}(還沒|沒有|未)(撥|下來|入帳|到)/.test(t))&&/(薪水|薪資|工資|欠薪|總幹事|員工|工作人員|會計|幹事)/.test(t)&&!/(理事|監事|志工|講師|補助款可以|補助可以|解散|清算)/.test(t))
+  return A('協會沒錢付薪水：已經做的工作，工資還是要全額按期發；要調整或資遣，要依程序和勞基法',
+  '協會聘了員工，就是雇主。已經工作的工資要全額直接給付給勞工（勞動基準法第22條第2項），除了另有約定或按月預付以外，每月至少定期發給二次（第23條），不能因為協會沒錢就不發。\n往後的薪給支給基準，由理事會視協會財務狀況訂定，提會員（會員代表）大會通過後實施，而且不得違反勞動法令（社會團體工作人員管理辦法第7條）。\n如果協會真的虧損或業務緊縮，要資遣員工，要先經理事會通過（同辦法第6條），並符合勞基法第11條第2款的事由，依年資提前10日、20日或30日預告（第16條），並在終止契約30日內發給資遣費（第17條）。\n勞動條件的個案問題，請洽屏東縣政府勞工主管單位；人民團體會務問題可洽縣府總機 08-7320415。',
+  [LB(22),LB(23),W(7),W(6),LB(11),LB(16),LB(17)]);
+ return null;
+}
 function verifiedRoundAnswer(q,ctx){
  let x=null;
- try{x=patrolR227(norm(q))}catch(e){x=null}
+ try{x=patrolR228(norm(q))}catch(e){x=null}
+ if(!x){try{x=patrolR227(norm(q))}catch(e){x=null}}
  if(!x){try{x=patrolR226(norm(q))}catch(e){x=null}}
  if(!x){try{x=patrolR225(norm(q))}catch(e){x=null}}
  if(!x){try{x=patrolR224b(norm(q))}catch(e){x=null}}

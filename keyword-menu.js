@@ -3,13 +3,15 @@
    候選問題只取已驗證會答對的固定測試題與知識庫條目（data/keyword-questions.json）。 */
 (function () {
   let LIST = null;
-  const READY = fetch('data/keyword-questions.json?v=20261127-282').then(r => r.ok ? r.json() : null).then(d => { LIST = (d && d.questions) || []; }).catch(() => { LIST = []; });
+  const READY = fetch('data/keyword-questions.json?v=20261127-283').then(r => r.ok ? r.json() : null).then(d => { LIST = (d && d.questions) || []; }).catch(() => { LIST = []; });
   const NFK = s => String(s || '').normalize('NFKC').replace(/\s+/g, '').replace(/臺/g, '台');
   const QWORD = /[?？嗎呢]|怎|如何|可以|可不可以|能不能|能否|幾|什麼|甚麼|哪|誰|是否|要不要|多久|多少|為何|為什麼|請問|一定要|需不需要|有沒有|會不會|算不算/;
   function isKeyword(raw) {
     const t = NFK(raw).replace(/[。，,.!！、]/g, '');
     if (t.length < 2 || t.length > 6) return '';
-    if (/我|想|了|沒|不|要|幹|弄|丟|往生|過世|關係|門檻|跟|和|與/.test(t)) return ''; // 有動作、狀態的句子照原本流程回答
+    // 「總幹事」「幹事」「幹部」是職稱，不是「不幹了」的幹（第228輪：原本輸入「總幹事」直接猜一則答案，沒有出選單）
+    const t2 = t.replace(/總幹事|幹事|幹部/g, '');
+    if (/我|想|了|沒|不|要|幹|弄|丟|往生|過世|離職|辭職|請辭|換人|出缺|關係|門檻|跟|和|與/.test(t2)) return ''; // 有動作、狀態的句子照原本流程回答
     if (QWORD.test(t)) return '';
     if (/\d{2,}|第.+條/.test(t)) return '';
     return t;
