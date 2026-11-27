@@ -21,3 +21,26 @@ for(const [q,terms] of [
 ]) for(const term of terms) assert.ok(JSON.stringify(answer(q)).includes(term),q+' '+term);
 for(const q of ['我的郵局個人帳戶存摺遺失，如何掛失？','協會存摺遺失在農會，怎樣掛失止付？','我們是信用合作社，郵局存摺不見了']) assert.equal(answer(q),null,q);
 console.log('association account seal tests passed');
+const unconfirmed=answer('我們準備換理事長，手上的帳戶不是我們自己的，現有印鑑都要換嗎？');
+assert.match(unconfirmed.summary,/先不要更換印鑑、提款/);
+assert.equal(unconfirmed.choices.length,3);
+assert.equal(unconfirmed.refs.length,0);
+const [own,other,unknown]=unconfirmed.choices.map(({question})=>answer(question));
+assert.match(own.summary,/存摺由前任保管，不會讓團體戶變成私人戶/);
+assert.doesNotMatch(JSON.stringify(own),/社會團體財務處理辦法/);
+assert.match(other.summary,/不能繼續用該個人或其他組織帳戶/);
+assert.equal(unknown.choices,undefined);
+assert.match(unknown.steps[0][1],/請勿在這裡輸入姓名、銀行帳號/);
+for(const q of [
+ '我們協會換理事長，原本用前任個人帳戶收會費，現在要換成新理事長的印鑑嗎？',
+ '先問會費可不可以繼續匯入借用的私人戶頭，協會換了理事長又能不能換印章？',
+ '我們協會借用前任家人的戶頭收會費，可以再收款等團體開戶嗎？',
+ '協會的會費一直進到另一個組織的帳戶，前理事長換了，可以用原印鑑把款領回嗎？'
+]){
+ const a=answer(q);
+ assert.match(a.summary,/不可以.*不要自行提款.*會費及其他收入不能再匯入私人戶頭或其他組織/);
+ assert.match(JSON.stringify(a.steps),/留存|保留收款/);
+ assert.ok(a.refs.some(x=>x.source.endsWith('flno=16')));
+}
+assert.equal(answer('信用合作社的新理事主席會用郵局個人戶收公款，可以嗎？'),null);
+assert.match(answer('我們協會在銀行，協會名下的帳戶不是個人戶，換理事長要帶什麼印鑑？').summary,/往來銀行的原開戶單位/);
