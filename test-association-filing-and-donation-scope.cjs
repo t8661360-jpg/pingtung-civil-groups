@@ -1,0 +1,16 @@
+'use strict';
+const assert=require('node:assert/strict');
+const {route}=require('./association-filing-and-donation-scope');
+const late=route('協會去年的預算決算都還沒送縣府，會被罰錢嗎？現在要先補什麼？');
+assert.match(late.summary,/未將一般協會單純漏報預決算訂成固定罰鍰.*依法要求改善/);
+assert.match(late.steps[0][1],/工作報告、會計報告.*監事審核、大會紀錄/);
+assert.match(late.steps[1][1],/三個月是理事會編造.*追認後再報/);
+const g=route('我們協會已逾期三個月，會員大會有通過決算但沒報縣府，跟一直沒開大會一樣嗎？社會處的活動補助能申請嗎？');
+assert.match(g.summary,/大會有通過決算.*活動補助資格/);
+assert.match(g.steps[3][1],/一年未召開大會、財務資料未依規定陳報兩種不予補助事由/);
+const both=route('屏東協會辦研習只在會員群組收捐款，另外把連結轉貼給外面的人，哪一種要申請勸募許可？');
+assert.match(both.steps[0][1],/第6條第3項.*開收據、公開徵信.*其餘法定勸募團體是5個月/);
+assert.match(both.steps[1][1],/第5條法定資格.*第7條申請許可/);
+const shared=route('我們協會只對會員募款，會員自己轉貼給外面的人，是否要申請公益勸募許可？');
+assert.match(shared.steps[2][1],/被他人轉貼.*團體是否授意/);
+for(const q of ['合作社去年決算沒報縣府會罰嗎','協會年度決算沒報國稅局會被罰嗎？','協會辦活動公開勸募如何申請許可？','協會會員群組是會費收款，對外分享需要勸募許可嗎？'])assert.equal(route(q),null,q);
