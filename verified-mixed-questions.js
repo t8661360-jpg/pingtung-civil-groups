@@ -84,7 +84,49 @@ function dissolutionAndGrant(q){
    ['確認下一步','備妥核定公文、是否已撥款與是否已執行的資料，向原補助承辦確認核銷、繳回或撤案的期限與經手人，再向團體主管機關確認解散送件。'+(otherGrant?'':'屏東縣府總機 08-7320415，可請轉相關承辦。')]],
   refs:[...(otherGrant?[]:[{title:countyTitle+'第3點、第8點及第8點之一',source:countyURL}]),association(27),association(59),law('民法','B0000001',57),law('民法','B0000001',40)]};
 }
+function monthsRemaining(s){
+ const number='([0-9]{1,2}|十[一二三四五六七八九]?|[一二兩三四五六七八九])';
+ const matches=[...s.matchAll(new RegExp('(?:只剩|還剩|還有|剩下|僅剩|剩餘|剩|所遺|還餘|僅餘|尚餘|餘|任期剩下?|任期尚有)'+number+'個?月','g'))];
+ const text='零一二三四五六七八九';
+ const read=x=>/^\d+$/.test(x)?Number(x):x==='兩'?2:x.startsWith('十')?10+(x.length>1?text.indexOf(x[1]):0):text.indexOf(x);
+ const isHalf=/還剩半年|只剩半年|還有半年|剩下半年|剩半年|任期半年/.test(s);
+ const ambiguous=/大約|約有|左右|多個月|多月|近半年|將近|差不多|個半月/.test(s)||/個?月[至到或、／-][0-9一二兩三四五六七八九十]/.test(s);
+ if(ambiguous||matches.length>1||(isHalf&&matches.length))return null;
+ if(isHalf)return 6;
+ if(matches.length===1)return read(matches[0][1]);
+ return null;
+}
+function chairVacancy(q){
+ const t=String(q??'').normalize('NFKC').replace(/\s/g,'');
+ if(t.length>135||!/任期|幾個月|剩|至少六個月|未滿半年|不足半年/.test(t))return null;
+ if(!/過世|死亡|往生|去世|病逝|離世|死了/.test(t)||!/補選|改選|怎麼辦|怎麼處理|代理/.test(t))return null;
+ if(/遞補上來|補上來|補選的人|補選上來|候補|繼承|股金|存摺|印鑑|清算|開戶|銀行|津貼|喪葬|信用合作社|保險合作社/.test(t))return null;
+ const coopOrg=/合作社/.test(t);
+ const comm=/商業同業公會|商業會|商業團體/.test(t);
+ const foreign=/工會|農會|漁會|基金會|公司|管委會|政黨|寺廟/.test(t)||(!comm&&/公會|職業團體|工業會/.test(t));
+ if(foreign||(coopOrg&&/協會|公會|人民團體|社會團體|職業團體/.test(t)))return null;
+ const role=coopOrg?(/監事會主席/.test(t)?'監事會主席':/理事會主席/.test(t)?'理事會主席':''):(/理事長/.test(t)?'理事長':'');
+ if(!role||/監事會主席.*理事會主席|理事會主席.*監事會主席/.test(t))return null;
+ const months=monthsRemaining(t);
+ const shortExplicit=/不足(?:六|6)個?月|未滿(?:六|6)個?月|(?:不足|未滿)半年/.test(t);
+ const longExplicit=/至少(?:六|6)個?月|(?:六|6)個?月以上|至少半年|半年以上/.test(t);
+ const stage=months!==null&&months>0?months<6?'short':'long':shortExplicit!==longExplicit?shortExplicit?'short':'long':'unknown';
+ const kind=coopOrg?'合作社':comm?'商業同業公會':'一般協會';
+ const byElection=coopOrg?'原則上，自出缺之日起一個月內召開'+role.slice(0,3)+'議補選。':'原則上，自出缺之日起一個月內補選。';
+ const acting=coopOrg?'未滿六個月時，可以由'+role.slice(0,2)+'互推一人代理，不必一定補選。':'不足六個月時，可以在出缺之日起一個月內，依章程規定或由常務理事互推一人代理；沒有設常務理事的，由理事互推一人代理，不必一定補選。';
+ const threshold=coopOrg?'未滿六個月':'不足六個月';
+ const known=months!==null&&months>0?'按您說的剩餘任期 '+months+' 個月，':'按您說的剩餘任期，';
+ const summary=stage==='short'?known+'符合'+threshold+'的例外，可依法安排代理，不必一定補選。':stage==='long'?known+'不適用'+threshold+'的例外。'+byElection:'要看出缺當日離任期屆滿還有多久。'+byElection;
+ if(!summary)return null;
+ const lifeline=kind+role+'過世，任期';
+ const steps=stage==='short'?[['如何代理',acting]]:stage==='long'?[['補選還是代理','剛好六個月或更久，不適用短任期的代理例外。'+byElection]]:[['剩餘任期'+threshold,acting],['剛好六個月或更久',byElection]];
+ if(comm)steps.push(['適用法規','商業同業公會先適用商業團體法及其施行細則；依施行細則第45條，選舉罷免事項並依人民團體選舉罷免辦法。']);
+ return {direct:true,category:coopOrg?'合作社會務':'選舉與改選',title:kind+role+'出缺：依剩餘任期決定補選或代理',summary,steps,
+  related:stage==='unknown'?[lifeline+'不足六個月，要補選嗎？',lifeline+'至少六個月，要補選嗎？']:[],
+  refs:coopOrg?[law('合作社選舉罷免辦法','D0050022',7)]:[...(comm?[law('商業團體法施行細則','D0050101',45),{title:'內政部函釋：商業同業公會理事長的補選與代理',source:'https://www.moi.gov.tw/News_Content.aspx?n=14119&s=219798'}]:[]),law('人民團體選舉罷免辦法','D0050093',17)]};
+}
 function answerMixed(q){
+ const vacancy=chairVacancy(q);if(vacancy)return vacancy;
  const caseGrant=dissolutionAndGrant(q);if(caseGrant)return caseGrant;
  const comparison=verifiedComparison(q);if(comparison)return comparison;
  const keys=identify(q);if(!keys)return null;
@@ -94,6 +136,6 @@ function answerMixed(q){
     keys.includes('creditor')?'合作社清算：就任後公告與終結報告，分別計算':isCoop?'合作社清算報告與股息上限，分開看':'協會入會資格與會員除名，分開看',
   summary:keys.length===1?topics[keys[0]].line[1]:'你問了兩件事，分別如下。',steps:keys.length>1?keys.map(k=>topics[k].line):[],refs:keys.flatMap(k=>topics[k].laws)};
 }
-if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant};return;}
+if(typeof module!=='undefined'&&module.exports){module.exports={identify,answerMixed,dissolutionAndGrant,chairVacancy,monthsRemaining};return;}
 root.verifiedMixedQuestionAnswer=answerMixed;
 })(typeof window!=='undefined'?window:globalThis);
