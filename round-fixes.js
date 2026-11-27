@@ -71,8 +71,14 @@ function normalizeQuestion223(s){
  s=s.replace(/家長理事長/g,'家長會長');
  return s;
 }
+/* 第223輪（根源，職業團體）：「幾年改選一次／多久換屆」＝任期多久；「同業公會、商會」的口語統一，讓公會規則和知識庫都對得到 */
+function normalizeQuestionR223(s){
+ s=String(s||'');
+ if(!/合作社|社員|股金|工會|社區/.test(s))s=s.replace(/(?:幾年|多久|隔多久|多少年|每隔幾年|每幾年)(?:就)?(?:要|得|需要|必須)?(?:改選|換屆|重選)(?:一次|一回|1次)?/g,'任期多久');
+ return s;
+}
 function normalizeQuestion(q){
- return normalizeQuestion223(normalizeQuestion222(normalizeQuestion221(normalizeQuestion216(normalizeQuestion215(normalizeQuestion214(normalizeQuestion212(normalizeQuestion210(normalizeQuestion209(normalizeQuestion208(normalizeQuestion207(normalizeQuestion206(normalizeQuestion202(normalizeQuestion201(normalizeQuestion200(normalizeQuestion194(normalizeQuestion193(normalizeQuestion192(normalizeQuestion191(normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(normalizeQuestionU3(normalizeQuestionU2(fixTyposU1(q))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
+ return normalizeQuestionR223(normalizeQuestion223(normalizeQuestion222(normalizeQuestion221(normalizeQuestion216(normalizeQuestion215(normalizeQuestion214(normalizeQuestion212(normalizeQuestion210(normalizeQuestion209(normalizeQuestion208(normalizeQuestion207(normalizeQuestion206(normalizeQuestion202(normalizeQuestion201(normalizeQuestion200(normalizeQuestion194(normalizeQuestion193(normalizeQuestion192(normalizeQuestion191(normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(normalizeQuestionU3(normalizeQuestionU2(fixTyposU1(q)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
 }
 /* 第200輪（根源）：入會退會與會員資格換問法——
    「忘記繳／忘了繳／漏繳會費」＝沒繳會費（原本「忘記繳會費會被退會嗎」被當成退費）；
@@ -1801,7 +1807,7 @@ function supervisorAsDirector(t){
  if(/合作社/.test(t))return null;
  if(/開會|召開|自己開|會議|否決|推翻|決議|監事會|理事會/.test(t))return null;
  if(!/(監事|監察人)/.test(t)||!/(理事|兼任|同時當|同時可以當|一人.{0,4}(當|任))/.test(t))return null;
- if(/(外國人|外籍|年齡|幾歲|未成年|公務員|老師|教師|里長|夫妻|親屬|被判|前科|無給|薪)/.test(t))return null;
+ if(/(外國人|外籍|年齡|幾歲|未成年|公務員|老師|教師|里長|夫妻|親屬|被判|前科|無給|薪|任期|改選|換屆|連任|幾年|多久)/.test(t))return null;
  return {category:'人民團體會務說明',title:'協會理事與監事不能一人兼任：同時當選須當場擇一',summary:'不可以。人民團體選舉罷免辦法第16條明定：會員如一人同時當選理事與監事（或候補理事與候補監事），由當選人當場擇一擔任；當選人不在場或無法擇定時，以得票較多的職位為當選，票數相同抽籤。所以同一人不能同時擔任理事與監事。\n\n理由：理事會執行會務、監事會監察理事會（人民團體法第18條），一人兼任兩者就無人監督。\n\n常見狀況：\n• 改選開票後發現同一人理事、監事都上榜 → 主席當場請本人選一個，另一個職位由次高票遞補為當選。\n• 現任理事任期中想改任監事 → 須先辭理事（經理事會決議解任，人民團體法第23條），再於補選時參選監事。',statutes:[E(16),P(18),P(23)],notes:['公會等職業團體另有理監事不得兼任會務工作人員的限制；合作社則依合作社法第40條，監事不得兼任理事。'],questionState:{focus:'director-supervisor-dual',domain:'social'}};
 }
 function electionReportDeadline(t){
@@ -11965,9 +11971,76 @@ function parentAssoc223(t){
  summary:'學校的學生家長會，是依國民教育法在學校設立的組織，由在學學生的家長為會員組成，並冠上該校的名稱；它的組織章程、委員人數、委員產生方式、任期、選舉罷免、經費和運作，由學校所在地的縣（市）主管機關會商家長團體後，以自治法規訂定（國民教育法第48條第2項）。\n\n所以家長會不是依人民團體法向縣府社會處立案的協會，家長會長改選要不要報、報給誰，不歸這個櫃檯，要看屏東縣的家長會自治法規。請洽孩子就讀的學校，或撥縣府總機 08-7320415 請總機轉教育處。\n\n如果是家長另外依人民團體法成立的「家長協會」這類社會團體，那才是向社會處辦理改選報備。',
  statutes:[{title:'國民教育法第48條',source:LAW+'H0070001'}],notes:['國民教育法適用國民小學和國民中學；高中職的家長會另依高級中等教育法相關規定辦理。'],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
 }
+/* 第223輪（職業團體：商業、工業同業公會）：會員代表任期／改派／出缺、公會多久改選、理事長換人報備、會員大會次數。
+   依據：商業團體法第16、17、23、27、28條與施行細則第14、17、19條；工業團體法第16、17、23、27、28條與施行細則第14、15、21、22條。 */
+function patrolR223(t){
+ if(!/(同業公會|商業公會|工業公會|商業會|工業會|商會|公會|職業團體|工商團體)/.test(t))return null;
+ if(/(合作社|社員|工會|自由職業|律師|醫師|會計師|建築師|技師|護理師|農會|漁會|水利會|青商會|商會長|婦女會)/.test(t)||/[師士員醫]公會|[師士]會|代書|報關|社區/.test(t))return null;
+ const ind=/工業/.test(t)&&!/商業|商會/.test(t),com=/商業|商會/.test(t)&&!/工業/.test(t);
+ const BT=n=>({title:'商業團體法第'+n+'條',source:LAW+'D0050100'});
+ const IT=n=>({title:'工業團體法第'+n+'條',source:LAW+'D0050103'});
+ const BS=n=>({title:'商業團體法施行細則第'+n+'條',source:LAW+'D0050101'});
+ const IS=n=>({title:'工業團體法施行細則第'+n+'條',source:LAW+'D0050104'});
+ const act=[{label:'聯絡承辦',view:'contact',sub:''}];
+ const tail='\n\n這是商業、工業同業公會的規定；一般協會、自由職業團體（律師、醫師、會計師等）規定不同。個案請洽縣府總機 08-7320415，請總機轉接承辦人員。';
+ const mk=(title,summary,statutes)=>({direct:true,category:'職業團體',title,summary,statutes,notes:[],actions:act});
+ const hasRep=/代表/.test(t)&&!/(代表大會|全國性|代表性|代表本會|代表公會對外|出席代表)/.test(t);
+ const hasBoard=/(理事|監事|理監事|召集人)/.test(t);
+ /* 1 會員代表任期 */
+ if(hasRep&&!hasBoard&&/(任期|做多久|當多久|幾年|多久|期限|有沒有期限)/.test(t)&&!/(大會|開會|通知|聲明|名冊|報|費)/.test(t)){
+  return mk('公會的會員代表沒有法定任期：公司、行號可以隨時改派',
+   '法規沒有規定會員代表的任期。商業同業公會的會員代表由公司、行號指派，公司、行號因業務需要可以隨時改派；新代表派定後，原來的代表就喪失代表資格（商業團體法第16條第2項）。\n\n要注意：理事、監事才有任期（三年），而且理事、監事要先是會員代表（商業團體法第23條）。'+(ind?'工業同業公會的會員代表，工廠改派時要書面通知公會（工業團體法施行細則第15條）。':'公會召開會員大會前，會通知會員聲明代表要不要改派，逾期沒聲明就視為續派（商業團體法施行細則第14條）。')+tail,
+   ind?[IT(16),IT(23),IS(14),IS(15)]:[BT(16),BT(23),BS(14)]);
+ }
+ /* 2 會員代表改派／出缺／換人（不涉及理事、監事身分） */
+ if(hasRep&&!hasBoard&&/(改派|換人|換掉|換了|換成|新代表|出缺|缺額|缺了|離職|辭職|不幹|不當了|不想當|被註銷|喪失|失去資格|另派|補派|派新)/.test(t)&&!/(大會|名冊|費用|會費|票|投票)/.test(t)){
+  return mk('公會的會員代表換人或出缺：由公司、行號改派或另派新代表，並通知公會',
+   (ind
+    ?'工業同業公會的會員代表，是工廠指派的；工廠要指派或改派會員代表，應以書面通知公會（工業團體法施行細則第15條）。\n\n會員代表如果有犯罪經判決確定在執行中、褫奪公權尚未復權、受監護宣告尚未撤銷、受破產宣告尚未復權的情形，就喪失代表資格，原派的工廠要另派代表補充（工業團體法第17條）。'
+    :'商業同業公會的會員代表，是公司、行號指派的；公司、行號因業務需要可以隨時改派，新代表派定後，原來的代表就喪失代表資格（商業團體法第16條第2項）。\n\n會員代表如果有犯罪經判決確定在執行中、褫奪公權尚未復權、受監護宣告尚未撤銷、受破產宣告尚未復權的情形，就喪失代表資格，公司、行號要另派代表補充（商業團體法第17條）。')
+   +'\n\n會員代表如果同時是理事或監事，代表資格沒了，理事、監事也要解任，可以接著問「會員代表被換掉理事還在嗎」。'+tail,
+   ind?[IT(17),IS(15)]:[BT(16),BT(17)]);
+ }
+ /* 3 公會多久改選／任期 */
+ if(!hasRep&&/(任期多久|任期幾年|幾年一任|一任幾年|任期多長|任期是幾年)/.test(t)&&/(公會|商會|工業會|商業會|職業團體)/.test(t)&&!/(理事長)/.test(t)&&!/(大會|會議|開會)/.test(t)){
+  return mk('公會的理事、監事任期三年，任期屆滿就要改選',
+   '商業同業公會、工業同業公會的理事、監事，任期都是三年，所以大約每三年要改選一次。連選連任的人數，不得超過二分之一；理事長連任以一次為限（商業團體法第23條、工業團體法第23條）。\n\n任期是從召開本屆第一次理事會那天開始算，這次理事會要在會員大會閉幕後十五日內召開（商業團體法施行細則第17條、工業團體法施行細則第21條）。'+tail,
+   [BT(23),IT(23),BS(17),IS(21)]);
+ }
+ /* 4 公會理事長換人要報縣府嗎 */
+ if(!hasRep&&/(理事長|會長)/.test(t)&&(/(換人|換新|新任|換了|異動|更換|變更)/.test(t)||(/(改選|交接)/.test(t)&&/(報|通報|通知|備查|核備|函|多久|幾天|期限|要不要)/.test(t)))&&!/(任期|連任|幾年|員工|聘約|總幹事|工作人員|銀行|帳戶|印章|圖記|移交|財產|稅|國稅|法院)/.test(t)){
+  return mk('公會理事長換人要報縣府：理事、監事就任後，十五日內（工業會是十日內）送職員簡歷冊備查',
+   (ind
+    ?'工業同業公會改選後，要在理事、監事就任後十日內，把理事、監事、常務理事、常務監事、理事長和總幹事的職員簡歷冊（姓名、年齡、所屬工廠、職務、戶籍及通訊地址等）報請縣府核備，並分送目的事業主管機關和上級團體存查（工業團體法施行細則第22條）。'
+    :(com
+      ?'商業同業公會改選後，要在理事、監事就任後十五日內，造具理事長、常務理事、理事、常務監事、監事、候補理事、候補監事和總幹事的職員簡歷冊，報請縣府備查（商業團體法施行細則第19條、第7條第1項）。'
+      :'公會改選後，職員簡歷冊（含理事長）要報縣府：商業同業公會是理事、監事就任後十五日內（商業團體法施行細則第19條），工業同業公會是就任後十日內（工業團體法施行細則第22條）。'))
+   +'\n\n理事、監事任期從召開本屆第一次理事會那天算起，這次理事會由新任理事、監事在會員大會閉幕後十五日內召開（商業團體法施行細則第17條、工業團體法施行細則第21條），理事長就是在這次理事會選出。任期中途才換理事長的個案，要報備的做法請洽承辦人員。'+tail,
+   ind?[IS(22),IS(21)]:(com?[BS(19),BS(7),BS(17)]:[BS(19),IS(22),BS(17),IS(21)]));
+ }
+ /* 5 會員大會多久開一次（職業團體、公會） */
+ if(!hasRep&&/(會員大會|會員代表大會|代表大會|大會)/.test(t)&&/(多久|幾次|每年|一年|幾年|要開嗎|一定要開|要不要開)/.test(t)&&/(開|召開|舉行|辦)/.test(t)&&!/(理事會|監事會|臨時|通知|幾天前|出席|過半|人數|決議|委託|代理|視訊|紀錄|報告)/.test(t)){
+  return mk('公會的會員大會：定期會議每年至少開一次，理事長召集，十五日前通知',
+   '商業同業公會、工業同業公會的會員大會，定期會議每年至少要召開一次，由理事長召集；臨時會議是理事會認為必要，或會員代表五分之一以上請求，或監事會函請召集時才開（商業團體法第27條、工業團體法第27條）。\n\n召集會員大會，要在十五日前通知，緊急事故的臨時會議，通知送達後能及時到會的，不在此限（商業團體法第28條、工業團體法第28條）。'+tail,
+   [BT(27),IT(27),BT(28),IT(28)]);
+ }
+ /* 7 有沒有統一的「職業團體法」 */
+ if(/職業團體法|(有沒有|有無).{0,8}(通用|統一|共通|共同|都適用|一部).{0,10}法/.test(t)&&/(公會|職業團體)/.test(t))
+  return mk('沒有一部統一的「職業團體法」：人民團體法是共通規定，商業、工業公會另有各自的法律',
+   '沒有一部叫「職業團體法」、所有職業公會都適用的法律。\n\n1. 人民團體法是共通的基本規定，把人民團體分成職業團體、社會團體、政治團體三種（人民團體法第4條）；其他法律有特別規定的，適用其規定（第1條）。\n2. 商業同業公會、商業會，看商業團體法；工業同業公會、工業會，看工業團體法（兩部法律都規定團體是法人，商業團體法第2條、工業團體法第2條）。\n3. 醫師、律師、會計師等自由職業團體，各依各行業的專門法律，請洽承辦人員確認。'+tail,
+   [P(1),P(4),BT(2),IT(2)]);
+ /* 6 會員有哪幾種 */
+ if(!hasBoard&&!hasRep&&/(會員)/.test(t)&&/(分幾種|有幾種|有哪幾種|有哪些種類|哪幾類|分哪些|個人還是公司|個人或公司|是誰|是哪些|由誰組成|由什麼人組成)/.test(t)&&!/(退會|費|代表大會|一定|只能|必須)/.test(t)){
+  return mk('公會的會員是誰：商業公會是公司、行號，工業公會是工廠，不是個人',
+   '商業同業公會的會員是公司、行號：同一區域內依公司法或商業登記法取得登記證照的商業公司、行號，都應在開業後一個月內加入該地區的商業同業公會，會員再指派代表出席，稱為會員代表（商業團體法第12條）。縣（市）商業會的會員，則是縣（市）商業同業公會，以及縣（市）內沒有商業同業公會可加入的公司、行號（商業團體法第55條）。\n\n工業同業公會的會員是領有工廠登記證照的工廠，開業後一個月內要加入工業同業公會，也是由會員指派代表出席（工業團體法第13條）；縣（市）工業會則由領有工廠登記證照而無法加入工業同業公會的工廠，滿五家以上時組織（工業團體法第49條）。\n\n所以公會的會員是事業單位，不是個人；個人是以會員代表的身分出席。'+tail,
+   [BT(12),BT(55),IT(13),IT(49)]);
+ }
+ return null;
+}
 function verifiedRoundAnswer(q,ctx){
  let x=null;
- try{x=parentAssoc223(norm(q))}catch(e){x=null}
+ try{x=patrolR223(norm(q))}catch(e){x=null}
+ if(!x){try{x=parentAssoc223(norm(q))}catch(e){x=null}}
  if(!x){try{x=cross1127(norm(q),ctx)}catch(e){x=null}}
  if(!x){try{x=patrol220(norm(q))}catch(e){x=null}}
  return x||verifiedRoundAnswerCore(q,ctx);
