@@ -226,7 +226,7 @@ function normalizeQuestionR232(s){
  return s;
 }
 function normalizeQuestion(q){
- return normalizeQuestionR233(normalizeQuestionR232(normalizeQuestionR229(normalizeQuestionR228(normalizeQuestionR227(normalizeQuestionR225(normalizeQuestionR223(normalizeQuestion223(normalizeQuestion222(normalizeQuestion221(normalizeQuestion216(normalizeQuestion215(normalizeQuestion214(normalizeQuestion212(normalizeQuestion210(normalizeQuestion209(normalizeQuestion208(normalizeQuestion207(normalizeQuestion206(normalizeQuestion202(normalizeQuestion201(normalizeQuestion200(normalizeQuestion194(normalizeQuestion193(normalizeQuestion192(normalizeQuestion191(normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(normalizeQuestionU5(normalizeQuestionU3(normalizeQuestionU4(normalizeQuestionU2(normalizeQuestionU6(normalizeQuestionU8(normalizeQuestionU7(fixTyposU1(q))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
+ return normalizeQuestionR234(normalizeQuestionR233(normalizeQuestionR232(normalizeQuestionR229(normalizeQuestionR228(normalizeQuestionR227(normalizeQuestionR225(normalizeQuestionR223(normalizeQuestion223(normalizeQuestion222(normalizeQuestion221(normalizeQuestion216(normalizeQuestion215(normalizeQuestion214(normalizeQuestion212(normalizeQuestion210(normalizeQuestion209(normalizeQuestion208(normalizeQuestion207(normalizeQuestion206(normalizeQuestion202(normalizeQuestion201(normalizeQuestion200(normalizeQuestion194(normalizeQuestion193(normalizeQuestion192(normalizeQuestion191(normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(normalizeQuestionU5(normalizeQuestionU3(normalizeQuestionU4(normalizeQuestionU2(normalizeQuestionU6(normalizeQuestionU8(normalizeQuestionU7(fixTyposU1(q)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
 }
 /* 第200輪（根源）：入會退會與會員資格換問法——
    「忘記繳／忘了繳／漏繳會費」＝沒繳會費（原本「忘記繳會費會被退會嗎」被當成退費）；
@@ -2665,7 +2665,7 @@ function subsidySettlement(t){
 }
 function corpRegistration(t){
  if(!/法人/.test(t))return null;
- if(/財團法人|合作社|公司|勸募|統編|統一編號/.test(t))return null;
+ if(/財團法人|合作社|公司|勸募|募款|募捐|統編|統一編號/.test(t))return null;
  const cancel=/(註銷|撤銷|取消|廢止|解散|不要|放棄|消滅)/.test(t);
  if(!cancel&&!/(登記|成為|變成|申請|可以|要不要|怎麼辦|哪裡)/.test(t))return null;
  const court='臺灣屏東地方法院：屏東市棒球路9號，電話08-7550611（請轉登記處）。';
@@ -4135,6 +4135,7 @@ function staffMustBeMember(t){
 }
 function chairFundraising(t){
  if(!/(募款|募捐|募集|勸募|捐款活動|募資|籌款)/.test(t))return null;
+ if(/(自己|個人).{0,3}(出錢|捐|出資|墊|贊助|掏)/.test(t)&&!/名義/.test(t))return null;
  if(!/(理事長|會長|負責人|個人|自己)/.test(t))return null;
  if(/合作社|社員/.test(t))return null;
  return{category:'公益勸募與捐款',title:'理事長不能自行以團體名義募款：須經團體決議，對外募款還要符合公益勸募條例',
@@ -4887,7 +4888,7 @@ function patrol27(t){
  if(/勸募/.test(t)&&/(事先|事前|開始前|之前|先).{0,3}公告/.test(t))
   return A('勸募不用自己事先公告，但要先申請許可','條例沒有要求勸募團體在勸募前先自行公告。要做的是在活動開始21日前先向主管機關申請許可（公益勸募許可辦法第2條）；許可之後，主管機關會把核定的勸募活動上網公告（公益勸募條例第23條）。活動期滿後，團體要在30日內把收支公告並公開徵信（第18條）。',[PERM(2),CHR(23),CHR(18)]);
  /* 只有公益團體能辦 */
- if(/勸募/.test(t)&&/(只有|限於|只限|哪些團體|什麼團體|誰可以|誰能|哪種團體|資格|一定要.{0,4}(公益|法人)|公益團體)/.test(t)&&!/(錢|所得|款項|經費|善款).{0,6}(動用|支用|使用|運用|花用|提領)/.test(t))
+ if(/(勸募|募款|募捐)/.test(t)&&/(只有|限於|只限|哪些團體|什麼團體|誰可以|誰能|哪種團體|資格|一定要.{0,4}(公益|法人)|公益團體|不是法人|非法人|沒有法人|沒登記.{0,2}法人|沒有?(立案|登記)|未(立案|登記)|還沒(立案|登記))/.test(t)&&!/(收據|簽收|簽名|蓋章)/.test(t)&&!/(錢|所得|款項|經費|善款).{0,6}(動用|支用|使用|運用|花用|提領)/.test(t))
   return A('能發起勸募的只有四種團體：公立學校、行政法人、公益性社團法人、財團法人','依公益勸募條例第5條，勸募團體只有：公立學校、行政法人、公益性社團法人、財團法人。一般的協會（人民團體）如果沒有登記為公益性社團法人，不能發起對外勸募。\n勸募所得也有用途限制：社會福利、教育文化、社會慈善、援外或國際人道救援，或主管機關認定的其他事業（第8條）。',[CHR(5),CHR(8)]);
  /* 活動取消 */
  if(/(勸募|募款|募到)/.test(t)&&/(取消|不辦了|不辦|不想辦|不要辦|辦不成|停辦|辦不下去|終止|中止|喊停)/.test(t))
@@ -4896,7 +4897,7 @@ function patrol27(t){
  if(/(捐款箱|愛心箱|募款箱|零錢箱)/.test(t)&&/(可以|能|要不要|需要|登記|許可|申請|嗎|放|擺|設置|哪裡|哪邊)/.test(t)&&!/(標示|清點|怎麼收|開箱|收據|匿名)/.test(t))
   return A('放捐款箱向社會大眾募款，也算勸募：要先申請許可','在街頭、店家等地方放捐款箱對外募款，就是向社會大眾募集財物，屬於勸募，要先向主管機關申請許可，許可內容要包含這種募集方式和地區（公益勸募條例第7條；公益勸募許可辦法第3條）。而且發起的團體只能是公立學校、行政法人、公益性社團法人或財團法人（第5條）。\n捐款箱要怎麼標示、怎麼清點，另見「定點的捐款箱要標示什麼」。',[CHR(7),PERM(3),CHR(5)]);
  /* 錢可不可以全部拿來辦活動 */
- if(/(募|勸募)/.test(t)&&/(全部|都).{0,6}(辦|用|花|做)|(辦活動|辦理活動|辦事|用在哪|用途|可以拿來)/.test(t)&&!/(必要支出|行政費|薪水)/.test(t))
+ if(/(募|勸募)/.test(t)&&/(全部|都).{0,6}(辦|用|花|做)|(辦活動|辦理活動|辦事|用在哪|用途|可以拿來)/.test(t)&&!/(必要支出|行政費|薪水)/.test(t)&&!/(申請|許可|報備|核准|要不要|需不需要|要先)/.test(t))
   return A('勸募的錢要用在許可的用途與計畫：限社福、教育文化、慈善、援外','勸募所得財物的用途限於：社會福利事業、教育文化事業、社會慈善事業、援外或國際人道救援，以及主管機關認定的其他事業（公益勸募條例第8條）。要依主管機關許可的使用計畫使用，不得移作他用（第19條）。\n辦理勸募活動本身的必要支出，可以在比例上限內由所得支應，所得在1,000萬元以下最多15%（第17條）。',[CHR(8),CHR(19),CHR(17)]);
  return null;
 }
@@ -7197,7 +7198,7 @@ function patrol82(t){
   return R('勸募用什麼活動方式（義演、拍賣、抽獎…）：條例沒有限定，但活動方式要寫進申請並載入許可文件','公益勸募條例沒有規定勸募一定要用什麼方式，也沒有列出哪些方式不可以。不過許可文件上會登載「活動方式」（公益勸募許可辦法第3條第2項第4款），所以您打算用的方式，要寫在申請時的勸募活動計畫裡（辦法第2條第1項第1款），許可後照許可的方式辦；要改，要在事實發生7日前報主管機關許可（辦法第3條第3項）。\n\n有一點是明文禁止的：不得以強制攤派或其他強迫方式勸募，也不得向因職務上或業務上關係有服從義務或受監督的人強行勸募（條例第14條）。\n\n像抽獎、拍賣、藝人演出這類活動，除了勸募條例，可能還涉及其他法令，本站沒有收錄這些法規，請先洽承辦人員確認。',[DD(2),DD(3),CHR(14)]);
  if(/(買|購置|購買|購入|蓋|租|買下).{0,5}(辦公室|房子|房屋|會所|會址|房地|大樓|土地|車|汽車|設備|電腦|辦公)/.test(t))
   return R('勸募所得不能自己決定拿去買協會的辦公室或設備：只能用在許可的使用計畫和法定用途','原則上不可以自己決定這樣用。勸募所得財物，要依主管機關許可的使用計畫使用，不得移作他用（公益勸募條例第19條第1項），而且用途限於第8條列的社會福利、教育文化、社會慈善、援外或國際人道救援，和其他經主管機關認定的事業。\n\n協會自己的開銷，只有「辦理這次勸募活動的必要支出」可以從勸募所得支應，而且有比例上限，例如所得在1,000萬元以下的最多15%（第17條）；施行細則說明必要支出包括進行勸募活動所需的人事費、業務費和其他辦理活動有關的支出（第11條）。為協會買辦公室，看不出是這次勸募活動的必要支出，也看不出屬於第8條的用途；如果許可的使用計畫本來就有購置設備，請先洽承辦人員確認。',[CHR(8),CHR(17),CHR(19),CS(11)]);
- if(/(附|準備|要什麼|需要什麼|哪些資料|哪些文件|什麼資料|什麼文件|文件|資料)/.test(t)&&/(申請|許可)/.test(t)&&!/(審|等|多久|向誰|去哪|哪裡|捐款人|名單|出示|工作證|證件|貼在|掛在|文號)/.test(t))
+ if(/(附|準備|要什麼|需要什麼|哪些資料|哪些文件|什麼資料|什麼文件|文件|資料|(填|寫).{0,3}(什麼|啥|哪些|甚麼|內容))/.test(t)&&/(申請|許可)/.test(t)&&!/(審|等|多久|向誰|去哪|哪裡|捐款人|名單|出示|工作證|證件|貼在|掛在|文號)/.test(t))
   return R('申請勸募許可要附的文件：申請書、法人登記證書、理事會同意發起的會議紀錄','申請勸募許可，要在活動開始21日前，備齊下列文件（公益勸募許可辦法第2條第1項）：\n1. 申請書：內容包括勸募團體基本資料、勸募活動計畫、勸募活動所得財物使用計畫和經費概算。\n2. 法人登記證書，和理事會（董事會）決議同意發起勸募的會議紀錄。\n3. 其他經主管機關規定的文件。\n\n緊急救災的申請不受21日前的限制，理事會同意的會議紀錄可以在受理申請後5日內補附。資料有缺的，主管機關會通知限期補正；屆期沒補正或補正後仍不符合規定的，駁回申請（辦法第3條第1項）。',[DD(2),DD(3)]);
  if(/(幾次|多少次|次數|可以辦幾(?!年)|一年.{0,3}幾(?!年)|每年.{0,3}幾|連續辦|接著辦|再辦|重複辦|常常辦)/.test(t))
   return R('一年可以辦幾次勸募：本站收錄的規定沒有訂次數上限，每次期間最長一年，每次都要申請許可','公益勸募條例只規定一次勸募活動的期間最長一年（第12條），本站收錄的條例、施行細則和許可辦法，沒有訂一年最多可以辦幾次。每一次勸募活動，都要依許可辦法備齊文件申請許可（辦法第2條），許可文件上會登載活動的起迄日期。\n\n不過，過去的勸募有沒有照規定辦理，會影響下一次能不能獲准：最近三年內違反條例第13、14、19、21或22條規定的，主管機關應不予許可（第9條）；勸募所得曾逾使用計畫的使用期限、賸餘款曾逾再執行期限等，主管機關得不予許可（辦法第5條）。',[CHR(12),CHR(9),DD(2),DD(5)]);
@@ -10915,7 +10916,7 @@ function patrol154(t){
  if(/退會/.test(t)&&/(證明|證書|證明書)/.test(t)||/(證明).{0,6}(已經|已)?(退會|不是會員|退出)/.test(t))
   return R('退會證明：法規沒有規定要發，也沒有訂格式，請向協會申請','人民團體法沒有規定協會一定要發退會證明，也沒有規定格式。會員入會、出會與除名的程序，是章程要載明的事項（人民團體法第12條第7款）；會員出會的情形有死亡、喪失會員資格、經大會決議除名三種（第15條）。\n所以要不要開立、怎麼申請，請先看協會的章程，或直接向協會提出書面申請。實務上建議保留當初書面退會的紀錄。縣府不管理各協會的會員名冊，無法代為開立。',[P(12),P(15)]);
  // (d) 我有沒有入會成功、還是不是會員；入會多久有回音
- if((/(我|自己|本人)/.test(t)&&/(是不是|是否|有沒有|有無|還是不是|算不算|算是)/.test(t)&&/(會員|入會|加入)/.test(t))||/(怎麼|如何|能|可以)?(確認|查|知道|查詢).{0,6}(有沒有|是否|是不是|有無).{0,4}(入會|會員|加入)/.test(t)||/入會.{0,8}(多久|多長時間|幾天|什麼時候).{0,6}(回覆|回音|通知|審核|結果|通過|知道|有消息)/.test(t)||/(入會|加入).{0,6}(申請|申請書|資料).{0,4}(要)?等(多久|多長時間|幾天)/.test(t)||/(入會|加入).{0,6}(有沒有|是否|是不是).{0,3}(成功|通過|過了)/.test(t)||/(入會|加入).{0,10}(沒|未|還沒|一直沒|都沒).{0,3}(收到|接到|看到).{0,4}(通知|回覆|回音|消息|結果)/.test(t))
+ if((/(我|自己|本人)/.test(t)&&/(是不是|是否|有沒有|有無|還是不是|算不算|算是)/.test(t)&&/(會員|入會|加入)/.test(t)&&!/(募款|勸募|募捐|捐款|捐錢|捐助|贊助|義賣)/.test(t))||/(怎麼|如何|能|可以)?(確認|查|知道|查詢).{0,6}(有沒有|是否|是不是|有無).{0,4}(入會|會員|加入)/.test(t)||/入會.{0,8}(多久|多長時間|幾天|什麼時候).{0,6}(回覆|回音|通知|審核|結果|通過|知道|有消息)/.test(t)||/(入會|加入).{0,6}(申請|申請書|資料).{0,4}(要)?等(多久|多長時間|幾天)/.test(t)||/(入會|加入).{0,6}(有沒有|是否|是不是).{0,3}(成功|通過|過了)/.test(t)||/(入會|加入).{0,10}(沒|未|還沒|一直沒|都沒).{0,3}(收到|接到|看到).{0,4}(通知|回覆|回音|消息|結果)/.test(t))
   return R('有沒有入會成功、是不是會員：要問協會，法規沒有訂審查期限','人民團體法沒有規定入會審查要多久，也沒有規定要通知申請人的期限；入會的資格與程序是章程要載明的事項（人民團體法第12條第7款），一般要經理事會通過。入會申請通常在理事會議時審查，所以要看章程訂的理事會召開頻率：理事會至少每三個月開一次（人民團體法第29條），社會團體至少每六個月一次（第43條），實務上會在下一次理事會議審查決定。\n協會要建立會籍資料並隨時更新（人民團體會務輔導辦法第10條第1項），新會員入會也不用逐一報縣府（第54條只列章程、選任職員簡歷冊和負責人名冊的異動），所以縣府查不到您是不是會員。\n請直接向該協會（理事長或總幹事）詢問，或請協會確認會員名冊，必要時請協會以書面回覆。',[P(12),P(54),{title:'人民團體會務輔導辦法第10條',source:LAW+'D0020094'}]);
  // (f) 被冒名入會、沒經同意被列為會員、退會後名字還在名冊
  if((/(冒用|冒名|盜用|未經.{0,3}同意|沒經過.{0,3}同意|沒有經過.{0,3}同意|沒問過我|擅自|不經.{0,3}同意|沒同意)/.test(t)&&/(入會|會員|名單|名冊|列為|拉進|加入|名字|姓名)/.test(t))||/(退會|已退|退出).{0,8}(名字|姓名|資料).{0,6}(還在|還留|沒刪|仍在)/.test(t)||/(名字|姓名).{0,4}(還在|還留|仍在).{0,4}(名冊|名單)/.test(t)||/我(沒|沒有)(入會|加入).{0,6}(名單|名冊).{0,4}(卻|竟然|怎麼)?有我/.test(t))
@@ -12847,6 +12848,12 @@ function patrolR232(t){
   [PT(58),PT(59),G(27),{title:'訴願法第14條',source:LAW+'A0030020'}]);
  return null;
 }
+/* 第234輪：會員、理事自己出錢捐給協會，算不算勸募（原本被答成理事長不能自行募款或難倒小屏）。公益勸募條例第6條第3項。 */
+function normalizeQuestionR234(s){
+ s=String(s||'');
+ if(/(理事|監事|理監事|幹部|會員|自己人|內部|我)/.test(s)&&/(出錢|捐錢|捐款|捐給|捐)/.test(s)&&/(算不算|算|是不是|屬不屬於|是否|算是).{0,3}(勸募|募款|募捐)/.test(s)&&!/(外面|外界|民眾|路人|社會大眾|網路|臉書|街頭)/.test(s))return '會員捐款算勸募嗎';
+ return s;
+}
 /* 第233輪：想當志工去哪裡報名（原本難倒小屏）。志願服務法第3條、第6條、第9條、第12條。 */
 function normalizeQuestionR233(s){
  s=String(s||'');
@@ -12877,10 +12884,21 @@ function patrolR233(t){
   statutes:[V(3),V(6),V(9),V(12)],notes:[],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
  return null;
 }
+/* 第234輪：勸募收據誰簽發。公益勸募條例第16條、施行細則第9條、社會團體財務處理辦法第17條原文核對。 */
+function patrolR234(t){
+ if(!/(勸募|募款|募捐)/.test(t)||!/收據/.test(t))return null;
+ if(/(合作社|社員|基金會|寺廟|政黨)/.test(t))return null;
+ if(!(/(誰|哪個人|什麼人|哪位|哪一位|由誰).{0,6}(簽|蓋|開|發|填|經手)/.test(t)||/(簽發|蓋章|簽名|簽章).{0,4}(的人|是誰|誰)/.test(t)||/(誰可以|誰能|誰才能|誰要|誰負責|誰來).{0,3}(開|簽發|簽|蓋).{0,4}收據/.test(t)||/收據.{0,4}(誰簽|誰蓋|誰開|誰簽名|誰簽章)/.test(t)))return null;
+ const J=(n,c)=>({title:c+'第'+n+'條',source:LAW+({'公益勸募條例':'D0050138','公益勸募條例施行細則':'D0050146','社會團體財務處理辦法':'D0050097'})[c]});
+ return{direct:true,category:'公益勸募',title:'勸募收據誰簽發：法規沒有指定簽發的人，但收據要載明許可文號、捐贈人、金額和日期',
+ summary:'公益勸募條例和施行細則都沒有規定勸募收據要由誰簽名或蓋章，本站也查不到這方面的明文。\n\n法規有規定的是收據的內容：勸募團體收受勸募所得，要開立收據，並載明勸募許可文號、捐贈人、捐贈金額或物品及捐贈日期（公益勸募條例第16條）；金錢要寫金額，物品要寫種類、數量和時價（施行細則第9條）。收據存根要保存至少五年（施行細則第10條）。\n\n社會團體財務處理辦法第17條「負責人、秘書長或總幹事及財務人員共同蓋章」，是指「提用存款時的領款憑證」，不是指收據。\n\n由誰經手開收據，建議由理事會決定並寫進協會內部作業規定（這是做法建議，不是法規規定）；個案請洽承辦人員確認。',
+ statutes:[J(16,'公益勸募條例'),J(9,'公益勸募條例施行細則'),J(17,'社會團體財務處理辦法')],notes:['屏東縣內的勸募，請洽縣府總機 08-7320415 轉社會處。'],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
+}
 function verifiedRoundAnswer(q,ctx){
  let x=null;
  if(!verifiedRoundAnswer._r12)try{x=cross1127r12(norm(q),ctx)}catch(e){x=null} /* 導向既有答案時不再進第12輪規則，避免「名譽理事長可以投票嗎」這類導向題自我遞迴 */
  if(x&&x.__redir12){const R=x.__redir12;x=null;let a=null;verifiedRoundAnswer._r12=true;try{a=verifiedRoundAnswer(normalizeQuestion(R.q),ctx)}catch(e){a=null}finally{verifiedRoundAnswer._r12=false}if(a&&a.summary&&R.re.test(a.title||''))x=Object.assign({},a,{direct:true,questionState:R.fl},R.ext?R.ext(a):{});}
+ if(!x) try{x=patrolR234(norm(q))}catch(e){x=null}
  if(!x) try{x=patrolR233(norm(q))}catch(e){x=null}
  if(!x) try{x=patrolR232(norm(q))}catch(e){x=null}
  if(!x) try{x=patrolR228(norm(q))}catch(e){x=null}
