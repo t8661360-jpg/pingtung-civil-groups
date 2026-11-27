@@ -1526,6 +1526,8 @@ async function ask(q){
   if(financeMeetingPlanner&&financeMeetingPlanner(q))return;
   const publicElection=typeof window.verifiedAssociationPublicElection==="function"?window.verifiedAssociationPublicElection(q):null;
   if(publicElection){renderAnswer(q,publicElection);return;}
+  const politicalDonation=typeof window.verifiedAssociationPoliticalDonation==="function"?window.verifiedAssociationPoliticalDonation(q):null;
+  if(politicalDonation){renderAnswer(q,politicalDonation);return;}
   const donorReceipt=typeof window.verifiedDonationReceiptIdentity==="function"?window.verifiedDonationReceiptIdentity(q):null;
   if(donorReceipt){renderAnswer(q,donorReceipt);return;}
   const saleFundraising=typeof window.verifiedCharitySaleFundraising==="function"?window.verifiedCharitySaleFundraising(q):null;
@@ -1957,6 +1959,7 @@ touch();
 <script src="association-roster-handover.js?v=1"></script>
 <script src="association-public-election.js?v=1"></script>
 <script src="association-ledger-loss.js?v=1"></script>
+<script src="association-political-donation.js?v=1"></script>
 <script src="in-kind-donation-distinction.js?v=1"></script>
 <script src="meeting-convening-distinction.js?v=1"></script>
 <script src="answer-arbiter.js?v=20261127-293"></script>
@@ -1965,7 +1968,7 @@ touch();
 <script src="keyword-menu.js?v=20261127-293"></script>
 <script src="ai-assist.js?v=20261127-293"></script>
 <script src="ai-understand.js?v=1"></script>
-<script src="answer-guard.js?v=20261127-293"></script>
+<script src="answer-guard.js?v=20261127-294"></script>
 <script src="festive.js?v=20261127-293" defer></script>
 </body>
 </html>

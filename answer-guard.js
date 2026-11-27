@@ -583,6 +583,8 @@
   if (typeof renderAnswer === 'function') {
     const prev = renderAnswer;
     renderAnswer = function (q, a) {
+      const corrected = typeof window !== 'undefined' && typeof window.verifiedLegacyPoliticalDonation === 'function' ? window.verifiedLegacyPoliticalDonation(q, a) : null;
+      if (corrected) a = corrected; // replace the one obsolete citation before applying normal guard checks
       const g = guard(q, a);
       const out = prev(q, g || a);
       try { feedbackBar(q, g || a); } catch (e) {}
