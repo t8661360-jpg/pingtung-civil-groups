@@ -1524,6 +1524,8 @@ async function ask(q){
   const decisionAudit=typeof window.verifiedAssociationDecisionAudit==="function"?window.verifiedAssociationDecisionAudit(q):null;
   if(decisionAudit){financeMeetingPlanner=null;renderAnswer(q,decisionAudit);return;}
   if(financeMeetingPlanner&&financeMeetingPlanner(q))return;
+  const saleFundraising=typeof window.verifiedCharitySaleFundraising==="function"?window.verifiedCharitySaleFundraising(q):null;
+  if(saleFundraising){renderAnswer(q,saleFundraising);return;}
   const inKind=typeof window.verifiedInKindDonationAnswer==="function"?window.verifiedInKindDonationAnswer(q):null;
   if(inKind){renderAnswer(q,inKind);return;}
   const convening=typeof window.verifiedMeetingConveningAnswer==="function"?window.verifiedMeetingConveningAnswer(q):null;
@@ -1936,6 +1938,7 @@ touch();
 <script src="association-office-status.js?v=1"></script>
 <script src="guild-practice-registration.js?v=1"></script>
 <script src="association-quorum-withdrawal.js?v=1"></script>
+<script src="charity-sale-fundraising.js?v=1"></script>
 <script src="in-kind-donation-distinction.js?v=1"></script>
 <script src="meeting-convening-distinction.js?v=1"></script>
 <script src="answer-arbiter.js?v=20261127-291"></script>
