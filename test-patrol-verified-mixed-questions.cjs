@@ -48,4 +48,14 @@ assert.equal(answer('銀行存款利息有上限嗎？合作社清算報告多�
 const twoStages='合作社清算人上任多久要公告催報債權？清算結束後幾天要向主管機關送報告？';
 assert.match(lines(twoStages),/就任後十五日內.*申報期限不得少於十五日.*分別通知[\s\S]*20日內.*分送各社員/);
 assert.deepEqual(identify('清算結束後幾天要向主管機關送報告？合作社清算人上任多久要公告催報債權？'),['report','creditor']);
+const creditFirst='信用合作社沒盈餘能發社股股息嗎？一般合作社也有一樣的上限嗎？';
+const regularFirst='合作社沒結餘能發股息嗎？如果是信用合作社，股息也一樣嗎？';
+assert.match(lines(creditFirst),/信用合作社：.*當年度沒有盈餘也不得分配[\s\S]*一般合作社：.*百分之十/);
+assert.match(lines(regularFirst),/一般合作社：.*沒有結餘不能發息[\s\S]*信用合作社：.*法定盈餘公積/);
+assert.ok(answer(creditFirst).refs.some(x=>x.title==='合作社法第3-1條'));
+assert.equal(answer('信用合作社的股息跟銀行存款利息一樣嗎？'),null);
+const proxy='協會會員可以把大會委託書交給另一名會員；理事開理事會也能比照嗎？';
+assert.match(lines(proxy),/書面委託其他會員.*最多代理一人[\s\S]*不得委託他人代理/);
+assert.match(lines('協會理事會可以委託代出席嗎？會員大會可以書面委託嗎？'),/理事會或監事會：.*不得委託他人代理[\s\S]*書面委託其他會員/);
+for(const x of ['協會會員大會可以委託家人代理嗎？','職業團體會員大會可委託代理，那理事會也可以嗎？','合作社社員大會可以委託代理，理事會呢？'])assert.equal(answer(x),null,x);
 console.log('verified mixed questions OK');
