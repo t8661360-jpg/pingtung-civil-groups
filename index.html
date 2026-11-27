@@ -1550,6 +1550,8 @@ async function ask(q){
   if(inKind){renderAnswer(q,inKind);return;}
   const convening=typeof window.verifiedMeetingConveningAnswer==="function"?window.verifiedMeetingConveningAnswer(q):null;
   if(convening){renderAnswer(q,convening);return;}
+  const cooperativeRosterHandover=typeof window.verifiedCooperativeRosterHandover==="function"?window.verifiedCooperativeRosterHandover(q):null;
+  if(cooperativeRosterHandover){renderAnswer(q,cooperativeRosterHandover);return;}
   const rosterHandover=typeof window.verifiedRosterHandover==="function"?window.verifiedRosterHandover(q):null;
   if(rosterHandover){renderAnswer(q,rosterHandover);return;}
   const admission=typeof window.verifiedAssociationAdmissionAnswer==="function"?window.verifiedAssociationAdmissionAnswer(q):null;
@@ -1973,6 +1975,7 @@ touch();
 <script src="association-charter-applicability.js?v=1"></script>
 <script src="meeting-quorum-kind-clarification.js?v=1"></script>
 <script src="association-roster-handover.js?v=1"></script>
+<script src="cooperative-roster-handover.js?v=1"></script>
 <script src="association-public-election.js?v=1"></script>
 <script src="association-ledger-loss.js?v=1"></script>
 <script src="association-political-donation.js?v=1"></script>
