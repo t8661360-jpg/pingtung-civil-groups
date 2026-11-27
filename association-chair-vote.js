@@ -12,6 +12,7 @@ const law=(name,code,n)=>({title:name+'第'+n+'條',source:'https://law.moj.gov.
 function chairVote(q){
  const t=String(q||'').normalize('NFKC').replace(/\s/g,'');
  if(t.length>185||/合作社|社員|信合社|農會|漁會|工會|公會|公司|股東|管委會|區分所有權|罷免/.test(t))return null;
+ if(/選.{0,3}常務(?:理事|監事)|常務(?:理事|監事).{0,2}選舉/.test(t)&&/同票|平手|票數(?:相等|一樣|相同)/.test(t))return null; /* 交叉巡檢第14輪：選常務理事同票交給 round-fixes 的抽籤答案（選罷辦法§15） */
  const chair=/主席|理事長/.test(t), board=/理事會|理監事聯席/.test(t);
  const tie=/可否同數|同票|平手|票數(?:相等|一樣|相同)|(?:同意|贊成)票.{0,8}(?:一樣|相同)|[0-9一二兩三四五六七八九十]+票(?:比|對)[0-9一二兩三四五六七八九十]+票|[0-9一二兩三四五六七八九十]+票(?:同意|贊成)[^。]{0,8}(?:反對|不同意)/.test(t);
  const wants=/不投|沒投|要投|投一票|投票權|再投|補投|表決權|同數時誰決定|平手怎麼辦|票怎麼算/.test(t);
