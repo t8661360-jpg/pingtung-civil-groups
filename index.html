@@ -1567,6 +1567,8 @@ async function ask(q){
     if(matched){financeMeetingPlanner=null;postponedProxyDateQuestion=matched.followNewDate?heldDateQuestion:null;renderAnswer(q,matched);return;}
   }
   if(!financeMeetingPlanner&&typeof window.createFinanceMeetingPlanner==="function")financeMeetingPlanner=window.createFinanceMeetingPlanner({board,showAnswer:renderAnswer});
+  const coopLiquidationResidue=typeof window.verifiedCooperativeLiquidationResidue==="function"?window.verifiedCooperativeLiquidationResidue(q):null;
+  if(coopLiquidationResidue){financeMeetingPlanner=null;renderAnswer(q,coopLiquidationResidue);return;}
   const canceledGrantInKind=typeof window.verifiedAssociationCanceledGrantInKind==="function"?window.verifiedAssociationCanceledGrantInKind(q):null;
   if(canceledGrantInKind){financeMeetingPlanner=null;renderAnswer(q,canceledGrantInKind);return;}
   const fiscalGrant=typeof window.verifiedAssociationFiscalGrant==="function"?window.verifiedAssociationFiscalGrant(q):null;
@@ -2205,6 +2207,7 @@ touch();
 <script src="association-fee-timing.js?v=1"></script>
 <script src="cooperative-address-proof.js?v=1"></script>
 <script src="liquidation-creditor-notice.js?v=2"></script>
+<script src="cooperative-liquidation-residue.js?v=1"></script>
 <script src="director-absence-clarification.js?v=1"></script>
 <script src="association-records-and-term.js?v=2"></script>
 <script src="association-external-audits.js?v=1"></script>
