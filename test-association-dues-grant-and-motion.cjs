@@ -1,0 +1,14 @@
+'use strict';
+const assert=require('node:assert/strict');
+const {route}=require('./association-dues-grant-and-motion');
+const dues=route('縣府補助不能核銷會員大會餐費，協會自己的會費也不能付嗎？');
+assert.match(dues.summary,/不列入補助.*未受其他限制的自有會費.*已通過的預算/);
+assert.match(dues.steps[0][1],/第5點第2款第6目/);
+assert.match(dues.steps[1][1],/原始憑證.*與補助分列/);
+assert.match(route('協會自籌經費可以付會員大會場地費嗎，屏東縣府補助不能報？').summary,/自有會費支付必要會務支出/);
+const change=route('協會想在明天會員大會臨時動議改章程和調高會費，可以一起表決嗎？');
+assert.match(change.summary,/並非就不能.*合法召集.*臨時動議/);
+assert.match(change.steps[0][1],/不會使本來不合期限的通知變合法/);
+assert.match(change.steps[1][1],/過半數出席.*三分之二以上同意.*30日內/);
+assert.match(change.steps[2][1],/第33條.*核備後才施行.*第27條第6款/);
+for(const q of ['合作社社員大會臨時動議修章和調高社費可以一起嗎？','高雄市縣府補助不能核銷會員大會餐費，協會自己的會費也不能付嗎？','屏東縣縣府補助不能核銷會員大會餐費，可以改用受限制捐款嗎？','協會會員大會臨時動議要除名、改章程和調整會費時怎麼辦？','協會章程的常年會費調整後能不能退費？','屏東協會活動年底才辦完，縣府通案補助說20天內核銷，可以跨到明年一月交嗎？'])assert.equal(route(q),null,q);
