@@ -1558,15 +1558,23 @@ function smartFallback(q,kb){
   }
   return{related:parts.related||[],category:parts.category||"服務說明",title:parts.title||"小屏的回覆",summary:parts.summary,steps:parts.steps||[],docs:parts.docs||[],where:parts.where||[],guide:parts.guide||[],laws:parts.laws||[],notes:parts.notes||[],refs:parts.refs||[],groups:parts.groups||[],dirMeta:parts.dirMeta||"",staff:parts.staff||[],actions:parts.actions||[]};
 }
-let financeMeetingPlanner, postponedProxyDateQuestion;
+let financeMeetingPlanner, postponedProxyDateQuestion, assemblyRecountQuestion;
 async function ask(q){
   q=String(q||"").trim();if(!q||busy)return;
   const heldDateQuestion=postponedProxyDateQuestion;postponedProxyDateQuestion=null;
+  const heldRecountQuestion=assemblyRecountQuestion;assemblyRecountQuestion=null;
+  if(heldRecountQuestion&&window.isAssemblyRecountReply?.(q)){
+    const full=heldRecountQuestion+"；補充："+q;
+    const matched=window.verifiedAssociationAssemblyRecount?.(full);
+    if(matched){financeMeetingPlanner=null;assemblyRecountQuestion=matched.followQuorumCounts?full:null;renderAnswer(q,matched);return;}
+  }
   if(heldDateQuestion&&window.isPostponedProxyDateReply?.(q)){
     const matched=window.verifiedAssociationPostponedProxy?.(heldDateQuestion+"；續問日期："+q);
     if(matched){financeMeetingPlanner=null;postponedProxyDateQuestion=matched.followNewDate?heldDateQuestion:null;renderAnswer(q,matched);return;}
   }
   if(!financeMeetingPlanner&&typeof window.createFinanceMeetingPlanner==="function")financeMeetingPlanner=window.createFinanceMeetingPlanner({board,showAnswer:renderAnswer});
+  const assemblyRecount=typeof window.verifiedAssociationAssemblyRecount==="function"?window.verifiedAssociationAssemblyRecount(q):null;
+  if(assemblyRecount){financeMeetingPlanner=null;assemblyRecountQuestion=assemblyRecount.followQuorumCounts?q:null;renderAnswer(q,assemblyRecount);return;}
   const coopLiquidationResidue=typeof window.verifiedCooperativeLiquidationResidue==="function"?window.verifiedCooperativeLiquidationResidue(q):null;
   if(coopLiquidationResidue){financeMeetingPlanner=null;renderAnswer(q,coopLiquidationResidue);return;}
   const canceledGrantInKind=typeof window.verifiedAssociationCanceledGrantInKind==="function"?window.verifiedAssociationCanceledGrantInKind(q):null;
@@ -2208,6 +2216,7 @@ touch();
 <script src="cooperative-address-proof.js?v=1"></script>
 <script src="liquidation-creditor-notice.js?v=2"></script>
 <script src="cooperative-liquidation-residue.js?v=1"></script>
+<script src="association-assembly-recount.js?v=1"></script>
 <script src="director-absence-clarification.js?v=1"></script>
 <script src="association-records-and-term.js?v=2"></script>
 <script src="association-external-audits.js?v=1"></script>
