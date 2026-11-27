@@ -1,0 +1,12 @@
+'use strict';
+const assert=require('node:assert/strict');
+const {decisionAudit:d}=require('./association-decision-audit.js');
+const x=d('監事會審核決算沒通過，大會還可以照開嗎');
+assert.match(x.title,/大會可以依法召開/);
+assert.match(JSON.stringify(x),/台內社字第8605587號函/);
+assert.match(JSON.stringify(x),/不能單憑監事會核退就認定決議無效/);
+const n=d('協會監事會還沒審核決算，會員大會可不可以先把決算表決？');
+assert.match(n.summary,/決算不能跳過監事會/);
+assert.match(d('決算被監事會核退，大會投票通過後還要報主管機關備查嗎？').steps.at(-1)[1],/通過後報主管機關/);
+for(const q of ['合作社監事會審核決算沒通過，社員大會可照開嗎？','協會的決算監事會通過了，大會不通過怎麼辦？','協會理事會明年三月十六日要開會，期中收支算到哪天？']) assert.equal(d(q),null,q);
+console.log('association decision audit tests passed');
