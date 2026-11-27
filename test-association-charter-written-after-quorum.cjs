@@ -1,0 +1,11 @@
+const assert=require('node:assert/strict');
+const {route}=require('./association-charter-written-after-quorum.js');
+const a=route('一個會員沒有出席，但議程是修章，事後發現表決時只有應出席人數的一半；可以用書面補票嗎？');
+assert.equal(a.choices.length,2);
+assert.match(a.summary,/不能用會後書面補票/);
+const [yes,no]=a.choices.map(c=>route(c.question));
+assert.match(JSON.stringify(yes.steps),/四分之三以上同意.*全體社員三分之二以上書面同意/);
+assert.match(JSON.stringify(no.steps),/出席者三分之二以上同意.*重新|出席者三分之二以上同意.*重開/);
+assert.doesNotMatch(JSON.stringify(no.steps),/全體社員三分之二以上書面同意/);
+assert.match(route('修改章程時不到一半，會後可補簽嗎？只有主管機關立案。').summary,/重新通知/);
+for(const q of ['合作社社員大會修章，可用書面補票嗎？','管委會修正章程現場沒過半，要書面補票嗎？','協會修改章程需要幾票？','有會員沒出席，可以補發開會通知嗎？'])assert.equal(route(q),null,q);

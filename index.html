@@ -1564,6 +1564,8 @@ async function ask(q){
   if(!financeMeetingPlanner&&typeof window.createFinanceMeetingPlanner==="function")financeMeetingPlanner=window.createFinanceMeetingPlanner({board,showAnswer:renderAnswer});
   const countyChecks=typeof window.verifiedAssociationCountyFundingElection==="function"?window.verifiedAssociationCountyFundingElection(q):null;
   if(countyChecks){financeMeetingPlanner=null;renderAnswer(q,countyChecks);return;}
+  const writtenCharter=typeof window.verifiedAssociationCharterWrittenAfterQuorum==="function"?window.verifiedAssociationCharterWrittenAfterQuorum(q):null;
+  if(writtenCharter){financeMeetingPlanner=null;renderAnswer(q,writtenCharter);return;}
   const recallAddress=typeof window.verifiedAssociationRecallAddressAgenda==="function"?window.verifiedAssociationRecallAddressAgenda(q):null;
   if(recallAddress){financeMeetingPlanner=null;renderAnswer(q,recallAddress);return;}
   const feeTiming=typeof window.verifiedAssociationFeeTiming==="function"?window.verifiedAssociationFeeTiming(q):null;
@@ -2079,6 +2081,7 @@ touch();
 <script src="association-event-private-contact.js?v=1"></script>
 <script src="association-county-funding-election-checks.js?v=20261127-county-checks"></script>
 <script src="association-director-eligibility-bank-change.js?v=20261127-bank-director"></script>
+<script src="association-charter-written-after-quorum.js?v=20261127-written-quorum"></script>
 <script src="association-recall-address-agenda.js?v=20261127-recall-address"></script>
 <script src="association-address-meeting-change.js?v=20261127-coop-agenda"></script>
 <script src="association-notice-dispatch-delivery.js?v=1"></script>
