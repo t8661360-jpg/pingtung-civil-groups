@@ -1562,6 +1562,8 @@ let financeMeetingPlanner;
 async function ask(q){
   q=String(q||"").trim();if(!q||busy)return;
   if(!financeMeetingPlanner&&typeof window.createFinanceMeetingPlanner==="function")financeMeetingPlanner=window.createFinanceMeetingPlanner({board,showAnswer:renderAnswer});
+  const electionStaffObjection=typeof window.verifiedElectionStaffObjection==="function"?window.verifiedElectionStaffObjection(q):null;
+  if(electionStaffObjection){financeMeetingPlanner=null;renderAnswer(q,electionStaffObjection);return;}
   const charterBeforeAssembly=typeof window.verifiedCharterBeforeAssembly==="function"?window.verifiedCharterBeforeAssembly(q):null;
   if(charterBeforeAssembly){financeMeetingPlanner=null;renderAnswer(q,charterBeforeAssembly);return;}
   const contractRepresentation=typeof window.verifiedCooperativeContractRepresentation==="function"?window.verifiedCooperativeContractRepresentation(q):null;
@@ -2183,6 +2185,7 @@ touch();
 <script src="association-external-audits.js?v=1"></script>
 <script src="cooperative-concurrent-offices.js?v=1"></script>
 <script src="cooperative-contract-representation.js?v=1"></script>
+<script src="election-staff-objection.js?v=1"></script>
 <script src="association-coop-quorum-volunteer-grant.js?v=20261127-coop-formula"></script>
 <script src="association-postponed-proxy.js?v=1"></script>
 <script src="association-representative-quorum.js?v=1"></script>
