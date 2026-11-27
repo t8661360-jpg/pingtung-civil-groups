@@ -1,0 +1,12 @@
+const assert=require('node:assert/strict');
+const {certificate}=require('./association-cooperative-court-certificate.js');
+const a=certificate('有人叫我們去辦法院登記，但我還沒確定是要成立一般協會還是設合作社，要準備哪一張證書？');
+assert.equal(a?.choices?.length,3);assert.match(a.summary,/成立登記證/);
+const out=a.choices.map(y=>certificate(y.question));
+assert.match(out[0]?.title,/先備立案證書和當選證明/);
+assert.match(JSON.stringify(out[0]),/30日內/);
+assert.match(out[1]?.summary,/不是走地方法院/);
+assert.equal(out[2]?.choices,undefined);
+for(const s of ['理事長異動後要法院辦變更法人登記，要不要換證書？','信用合作社要去法院登記拿證書嗎？','一般協會要解散怎麼辦？'])assert.equal(certificate(s),null);
+console.log('法院 vs 一般合作社核發證書分流通過');
+assert.equal(certificate('已經決定要開一般合作社，但我不確定要不要去法院登記，會拿什麼證書？')?.choices,undefined);
