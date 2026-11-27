@@ -12001,6 +12001,80 @@ function patrol220(t){
   statutes:[P(27),P(54),P(58)],notes:[],actions:act};
  return null;
 }
+/* 交叉巡檢第12輪：放在規則鏈最前面，只處理很窄的交叉問句；導向的既有答案用完整規則鏈取得 */
+function cross1127r12(t,ctx){
+ const coop=/(合作社|社員|股金|退社)/.test(t);
+ /* ── 交叉巡檢第12輪 ── */
+ {
+  const fl12={focus:'cross-1127',domain:'social'};
+  const lw12=(n,pc)=>({title:n,source:LAW+pc});
+  const act12=[{label:'聯絡承辦',view:'contact',sub:''}];
+  const via12=(q,re,ext)=>({__redir12:{q:q,re:re,ext:ext,fl:fl12}}); /* 由 verifiedRoundAnswer 在外層取既有答案，避免在規則鏈裡重入 */
+  const fix12='抱歉，這個問題難倒小屏了，小屏暫時無法回答喔！建議您先電洽承辦人員詢問～';
+  /* 同業公會理事長（理監事）被公司解聘、離職：回既有「會員代表被換掉，喪失會員代表資格，理監事應即解任」（商業團體法§25、§16；工業團體法§25） */
+  if(/(公會|工業會|商業會)/.test(t)&&/(理事長|理事|監事)/.test(t)&&/(解聘|解僱|資遣|離職|開除|不在公司)/.test(t)&&!/(醫師|律師|會計師|建築師|技師|記帳士|總幹事|工作人員)/.test(t)&&!coop){
+   const isInd=/工業/.test(t);
+   const a=via12(isInd?'工業同業公會會員代表被公司換掉，他的理事身分還在嗎':'商業同業公會會員代表被公司換掉，他的理事身分還在嗎',/會員代表被換掉/,a=>({title:'同業公會的理事長（理事、監事）離開所代表的公司：喪失會員代表資格的，理事、監事就要解任',
+    summary:'公會的會員代表要由公司、行號（工廠）的負責人、經理人或現任職員擔任。被公司解聘、離職後，公司改派別人當代表的，在商業同業公會，原來的代表於新代表派定後喪失代表資格；喪失會員代表資格的理事、監事（含理事長）應即解任，由候補依次遞補。工業同業公會的情形，請看下面的說明。\n\n'+a.summary}));
+   if(a)return a;
+  }
+  /* 公會會員工廠（公司）被合併後會籍是否移轉：商業、工業團體法查不到明文，固定用語（Issue） */
+  if(/(公會|工業會|商業會)/.test(t)&&/(工廠|公司|行號|會員)/.test(t)&&/(被合併|被併購|合併了|併購|被收購|合併後)/.test(t)&&/(會員資格|會籍|會員|轉給|轉移|移轉|承接)/.test(t)&&!/(公會合併|兩個公會|公會跟|公會和|協會)/.test(t))
+   return{direct:true,category:'職業團體',title:'會員公司（工廠）被合併後，公會會籍怎麼處理：本站查不到規定',
+    summary:fix12+'\n\n商業團體法、工業團體法本站查到的條文，沒有寫會員公司或工廠被合併、併購後，會籍能不能直接轉給存續的新公司。請看公會章程，或電洽承辦人員確認。\n\n縣府總機 08-7320415。',
+    statutes:[],notes:[],actions:act12,questionState:fl12};
+  /* 合作社能否加入商業同業公會：商業團體法查不到合作社的明文，固定用語（Issue） */
+  if(/合作社/.test(t)&&/(商業同業公會|商業公會|工業同業公會|工業公會|同業公會)/.test(t)&&/(加入|入會|當會員|會員|參加)/.test(t))
+   return{direct:true,category:'職業團體',title:'合作社可不可以加入同業公會當會員：本站查不到規定',
+    summary:fix12+'\n\n商業團體法第12條規定的是依法取得商業登記的公司、行號加入商業同業公會；合作社依合作社法設立，能不能、要不要加入同業公會，本站查到的條文沒有寫，請電洽承辦人員確認。\n\n縣府總機 08-7320415。',
+    statutes:[lw12('商業團體法第12條','D0050100')],notes:[],actions:act12,questionState:{focus:'cross-1127',domain:'mixed'}};
+  if(!coop&&!/(公會|職業團體|工會|農會|漁會|教育會)/.test(t)){
+   /* 辦法人登記要不要大會通過、登記後要不要報縣府：人團法§11（已核原文） */
+   if(/法人登記/.test(t)&&/(大會|理事會|開會|通過|決議)/.test(t)&&/(報縣府|報主管|送縣府|備查|要報|縣府)/.test(t)){
+    const a=via12('協會可以辦法人登記嗎',/社團法人/,a=>({title:'協會辦法人登記：登記完成後三十日內要把登記證書影本送縣府備查；要不要先經大會，人民團體法沒有規定',
+     summary:'登記完要報縣府：要。協會經縣府核准立案後，「得」向地方法院辦理法人登記，完成後三十日內，要把法人登記證書影本送主管機關備查（人民團體法第11條）。\n\n要不要先開會員大會通過：人民團體法沒有規定，請看貴會章程；法院受理登記要附哪些文件，請直接洽詢地方法院登記處。\n\n'+a.summary,
+     statutes:[lw12('人民團體法第11條','D0050091')].concat(a.statutes||[])}));
+    if(a)return a;
+   }
+   /* 外籍配偶、外國人入會並投票：回既有「外國籍的人能不能入會：看章程」，加註入會後每一會員一權（人團法§16） */
+   if(/(外籍配偶|外配|新住民|外國人|外籍)/.test(t)&&/(入會|加入|當會員|會員)/.test(t)&&/(投票|選舉權|表決)/.test(t)&&!/(國外|出國|理事長|發起人)/.test(t)){
+    const a=via12('外國人可以加入協會當會員嗎',/外國籍/,a=>({title:'外籍配偶能不能入會、投票：人民團體法沒有限制國籍，看章程；成為會員後一樣有表決權',
+     summary:a.summary+'\n\n入會後就是會員，會員有表決權、選舉權、被選舉權與罷免權，每一會員為一權（人民團體法第16條）。',
+     statutes:(a.statutes||[]).concat([lw12('人民團體法第16條','D0050091')])}));
+    if(a)return a;
+   }
+   /* 志工同時領車馬費、鐘點費：回既有「志工不是領薪水；運用單位得補助交通、誤餐」，鐘點費法規無明文 */
+   if(/(志工|義工)/.test(t)&&/(車馬費|交通費|誤餐費)/.test(t)&&/(鐘點費|講師費|薪水|工資|津貼)/.test(t)&&/(又|同時|兩個|都領|一起)/.test(t)){
+    const a=via12('志工可以領車馬費嗎',/不以獲取報酬|不是領薪水/,a=>({title:'志工同時領車馬費和鐘點費：志願服務不以報酬為目的，法規只寫可以補助交通、誤餐等費用',
+     summary:a.summary+'\n\n鐘點費這類按時數計酬的費用，志願服務法沒有規定志工可以領；要給的話是否還算志願服務、要怎麼支給，請先洽承辦人員確認。'}));
+    if(a)return a;
+   }
+   /* 名譽理事長能否由大會選出、能否在理事會投票：回既有「名譽理事長、顧問有沒有投票權」 */
+   if(/(名譽理事長|榮譽理事長|名譽會長|榮譽會長)/.test(t)&&/(選出|選|設|推舉)/.test(t)&&/(投票|表決)/.test(t)){
+    const a=via12('名譽理事長可以投票嗎',/名譽理事長/,a=>({title:'名譽理事長：人民團體法沒有這個職務，要看章程；不是理事就不能在理事會投票',
+     summary:'大會可不可以選出（或推舉）名譽理事長：人民團體法沒有名譽理事長的規定，要看貴會章程。\n\n'+a.summary}));
+    if(a)return a;
+   }
+   /* 決算沒經監事會審核就送縣府：回既有「決算要先送監事會審核」（人團法§34），會不會退件由承辦認定 */
+   if(/決算/.test(t)&&/監事/.test(t)&&/(沒有經過|沒經過|未經|沒送|跳過|沒給)/.test(t)&&/(縣府|主管機關|退件|退回)/.test(t)){
+    const a=via12('監事會不開會，理事會可以自己審決算嗎',/決算要先送監事會審核/,a=>({title:'決算沒經監事會審核：依法決算要先送監事會審核，再提報大會、報縣府',
+     summary:'決算報告要先送監事會審核，並把審核結果一併提報會員（會員代表）大會（人民團體法第34條）。沒有經過監事會審核就送縣府，縣府會不會退件、要怎麼補正，由承辦人員認定，請先電洽承辦人員。\n\n'+a.summary}));
+    if(a)return a;
+   }
+   /* 社區發展協會向會員以外的村民（社會大眾）募款：回既有「向社會大眾募款要先申請許可」（公益勸募條例§5、§7） */
+   if(/(募款|勸募|募捐|捐款)/.test(t)&&/(會員以外|不是會員|非會員|村民|里民|居民|民眾|社會大眾|外面)/.test(t)&&/(社區|協會)/.test(t)&&!/(收據|抵稅|國稅)/.test(t)){
+    const a=via12('社區發展協會想辦募款活動，要申請勸募許可嗎',/申請許可/);
+    if(a)return a;
+   }
+   /* 協會已解散卻收到縣府催繳財務報表：個案情形，固定用語（Issue） */
+   if(/(已經解散|不是解散|解散了|已解散)/.test(t)&&/(收到|還要|為什麼|怎麼還)/.test(t)&&/(公文|通知|財務報表|報表|預算|決算|催)/.test(t))
+    return{direct:true,category:'人民團體會務說明',title:'協會已經解散，卻收到縣府催報財務報表：要看解散程序是否已報縣府完成',
+     summary:fix12+'\n\n這要看協會的解散是不是已經報縣府、清算是不是已經完成，屬於個案情形，本站沒辦法判斷。請帶著收到的公文和解散時的會議紀錄，電洽承辦人員確認。\n\n縣府總機 08-7320415。',
+     statutes:[],notes:[],actions:act12,questionState:fl12};
+  }
+ }
+ return null;
+}
 function cross1127(t,ctx){
  const sub=q=>verifiedRoundAnswerCore(normalizeQuestion(q),ctx);
  const merge=(title,qs)=>{
@@ -12805,7 +12879,9 @@ function patrolR233(t){
 }
 function verifiedRoundAnswer(q,ctx){
  let x=null;
- try{x=patrolR233(norm(q))}catch(e){x=null}
+ if(!verifiedRoundAnswer._r12)try{x=cross1127r12(norm(q),ctx)}catch(e){x=null} /* 導向既有答案時不再進第12輪規則，避免「名譽理事長可以投票嗎」這類導向題自我遞迴 */
+ if(x&&x.__redir12){const R=x.__redir12;x=null;let a=null;verifiedRoundAnswer._r12=true;try{a=verifiedRoundAnswer(normalizeQuestion(R.q),ctx)}catch(e){a=null}finally{verifiedRoundAnswer._r12=false}if(a&&a.summary&&R.re.test(a.title||''))x=Object.assign({},a,{direct:true,questionState:R.fl},R.ext?R.ext(a):{});}
+ if(!x) try{x=patrolR233(norm(q))}catch(e){x=null}
  if(!x) try{x=patrolR232(norm(q))}catch(e){x=null}
  if(!x) try{x=patrolR228(norm(q))}catch(e){x=null}
  if(!x){try{x=patrolR227(norm(q))}catch(e){x=null}}

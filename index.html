@@ -833,7 +833,7 @@ async function saveChunked(coll,rows,metaExtra){
 async function loadAll(force){
   if(loadPromise&&!force)return loadPromise;
   loadPromise=(async()=>{
-    const base=document.baseURI.replace(/[^/]*$/,"")+"data/";const DV="?v=20261127-297";
+    const base=document.baseURI.replace(/[^/]*$/,"")+"data/";const DV="?v=20261127-298";
     const jf=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);return r.json()};
     const jgz=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);const b=new Uint8Array(await r.arrayBuffer());if(b[0]!==31||b[1]!==139)return JSON.parse(new TextDecoder().decode(b));if(typeof DecompressionStream==="undefined")throw new Error("gzip unsupported");const text=await new Response(new Blob([b]).stream().pipeThrough(new DecompressionStream("gzip"))).text();return JSON.parse(text)};
     const [d,s,k,f]=await Promise.allSettled([jf(base+"directory.json"+DV),jf(base+"staff.json"+DV),jgz(base+"knowledge.json.gz"+DV).catch(()=>jf(base+"knowledge.json"+DV)),jf(base+"forms-catalog.json?v=20261105-5")]);
@@ -964,7 +964,7 @@ function intentOf(q){
   const kbm=matchKB(q);
   if(STAFF_RE.test(q)&&!sn&&kbm&&!/聯絡承辦|打招呼/.test(kbm.cat)&&!detectCat(q))return{kind:"ai"};
   if(/名稱.*(重複|被用|可以用|能用|有人用|撞名)|(重複|可以用|能用|撞名).*名稱|撞名|取名.*(重複|可以|能用)/.test(q))return{kind:"dir",dup:true,name:sn};
-  if(/理事長是誰|的理事長|的電話|的地址|會址在|立案了嗎|有立案嗎|還在嗎|解散了嗎|立案證號|統一編號/.test(q)&&!(!sn&&/的理事長/.test(q)&&!/理事長是誰|的電話|的地址|會址在|立案了嗎|有立案嗎|還在嗎|解散了嗎|立案證號|統一編號/.test(q)&&/可以|可不可以|能不能|能否|兼|要不要|需不需要|一定要|怎麼|如何|幾|多久|多少/.test(q))&&!STAFF_RE.test(q)&&!PROCESS_RE.test(q))return{kind:"dir",name:sn};
+  if(/理事長是誰|的理事長|的電話|的地址|會址在|立案了嗎|有立案嗎|還在嗎|解散了嗎|立案證號|統一編號/.test(q)&&!(!sn&&/的理事長/.test(q)&&!/理事長是誰|的電話|的地址|會址在|立案了嗎|有立案嗎|還在嗎|解散了嗎|立案證號|統一編號/.test(q)&&/可以|可不可以|能不能|能否|兼|要不要|需不需要|一定要|怎麼|如何|幾|多久|多少|還能|解聘|解任/.test(q))&&!STAFF_RE.test(q)&&!PROCESS_RE.test(q))return{kind:"dir",name:sn};
   if(sn&&STAFF_RE.test(q))return{kind:"staff",name:sn};
   if(sn&&!PROCESS_RE.test(q))return{kind:"dir",name:sn};
   if(STAFF_RE.test(q))return{kind:"staff"};
@@ -1930,7 +1930,7 @@ touch();
 })();
 </script>
 <script src="feedback-collector.js?v=20261127-local-draft1"></script>
-<script src="round-fixes.js?v=20261127-297"></script>
+<script src="round-fixes.js?v=20261127-298"></script>
 <script src="ordinary-association-notice.js?v=1"></script>
 <script src="member-expulsion-phrasing.js?v=1"></script>
 <script src="founding-meeting-notice.js?v=1"></script>
@@ -1980,14 +1980,14 @@ touch();
 <script src="association-director-lecture-fee.js?v=1"></script>
 <script src="in-kind-donation-distinction.js?v=1"></script>
 <script src="meeting-convening-distinction.js?v=1"></script>
-<script src="answer-arbiter.js?v=20261127-297"></script>
-<script src="question-understanding.js?v=20261127-297"></script>
-<script src="counter-upgrade.js?v=20261127-297"></script>
-<script src="keyword-menu.js?v=20261127-297"></script>
-<script src="ai-assist.js?v=20261127-297"></script>
+<script src="answer-arbiter.js?v=20261127-298"></script>
+<script src="question-understanding.js?v=20261127-298"></script>
+<script src="counter-upgrade.js?v=20261127-298"></script>
+<script src="keyword-menu.js?v=20261127-298"></script>
+<script src="ai-assist.js?v=20261127-298"></script>
 <script src="ai-understand.js?v=1"></script>
-<script src="answer-guard.js?v=20261127-297"></script>
-<script src="festive.js?v=20261127-297" defer></script>
+<script src="answer-guard.js?v=20261127-298"></script>
+<script src="festive.js?v=20261127-298" defer></script>
 </body>
 </html>
 
