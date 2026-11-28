@@ -1584,6 +1584,8 @@ async function ask(q){
     if(matched){financeMeetingPlanner=null;postponedProxyDateQuestion=matched.followNewDate?heldDateQuestion:null;renderAnswer(q,matched);return;}
   }
   if(!financeMeetingPlanner&&typeof window.createFinanceMeetingPlanner==="function")financeMeetingPlanner=window.createFinanceMeetingPlanner({board,showAnswer:renderAnswer});
+  const multipleGrants=window.verifiedGrantMultipleSources?.(q);
+  if(multipleGrants){financeMeetingPlanner=null;renderAnswer(q,multipleGrants);return;}
   const dissolutionEstate=window.verifiedAssociationDissolutionEstate?.(q);
   if(dissolutionEstate){financeMeetingPlanner=null;renderAnswer(q,dissolutionEstate);return;}
   const volunteerTeamTraining=window.verifiedVolunteerTeamTrainingAndGrants?.(q);
@@ -2270,6 +2272,7 @@ touch();
 <script src="cooperative-conflicts-and-contracts.js?v=1"></script>
 <script src="volunteer-team-training-and-grants.js?v=1"></script>
 <script src="association-dissolution-estate.js?v=1"></script>
+<script src="grant-multiple-sources.js?v=1"></script>
 <script src="director-absence-clarification.js?v=1"></script>
 <script src="association-records-and-term.js?v=2"></script>
 <script src="association-external-audits.js?v=1"></script>
