@@ -36,6 +36,8 @@ function parse(q, prior) {
   if (!officeRe.test(t) && !localMove && !picked && !correction) return null;
   const reduced = t.replace(/(?:不是|並非|而非)(?:一般)?(?:勞動|社區)?(?:合作社|協會)/g,'');
   let a = assocRe.test(reduced), c = coopRe.test(reduced);
+  /* 第259輪：「會址／會所」是人民團體（協會）的用語，合作社叫社址；沒提合作社也沒提社址，就當協會，不再反問 */
+  if (!a && !c && /會址|會所/.test(t) && !/社址|合作社|社員|聯絡地址|通訊地址|收信|收件|登記地址|共用|同址|同一(?:個)?(?:門牌|地址)/.test(t)) a = true;
   const stationary = /合作社.{0,5}(?:不跟著搬|不一起搬|不搬|沒搬|不變|不動)|只有協會.{0,5}(?:搬|遷)|不是合作社.{0,3}(?:要|在)?(?:搬|遷)/.test(t);
   let cross = !/(?:沒有|不會?|沒|未)(?:跨縣市|跨轄區|跨法院)|還在同一(?:鄉|縣)|同一鄉地址/.test(t) && crossRe.test(t);
   let noncorp = /(?:沒有|沒|未曾?|尚未|並未)(?:辦過?|做過?|向)?(?:法院)?(?:辦理)?(?:法人)?登記|不是社團法人/.test(t);
@@ -65,6 +67,7 @@ function parse(q, prior) {
     if(picked==='shared') return {...maybe,a:true,c:true,question:false,sharing:true,contactOnly:false,venueOnly:false};
     return {...maybe,question:false,venueOnly:true,contactOnly:false,sharing:false};
   }
+  if(cross&&a&&!c&&/(?:可以|可不可以|行不行|能不能|可否|嗎)/.test(t)&&!/(?:已經|已|搬了|搬完|搬走|搬過去|遷了|遷完|之後|以後|後|法院|國稅|稅籍|銀行|登記)/.test(t)&&!sharing&&!contactOnly&&!venueOnly) return null;
   if(contactOnly||venueOnly||sharing||cross&&a&&act||a&&!c&&local&&act&&(localMove||lease||charter||correction)||correction&&a&&act&&stationary) return x;
   if(!a&&!c&&act&&t.length<55&&/搬家|地址|遷址|會址|社址/.test(t)&&!/開戶|稅籍|銀行|開課|工作場地/.test(t)) return {...x,question:true};
   return null;
