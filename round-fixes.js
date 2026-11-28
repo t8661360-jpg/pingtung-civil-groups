@@ -226,7 +226,7 @@ function normalizeQuestionR232(s){
  return s;
 }
 function normalizeQuestion(q){
- return normalizeQuestionR246(normalizeQuestionR245(normalizeQuestionR244(normalizeQuestionR235(normalizeQuestionR234(normalizeQuestionR233(normalizeQuestionR232(normalizeQuestionR229(normalizeQuestionR228(normalizeQuestionR227(normalizeQuestionR225(normalizeQuestionR223(normalizeQuestion223(normalizeQuestion222(normalizeQuestion221(normalizeQuestion216(normalizeQuestion215(normalizeQuestion214(normalizeQuestion212(normalizeQuestion210(normalizeQuestion209(normalizeQuestion208(normalizeQuestion207(normalizeQuestion206(normalizeQuestion202(normalizeQuestion201(normalizeQuestion200(normalizeQuestion194(normalizeQuestion193(normalizeQuestion192(normalizeQuestion191(normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(normalizeQuestionU5(normalizeQuestionU3(normalizeQuestionU4(normalizeQuestionU2(normalizeQuestionU6(normalizeQuestionU8(normalizeQuestionU7(normalizeQuestionR237(normalizeQuestionR238(normalizeQuestionR239(normalizeQuestionR240(fixTyposU1(q)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
+ return normalizeQuestionR247(normalizeQuestionR246(normalizeQuestionR245(normalizeQuestionR244(normalizeQuestionR235(normalizeQuestionR234(normalizeQuestionR233(normalizeQuestionR232(normalizeQuestionR229(normalizeQuestionR228(normalizeQuestionR227(normalizeQuestionR225(normalizeQuestionR223(normalizeQuestion223(normalizeQuestion222(normalizeQuestion221(normalizeQuestion216(normalizeQuestion215(normalizeQuestion214(normalizeQuestion212(normalizeQuestion210(normalizeQuestion209(normalizeQuestion208(normalizeQuestion207(normalizeQuestion206(normalizeQuestion202(normalizeQuestion201(normalizeQuestion200(normalizeQuestion194(normalizeQuestion193(normalizeQuestion192(normalizeQuestion191(normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(normalizeQuestionU5(normalizeQuestionU3(normalizeQuestionU4(normalizeQuestionU2(normalizeQuestionU6(normalizeQuestionU8(normalizeQuestionU7(normalizeQuestionR237(normalizeQuestionR238(normalizeQuestionR239(normalizeQuestionR240(fixTyposU1(q))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
 }
 /* 第200輪（根源）：入會退會與會員資格換問法——
    「忘記繳／忘了繳／漏繳會費」＝沒繳會費（原本「忘記繳會費會被退會嗎」被當成退費）；
@@ -4181,7 +4181,7 @@ function communityPatrol(t){
   return{direct:true,category:cat,title:'年度工作計畫和預算：會計年度開始前編好，連同決算在年度終了後3個月內提大會通過再報備查',summary:'依社會團體財務處理辦法第11條：理事會要在會計年度開始前編造年度工作計畫及收支預算表；會計年度終了後三個月內，編造上年度工作報告、會計報告，連同當年度工作計畫、收支預算表，提經會員（會員代表）大會通過後，報請主管機關備查。\n會計年度以曆年為準，是每年1月1日到12月31日（第10條）。換句話說，大會要在年度終了後三個月內開完並送件。\n社區發展協會適用人民團體法及相關規定（社區發展工作要點第17點）。送公所還是縣府，請先洽所在地公所承辦確認。',statutes:[F(11),F(10),CDP(17)],questionState:{focus:'annual-plan',domain:'social'},notes:['因故來不及開大會的，可先經理事會及監事會（或聯席會議）通過，事後提報大會追認，再報請備查（第11條）。'],actions:act};
  if((/備查/.test(t)||(/(報|送|交|呈報)/.test(t)&&/(公所|縣府|縣政府|主管機關|每年|年度)/.test(t)))&&/(哪些|什麼|項目|事項|資料|文件|要報)/.test(t)&&!/補助|活動|換人|換屆|換新|改選|新任|新理事長|卸任|接任|異動/.test(t))
   return{direct:true,category:cat,title:'社區發展協會每年要報備查的事項：會員大會紀錄、年度工作計畫與預算、決算報告',summary:'依法規明文，主要有三項：\n1. 會員大會紀錄：閉會後三十日內報請主管機關備查（人民團體會務輔導辦法第12條）。\n2. 年度工作報告、會計報告（決算），連同當年度工作計畫、收支預算表：會計年度終了後三個月內提大會通過，報請主管機關備查（社會團體財務處理辦法第11條）。\n3. 改選完成後的理監事資料等，請依改選流程另外辦理。\n社區發展協會適用人民團體法及相關規定（社區發展工作要點第17點）。實際是送公所還是縣府、要附哪些表件，各單位可能有補充要求，請先洽所在地公所承辦。',statutes:[G(12),F(11),CDP(17)],questionState:{focus:'annual-report',domain:'social'},notes:['其餘各鄉鎮的額外要求，本站查無統一規定，請洽承辦。'],actions:[{label:'看改選流程',view:'meet',sub:'m-elect'},{label:'聯絡承辦',view:'contact',sub:''}]};
- if(/(做什麼活動|辦什麼活動|辦哪些活動|活動.{0,5}(才算|至少|一定要)|(一年|每年|年度).{0,4}(幾場|幾次|幾個活動)|才算有(做事|運作|在運作))/.test(t))
+ if(/(做什麼活動|辦什麼活動|辦哪些活動|活動.{0,5}(才算|至少|一定要)|(一年|每年|年度).{0,4}(幾場|幾次|幾個活動)|才算有(做事|運作|在運作))/.test(t)&&!/(理事會|監事會|大會|開會|會議|召開)/.test(t))
   return{direct:true,category:cat,title:'法規沒有規定每年一定要辦幾場活動，但有幾件事每年一定要做',summary:'本站查到的人民團體法及相關辦法，沒有規定協會每年一定要辦幾場活動；活動要依章程載明的任務，以及年度工作計畫辦理。\n不過有幾件事是每年一定要做的：\n1. 會員大會每年至少召開一次定期會議（人民團體法第25條）。\n2. 年度工作計畫、收支預算和決算，要提大會通過後報備查（社會團體財務處理辦法第11條）。\n3. 理事會、監事會每六個月至少開一次（人民團體法第43條）。\n如果長期完全沒有運作，可能被認定為會務不正常，請見相關說明。',statutes:[P(25),F(11),P(43)],questionState:{focus:'community-activity',domain:'social'},notes:['年度要辦什麼活動，請洽公所或縣府承辦了解是否有輔導或考核的要求。'],actions:act};
  if(/基金/.test(t)&&/(要設|一定要|必須|要不要|需要設|有沒有規定|強制|要有|需要有|得有|有沒有)/.test(t))
   return{direct:true,category:cat,title:'社區發展協會一定要設基金嗎：本站查不到明文規定',summary:'本站目前查不到可以確認「社區發展協會一定要設立基金」的明文規定，所以不直接回答要或不要。\n如果協會已經有基金，錢要存放在協會帳戶、依章程和財務規定管理，不能當成私人財產分給會員。\n要不要設、怎麼設，請洽所在地公所或縣府承辦確認。',statutes:[],questionState:{focus:'community-fund',domain:'social'},notes:[],actions:act};
@@ -12920,6 +12920,40 @@ function normalizeQuestionR244(s){
  if(/(志工|義工)/.test(s)&&/(沒|未|沒有)受過(任何|基礎|特殊)?(教育)?(訓練|訓)/.test(s))s=s.replace(/(沒|未|沒有)受過(任何|基礎|特殊)?(教育)?(訓練|訓)/,'沒受訓');
  return s;
 }
+function normalizeQuestionR247(s){
+ s=String(s||'');
+ /* 口語「跟政府拿補助／向縣府申請經費／有沒有補助可以拿」＝申請政府補助（原本變成關鍵字選單） */
+ if(/補助|經費|補助款/.test(s)&&/(協會|社團|團體|社區|公會)/.test(s)){
+  s=s.replace(/(可以|能|能不能|可不可以|有沒有辦法|有辦法)?(跟|向|找|從)(政府|縣府|縣政府|公家)(拿|領|要|爭取|取得|申請)(到)?(補助款|補助|經費|錢)(嗎|呢)?/,'可以申請政府補助嗎');
+  s=s.replace(/(有沒有|有無|有)(政府|縣府|縣政府|公家)?(的)?(補助|補助款|經費)(可以|能|可)?(拿|領|申請|爭取)(嗎|呢)?/,'可以申請政府補助嗎');
+ }
+ if(/^(請問)?(社區發展協會|社區協會|社發協會|社區|協會|社團|本會|我們協會|我們)(可以|能|可不可以|能不能|可否|有沒有資格|有資格)?(申請|接|拿|領)?(政府|縣府)?補助(嗎|呢)?[？?]?$/.test(s))s='是不是所有的協會，都可以申請縣府的補助？';
+ if(/(常務理事|常務監事)(要不要|需不需要|需要嗎|要嗎|要設嗎|要有嗎)[？?]?$/.test(s))s=s.replace(/(常務理事|常務監事)(要不要|需不需要|需要嗎|要嗎|要設嗎|要有嗎)[？?]?$/,'要不要設$1');
+ /* 「有沒有常務理事」＝要不要設常務理事（原本被當成團體名稱，查無符合資料） */
+ if(/常務(理事|監事)/.test(s)&&/(有沒有|有無|設不設|設置)/.test(s)&&!/(薪|車馬|津貼|費|票|權|出缺|補選|誰|名單)/.test(s))
+  s=s.replace(/(有沒有|有無|設不設|設置)(要)?(設)?(常務理事|常務監事)/,'要不要設$4').replace(/(常務理事|常務監事)(有沒有|有無)/,'要不要設$1');
+ /* 社區發展協會：「只有本村的人才能入會」「一定要在村里範圍內才能入會」＝會員要不要住在社區（原本答成區域劃分或難倒） */
+ if(/(社區|社發)/.test(s)&&/(入會|加入|當會員|成為會員)/.test(s)){
+  s=s.replace(/(一定要|必須|一定得|只能|只有|只限|限)(是)?(在|住在|住|位於|屬於)?(本|該|這個|我們)?(社區|村里|村|里)(的)?(範圍|區域|轄區)?(內|裡|之內)?(的)?(人|居民)?(才(能|可以|才算)|才)(入會|加入|當會員|成為會員)/,'一定要設籍居住在社區才能入會');
+  s=s.replace(/(一定要|必須|一定得|只有|只限)(是)?(本|該|這個|我們)?(社區|村里|村|里)(的)?(居民|住戶|人)(才(能|可以))?(入會|加入|當會員)?/,'一定要設籍居住在社區才能入會');
+ }
+ /* 理事長要不要是本社區的人＝理事長可以是外村的人嗎 */
+ if(/(社區|社發)/.test(s)&&/理事長/.test(s)&&!/(里長|村長|鄰長|村里長|總幹事|會計)/.test(s)&&/(要不要|一定要|需不需要|是不是要|必須|得).{0,3}(是|為|住在|住)?(本|該|這個|我們)?(社區|村里|村|里)(的|內)?(人|居民|會員)?/.test(s)&&!/(幾|多久|任期|選|罷免|連任)/.test(s.replace(/要不要|一定要|需不需要|是不是要/g,'')))
+  s=s.replace(/(要不要|一定要|需不需要|是不是要|必須|得).{0,3}(是|為|住在|住)?(本|該|這個|我們)?(社區|村里|村|里)(的|內)?(人|居民|會員)?(嗎)?/,'可以是外村的人嗎');
+ return s;
+}
+function patrolR247(t){
+ if(/(合作社|社員|政黨|基金會|寺廟|宗教|祭祀|工會|公會|公司|商業|工廠|營利|志工|義工|志願|巡守|守望|隊|魅力|補助|提案|計畫|報名|公所|村長|里長|剛|新|募|款|捐|錢|活動|滿|後|前|多久|期間)/.test(t))return null;
+ if(!/(協會|社團|人民團體|社區發展|社區)/.test(t))return null;
+ if(!/((要不要|需不需要|需要|一定要|必須|要先|沒有|沒|未|不用|不必|可不可以|可以|行不行|能不能).{0,4}(立案|登記)|(立案|登記).{0,3}(嗎|才|可以|可不可以))/.test(t))return null;
+ if(/(法人|法院|變更|換證|補發|遺失|證書|註銷|撤銷|名稱|查詢|查得|在哪|哪裡|怎麼|如何|流程|步驟|文件|資料|申請|成立後|期限|三十日|30日|幾天|多久|費用|收費|圖記|印|戶籍|地址|會址|解散|廢止|理事長|理監事|會員|名冊|章程|財產|不動產|土地|房|車|銀行|開戶|帳戶|統一編號|統編|稅|捐|發票|補助|勸募|活動|還沒|尚未)/.test(t)&&!/(法人登記)/.test(t))return null;
+ if(/(法人|法院)/.test(t))return null;
+ if(!/(要不要|需不需要|需要|一定要|必須|有沒有|沒有|沒|未|不用|可不可以|可以|行不行|能不能|嗎)/.test(t))return null;
+ const call='\n\n其他細節請洽縣府社會處承辦人員，縣府總機 08-7320415。';
+ return{direct:true,category:'人民團體會務說明',title:'協會一定要依法申請許可、成立後報請核准立案：沒有許可就成立，經縣府通知限期解散還不解散會被罰',
+  summary:'要。人民團體要由發起人檢具申請書、章程草案和發起人名冊，向主管機關申請許可（人民團體法第8條）；許可後召開發起人會議、籌備，再召開成立大會（第9條）；成立大會後三十日內，要把章程、會員名冊、選任職員簡歷冊報請主管機關核准立案，核准後發給立案證書（第10條）。\n\n社區發展協會也是依人民團體法成立的團體（社區發展工作要點第17點），同樣要這樣辦，主管機關是縣府，並由所在地鄉鎮市公所輔導。\n\n沒有依法申請許可就成立的，經主管機關通知限期解散而屆期不解散，會被處新臺幣六萬元以下罰鍰（第60條）；如果仍以該團體名義活動，經制止還不遵從，首謀者還有刑責（第61條）。\n\n另外，「法人登記」是另一件事：核准立案之後，得依法向地方法院辦理法人登記，完成後三十日內把登記證書影本送主管機關備查（第11條）。\n\n想成立協會，可以再問「怎麼成立協會」。'+call,
+  statutes:[P(8),P(9),P(10),P(11),P(60),P(61)],notes:[],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
+}
 function normalizeQuestionR246(s){
  s=String(s||'');
  /* 「退他／刪掉掛名會員」＝除名；「入會多久才被選為理監事」＝新會員多久可以當理事 */
@@ -13942,6 +13976,7 @@ function verifiedRoundAnswer(q,ctx){
  if(!x)try{x=cross1127r13(norm(q))}catch(e){x=null}
  if(!x&&!verifiedRoundAnswer._r12)try{x=cross1127r12(norm(q),ctx)}catch(e){x=null} /* 導向既有答案時不再進第12輪規則，避免「名譽理事長可以投票嗎」這類導向題自我遞迴 */
  if(x&&x.__redir12){const R=x.__redir12;x=null;let a=null;verifiedRoundAnswer._r12=true;try{a=verifiedRoundAnswer(normalizeQuestion(R.q),ctx)}catch(e){a=null}finally{verifiedRoundAnswer._r12=false}if(a&&a.summary&&R.re.test(a.title||''))x=Object.assign({},a,{direct:true,questionState:R.fl},R.ext?R.ext(a):{});}
+ if(!x) try{x=patrolR247(norm(q))}catch(e){x=null}
  if(!x) try{x=patrolR246(norm(q))}catch(e){x=null}
  if(!x) try{x=patrolR245(norm(q))}catch(e){x=null}
  if(!x) try{x=patrolR244(norm(q))}catch(e){x=null}
