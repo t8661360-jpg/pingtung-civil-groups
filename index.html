@@ -1584,6 +1584,7 @@ let liquidationPathContext=null;
 let staffExpenseContext=null;
 let receiveAuthorityContext=null;
 let grantAccrualContext=null;
+let officeAddressContext=null;
 let legalPropertyContext=null;
 let communityMultiContext=null;
 let associationMeetingSequenceContext=null;
@@ -1602,6 +1603,7 @@ async function ask(q){
   const heldStaffExpense=staffExpenseContext;staffExpenseContext=null;
   const heldReceiveAuthority=receiveAuthorityContext;receiveAuthorityContext=null;
   const heldGrantAccrual=grantAccrualContext;grantAccrualContext=null;
+  const heldOfficeAddress=officeAddressContext;officeAddressContext=null;
   const heldCommunityMulti=communityMultiContext;communityMultiContext=null;
   const heldLegalProperty=legalPropertyContext;legalPropertyContext=null;
   const heldVenueUse=venueUseContext;venueUseContext=null;
@@ -1647,6 +1649,8 @@ async function ask(q){
   const coopElectionQ=window.cooperativeReconvenedElectionFollow?.(heldCoopReconvened,q)||q;
   const coopElection=window.verifiedCooperativeReconvenedElection?.(coopElectionQ);
   if(coopElection){financeMeetingPlanner=null;coopReconvenedElectionContext=coopElection.trackCoopElection?coopElectionQ:null;renderAnswer(q,coopElection);return;}
+  const officeAddress=window.verifiedAssociationSharedOffice?.(q,heldOfficeAddress);
+  if(officeAddress){financeMeetingPlanner=null;officeAddressContext=officeAddress.officeAddressContext||null;renderAnswer(q,officeAddress);return;}
   const receiptScope=window.verifiedAssociationPickupAndService?.(q,heldReceiveAuthority);
   if(receiptScope){financeMeetingPlanner=null;receiveAuthorityContext=receiptScope.receiveAuthorityContext||null;renderAnswer(q,receiptScope);return;}
   const grantAccrual=window.verifiedGrantAccrualAssets?.(q,heldGrantAccrual);
@@ -2413,6 +2417,7 @@ touch();
 <script src="staff-volunteer-cost.js?v=1"></script>
 <script src="association-pickup-and-service.js?v=1"></script>
 <script src="grant-accrual-assets.js?v=1"></script>
+<script src="association-shared-office.js?v=1"></script>
 <script src="grant-multiple-sources.js?v=2"></script>
 <script src="grant-procurement-threshold.js?v=2"></script>
 <script src="association-legal-property.js?v=2"></script>
