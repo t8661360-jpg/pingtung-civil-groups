@@ -1678,6 +1678,8 @@ async function ask(q){
   if(!financeMeetingPlanner&&typeof window.createFinanceMeetingPlanner==="function")financeMeetingPlanner=window.createFinanceMeetingPlanner({board,showAnswer:renderAnswer});
   const vehicleRegistry=window.verifiedVehicleGiftAndRegistry?.(q,heldVehicleRegistry);
   if(vehicleRegistry){financeMeetingPlanner=null;vehicleRegistryContext=vehicleRegistry.vehicleRegistryContext||null;renderAnswer(q,vehicleRegistry);return;}
+  const postalBox=window.verifiedAssociationPostalBoxAndSeat?.(q);
+  if(postalBox){financeMeetingPlanner=null;renderAnswer(q,postalBox);return;}
   const venueRepair=window.verifiedVenueEquipmentRepair?.(q,heldVenueRepair);
   if(venueRepair){financeMeetingPlanner=null;venueRepairContext=venueRepair.venueRepairContext||null;renderAnswer(q,venueRepair);return;}
   const budgetAssemblyVote=window.verifiedAssociationBudgetAssemblyVote?.(q);
@@ -2545,6 +2547,7 @@ touch();
 <script src="former-officer-meeting-expense.js?v=1"></script>
 <script src="association-court-account-attachment.js?v=1"></script>
 <script src="association-budget-assembly-vote.js?v=1"></script>
+<script src="association-postal-box-and-seat.js?v=1"></script>
 <script src="charitable-permit-changes.js?v=20261128-asset-scope"></script>
 <script src="charitable-fundraising-stages.js?v=1"></script>
 <script src="community-cooperative-pause.js?v=1"></script>
