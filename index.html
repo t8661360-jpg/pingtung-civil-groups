@@ -1685,6 +1685,8 @@ async function ask(q){
     const matched=window.verifiedAssociationAssemblyRecount?.(full);
     if(matched){financeMeetingPlanner=null;assemblyRecountQuestion=matched.followQuorumCounts?full:null;renderAnswer(q,matched);return;}
   }
+  const cooperativeCharter=window.verifiedCooperativeCharterMembership?.(q);
+  if(cooperativeCharter){financeMeetingPlanner=null;renderAnswer(q,cooperativeCharter);return;}
   const communityContinuity=window.verifiedCommunityAssociationContinuity?.(q,heldCommunityContinuity);
   if(communityContinuity){financeMeetingPlanner=null;communityContinuityContext=communityContinuity.continuityContext||null;renderAnswer(q,communityContinuity);return;}
   const courtRepresentation=window.verifiedAssociationCourtRepresentation?.(q);
@@ -2575,6 +2577,7 @@ touch();
 <script src="association-rescheduled-notice.js?v=1"></script>
 <script src="association-court-representation.js?v=1"></script>
 <script src="community-association-continuity.js?v=1"></script>
+<script src="cooperative-charter-membership.js?v=1"></script>
 <script src="association-guest-greeting.js?v=1"></script>
 <script src="association-grant-equipment-disposition.js?v=1"></script>
 <script src="association-unpaid-wage-triage.js?v=1"></script>
