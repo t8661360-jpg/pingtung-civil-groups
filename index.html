@@ -1584,6 +1584,7 @@ let liquidationPathContext=null;
 let staffExpenseContext=null;
 let receiveAuthorityContext=null;
 let grantAccrualContext=null;
+let grantCloseoutContext=null;
 let officeAddressContext=null;
 let officerEligibilityContext=null;
 let coopMeetingRelocationContext=null;
@@ -1610,6 +1611,7 @@ async function ask(q){
   const heldStaffExpense=staffExpenseContext;staffExpenseContext=null;
   const heldReceiveAuthority=receiveAuthorityContext;receiveAuthorityContext=null;
   const heldGrantAccrual=grantAccrualContext;grantAccrualContext=null;
+  const heldGrantCloseout=grantCloseoutContext;grantCloseoutContext=null;
   const heldOfficeAddress=officeAddressContext;officeAddressContext=null;
   const heldOfficerEligibility=officerEligibilityContext;officerEligibilityContext=null;
   const heldCoopMeetingRelocation=coopMeetingRelocationContext;coopMeetingRelocationContext=null;
@@ -1673,6 +1675,8 @@ async function ask(q){
   if(officerEligibility){financeMeetingPlanner=null;officerEligibilityContext=officerEligibility.officerEligibilityContext||null;renderAnswer(q,officerEligibility);return;}
   const branchCorrespondence=window.verifiedBranchCorrespondence?.(q,heldBranchCorrespondence);
   if(branchCorrespondence){financeMeetingPlanner=null;branchCorrespondenceContext=branchCorrespondence.branchCorrespondenceContext||null;renderAnswer(q,branchCorrespondence);return;}
+  const grantCloseout=window.verifiedGrantProjectCloseout?.(q,heldGrantCloseout);
+  if(grantCloseout){financeMeetingPlanner=null;grantCloseoutContext=grantCloseout.grantCloseoutContext||null;renderAnswer(q,grantCloseout);return;}
   const handoverFinance=window.verifiedFinancialHandover?.(q,heldHandoverFinance);
   if(handoverFinance){financeMeetingPlanner=null;handoverFinanceContext=handoverFinance.handoverFinanceContext||null;renderAnswer(q,handoverFinance);return;}
   const receiptScope=window.verifiedAssociationPickupAndService?.(q,heldReceiveAuthority);
@@ -2445,6 +2449,7 @@ touch();
 <script src="staff-volunteer-cost.js?v=1"></script>
 <script src="association-pickup-and-service.js?v=1"></script>
 <script src="grant-accrual-assets.js?v=1"></script>
+<script src="grant-project-closeout.js?v=1"></script>
 <script src="association-shared-office.js?v=1"></script>
 <script src="officer-eligibility-and-elections.js?v=1"></script>
 <script src="cooperative-meeting-relocation.js?v=1"></script>
