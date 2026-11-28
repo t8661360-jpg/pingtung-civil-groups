@@ -1,0 +1,18 @@
+'use strict';
+const a=require('node:assert/strict');
+const {route,venue}=require('./association-local-venue');
+const body=r=>r.summary+' '+r.steps.flat().join(' ');
+const f='我們立案社區發展協會借枋山鄉活動中心免費辦老人共餐，村長口頭說可以，能免清潔費和押金嗎？另有手提音響向居民借的，壞了還想借鄰里用，修理能用縣府補助嗎？';
+let r=route(f);a.match(body(r),/清潔費、保證金一起免除.*水電仍按實際/);
+a.match(body(r),/口頭同意不是專案核准.*不用|口頭同意不是專案核准.*不要自己先修.*無同意轉借/);
+a.match(body(r),/會退回的押金不是實際租金或修理費/);
+const update='地點更正，是潮州鎮老人活動中心，其他情況一樣，只借半天，不改會址，也沒有解散。';
+r=route(update,r.localVenueFact);
+a.match(body(r),/清潔費仍須繳.*7日前/);a.match(body(r),/不要自己先修.*縣府補助只列原核定/);
+a.doesNotMatch(body(r),/枋山|遷址|解散/);
+const unknown='如果還沒決定是哪個鄉鎮的活動中心，免場租就等於不用交清潔費跟押金嗎？借來的音響不屬於活動中心。';
+r=route(unknown);a.equal(r.choices.length,2);
+a.match(body(r),/免場租不一定也免清潔費、押金或水電/);
+a.match(body(route(r.choices[1].question,r.localVenueFact)),/清潔費仍須繳.*不要自己先修/);
+for(const n of ['潮州鎮新生里活動中心清潔費可免嗎？','合作社租用私人會議室，取消能退押金嗎？','社區協會要將會址遷址登記在活動中心，怎麼辦？'])a.equal(route(n),null,n);
+a.equal(venue('潮州鎮老人活動中心是枋山鄉活動中心嗎？'),'');

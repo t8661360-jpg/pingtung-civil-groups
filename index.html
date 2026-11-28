@@ -978,6 +978,8 @@ function dirQueryFrom(q,intent){
   let kw=String(q).replace(/臺/g,"台").replace(/\s/g,"");
   if(intent.name)kw=intent.name;
   else{
+    // A clear topic-reset phrase is not part of a registry keyword. Leave legal routing and explicit names intact.
+    if((d||c||t)&&!PROCESS_RE.test(q)&&QUERY_RE.test(q))kw=kw.replace(/^(?:換個問題|換一個問題|換一題|另一(?:個)?問題|新的問題|新問題|新題)[：:，,。！!、；;]+/,"");
     kw=kw.replace(LEAD_RE,"");
     ["社區發展協會","社區協會","合作社","職業團體","社會團體","人民團體","團體名稱","名稱","團體","老人會","宗親會","同鄉會","校友會","教師會","教育會","商業會","工業會"].forEach(w=>kw=kw.split(w).join(""));
     if(c){const re=CAT_ALIAS.find(x=>x[0]===c)[1];kw=kw.replace(new RegExp(re.source,"g"),"")}
@@ -1568,6 +1570,7 @@ let rosterSharingContext=null;
 let donationTaxContext=null;
 let inKindMixedSalesContext=null;
 let venueUseContext=null;
+let localVenueContext=null;
 let borrowedEquipmentContext=null;
 let coopReconvenedElectionContext=null;
 let electionDualContext=null;
@@ -1585,6 +1588,7 @@ async function ask(q){
   const heldCommunityMulti=communityMultiContext;communityMultiContext=null;
   const heldLegalProperty=legalPropertyContext;legalPropertyContext=null;
   const heldVenueUse=venueUseContext;venueUseContext=null;
+  const heldLocalVenue=localVenueContext;localVenueContext=null;
   const heldBorrowedEquipment=borrowedEquipmentContext;borrowedEquipmentContext=null;
   const heldCoopReconvened=coopReconvenedElectionContext;coopReconvenedElectionContext=null;
   const heldMixedSales=inKindMixedSalesContext;inKindMixedSalesContext=null;
@@ -1633,6 +1637,8 @@ async function ask(q){
   const permitFull=heldCharitablePermit&&window.isCharitablePermitCorrection?.(q)?heldCharitablePermit+"；更新資料："+q:q;
   const permitResult=window.verifiedCharitablePermitChanges?.(permitFull);
   if(permitResult){financeMeetingPlanner=null;charitablePermitContext=permitResult.retainPermitQuestion?permitFull:null;renderAnswer(q,permitResult);return;}
+  const namedVenue=window.verifiedAssociationLocalVenue?.(q,heldLocalVenue);
+  if(namedVenue){financeMeetingPlanner=null;localVenueContext=namedVenue.localVenueFact||null;renderAnswer(q,namedVenue);return;}
   const borrowedEquipmentQ=window.associationBorrowedEquipmentFollow?.(heldBorrowedEquipment,q)||q;
   const borrowedEquipment=window.verifiedAssociationBorrowedEquipment?.(borrowedEquipmentQ);
   if(borrowedEquipment){financeMeetingPlanner=null;borrowedEquipmentContext=borrowedEquipment.borrowKeepContext?borrowedEquipmentQ:null;renderAnswer(q,borrowedEquipment);return;}
@@ -2362,6 +2368,7 @@ touch();
 <script src="grant-and-missing-meeting-record.js?v=1"></script>
 <script src="village-office-and-association.js?v=2"></script>
 <script src="association-borrowed-equipment.js?v=1"></script>
+<script src="association-local-venue.js?v=1"></script>
 <script src="cooperative-conflicts-and-contracts.js?v=1"></script>
 <script src="volunteer-team-training-and-grants.js?v=1"></script>
 <script src="association-dissolution-estate.js?v=1"></script>
