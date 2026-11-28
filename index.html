@@ -1576,6 +1576,7 @@ let coopReconvenedElectionContext=null;
 let electionDualContext=null;
 let grantProcContext=null;
 let grantEvidenceContext=null;
+let coopStockContext=null;
 let legalPropertyContext=null;
 let communityMultiContext=null;
 let associationMeetingSequenceContext=null;
@@ -1587,6 +1588,7 @@ async function ask(q){
   const heldElectionDual=electionDualContext;electionDualContext=null;
   const heldProcFacts=grantProcContext;grantProcContext=null;
   const heldGrantEvidence=grantEvidenceContext;grantEvidenceContext=null;
+  const heldCoopStock=coopStockContext;coopStockContext=null;
   const heldCommunityMulti=communityMultiContext;communityMultiContext=null;
   const heldLegalProperty=legalPropertyContext;legalPropertyContext=null;
   const heldVenueUse=venueUseContext;venueUseContext=null;
@@ -1674,6 +1676,8 @@ async function ask(q){
   if(charity){financeMeetingPlanner=null;charityQuestionContext=charity.needsCharityFacts?charityQuestion:null;renderAnswer(q,charity);return;}
   const electionObjection=window.verifiedElectionObjectionPreservation?.(electionQuestion);
   if(electionObjection){financeMeetingPlanner=null;electionObjectionContext=electionObjection.needsElectionFacts?electionQuestion:null;renderAnswer(q,electionObjection);return;}
+  const coopStockResult=window.verifiedCooperativeStockExit?.(q,heldCoopStock);
+  if(coopStockResult){financeMeetingPlanner=null;coopStockContext=coopStockResult.coopStockContext||null;renderAnswer(q,coopStockResult);return;}
   const memberDeathVoting=window.verifiedMemberDeathElectionContinuity?.(q);
   if(memberDeathVoting){financeMeetingPlanner=null;renderAnswer(q,memberDeathVoting);return;}
   const procurementQuestion=heldProcFacts&&window.isGrantProcurementFactReply?.(q)?heldProcFacts+"；"+q:q;
@@ -2357,7 +2361,8 @@ touch();
 <script src="association-fee-timing.js?v=1"></script>
 <script src="cooperative-address-proof.js?v=1"></script>
 <script src="liquidation-creditor-notice.js?v=2"></script>
-<script src="cooperative-liquidation-residue.js?v=1"></script>
+<script src="cooperative-stock-exit.js?v=1"></script>
+<script src="cooperative-liquidation-residue.js?v=2"></script>
 <script src="association-meeting-sequence.js?v=1"></script>
 <script src="association-assembly-recount.js?v=1"></script>
 <script src="mail-election-organization.js?v=1"></script>
