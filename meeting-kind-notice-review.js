@@ -120,6 +120,8 @@ function route(raw,prior){
  if(!f&&qCharter&&!qYear&&!(qNotice&&qRecord)&&!condition.change&&!follow)return null;
  /* 交叉巡檢第32輪：沒有提到任何會議、也沒有改期時，不出會議類型選單（例：沒有收入還要做決算、報縣府嗎） */
  if(!f&&!condition.change&&!follow&&!/會議|開會|大會|理事會|監事會|聯席|社務會/.test(clean))return null;
+ /* 交叉巡檢第33輪：會費改成按月收等繳納方式變更，沒有提到會議或改期日期時不出會議類型選單 */
+ if(!f&&!follow&&/會費/.test(clean)&&!/會議|開會|大會|理事會|監事會|聯席|社務會|改期|延期|延到|日期/.test(clean))return null;
  if(!f){
   const a=make('先確認是哪一種會議','改期時，誰應收到通知、提前幾天、紀錄要不要報備，都要先看開的是哪一種會。',[],[act,meetings]);
   return {...a,choiceHeading:'您要改的是哪種會議？',choices:Object.entries(form).filter(([k])=>k!=='coopBoard').map(([k,label])=>({label,question:'請選擇一般協會的'+label}))};
