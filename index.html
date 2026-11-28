@@ -1558,9 +1558,14 @@ function smartFallback(q,kb){
   }
   return{related:parts.related||[],category:parts.category||"服務說明",title:parts.title||"小屏的回覆",summary:parts.summary,steps:parts.steps||[],docs:parts.docs||[],where:parts.where||[],guide:parts.guide||[],laws:parts.laws||[],notes:parts.notes||[],refs:parts.refs||[],groups:parts.groups||[],dirMeta:parts.dirMeta||"",staff:parts.staff||[],actions:parts.actions||[]};
 }
-let financeMeetingPlanner, postponedProxyDateQuestion, assemblyRecountQuestion, sameDayReportQuestion;
+let financeMeetingPlanner, postponedProxyDateQuestion, assemblyRecountQuestion, sameDayReportQuestion, cooperativeExpulsionQuestion;
 async function ask(q){
   q=String(q||"").trim();if(!q||busy)return;
+  const heldCoopRemoval=cooperativeExpulsionQuestion;cooperativeExpulsionQuestion=null;
+  if(heldCoopRemoval&&window.isCooperativeExpulsionTotalReply?.(q)){
+    const matched=window.verifiedCooperativeExpulsionSequence?.(heldCoopRemoval+"；補充："+q);
+    if(matched){financeMeetingPlanner=null;sameDayReportQuestion=null;postponedProxyDateQuestion=null;assemblyRecountQuestion=null;renderAnswer(q,matched);return;}
+  }
   const heldReportQuestion=sameDayReportQuestion;sameDayReportQuestion=null;
   const replyKind=heldReportQuestion&&window.sameDayFinanceReply?.(q);
   if(replyKind){
@@ -1579,6 +1584,8 @@ async function ask(q){
     if(matched){financeMeetingPlanner=null;postponedProxyDateQuestion=matched.followNewDate?heldDateQuestion:null;renderAnswer(q,matched);return;}
   }
   if(!financeMeetingPlanner&&typeof window.createFinanceMeetingPlanner==="function")financeMeetingPlanner=window.createFinanceMeetingPlanner({board,showAnswer:renderAnswer});
+  const cooperativeExpulsion=window.verifiedCooperativeExpulsionSequence?.(q);
+  if(cooperativeExpulsion){financeMeetingPlanner=null;cooperativeExpulsionQuestion=cooperativeExpulsion.needsCoopTotal?q:null;renderAnswer(q,cooperativeExpulsion);return;}
   const chairHandover=window.verifiedAssociationHandoverRefusal?.(q);
   if(chairHandover){financeMeetingPlanner=null;renderAnswer(q,chairHandover);return;}
   const electionOrganization=window.verifiedElectionOrganization?.(q);
@@ -2232,6 +2239,7 @@ touch();
 <script src="mail-election-organization.js?v=1"></script>
 <script src="association-handover-refusal.js?v=1"></script>
 <script src="association-sameday-finance.js?v=1"></script>
+<script src="cooperative-expulsion-sequence.js?v=1"></script>
 <script src="director-absence-clarification.js?v=1"></script>
 <script src="association-records-and-term.js?v=2"></script>
 <script src="association-external-audits.js?v=1"></script>
