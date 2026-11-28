@@ -1683,6 +1683,8 @@ async function ask(q){
     const matched=window.verifiedAssociationAssemblyRecount?.(full);
     if(matched){financeMeetingPlanner=null;assemblyRecountQuestion=matched.followQuorumCounts?full:null;renderAnswer(q,matched);return;}
   }
+  const courtRepresentation=window.verifiedAssociationCourtRepresentation?.(q);
+  if(courtRepresentation){financeMeetingPlanner=null;renderAnswer(q,courtRepresentation);return;}
   const rescheduledNotice=window.verifiedAssociationRescheduledNotice?.(q,heldRescheduledNotice);
   if(rescheduledNotice){financeMeetingPlanner=null;rescheduledNoticeContext=rescheduledNotice.noticeContext||null;renderAnswer(q,rescheduledNotice);return;}
   if(heldDateQuestion&&window.isMeetingDateCorrection?.(q)){
@@ -2567,6 +2569,7 @@ touch();
 <script src="association-term-convocation.js?v=1"></script>
 <script src="volunteer-plan-and-team-lead.js?v=1"></script>
 <script src="association-rescheduled-notice.js?v=1"></script>
+<script src="association-court-representation.js?v=1"></script>
 <script src="association-guest-greeting.js?v=1"></script>
 <script src="association-grant-equipment-disposition.js?v=1"></script>
 <script src="association-unpaid-wage-triage.js?v=1"></script>
