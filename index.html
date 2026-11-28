@@ -1695,6 +1695,8 @@ async function ask(q){
   if(officerEligibility){financeMeetingPlanner=null;officerEligibilityContext=officerEligibility.officerEligibilityContext||null;renderAnswer(q,officerEligibility);return;}
   const branchCorrespondence=window.verifiedBranchCorrespondence?.(q,heldBranchCorrespondence);
   if(branchCorrespondence){financeMeetingPlanner=null;branchCorrespondenceContext=branchCorrespondence.branchCorrespondenceContext||null;renderAnswer(q,branchCorrespondence);return;}
+  const formerOfficerMeetingExpense=window.verifiedFormerOfficerMeetingExpense?.(q);
+  if(formerOfficerMeetingExpense){financeMeetingPlanner=null;renderAnswer(q,formerOfficerMeetingExpense);return;}
   const grantCloseout=window.verifiedGrantProjectCloseout?.(q,heldGrantCloseout);
   if(grantCloseout){financeMeetingPlanner=null;grantCloseoutContext=grantCloseout.grantCloseoutContext||null;renderAnswer(q,grantCloseout);return;}
   const staffRecords=window.verifiedStaffRecordsHandover?.(q,heldStaffRecords);
@@ -2534,6 +2536,7 @@ touch();
 <script src="professional-guild-meeting-rules.js?v=1"></script>
 <script src="guild-meeting-records.js?v=1"></script>
 <script src="guild-grant-and-budget.js?v=1"></script>
+<script src="former-officer-meeting-expense.js?v=1"></script>
 <script src="charitable-permit-changes.js?v=20261128-asset-scope"></script>
 <script src="charitable-fundraising-stages.js?v=1"></script>
 <script src="community-cooperative-pause.js?v=1"></script>
