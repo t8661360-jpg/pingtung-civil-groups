@@ -40,11 +40,13 @@ function query(input,towns,cats,prior){
   const re=new RegExp(pattern.source,pattern.flags.replace(/[gy]/g,''));
   const m=re.exec(relevant);if(m)filters.push({name,key:'c',at:m.index});
  }
- const typeList=[['社區發展協會',/社區發展協會|社區發展組織/],['合作社',/一般合作社|普通合作社|合作社/],['社會團體',/社會團體/],['職業團體',/職業團體/]];
+ const communityType=/社區發展協會|社區發展組織|社區發展類(?:型)?/;
+ const typeList=[['社區發展協會',communityType],['合作社',/一般合作社|普通合作社|合作社/],['社會團體',/社會團體/],['職業團體',/職業團體/]];
  for(const [name,pattern] of typeList){
   const m=pattern.exec(relevant);if(m&&!filters.some(f=>f.name.includes(name)))filters.push({name,key:'t',at:m.index});
  }
  filters.sort((a,b)=>a.at-b.at);
+ const explicitCommunityAlias=/社區發展類(?:型)?/.test(relevant)&&filters.some(f=>f.key==='t'&&f.name==='社區發展協會')&&/存續|未解散|各有|幾(?:個|家|間|筆)|有多少|數量|總數/.test(relevant);
  const statusLive=onlyLive.test(s),statusGone=onlyGone.test(s),statusExtra=include.test(s);
  const explicitAll=/(?:全縣|整個屏東縣|屏東縣(?:全部|所有))/.test(relevant)||force==='全縣';
  const carry=!resetFound&&!force&&correction&&prior&&regions.length===1&&/其他一樣|其餘不變|只想知道|總數|一共有/.test(s);
@@ -55,7 +57,7 @@ function query(input,towns,cats,prior){
  if(/成立(?:需要|要件)|申請(?:資料|補助|流程)|怎麼(?:解散|成立|報名|加入)|如何(?:解散|成立|報名)|會員人數|理事名額|改選要|會員資格|補助款|法人登記|討論預算|費用要|法院扣押|會費|名冊要報|會員大會|註冊流程|(?:改|變更|修)章程|怎麼報名|怎麼成立|要申請|需要資金|怎麼辦理/.test(relevant))return null;
  if(/「[^」]{2,40}」|『[^』]{2,40}』|重複|撞名|想取名|名稱是否可用/.test(relevant))return null;
  if(/(?:公司|工商)(?:營業)?登記|會員名冊|社員名冊/.test(relevant))return null;
- if(!force&&!resetFound&&!correction&&!negativeName&&!needsDates&&!statusLive&&!statusGone&&!statusExtra&&regions.length<2&&filters.length<2&&!/只要|比較|各有|總數|小計|總計|團體數/.test(s))return null;
+ if(!force&&!resetFound&&!correction&&!negativeName&&!needsDates&&!statusLive&&!statusGone&&!statusExtra&&!explicitCommunityAlias&&regions.length<2&&filters.length<2&&!/只要|比較|各有|總數|小計|總計|團體數/.test(s))return null;
  if(!filters.length&&carry)filters.push(...prior.filters);
  if(!filters.length&&/文化/.test(s))return null; // no agreed type: don't silently count all
  if(!filters.length)filters.push({name:'全部名冊類別',key:'all'});
@@ -69,7 +71,7 @@ function query(input,towns,cats,prior){
   const pairs=[];
   for(const c of chunks){
    const local=regions.filter(d=>c.includes(norm(d))||norm(d).slice(0,-1)!=='屏東'&&c.includes(norm(d).slice(0,-1)));
-   const kinds=filters.filter(f=>f.key==='c'&&choices.some(([name,re])=>f.name===name&&new RegExp(re.source,re.flags.replace(/[gy]/g,'')).test(c))||f.key==='t'&&c.includes(f.name));
+   const kinds=filters.filter(f=>f.key==='c'&&choices.some(([name,re])=>f.name===name&&new RegExp(re.source,re.flags.replace(/[gy]/g,'')).test(c))||f.key==='t'&&typeList.some(([name,re])=>f.name===name&&re.test(c)));
    if(local.length===1&&kinds.length===1)pairs.push([local[0],kinds[0]]);
   }
   if(!/每個鄉鎮|每個地方|每一地區|每地各算/.test(relevant)&&pairs.length===regions.length&&new Set(pairs.map(x=>x[0])).size===regions.length)return {kind:'count',regions,filters,pairs,scope,needsDates};

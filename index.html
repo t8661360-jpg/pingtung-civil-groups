@@ -1606,6 +1606,7 @@ let associationMeetingSequenceContext=null;
 let charitablePermitContext=null;
 let directoryCountContext=null;
 let ballotStaffStage=null;
+let communityContinuityContext=null;
 let rescheduledNoticeContext=null;
 let deceasedHandoverContext=null;
 let candidateMembershipContext=null;
@@ -1613,6 +1614,7 @@ async function ask(q){
   q=String(q||"").trim();if(!q||busy)return;
   const heldDirectoryCount=directoryCountContext;directoryCountContext=null;
   const heldBallotStaffStage=ballotStaffStage;ballotStaffStage=null;
+  const heldCommunityContinuity=communityContinuityContext;communityContinuityContext=null;
   const heldRescheduledNotice=rescheduledNoticeContext;rescheduledNoticeContext=null;
   const heldDeceasedHandover=deceasedHandoverContext;deceasedHandoverContext=null;
   const heldCandidateMembership=candidateMembershipContext;candidateMembershipContext=null;
@@ -1683,6 +1685,8 @@ async function ask(q){
     const matched=window.verifiedAssociationAssemblyRecount?.(full);
     if(matched){financeMeetingPlanner=null;assemblyRecountQuestion=matched.followQuorumCounts?full:null;renderAnswer(q,matched);return;}
   }
+  const communityContinuity=window.verifiedCommunityAssociationContinuity?.(q,heldCommunityContinuity);
+  if(communityContinuity){financeMeetingPlanner=null;communityContinuityContext=communityContinuity.continuityContext||null;renderAnswer(q,communityContinuity);return;}
   const courtRepresentation=window.verifiedAssociationCourtRepresentation?.(q);
   if(courtRepresentation){financeMeetingPlanner=null;renderAnswer(q,courtRepresentation);return;}
   const rescheduledNotice=window.verifiedAssociationRescheduledNotice?.(q,heldRescheduledNotice);
@@ -2570,6 +2574,7 @@ touch();
 <script src="volunteer-plan-and-team-lead.js?v=1"></script>
 <script src="association-rescheduled-notice.js?v=1"></script>
 <script src="association-court-representation.js?v=1"></script>
+<script src="community-association-continuity.js?v=1"></script>
 <script src="association-guest-greeting.js?v=1"></script>
 <script src="association-grant-equipment-disposition.js?v=1"></script>
 <script src="association-unpaid-wage-triage.js?v=1"></script>
@@ -2610,7 +2615,7 @@ touch();
 <script src="association-court-account-attachment.js?v=1"></script>
 <script src="association-budget-assembly-vote.js?v=1"></script>
 <script src="association-postal-box-and-seat.js?v=1"></script>
-<script src="directory-count-intent.js?v=1"></script>
+<script src="directory-count-intent.js?v=2"></script>
 <script src="association-finance-record-retention.js?v=2"></script>
 <script src="charitable-permit-changes.js?v=20261128-asset-scope"></script>
 <script src="charitable-fundraising-stages.js?v=1"></script>
