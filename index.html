@@ -1613,6 +1613,7 @@ let noticeCalendarContext=null;
 let paymentOrderContext=false;
 let harassmentTriageContext=null;
 let foodDonationContext=false;
+let socialWorkPracticeContext=false;
 let deceasedHandoverContext=null;
 let candidateMembershipContext=null;
 async function ask(q){
@@ -1626,6 +1627,7 @@ async function ask(q){
   const heldPaymentOrder=paymentOrderContext;paymentOrderContext=false;
   const heldHarassmentTriage=harassmentTriageContext;harassmentTriageContext=null;
   const heldFoodDonation=foodDonationContext;foodDonationContext=false;
+  const heldSocialWorkPractice=socialWorkPracticeContext;socialWorkPracticeContext=false;
   const heldDeceasedHandover=deceasedHandoverContext;deceasedHandoverContext=null;
   const heldCandidateMembership=candidateMembershipContext;candidateMembershipContext=null;
   const heldCharitablePermit=charitablePermitContext;charitablePermitContext=null;
@@ -1683,6 +1685,8 @@ async function ask(q){
   }
   const heldDateQuestion=postponedProxyDateQuestion;postponedProxyDateQuestion=null;
   const heldRecountQuestion=assemblyRecountQuestion;assemblyRecountQuestion=null;
+  const socialWorkPractice=window.verifiedSocialWorkerPracticeTriage?.(q,heldSocialWorkPractice);
+  if(socialWorkPractice){financeMeetingPlanner=null;socialWorkPracticeContext=true;renderAnswer(q.replace(/[;；]櫃檯確認社工執業:[a-z]+$/i,""),socialWorkPractice);return;}
   const foodDonation=window.verifiedAssociationFoodDonationSafety?.(q,heldFoodDonation);
   if(foodDonation){financeMeetingPlanner=null;foodDonationContext=true;renderAnswer(q.replace(/[;；]櫃檯確認食品狀態:[a-z]+$/i,""),foodDonation);return;}
   const harassment=window.verifiedAssociationHarassmentTriage?.(q,heldHarassmentTriage);
@@ -2606,6 +2610,7 @@ touch();
 <script src="volunteer-plan-and-team-lead.js?v=1"></script>
 <script src="association-rescheduled-notice.js?v=1"></script>
 <script src="meeting-notice-calendar.js?v=1"></script>
+<script src="social-worker-practice-triage.js?v=1"></script>
 <script src="association-food-donation-safety.js?v=1"></script>
 <script src="association-harassment-triage.js?v=1"></script>
 <script src="association-payment-order.js?v=1"></script>
