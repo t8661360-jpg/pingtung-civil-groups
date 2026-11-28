@@ -1695,6 +1695,8 @@ async function ask(q){
   if(postalBox){financeMeetingPlanner=null;renderAnswer(q,postalBox);return;}
   const venueRepair=window.verifiedVenueEquipmentRepair?.(q,heldVenueRepair);
   if(venueRepair){financeMeetingPlanner=null;venueRepairContext=venueRepair.venueRepairContext||null;renderAnswer(q,venueRepair);return;}
+  const termConvocation=window.verifiedAssociationTermConvocation?.(q);
+  if(termConvocation){financeMeetingPlanner=null;renderAnswer(q,termConvocation);return;}
   const guildLiquidation=window.verifiedGuildLiquidationResidue?.(q);
   if(guildLiquidation){financeMeetingPlanner=null;renderAnswer(q,guildLiquidation);return;}
   const membershipTenure=window.verifiedCandidateMembershipTenure?.(q,heldCandidateMembership);
@@ -2540,6 +2542,7 @@ touch();
 <script src="election-ballot-staff-roles.js?v=1"></script>
 <script src="candidate-membership-tenure.js?v=1"></script>
 <script src="guild-liquidation-residue.js?v=1"></script>
+<script src="association-term-convocation.js?v=1"></script>
 <script src="association-charter-membership-term.js?v=1"></script>
 <script src="association-withdrawal-and-filing.js?v=2"></script>
 <script src="association-meeting-finance-sequence.js?v=1"></script>
