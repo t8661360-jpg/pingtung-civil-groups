@@ -1682,7 +1682,7 @@ async function ask(q){
   const dirCountPlan=window.RegistryCountIntent?.query(q,TOWNS,CAT_ALIAS,heldDirectoryCount);
   if(dirCountPlan){
     busy=true;financeMeetingPlanner=null;
-    try{await loadAll();if(dirCountPlan.kind==="count")directoryCountContext=dirCountPlan;renderAnswer(q,window.RegistryCountIntent.response(q,dirCountPlan,STORE.dir.rows,STORE.dir.meta));}
+    try{await loadAll();if(dirCountPlan.kind==="count"||dirCountPlan.waitingForRegion)directoryCountContext=dirCountPlan;renderAnswer(q.replace(/[;；]名冊查詢確認[:：](?:全縣|先選鄉鎮)[。.]?$/,""),window.RegistryCountIntent.response(q,dirCountPlan,STORE.dir.rows,STORE.dir.meta));}
     finally{busy=false;}
     return;
   }
@@ -2648,7 +2648,7 @@ touch();
 <script src="association-court-account-attachment.js?v=1"></script>
 <script src="association-budget-assembly-vote.js?v=1"></script>
 <script src="association-postal-box-and-seat.js?v=1"></script>
-<script src="directory-count-intent.js?v=4"></script>
+<script src="directory-count-intent.js?v=20261128-gone-scope"></script>
 <script src="association-finance-record-retention.js?v=2"></script>
 <script src="charitable-permit-changes.js?v=20261128-asset-scope"></script>
 <script src="charitable-fundraising-stages.js?v=1"></script>

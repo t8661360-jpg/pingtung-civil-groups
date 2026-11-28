@@ -1,0 +1,27 @@
+'use strict';
+const assert=require('node:assert/strict');
+const {query,response}=require('./directory-count-intent');
+const data=require('./data/directory.json');
+const east='內埔鄉',west='佳冬鄉';
+const qs=(x,p)=>query(x,[east,west],[['學術文化團體',/學術文化|文化/],['慈善團體',/慈善/]],p);
+const e=(s,scope,num,p=null,category='學術文化團體')=>{
+ const q=qs(s,p); assert.equal(q?.kind,'count',s); assert.equal(q.scope,scope,s);
+ const t=response(s,q,data.rows,data.meta).summary;
+ assert(t.includes(category),s);assert(t.includes(num+' 個'),t);return q;
+};
+e('內埔鄉學術文化團體有幾個已解散？','gone',13);
+const orig=e('內埔鄉已解散的學術文化團體有幾個？','gone',13);
+e('另問：內埔鄉學術文化團體，已解散的有幾個？','gone',13);
+e('想知道內埔鄉有幾個已解散的協會，不分團體類型。','gone',73,orig,'全部名冊類別');
+e('改成只算存續的','live',38,orig);
+e('那只看已解散的','gone',13,orig);
+e('內埔鄉不含已解散的學術文化團體有幾個？','live',38);
+e('內埔鄉學術文化團體有幾個？包含已解散','all',51);
+for(const s of ['內埔鄉已解散的「北風協會」有幾個會址？','內埔鄉學術文化團體已解散後怎麼清算，有幾個流程？','內埔鄉的會員大會決議解散有幾票才過？','另問：只算存續的'])assert.equal(qs(s,orig),null,s);
+const pick=qs('我想知道已解散的學術文化團體有幾個？');assert.equal(pick.kind,'region');assert.equal(pick.scope,'gone');
+const btns=response('我想知道已解散的學術文化團體有幾個？',pick,data.rows,data.meta).choices;assert.equal(btns.length,2);
+assert.equal(qs(btns[0].question).scope,'gone');
+const waiting=qs(btns[1].question);assert.equal(waiting.scope,'gone');assert.equal(waiting.waitingForRegion,true);
+e('內埔鄉','gone',13,waiting);
+assert.equal(qs('另問：佳冬鄉學術文化團體存續有幾個？',waiting).scope,'live');
+console.log('directory dissolved scope: position, negation, exclusions, follow-up and region choices passed');

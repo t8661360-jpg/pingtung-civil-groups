@@ -9,11 +9,19 @@ const artifact=/更新(?:日|日期|月份|到)|資料(?:是)?(?:截至|哪天|�
 const correct=/^(?:前面(?:說錯了|不用了)[，,。；;]?)?(?:更正[，,:：]?|不是.{1,12}[，,]|前面說錯了)/;
 const include=/包含.{0,8}已解散|含(?:有|了)?已解散|連.{0,5}解散.{0,6}(?:算|計|要)|解散也算/;
 const onlyGone=/(?:只|僅|改)(?:要|看|算|計|列|問|查)?(?:已)?解散(?:的)?/;
-const onlyLive=/(?:只|僅)(?:看|要|算|列|查|計)(?:仍在|還在|尚在|存續|運作|營運|未解散)|不(?:含|計入|算)(?:已)?解散/;
+const onlyLive=/(?:只|僅)(?:看|要|算|列|查|計)(?:仍在|還在|尚在|存續|運作|營運|未解散)|不(?:包含|包括|含有|含|計入|算)(?:已)?解散/;
+const groupWord='(?:團體|協會|學會|社團|公會|合作社|老人會)';
+const directGoneBefore=new RegExp('已解散(?:的)?[\\p{Script=Han}]{0,14}'+groupWord+'[，,：:]?(?:有幾|有多少|共有|一共有|總數|數量|各有|幾個|多少個|的有幾)','u');
+const directGoneAfter=new RegExp('(?:'+groupWord+'[，,：:]?(?:中|裡|當中)?(?:有幾|有多少|其中有幾|其中有多少)(?:個|家|間|筆)?已解散|'+groupWord+'[，,：:]?(?:中|裡|當中|其中)?已解散(?:的)?(?:有幾|有多少|總數|數量|各有|共有)|(?:有幾|有多少|多少|幾)(?:個|家|間|筆)?已解散(?:的)?[\\p{Script=Han}]{0,14}'+groupWord+')','u');
 const liveMention=/存續|還在運作|還在營運|是否還在/;
 const notRegion=/不是(?:要查|查|問|只問)?(?:全縣|全部|屏東縣全部)/g;
 function query(input,towns,cats,prior){
- const raw=norm(input);
+ let raw=norm(input);
+ if(prior?.kind==='region'&&prior.waitingForRegion){
+  const bare=raw.replace(/^(?:我想查|我要查|請查|查|是)?(?:屏東縣)?/,'').replace(/[。!?？！]+$/,'');
+  const picked=(towns||[]).find(x=>norm(x)===bare||(norm(x)!=='屏東市'&&norm(x).slice(0,-1)===bare));
+  if(picked)raw=prior.s.replace(/[;；]名冊查詢確認:先選鄉鎮[。.]?$/,'')+'；'+norm(picked);
+ }
  if(!raw||raw.length>490)return null;
  let s=raw,resetFound=false;
  for(const m of raw.matchAll(reset)){const tail=raw.slice(m.index+m[0].length);if(tail){s=tail;resetFound=true;}}
@@ -61,20 +69,26 @@ function query(input,towns,cats,prior){
  filters.sort((a,b)=>a.at-b.at);
  const explicitCommunityAlias=/社區發展類(?:型)?/.test(relevant)&&filters.some(f=>f.key==='t'&&f.name==='社區發展協會')&&/存續|未解散|各有|幾(?:個|家|間|筆)|有多少|數量|總數/.test(relevant);
  const statusInput=regions.reduce((acc,town)=>acc.replaceAll(norm(town),''),s);
- const statusLive=onlyLive.test(statusInput),statusGone=onlyGone.test(statusInput),statusExtra=include.test(statusInput);
+ const statusLive=onlyLive.test(statusInput),statusExtra=include.test(statusInput.replace(/不(?:包含|包括|含有|含|計入|算)(?:已)?解散/g,''));
+ const statusBody=statusInput.replace(/(?:不是|不查|不要|並非)(?:要|看|算|計入|包括|查|問)?已解散(?:的)?[^，,。；;!?？！]{0,16}(?=[，,。；;!?？！]|$)/g,'');
+ const goneInCount=!statusLive&&!statusExtra&&quant.test(relevant)&&
+   (directGoneBefore.test(statusBody)||directGoneAfter.test(statusBody));
+ const statusGone=onlyGone.test(statusInput)||goneInCount;
+ const justStatus=!resetFound&&!force&&prior?.kind==='count'&&(statusLive||statusGone)&&
+   /^(?:那|再|請|幫我)?(?:改成|換成|改為|改看|改查)?(?:只|僅)(?:想|要|看|算|查|列|計)?(?:只|僅)?(?:看|算|查|列|計)?(?:存續|未解散|已解散|解散|還在運作)(?:的)?[。?!？！]*$/.test(s);
  const explicitAll=/(?:全縣|整個屏東縣|屏東縣(?:全部|所有))/.test(relevant)||force==='全縣';
- const carry=!resetFound&&!force&&prior?.kind==='count'&&((correction&&regions.length===1&&/其他(?:條件)?一樣|其餘(?:條件)?不變|只想知道|總數|一共有/.test(s))||((replaceRegion||rejectedRegion)&&regions.length===1&&/一樣|相同|照舊|不變/.test(s))||exactSubtitle);
+ const carry=!resetFound&&!force&&prior?.kind==='count'&&((correction&&regions.length===1&&/其他(?:條件)?一樣|其餘(?:條件)?不變|只想知道|總數|一共有/.test(s))||((replaceRegion||rejectedRegion)&&regions.length===1&&/一樣|相同|照舊|不變/.test(s))||exactSubtitle||justStatus);
  if(carry&&!regions.length&&!explicitAll)regions=[...prior.regions];
  const probe=locs.length?relevant.slice(locs.at(-1)[1]):relevant;
- const unsupported=(!filters.length&&!carry&&(regions.length||explicitAll)&&/存續|未解散|還在運作|總數|總計|團體數|小計/.test(relevant))?
+ const unsupported=(!filters.length&&!carry&&(regions.length||explicitAll)&&/存續|未解散|還在運作|總數|總計|團體數|小計|已解散/.test(relevant))?
    /(?:鄉|鎮|市|全縣|整個屏東縣)(?:的|目前|登記的|已立案的)*([\p{Script=Han}]{1,12}?類(?:型)?)(?=(?:民間)?(?:團體|協會|社團|學會)|存續|未解散|已解散|目前|[，,]|有|幾|多少)/u.exec(probe)?.[1]:'';
  const knownGeneric=/^(?:全|全部|所有|各|各種|各類|全部名冊|所有名冊|名冊|兩|三|四|五|這幾|這兩|這三)類(?:型)?$/;
  const unknownType=unsupported&&!knownGeneric.test(unsupported);
  const listTarget=filters.length||dword.test(relevant)||carry||unknownType||narrowSport;
  if(!(quant.test(relevant)||carry||force)||!listTarget)return null;
- if(!regions.length&&!explicitAll&&!force&&!(negativeName||needsDates)&&!/比較|各有|分開/.test(s))return null;
+ if(!regions.length&&!explicitAll&&!force&&!(negativeName||needsDates||(goneInCount&&filters.length===1))&&!/比較|各有|分開/.test(s))return null;
  if(/幾個人|幾位|多少人|多少錢|多少費用|多少預算|幾天|幾年|幾月|幾歲|幾次|幾成|比例|每個團體|(?:有多少|有幾|多少名|幾位)(?:個|位|名)?(?:會員|社員|理事|監事|工作人員)|(?:會員|社員|理事).{0,5}(?:有多少|總數|有幾個)|一個團體.{0,9}(?:要|最多|至少)/.test(relevant))return null;
- if(/成立(?:需要|要件)|申請(?:資料|補助|流程)|怎麼(?:解散|成立|報名|加入)|如何(?:解散|成立|報名)|會員人數|理事名額|改選要|會員資格|補助款|法人登記|討論預算|費用要|法院扣押|會費|名冊要報|會員大會|註冊流程|(?:改|變更|修)章程|怎麼報名|怎麼成立|要申請|需要資金|怎麼辦理/.test(relevant))return null;
+ if(/解散(?:後|時).{0,12}(?:清算|財產|登記|報備)|(?:如何|怎麼)(?:辦理)?清算|成立(?:需要|要件)|申請(?:資料|補助|流程)|怎麼(?:解散|成立|報名|加入)|如何(?:解散|成立|報名)|會員人數|理事名額|改選要|會員資格|補助款|法人登記|討論預算|費用要|法院扣押|會費|名冊要報|會員大會|註冊流程|(?:改|變更|修)章程|怎麼報名|怎麼成立|要申請|需要資金|怎麼辦理/.test(relevant))return null;
  if(/「[^」]{2,40}」|『[^』]{2,40}』|重複|撞名|想取名|名稱是否可用/.test(relevant))return null;
  if(/(?:公司|工商)(?:營業)?登記|會員名冊|社員名冊/.test(relevant))return null;
  if(narrowSport&&regions.length&&quant.test(relevant))return {kind:'unsupported',name:narrowSport,regions,sport:true,scope:statusGone?'gone':statusExtra?'all':'live'};
@@ -88,7 +102,7 @@ function query(input,towns,cats,prior){
  if(explicitAll&&!regions.length)regions=[''];
  const preserveScope=carry&&!statusLive&&!statusGone&&!statusExtra&&!liveMention.test(s)&&(/其他(?:條件)?一樣|其餘(?:條件)?不變/.test(s)||replaceRegion&&/一樣|照舊|不變/.test(s)||exactSubtitle)&&['live','gone','all','both'].includes(prior.scope);
  const scope=preserveScope?prior.scope:statusGone&&!statusExtra?'gone':statusExtra?(statusLive||liveMention.test(s)||/差別|分開|各有|也想|如果|話是/.test(s)?'both':'all'):'live';
- if(!regions.length)return {kind:'region',regions,filters,scope,s,needsDates};
+ if(!regions.length)return {kind:'region',regions,filters,scope,s,needsDates,waitingForRegion:force==='先選鄉鎮'};
  const relation=/各(?:類|種)|兩類|三類|這(?:兩|三)類|類別.{0,8}各|分開.{0,8}(?:小計|算|統計)|(?:學術文化|文化)類.{0,8}(?:慈善|宗教|體育)類.{0,8}各/.test(relevant);
  if(regions.length>1&&filters.length>1){
   const chunks=relevant.split(/[，,。;；、]|和|與|跟|及/).filter(Boolean);
