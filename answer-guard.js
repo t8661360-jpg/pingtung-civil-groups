@@ -535,6 +535,8 @@
   }
   if (typeof window !== 'undefined') window.__understandingGuard9 = understandingGuard9;
   function guard(q, a) {
+    /* 交叉巡檢第30輪：交叉巡檢規則（focus 以 cross- 開頭）是逐題核對、已涵蓋混合問句每一部分的答案，不再被一句兩問、兩種團體選單蓋掉 */
+    if (a && a.questionState && /^cross-/.test(String(a.questionState.focus || '')) && !/您是不是要問/.test(a.title || '')) return null;
     try { const w4 = ghostwrite4(q, a); if (w4) return w4; } catch (e) {}
     try { const c = compareGuard(q, a) || compareTopic(q, a) || compound(q, a); if (c) return c; } catch (e) {}
     try { const u = understandingGuard(q, a); if (u) return u; } catch (e) {}
