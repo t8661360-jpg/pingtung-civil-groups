@@ -82,6 +82,58 @@ function answer(q){
  summary:kind==='assembly'&&assoc?'先補原應備查的會員（會員代表）大會紀錄；年度決算和補助核銷分開核對。已核定補助不因一份紀錄沒報就必然取消。':'先分清缺的是會議紀錄、年度決算，還是核定案要求的附件。只漏紀錄並不當然取消補助或要求退錢。',steps:[records,finance,funding,...(needReturn?[returnMoney]:[]),close],
  refs:[...(assoc?[med,ap(34),af(11),...(/罰|處罰/.test(t)?[ap(58)]:[])]:coop?[cf(35),cf(36),coopElection]:[med,cf(36)]),...(!outside?[county]:[]),...(needReturn?[admin]:[])],questionState:{focus:index.choices?'clarify':'compound'},...index};
 }
-if(typeof module!=='undefined'&&module.exports){module.exports=answer;return;}
+
+// This narrow route runs before standalone meeting and grant answers, so one
+// subject cannot swallow the other. The older association/coop route remains.
+function combined(q){
+ const raw=String(q??'').trim(),t=raw.normalize('NFKC').replace(/\s+/g,'');
+ if(!t||t.length>520||!/補助|核銷/.test(t)||!signaled.test(t))return null;
+ if(/(?:沒有|不是|不再|不問|不用|沒有要)(?:在|要|申請|報|談|問){0,3}(?:補助|核銷)|工會|合作社|基金會|管委會|勸募|車馬費|出席費/.test(t))return null;
+ const named=t.replace(/(?:不是|並非|非屬)(?:一般|縣級|原本的)?(?:工業(?:同業)?公會|商業(?:同業)?公會|社區發展協會|協會|社會團體)/g,'');
+ const com=/商業(?:同業)?公會/.test(named),ind=/工業(?:同業)?公會/.test(named);
+ const assoc=/協會|社會團體/.test(named)&&!/公會/.test(named);
+ if(Number(com)+Number(ind)+Number(assoc)!==1)return null;
+ const name=com?'商業同業公會':ind?'工業同業公會':/社區發展協會/.test(named)?'社區發展協會':'一般協會';
+ const knownKind=t.match(/會務補助會議確認:(大會|理監事|不清楚)/)?.[1];
+ const facts=named.replace(/(?:不是|並非|沒(?:有)?開)(?:會員(?:代表)?大會|理監事(?:聯席)?會(?:議)?|理事會|監事會)/g,'');
+ const kind=knownKind==='大會'?'assembly':knownKind==='理監事'?'board':knownKind?null:
+  /(?:開的?|召開|這場|這次).{0,5}會員(?:代表)?大會/.test(facts)&&!/開的是(?:理事會|監事會|理監事)/.test(facts)?'assembly':
+  /(?:開的是|召開的是)(?:理事會|監事會|理監事)/.test(facts)?'board':meet(facts);
+ const recordsIssue=/(?:紀錄|記錄).{0,26}(?:沒|未|漏|逾期|遲|只(?:寄|發|把|傳|送)|要(?:寄|報|送))|(?:沒|未|漏|補).{0,15}(?:報送|報|寄|分送|送).{0,15}(?:紀錄|記錄)|只.{0,12}(?:給|寄|傳).{0,10}(?:理事|出席)|補發|紀錄.{0,20}送誰/.test(t);
+ const moneyIssue=/核銷|註銷|撤銷|取消|罰款|罰鍰|追繳|還錢|補件|已撥|沒撥|未撥|撥款|缺件|缺收據|收據.{0,5}漏|影響.{0,6}補助|補助.{0,10}影響/.test(t);
+ if(!recordsIssue||!moneyIssue)return null;
+ if(assoc&&!/社區發展協會|收據|單據|會務補助(?:進度|會議)確認/.test(t)&&kind&&missing.test(t)&&!/(?:不是|並非).{0,3}(?:工業|商業)/.test(t))return null;
+ const meetingRef=assoc?med:com?{title:'商業團體法施行細則第25條',source:'https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050101'}:{title:'工業團體法施行細則第30條',source:'https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050104'};
+ const mechRef=com?{title:'商業團體法第6條',source:'https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050100'}:{title:'工業團體法第5條',source:'https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050103'};
+ const heading=kind==='assembly'?'這場會員（代表）大會':kind==='board'?'這場理事會或監事會':'先確認會議種類';
+ const days=com?'15日':ind?'7日':'30日';
+ const explicitDay=t.match(/(?:會後第?|(?:紀錄)?到第|過了|已過)(\d{1,3})(?:天|日)/)?.[1]||(/(?:會後第?|到第)八(?:天|日)/.test(t)?'8':null);
+ const late=(explicitDay&&Number(explicitDay)>Number(days.slice(0,-1)))||/去年.{0,12}(?:開|的).{0,4}(?:理事會|監事會|大會)|紀錄.{0,10}(?:逾期|超過期限)/.test(t);
+ const fix=late?'依您描述，會務已過原期限。請照實儘快補送並查詢補正方式，保留送件證明，不要倒填日期；換年度不會把該義務變成補助核銷。':'按各自的會議日期計算。如只傳給出席者或理事，補送其餘會員並核對兩邊收文；若已逾期，請照實儘快補送並詢問補正。';
+ const records=assoc?(kind==='assembly'?'會員（會員代表）大會紀錄應於閉會後30日內報主管機關備查。'+(late?'依您提供的時間，已過原期限，請儘快照實補報。':'如已過期限請儘快照實補報。'):
+ kind==='board'?'一般理事會、監事會及理監事聯席會議紀錄原則上留存供會員查閱，不是每次都要報縣府；有法令要求核辦的決議才另附文件辦理。':'若是大會，閉會後30日內送團體主管機關備查；若是普通理事會、監事會或理監事聯席會議，紀錄一般留存供會員查閱，依法須報核的決議另案送件。'):
+ '依'+meetingRef.title+'，會員大會、理事會或監事會各自於會後'+days+'內把紀錄分送各會員，不只寄出席者，並報團體主管機關及目的事業主管機關。'+fix;
+ const who=assoc?'需備查的會務文件找立案主管機關；補助附件則找核定函上的原補助承辦。':
+ (com?'縣級商業同業公會的團體主管機關是縣政府；目的事業主管機關看行業。':'依立案證書核對團體主管機關：直轄市工業同業公會由市政府主管，特定地區及全國者由內政部主管；縣（市）工業會不是工業同業公會。目的事業主管機關依行業及層級確認。')+'補助補件或核銷另送核定函上的原補助承辦，不用兩個流程互相代替。';
+ const stage=t.match(/會務補助進度確認:(未撥|已入帳|收到正式通知|不確定)/)?.[1];
+ const noPay=stage==='未撥'||!stage&&/(?:沒(?!有沒有)|尚未|還未|未|尚無)(?:有)?(?:收到(?:補助)?款|收到補助|撥款?|入帳|領到)|沒有預撥/.test(t.replace(/有沒有(?:已經)?(?:撥款?|入帳|領到|收到款)/g,''));
+ const paid=stage==='已入帳'||!stage&&!noPay&&/已(?:經)?(?:收到款|入帳|領到|撥款)|款.{0,4}已入帳/.test(t);
+ const written=stage==='收到正式通知'||!stage&&!/(?:沒|未).{0,8}(?:正式|書面)(?:處分|通知)/.test(t)&&/已(?:收到|接到).{0,9}(?:書面|正式)(?:通知|處分)/.test(t);
+ const status=(written?'已收到正式通知，先按公文核對是補正、註銷、追繳或其他處理，確認期限及原因。':
+ '紀錄漏送不等於補助已取消。電話提醒也不足以判定已註銷。請用核定函、原補助窗口及收文號查是未核定、已核定待審、可補件，還是已正式註銷。')+
+ (noPay?'您提到款還沒撥，先查核銷與核定狀態；確無撥款或預撥，就沒有已領的本金可退。':
+ paid?'您提到已入帳，先核對是否有結餘或正式追繳及書面依據，不憑口頭提醒就匯款。':'有沒有已撥或預撥，也會影響是否涉及退回。');
+ const outside=locOther.test(t)&&!/屏東(?:縣府|縣政府|的補助)/.test(t);
+ const cutoff=outside?'本案是外縣市補助，不套用屏東通案；以原公告、核定函和原補助機關確認補件、核銷及年度期限。':
+ '若適用屏東縣通案第8點，計畫完成後20日內辦核銷，逾核定年度未依規定辦理，原核准補助經費依該點註銷、不保留。跨年或期限有疑義，請原機關按年度、完成日、實際送件日及適用規則查個案，不保證補件就能保留。';
+ const docs='核對核准文件影本、領款收據、實際支用明細、支用單據，依原方案補成果、照片或設備財產證明。缺收據或核定函，先向原承辦查詢可接受的補正方式及期限；只有核定函、公告或補助機關要求的會議紀錄，才當補助附件送。';
+ const sanctions=/罰款|罰鍰|追繳|還錢|繳回|退回/.test(t)?[['逾期不直接等同罰款、停補助或追繳','不能只憑紀錄漏報就認定有固定罰款。'+(!outside?'適用屏東要點時，第8-1點的補助結餘要繳回；第10點無正當理由逾核銷期限可列下次審查考量，與未依用途等違規追繳是不同處理。':'核銷期限、是否追繳及有無裁處，都以該方案適用規定及正式通知分別核對。')]]:[];
+ const index=assoc&&!kind&&!knownKind?options(raw,'您要補的是哪一場的紀錄？','會務補助會議確認',[['會員（代表）大會','大會'],['理事會／監事會／聯席會議','理監事'],['不清楚是哪一場','不清楚']]):
+ !stage&&!noPay&&!paid&&!written?options(raw,'目前比較符合哪一種補助狀況？','會務補助進度確認',[['還沒收到補助款','未撥'],['補助款已入帳','已入帳'],['已收到正式通知','收到正式通知'],['還不清楚','不確定']]):{};
+ return {direct:true,category:name+'｜會議紀錄與補助',title:name+'：會議紀錄和補助分開辦',summary:'先按團體及會議種類處理紀錄，再找原補助機關核對核銷或補件。單憑會議紀錄沒送，不能判定補助已取消。',steps:[[heading,records],['分清會務與補助收件窗口',who],['確認補助現在到哪一步',status],['核銷期限及缺件怎麼處理',cutoff+docs],...sanctions],refs:[meetingRef,...(assoc?[]:[mechRef]),...(!outside?[county]:[])],actions:[{label:'聯絡承辦',view:'contact',sub:''}],questionState:{focus:index.choices?'clarify':'compound'},...index};
+}
+
+if(typeof module!=='undefined'&&module.exports){module.exports=answer;module.exports.combined=combined;return;}
 root.verifiedGrantMissingMeetingRecord=answer;
+root.verifiedCombinedMeetingRecordAndGrant=combined;
 })(typeof window!=='undefined'?window:globalThis);

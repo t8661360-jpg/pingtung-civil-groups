@@ -1707,6 +1707,8 @@ async function ask(q){
   if(volunteerGovernance){financeMeetingPlanner=null;volunteerGovernanceContext=volunteerGovernance.volunteerGovernanceContext||null;renderAnswer(q,volunteerGovernance);return;}
   const eventFinance=window.verifiedEventFeesAndFundraising?.(q,heldEventFinance);
   if(eventFinance){financeMeetingPlanner=null;eventFinanceContext=eventFinance.eventFinanceContext||null;renderAnswer(q,eventFinance);return;}
+  const combinedMeetingGrant=window.verifiedCombinedMeetingRecordAndGrant?.(q);
+  if(combinedMeetingGrant){financeMeetingPlanner=null;renderAnswer(q,combinedMeetingGrant);return;}
   const guildBudget=window.verifiedGuildGrantAndBudget?.(q,heldGuildBudget);
   if(guildBudget){financeMeetingPlanner=null;guildBudgetContext=guildBudget.guildBudgetContext||null;renderAnswer(q,guildBudget);return;}
   const grantAccrual=window.verifiedGrantAccrualAssets?.(q,heldGrantAccrual);
@@ -2465,7 +2467,7 @@ touch();
 <script src="association-corporate-member-officers.js?v=1"></script>
 <script src="association-cpa-independence.js?v=1"></script>
 <script src="representative-system-transition.js?v=20261128-343"></script>
-<script src="grant-and-missing-meeting-record.js?v=1"></script>
+<script src="grant-and-missing-meeting-record.js?v=2"></script>
 <script src="village-office-and-association.js?v=2"></script>
 <script src="association-borrowed-equipment.js?v=20261128-343-u2"></script>
 <script src="association-local-venue.js?v=1"></script>
