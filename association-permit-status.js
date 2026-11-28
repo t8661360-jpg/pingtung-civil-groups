@@ -1,0 +1,40 @@
+(function(root){
+'use strict';
+const law={title:'人民團體法第58至61條：處分、解散及法定要件',source:'https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050091'};
+const rules={title:'人民團體會務輔導辦法第27條：解散清算',source:'https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0020094'};
+const civil={title:'民法第37至44條：法人清算',source:'https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=B0000001'};
+const grant={title:'屏東縣政府對民間團體補助經費作業要點',source:'https://portal.ptc.edu.tw/bulletin/attachment.php?a_sn=33872&b_sn=B114003910'};
+function route(q){
+ const t=String(q??'').normalize('NFKC').replace(/\s/g,'');
+ if(!t||t.length>590||/^(?:新題|另問|另外問)|合作社|公會|工會|基金會|管委會|公司|農會|漁會/.test(t))return null;
+ const picked=t.match(/;櫃檯確認公文狀態:(resolution|stop|organize|dissolve)$/)?.[1];
+ const b=t.replace(/;櫃檯確認公文狀態:[a-z]+$/,'');
+ if(!/協會|社團|團體|縣府|主管機關|(?:撤銷|撤掉).{0,16}大會/.test(b))return null;
+ const u=b.replace(/(?:還沒收到|沒有收到|沒有|並未|尚未|不是|未經|沒有被)(?:正式)?(?:廢止(?:許可|立案)|撤銷(?:許可|立案)|解散(?:命令)?)/g,'');
+ const resolution=/(?:撤銷|撤掉|取消).{0,16}(?:決議|議案)|(?:決議|議案).{0,5}(?:被撤銷|遭撤銷)/.test(u);
+ const stop=/(?:停止|暫停|停辦|停掉).{0,6}(?:部分|全部|一部|業務|活動)|(?:處分|命令).{0,8}停業/.test(u);
+ const organize=/限期整理|命令整理/.test(u);
+ const permission=/(?:廢止|撤銷|取消|吊銷)(?:設立)?(?:許可|立案)|立案.{0,4}(?:被|遭)(?:廢止|撤銷|取消)|解散命令|(?:命令|被|遭|已經|接到|收到)(?:了|主管機關)?解散/.test(u);
+ const official=/縣府|政府|主管機關|公文|處分|命令/.test(b);
+ const question=/活動|業務|還能|照常|清算|收費|會費|繼續|補助|捐款|租約|帳戶|名義|舊名|原名|招生|海報|能不能|如何|怎麼/.test(b);
+ if(!picked&&(!(permission||stop||organize||resolution)||!question||!official&&!permission&&!/只.{0,16}(?:決議|整理)/.test(b)))return null;
+ const unknown=!picked&&/不確定|分不清|不清楚|看不懂|不知道/.test(b)&&!/(?:只有|只收到|只寫|僅).{0,12}(?:整理|決議|停止業務|停業)/.test(b);
+ const asset=/捐款|財產|帳戶|租約|契約|款項|清算/.test(b);
+ const subsidy=/補助|核銷|報帳|核定|標誌|標章/.test(b);
+ const body=(title,summary,steps,refs=[law])=>({direct:true,category:'協會｜行政處分及原有會務',title,summary,steps,refs,...(picked?{questionState:{focus:'cross-association-permit-status'}}:{})});
+ const check=['先看公文主文與生效日期','核對處分機關、哪些決議或業務被限制、何時生效與期限；若要爭執處分，按公文的救濟教示處理，不因等待回覆就錯過期限。請勿貼完整公文或當事人資料。'];
+ const personal=['真正獨立的個人活動，要和原協會分開','個人依法自辦，仍要另查場地、收費、招生或業務主管法令。不要只換個人收款帳號或主辦欄位，實際仍以原協會名義或利用其資格辦活動；原海報、團體名稱、縣府標誌及原許可不會跟著轉給個人。'];
+ const government=['原補助由核定對象處理','核定給協會的補助、名稱或標誌授權不能由理事長個人直接承接或報帳。是否停辦、變更、結報或返還，先由有權代表或清算人找原核定機關依計畫與處分確認，不重複申報或挪款。'];
+ if(unknown)return {...body('先辨認是撤銷決議、停業、整理，還是廢止或解散','不同處分的效果不同，不要只憑口頭說法就繼續辦活動或使用原團體款項。',[check]),choiceHeading:'公文主文寫的是哪一種？',choices:[['只撤銷某項決議','resolution'],['停止部分或全部業務','stop'],['限期整理','organize'],['廢止許可或解散','dissolve']].map(([label,v])=>({label,question:String(q??'')+'；櫃檯確認公文狀態:'+v}))};
+ const path=picked||(permission?'dissolve':organize?'organize':stop?'stop':'resolution');
+ if(path==='resolution')return body('只撤銷一項決議，不等於協會被廢止許可','被撤銷的那項決議不能再作為執行依據；其他會務若未受處分影響、各自也合法，不必因此全部停止。',[check,['相關支出或契約不要照舊執行','若受影響的業務仍要辦，先核對是否需要重作合法決議，已經簽約或付款的不要自行認定當然無效，分開向承辦或法律專業核對。'],...(subsidy?[government]:[])],[law,...(subsidy?[grant]:[])]);
+ if(path==='stop'||path==='organize')return body(path==='stop'?'停止部分業務不等於解散，但不能換個人名義繼續受限制的業務':'限期整理不是立即解散，先看處分要求和期限',path==='stop'?'照公文停止指定的業務；如果只是部分停業，其餘事項要看是否也受限制。不宜用個人名義繼續原協會被停止的業務。':'限期整理期間，先依公文處理並核對有權辦理的人；沒有如期完成整理，才屬第59條列明的解散事由。不要自行當成已解散，也不要當成完全可以照舊。',[check,personal,...(path==='organize'||/報名費|會費|收費/.test(b)?[['報名費、會費與個人款分開','看原活動是否在限制範圍、誰是收款人、收費依據與退費安排，核對原章程及財務紀錄。不能拿原協會海報對外招生，卻把款項留在私人帳戶；不確定能否收會費時，先查處分是否限制該會務。']]:[]),...(subsidy?[government]:[])],[law,...(subsidy?[grant]:[])]);
+ const isNonCorporate=/未(?:辦|經)?法人登記|沒有法人登記|尚未(?:辦理)?法人登記|非(?:社團)?法人|只有立案|僅立案/.test(b);
+ const isCorporate=!isNonCorporate&&/已(?:是|為|辦理).{0,4}(?:社團法人|法人登記)|(?:我們|協會|團體)是社團法人/.test(b);
+ const corporate=['已登記的社團法人，由清算人辦既有事務','民法第40條下，法院登記的社團法人只在清算必要範圍視為存續，由清算人了結既有事務、收取債權、清償債務及移交賸餘財產，不是可繼續用原名收費招生。'];
+ const nonCorporate=['只立案、未經法人登記的團體','依輔導辦法第27條按章程或會員（代表）大會決議清算；章程未規定或大會無法召開時，由理事長或章程所定代理人擔任清算人，無法產生時由主管機關選任，並準用民法。'];
+ return body('廢止許可或解散，不代表活動、補助和團體財產能轉給理事長','廢止許可屬人民團體法第59條的解散事由。先停止以原協會名義開新的活動或收款，確認處分及清算程序；真正獨立的個人活動另依法處理。',[check,personal,...(isCorporate?[corporate]:isNonCorporate?[nonCorporate]:[corporate,nonCorporate]),...(asset?[['租約、捐款和帳戶不會自動轉到個人名下','由有權人清點原契約、收據、指定用途、帳戶及財產；交由清算人按權利義務處理。尚未接到清算通知，也不是改成私人款或承接全部契約的理由。']]:[]),...(subsidy?[government]:[]),['不要把第60、61條當成自動處罰','廢止許可或解散後未依正式限期通知解散，才涉及第60條要件；第61條另要看仍以團體名義活動、主管機關制止仍不遵從及首謀等，不能只看到改以個人名義就判定違法結果。']],[law,rules,civil,...(subsidy?[grant]:[])]);
+}
+if(typeof module!=='undefined'&&module.exports){module.exports={route};return;}
+root.verifiedAssociationPermitStatus=route;
+})(typeof window!=='undefined'?window:globalThis);

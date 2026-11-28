@@ -1,0 +1,13 @@
+const assert=require('node:assert/strict');
+const {route}=require('./association-permit-status.js');
+const s=q=>JSON.stringify(route(q));
+assert.match(s('縣府只來函說停止部分業務，沒有解散，我自己的名義可以先辦相同活動嗎？原本核准給協會的補助可以由我報帳嗎？'),/停止部分業務不等於解散.*不能由理事長個人直接承接/);
+assert.match(s('我們協會收到廢止許可處分，已是社團法人，理事長還能用協會名義收費辦活動嗎？沒用完的捐款和以前簽的租約怎麼處理？'),/第40條.*不會自動轉到個人名下/);
+assert.match(s('只有立案、沒有法人登記，主管機關要求限期整理，還沒收到解散命令。理事長個人借場地，同一張協會海報能不能用、會費還能收嗎？'),/限期整理不是立即解散.*報名費、會費與個人款分開/);
+assert.match(s('更正：並沒有廢止立案，只有撤銷上次大會的一項決議，其餘會務可照常嗎？'),/只撤銷一項決議.*其他會務若未受處分影響/);
+const a=route('我們協會收到縣府處分，不確定是撤銷決議、停業、限期整理或廢止許可，這週還能辦活動嗎？');
+assert.equal(a.choices.length,4);
+assert.equal(new Set(a.choices.map(x=>route(x.question).title)).size,4);
+assert.equal(route('一般協會會員大會決議自願解散後怎麼清算？'),null);
+assert.equal(route('合作社被停業可繼續經營嗎？'),null);
+console.log('協會行政處分、清算與個人活動分流通過');
