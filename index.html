@@ -1594,6 +1594,7 @@ let guildRecordsContext=null;
 let contractSigningContext=null;
 let venueRepairContext=null;
 let staffRelativeContext=null;
+let vehicleRegistryContext=null;
 let branchCorrespondenceContext=null;
 let meetingProxyScopeContext=null;
 let eventFinanceContext=null;
@@ -1626,6 +1627,7 @@ async function ask(q){
   const heldContractSigning=contractSigningContext;contractSigningContext=null;
   const heldVenueRepair=venueRepairContext;venueRepairContext=null;
   const heldStaffRelative=staffRelativeContext;staffRelativeContext=null;
+  const heldVehicleRegistry=vehicleRegistryContext;vehicleRegistryContext=null;
   const heldBranchCorrespondence=branchCorrespondenceContext;branchCorrespondenceContext=null;
   const heldMeetingProxyScope=meetingProxyScopeContext;meetingProxyScopeContext=null;
   const heldEventFinance=eventFinanceContext;eventFinanceContext=null;
@@ -1672,6 +1674,8 @@ async function ask(q){
     if(matched){financeMeetingPlanner=null;postponedProxyDateQuestion=matched.followNewDate?heldDateQuestion:null;renderAnswer(q,matched);return;}
   }
   if(!financeMeetingPlanner&&typeof window.createFinanceMeetingPlanner==="function")financeMeetingPlanner=window.createFinanceMeetingPlanner({board,showAnswer:renderAnswer});
+  const vehicleRegistry=window.verifiedVehicleGiftAndRegistry?.(q,heldVehicleRegistry);
+  if(vehicleRegistry){financeMeetingPlanner=null;vehicleRegistryContext=vehicleRegistry.vehicleRegistryContext||null;renderAnswer(q,vehicleRegistry);return;}
   const venueRepair=window.verifiedVenueEquipmentRepair?.(q,heldVenueRepair);
   if(venueRepair){financeMeetingPlanner=null;venueRepairContext=venueRepair.venueRepairContext||null;renderAnswer(q,venueRepair);return;}
   const signingAuthority=window.verifiedContractSigningAuthority?.(q,heldContractSigning);
@@ -2493,6 +2497,7 @@ touch();
 <script src="cooperative-contract-representation.js?v=1"></script>
 <script src="contract-signing-authority.js?v=1"></script>
 <script src="venue-equipment-repair.js?v=1"></script>
+<script src="vehicle-gift-and-registry.js?v=1"></script>
 <script src="election-staff-objection.js?v=2"></script>
 <script src="association-charter-membership-term.js?v=1"></script>
 <script src="association-withdrawal-and-filing.js?v=2"></script>
