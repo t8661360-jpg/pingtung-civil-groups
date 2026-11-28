@@ -275,6 +275,7 @@ function normalizeQuestionR254(s){
  return s.replace(/(會員|會友)(們|自己)?(要|想|可以|能|已經|已|就)?退出(?!(理事會|監事會|理監事|群組|LINE|Line|line|活動|會議|大會|課程|行程|比賽))/g,'$1$2$3退會');
 }
 function normalizeQuestion(q){
+ q=String(q==null?'':q).replace(/理是長|裡事長|李事長|理市長/g,'理事長'); /* 第37輪交叉：理事長常見錯字 */
  return normalizeQuestionU10(normalizeQuestionR254(normalizeQuestionR252(normalizeQuestionR247(normalizeQuestionR246(normalizeQuestionR245(normalizeQuestionR244(normalizeQuestionR235(normalizeQuestionR234(normalizeQuestionR233(normalizeQuestionR232(normalizeQuestionR229(normalizeQuestionR228(normalizeQuestionR227(normalizeQuestionR225(normalizeQuestionR223(normalizeQuestion223(normalizeQuestion222(normalizeQuestion221(normalizeQuestion216(normalizeQuestion215(normalizeQuestion214(normalizeQuestion212(normalizeQuestion210(normalizeQuestion209(normalizeQuestion208(normalizeQuestion207(normalizeQuestion206(normalizeQuestion202(normalizeQuestion201(normalizeQuestion200(normalizeQuestion194(normalizeQuestion193(normalizeQuestion192(normalizeQuestion191(normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(normalizeQuestionU5(normalizeQuestionU3(normalizeQuestionU4(normalizeQuestionU2(normalizeQuestionU6(normalizeQuestionU8(normalizeQuestionU9(normalizeQuestionU7(normalizeQuestionR237(normalizeQuestionR238(normalizeQuestionR239(normalizeQuestionR240(fixTyposU1(q))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
 }
 /* 第200輪（根源）：入會退會與會員資格換問法——
@@ -3473,7 +3474,7 @@ function lectureFaq(t){
  if(/應出席/.test(t)&&/(認定|是誰|哪些人|定義|怎麼算|如何)/.test(t))return{direct:true,category:'會務選務常見問題',title:"會員大會的應出席人員要怎麼認定？",summary:"以理事會審定的會員（會員代表）名冊為準。理事會要在召開會員大會十五日前，審定應出席會員的資格，造具名冊，載明姓名、聯絡電話、地址及權利義務受限制情形，提供會員閱覽；出席會員大會的人員，以經理事會審定名冊上的人員為限（人民團體會務輔導辦法第10條第2項、第4項）。\n理事會、監事會的應出席人員，就是現任的理事、監事。",statutes:[G(10)],notes:[],actions:[]};
  if(/(沒繳|未繳|沒有繳|不繳|欠繳)/.test(t)&&/會費/.test(t)&&/(通知|開會|出席|大會)/.test(t)&&!/理事會|監事會|理監事會|(?:他|她|本身|同時|也|又)是(?:理事|監事|理監事|常務)|(?:理事|監事|理監事)(?:沒繳|未繳|沒有繳|不繳|欠繳)/.test(t))return{direct:true,category:'會務選務常見問題',title:"會員沒繳常年會費，開會員大會還要通知他嗎？",summary:"要看章程對未繳會費會員的權利限制怎麼規定，法規沒有直接寫「沒繳會費就停權」。\n理事會在大會十五日前審定會員名冊時，要載明「權利義務受限制情形」，出席大會的人員以審定名冊上的人員為限（人民團體會務輔導辦法第10條）。所以章程規定未繳會費要停權、且理事會審定時已註明不具出席資格的會員，就不列為應出席人員；章程沒有這樣規定的，仍是應出席人員，要照常通知。",statutes:[G(10)],notes:[],actions:[]};
  if(/聯席/.test(t)&&/(出席|有效|成會|過半)/.test(t))return{direct:true,category:'會務選務常見問題',title:"理監事聯席會議出席多少人才算有效？",summary:"理事和監事要「各自」過半數出席，不是合計過半數。理監事聯席會議應有理事及監事各過半數的出席，決議各以出席理事或監事過半數或較多數的同意行之（人民團體會務輔導辦法第11條第4項）。\n例如理事9人、監事3人，合計出席7人，還要看組成：理事至少5人、監事至少2人出席才算成會；如果是理事6人、監事1人，監事沒有過半，聯席會議就不成立。",statutes:[G(11)],notes:[],actions:[]};
- if(/(三等親|三親等|親屬|配偶|親戚|夫妻|兒子|女兒)/.test(t)&&/(會計|出納|總幹事|工作人員|秘書)/.test(t))return{direct:true,category:'會務選務常見問題',title:"理事長和會計可以是三等親嗎？",summary:"不可以，除非是理事長接任前就已經聘僱的。社會團體不得聘僱現任理事長的配偶及三親等以內血親、姻親為工作人員；但在該理事長接任前已聘僱的，不在此限（社會團體工作人員管理辦法第5條）。會計屬於工作人員，適用這條規定。",statutes:[SW(5)],notes:[],actions:[]};
+ if(/(三等親|三親等|親屬|配偶|親戚|夫妻|兒子|女兒)/.test(t)&&/(會計|出納|總幹事|工作人員|秘書)/.test(t)&&!(/理事(?:的|之)?(?:女兒|兒子|太太|先生|配偶|老婆|老公|親戚|親屬)/.test(t)&&!/理事長|會長/.test(t)))return{direct:true,category:'會務選務常見問題',title:"理事長和會計可以是三等親嗎？",summary:"不可以，除非是理事長接任前就已經聘僱的。社會團體不得聘僱現任理事長的配偶及三親等以內血親、姻親為工作人員；但在該理事長接任前已聘僱的，不在此限（社會團體工作人員管理辦法第5條）。會計屬於工作人員，適用這條規定。",statutes:[SW(5)],notes:[],actions:[]};
  if(/(三等親|三親等)/.test(t)&&/監事/.test(t)&&/理事長/.test(t)&&!/(會計|出納|總幹事|工作人員)/.test(t))return{direct:true,category:'會務選務常見問題',title:"理事長和常務監事可以是三等親嗎？",summary:"人民團體法及選舉罷免辦法、會務輔導辦法都沒有禁止理事長和常務監事是親屬。\n法規限制親屬的是「工作人員」：社會團體不得聘僱現任理事長的配偶及三親等以內血親、姻親為工作人員（社會團體工作人員管理辦法第5條）。選任的理事、監事由會員選舉產生，章程另有限制的從章程。",statutes:[SW(5)],notes:[],actions:[]};
  if(/監事/.test(t)&&/(查帳|帳目)/.test(t)&&/(自己|自行|逕|直接)/.test(t)&&!/(不查|縣府|主管機關)/.test(t))return{direct:true,category:'會務選務常見問題',title:"監事懷疑帳目有問題，可以自己去找會計查帳嗎？",summary:"財務查核是監事會的職權，不是個別監事。社會團體的財務查核由監事會為之，監事會在定期監事會議時執行定期查核，必要時可以舉行臨時監事會議執行臨時查核（社會團體財務處理辦法第22條）。\n所以監事懷疑帳目不清時，應提請監事會查核，必要時連署召開臨時監事會議；監事會發現不當情事，要提出糾正意見送理事會處理，理事會不處理的，監事會可以提報會員大會審議（人民團體會務輔導辦法第17條）。",statutes:[F(22),G(17)],notes:[],actions:[]};
  if(/入會/.test(t)&&/(截止|期限)/.test(t))return{direct:true,category:'會務選務常見問題',title:"大會前已經公告入會截止，之後才申請入會的可以拒絕嗎？",summary:"法規沒有「入會截止日」的規定，入會的資格和審查依章程辦理。\n但出席會員大會的人員，以理事會在大會十五日前審定的會員名冊為限（人民團體會務輔導辦法第10條；改選時見人民團體選舉罷免辦法第5條）。所以在理事會審定名冊之後才完成入會的人，不能參加這一次大會。至於能不能因為過了團體自己公告的截止日就拒絕入會，法規沒有明文，要看章程的入會規定，個案請洽承辦人員；職業團體則不得拒絕具有會員資格者入會（人民團體法第37條）。",statutes:[G(10),ER(5),P(37)],notes:[],actions:[]};
@@ -15019,9 +15020,90 @@ function cross1128r36(t){
  }
  return null;
 }
+function cross1128r37(t){
+ if(cross1128r37._busy)return null;
+ const S=(n,pc,a)=>({title:n+'第'+a+'條',source:LAW+pc});
+ const PT=a=>S('人民團體法','D0050091',a),EL=a=>S('人民團體選舉罷免辦法','D0050093',a),MG=a=>S('人民團體會務輔導辦法','D0020094',a),IN=a=>S('工業團體法','D0050103',a),CO=a=>S('合作社法','D0050112',a),FN=a=>S('社會團體財務處理辦法','D0050097',a),SW=a=>S('社會團體工作人員管理辦法','D0050096',a);
+ const fl={focus:'cross-1128r37',domain:'social'};
+ const act=[{label:'聯絡承辦',view:'contact',sub:''}];
+ const HARD='抱歉，這個問題難倒小屏了，小屏暫時無法回答喔！建議您先電洽承辦人員詢問～';
+ const mk=(title,summary,statutes,cat,dom)=>({direct:true,category:cat||'人民團體會務說明',title,summary,statutes,steps:[],docs:[],laws:[],notes:[],actions:act,related:[],questionState:dom?{focus:'cross-1128r37',domain:dom}:fl});
+ const run=q=>{let a=null;cross1128r37._busy=true;try{a=verifiedRoundAnswer(normalizeQuestion(q),{})}catch(e){a=null}finally{cross1128r37._busy=false}return a;};
+ const redir=(q,re,pre,add,title,dom)=>{const a=run(q);
+  if(!a||!a.summary||!re.test(a.title||''))return null;
+  const st=(add||[]).concat((a.statutes||[]).filter(s=>!(add||[]).some(x=>x.title===s.title)));
+  return Object.assign({},a,{direct:true,questionState:dom?{focus:'cross-1128r37',domain:dom}:fl,statutes:st,summary:pre?pre+'\n\n'+a.summary:a.summary},title?{title}:{});};
+ const coop=/合作社|社員|股金|社股/.test(t);
+ const guild=/公會|工會|工業會/.test(t);
+ /* 1. 理事長把協會的車子／財產過戶給自己 */
+ if(/(車|房子|房屋|土地|財產|設備|器材)/.test(t)&&/(過戶|賣給|轉給|轉讓給|移轉給|過到|買下)/.test(t)&&/(自己|理事長|會長|理事|監事)/.test(t)&&!coop&&!guild&&!/(受贈|捐贈|捐給協會|送給協會|捐車)/.test(t)){
+  const a=redir('協會要把車子賣掉要開大會嗎',/財產/,'不能由理事長或理事會自己決定。把協會的車子或其他財產過戶給理事長本人，就是協會財產的處分，要經會員（會員代表）大會出席人數三分之二以上同意（人民團體法第27條第4款）。理事長跟協會交易，本站查到的法規沒有明文禁止，但價格要公平、過程公開，並留下會議紀錄；車籍過戶依監理所站的規定辦理。',[],'協會財產過戶給理事長：要經會員大會出席三分之二以上同意，不能由理事長或理事會自己決定');if(a)return a;
+ }
+ /* 2. 監事兼志工隊長，要不要另外保險 */
+ if(/監事/.test(t)&&/志工/.test(t)&&/(兼|當|擔任|做)/.test(t)&&/(保險|保費)/.test(t)&&!coop){
+  const a=redir('社團的志工保險費可以用會費支付嗎',/志工/,'先回答兼任：本站查到的人民團體法和志願服務法，沒有「監事不能當志工或志工隊長」的規定；志工隊長由誰擔任，看協會的志願服務計畫和內部規定。要注意的是，協會「聘僱」承辦會務、業務的人才是工作人員（社會團體工作人員管理辦法第2條），工作人員不得由理事、監事擔任（第4條）；所以如果這個隊長是受聘領薪的職務，監事就不能兼。\n\n保險方面：',[SW(2),SW(4)]);if(a)return a;
+ }
+ /* 3. 合作社盈餘發酬勞給理事，要不要社員大會 */
+ if(coop&&/(盈餘|結餘|賺錢)/.test(t)&&/(酬勞|獎金|紅利|分給|發給|發錢)/.test(t)&&/(理事|監事|幹部)/.test(t)){
+  const a=redir('合作社盈餘怎麼分配',/合作社的結餘/,'可以，但有上限，而且要經社員大會。合作社結餘要先彌補累積短絀、付息，再提撥公積金、公益金；理事、監事、事務員及技術員的酬勞金是百分之十以下（合作社法第23條第1項）。結餘分配案由理事會在年度終了時製作，送監事會審核後提報社員大會，社員大會承認後一個月內報主管機關備查（第36條）。',[CO(36)],'合作社結餘可以提撥理事、監事酬勞金：百分之十以下，結餘分配案要提社員大會','coop');if(a)return a;
+ }
+ /* 4. 副理事長代理理事長超過半年，要不要補選 */
+ if(/(代理)/.test(t)&&/(理事長|會長)/.test(t)&&/(半年|六個月|6個月|好幾個月|一年|很久|太久|超過)/.test(t)&&/(補選|改選|重選|選新|要不要選)/.test(t)&&!coop&&!guild){
+  const a=redir('理事長出缺要多久補選',/理事長出缺/,'要先分清楚理事長是「出缺」還是「暫時不能執行職務」。理事長出缺（辭職、過世、解任等），要自出缺之日起一個月內補選，只有所遺任期不足六個月，才可以依章程或由常務理事（理事）互推一人代理（人民團體選舉罷免辦法第17條）；所以出缺後一直由副理事長代理超過半年，不符合這條規定，請盡快補選並洽承辦人員。如果理事長只是請假、生病而沒有出缺，代理人依章程所定的代理程序（人民團體會務輔導辦法第13條第3項）。',[MG(13)]);if(a)return a;
+ }
+ /* 5. 監事會召集人可以由理事長指定嗎 */
+ if(/(監事會召集人|常務監事)/.test(t)&&/(指定|指派|決定|任命|欽點)/.test(t)&&/(理事長|會長|理事會)/.test(t)&&!coop&&!guild){
+  const a=redir('監事會召集人怎麼產生',/監事會召集人/,'不可以由理事長指定。監事會召集人是監事之間產生的：常務監事在三人以上時，要互推一人為監事會召集人（人民團體法第17條第2項），其餘看章程；監事會要查核理事會的財務，由理事長指定也不符合監察的用意。',[],'監事會召集人不能由理事長指定：由監事之間依法互推或依章程產生');if(a)return a;
+ }
+ /* 6. 聘理事（非理事長）的親屬當會計、要不要大會同意 */
+ if(/(?:^|[^常])理事(?:的|之)?(?:女兒|兒子|太太|先生|配偶|老婆|老公|媳婦|女婿|親戚|親屬|弟弟|妹妹|哥哥|姊姊|姐姐)/.test(t)&&!/(理事長|會長|主席)/.test(t)&&/(會計|出納|總幹事|工作人員|秘書|幹事|上班|聘)/.test(t)&&!coop&&!guild){
+  const pre=/(大會|同意|通過|誰決定|誰核准)/.test(t)?'聘僱工作人員不用經會員大會同意：工作人員的職稱、員額及資格條件由理事會訂定，依資格條件遴選後，提經理事會通過再聘僱（社會團體工作人員管理辦法第3條第2項）。至於能不能聘理事的親屬：':'';
+  const a=redir('理事的太太可以當會計嗎',/理事長的親屬/,pre,pre?[SW(3)]:[],pre?'理事的親屬當工作人員：辦法只限制理事長的親屬；聘僱由理事會通過，不用會員大會同意':'');if(a)return a;
+ }
+ /* 7. 志工保險費可以用會費付嗎、要不要列預算 */
+ if(/志工/.test(t)&&/(保險費|保費|保險)/.test(t)&&/(會費|預算)/.test(t)&&!coop&&!guild){
+  const a=redir('社團的志工保險費可以用會費支付嗎',/志工/,'條文沒有規定志工保險費不能用會費支付。協會的支出要編入年度收支預算：年度工作計畫和收支預算表由理事會在會計年度開始前編造，提會員（會員代表）大會通過後報縣府備查（社會團體財務處理辦法第11條）；所以志工保險費要列在年度預算裡。',[FN(11)]);if(a)return a;
+ }
+ /* 8. 工業同業公會理事長兼任縣工業會理事長 */
+ if(/工業同業公會|工業公會/.test(t)&&/工業會/.test(t.replace(/工業同業公會|工業公會/g,''))&&/(理事長|理事|監事)/.test(t)&&/(兼|同時|又當|也當)/.test(t)){
+  return mk('工業同業公會理事長兼縣工業會理事長：工業團體法沒有禁止，但要先是工業會的會員代表、經理事選出',
+   '本站查到的工業團體法，沒有「工業同業公會理事長不得兼任縣（市）工業會理事長」的規定。\n\n不過兩個團體的會員不同：縣（市）工業會的會員是工廠，由沒有工業同業公會可以加入的工廠組成（工業團體法第49條）；已經加入同業公會的工廠，可以因業務需要再加入縣（市）工業會（第53條）。工業會的理事、監事由會員代表互選，理事長由理事就常務理事中選出（第57條）。所以要當工業會理事長，得先由他代表的工廠加入工業會、成為工業會的會員代表並被選為理事。\n\n理事、監事都是無給職（第24條）。章程另有限制的照章程；其他細節請洽縣府社會處承辦人員，縣府總機 08-7320415。',
+   [IN(49),IN(53),IN(57),IN(24)],'職業團體','industry');
+ }
+ /* 9. 國際社團分會會員同時參加別的分會 */
+ if(/(扶輪|獅子會|同濟會|青商會|國際性|國際社團)/.test(t)&&/分會/.test(t)&&/(會員|社員)/.test(t)&&/(同時|也加入|又加入|再加入|參加別的|加入別的|兩個分會|其他分會)/.test(t)){
+  return mk('抱歉，這個問題難倒小屏了',HARD+'\n\n國際社團分會的會員能不能同時參加其他分會，本站查到的人民團體法令沒有規定，可能涉及各分會章程或國際總會的規定；請洽縣府社會處承辦人員，縣府總機 08-7320415。',[]);
+ }
+ /* 10. 協會收到法院支付命令 */
+ if(/支付命令|法院(寄來|來的|的)?(通知|文書|傳票)/.test(t)&&/(協會|團體|社團|公會)/.test(t)&&/(出庭|報縣府|要報|怎麼辦|處理|理事長)/.test(t)&&!/(總幹事|訴訟代理|委任律師)/.test(t)){
+  return mk('抱歉，這個問題難倒小屏了',HARD+'\n\n協會收到法院支付命令、要不要出庭、要不要通知縣府，屬於民事訴訟程序，本站沒有收錄相關法規；請依法院文書記載的期限處理，必要時諮詢律師或法律扶助，會務上的問題請洽縣府社會處承辦人員，縣府總機 08-7320415。',[]);
+ }
+ /* 11. 理事會停權一年、會員不服怎麼辦 */
+ if(/(停權|停止.{0,4}權利)/.test(t)&&/(不服|申訴|抗議|救濟|怎麼辦|異議)/.test(t)&&!coop&&!guild){
+  const a=redir('理事會可以把會員停權嗎',/停權/,'會員不服停權處分要怎麼處理，人民團體法沒有規定申訴程序，請先看章程有沒有訂；可以向理事會陳述意見或在會員大會提出，個案請洽承辦人員。另外，除名要經會員（會員代表）大會決議（人民團體法第14條），理事會不能直接除名。停權本身的規定如下：',[PT(14)]);if(a)return a;
+ }
+ /* 12. 章程規定理事長不能連任，比法律嚴 */
+ if(/章程/.test(t)&&!/(修改|修章|臨時|提案|改成|改章程)/.test(t)&&/(理事長|會長)/.test(t)&&/(不能連任|不得連任|不可以連任|不可連任|禁止連任|只能(當|做|擔任)一(任|屆)|不准連任)/.test(t)&&!coop&&!guild){
+  const a=redir('章程可不可以規定理事長不能連任',/章程可以訂理事長/);if(a)return a;
+ }
+ /* 13. 社區發展協會理事長同時是村辦公處幹事 */
+ if(/(村|里)(辦公處|辦公室)?(的)?幹事|公所(的)?(職員|員工|幹事)/.test(t)&&/(理事長|理事|監事|會長)/.test(t)&&/(同時|兼|可以當|可以是|擔任)/.test(t)&&!/(罷免|補助|列席)/.test(t)){
+  const a=redir('公務員可以當協會理事長嗎',/公務員/,'村（里）辦公處的幹事如果是公所支薪的公務員，就適用下面的公務員兼職規定；是不是公務員、身分怎麼認定，請洽所屬公所的人事單位。');if(a)return a;
+ }
+ /* 15. 任期滿了可不可以一直代理到選出新人（含錯字「理是長」） */
+ if(/任期/.test(t)&&/(滿|屆滿|到了|到期|結束)/.test(t)&&/(一直|繼續|做到|代理到|拖)/.test(t)&&/(選出|改選|新人|新的|新任)/.test(t)&&/(理事長|會長|理事|監事|理監事)/.test(t)&&!coop&&!guild&&!/(出缺|辭職|過世|死亡|移交|交接)/.test(t)){
+  const a=redir('理事任期滿了還沒改選可以繼續做嗎',/任期屆滿還沒改選/);if(a)return a;
+ }
+ /* 14. 公會理事長出國，誰代理，要報縣府嗎 */
+ if(/公會/.test(t)&&/(理事長|會長)/.test(t)&&/(出國|請假|住院|不在|生病)/.test(t)&&/代理/.test(t)&&!/(出缺|辭職|過世|死亡|旅費)/.test(t)){
+  const a=redir('理事長暫時不在誰代理',/理事長請假或不在/,'公會也一樣：理事長暫時出國、請假，本站查到的法規沒有指定固定的代理人，要看章程；暫時代理要不要報縣府，本站查不到規定，請洽縣府社會處承辦人員。');if(a)return a;
+ }
+ return null;
+}
 function verifiedRoundAnswer(q,ctx){
  let x=null;
- try{x=cross1128r36(norm(q))}catch(e){x=null}
+ try{x=cross1128r37(norm(q))}catch(e){x=null}
+ if(!x)try{x=cross1128r36(norm(q))}catch(e){x=null}
  if(!x)try{x=cross1128r35(norm(q))}catch(e){x=null}
  if(!x)try{x=cross1128r34(norm(q))}catch(e){x=null}
  if(!x)try{x=cross1128r33(norm(q))}catch(e){x=null}

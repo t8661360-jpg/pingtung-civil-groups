@@ -14,6 +14,7 @@ const norm=q=>String(q??'').normalize('NFKC').replace(/\s/g,'');
 function route(q){
  const raw=String(q??'').trim(),t=norm(raw);
  if(!t||t.length>430||/^(?:新題|另問)|管委會|管委|股東|工會|公會|農會|漁會/.test(t))return null;
+ if(/支付命令/.test(t)&&!/(?:總幹事|訴訟代理|委任|代表人)/.test(t))return null; /* 第37輪交叉：支付命令改固定用語 */
  const ctx=t.match(/;所選程序:(civil|mediation|mail|other)$/)?.[1];
  const body=t.replace(/;所選程序:[a-z]+$/,'');
  const coop=/(?:合作社|社員)/.test(body.replace(/(?:不是|並非|非)合作社/g,''));

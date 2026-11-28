@@ -21,6 +21,7 @@ function parse(q,prior){
  const rawPersonal=/(?:我|個人|自己).{0,14}(?:租的|租來|租用|駕照|考照|自己的|車行租)|不是(?:送給|贈送給|捐給|捐贈給|給)?(?:一般)?協會.{0,16}(?:個人|自己|車行|租)/.test(raw);
  const t=raw.replace(/(?:不是|並非|不問|不談|不涉及)(?:送給|贈送給|捐給|捐贈給|給)?(?:一般)?(?:協會(?:的)?|社團法人|捐贈|補助|我要考照)|(?:不是|不要|不想)(?:去|要)?考照/g,'');
  if(/地政|土地|不動產|房子|房屋|報廢回收|電動自行車|微型電動二輪車|腳踏車|交通違規申訴|信用合作社|合作社|工業同業公會|商業同業公會|工會/.test(t))return null;
+ if(/(?:過戶|賣|轉讓|移轉|轉)(?:給|到)?.{0,3}(?:自己|理事長|會長|理事|監事)(?:名下)?|買下協會/.test(t)&&!/(?:受贈|捐贈|捐車|送給協會)/.test(t))return null; /* 第37輪交叉：財產過戶給理事長是財產處分，交給 round-fixes */
  const pick=Object.keys(roles).find(k=>raw==='確認車輛問題:'+roles[k]);
  const follow=!!prior&&!fresh&&(pick||/^(?:更正|補充|其實|確認|不是|剛才|剛剛|那|這台)/.test(raw)&&(vehicle.test(t)||org.test(t)||transfer.test(t)||books.test(t)));
  const p=follow?prior:{};

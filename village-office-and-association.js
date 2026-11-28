@@ -35,6 +35,7 @@ const contacts=['協會會員的聯絡方式，不可逕拿來做選舉宣傳',
 function answer(q){
  const raw=String(q??'').trim(),t=norm(raw);
  const publicNotice=/政府|官方|選委會/.test(t)&&/投票.{0,8}(?:時間|地點|投票所)/.test(t)&&/今天|當天|投票日/.test(t)&&digital.test(t);
+ if(/(?:村|里)(?:辦公處|辦公室)?(?:的)?幹事|公所(?:的)?(?:職員|員工)/.test(String(t||''))&&!/(?:村長|里長|村里長)/.test(String(t||'')))return null; /* 第37輪交叉：村里幹事屬公務員兼職，交給 round-fixes */
  if(!t||t.length>465||!org.test(t)||(!village.test(t)&&!publicNotice)||/(?:我不是|我們不是|不是要|並非要|不是在|不涉及)(?:在|要)?(?:參選|選|報名選)(?:村長|里長|村里長)|鄰長|區長候選|合作社|罷免提案/.test(t))return null;
  const type=t.match(/村里公職階段:(準備登記|當選未就職|已就任)/)?.[1];
  const campaign=political.test(t)||publicNotice;

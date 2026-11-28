@@ -15,6 +15,7 @@ function volunteerInsurance(q){
  if(/活動參與者與短期幫手/.test(t)&&/並未按計畫運用為正式志工/.test(t)&&/協會/.test(t))
   return {direct:true,category:'活動保障｜參加者與短期協助',title:'活動參與者不直接套用正式志工投保義務',summary:'請依活動與場地規定、補助條件、參加方式及人員實際角色，向主辦單位及承保機構核對公共意外責任或參加者保障。若實際是依法運用的志工，再依第16條由運用單位辦理。',steps:[scope,records],refs:refs.slice(0,1),questionState:{focus:'compound'}};
  if(!t||t.length>230||!/(?:志工|志願服務)/.test(t)||!/(?:保險|保費|加保|投保|先不保|在保)/.test(t)||/祥和.{0,8}(?:有幾隊|幾歲|資格|隊數)|理賠|保單受益人|續保年齡/.test(t))return null;
+ if(/監事/.test(t)&&/(?:兼|擔任|當)/.test(t)||/會費/.test(t)||/(?:編|列)(?:在|入|進)?.{0,4}預算/.test(t))return null; /* 第37輪交叉：監事兼志工、保費用會費／列預算交給 round-fixes */
  const location=/協會|社區(?:發展)?協會|社會團體|屏東|運用單位|縣府|本會/.test(t);
  const cost=/自費|保費|出錢|自己出|補助|核銷|出資|誰付|誰出|經費|場地費|挪|流用/.test(t);
  const delay=/先不保|先服務|先上工|等.{0,6}(?:補助|核定)|晚點保|事後保|還沒投保/.test(t);

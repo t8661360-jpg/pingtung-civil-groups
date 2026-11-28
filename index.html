@@ -833,7 +833,7 @@ async function saveChunked(coll,rows,metaExtra){
 async function loadAll(force){
   if(loadPromise&&!force)return loadPromise;
   loadPromise=(async()=>{
-    const base=document.baseURI.replace(/[^/]*$/,"")+"data/";const DV="?v=20261128-354";
+    const base=document.baseURI.replace(/[^/]*$/,"")+"data/";const DV="?v=20261128-355";
     const jf=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);return r.json()};
     const jgz=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);const b=new Uint8Array(await r.arrayBuffer());if(b[0]!==31||b[1]!==139)return JSON.parse(new TextDecoder().decode(b));if(typeof DecompressionStream==="undefined")throw new Error("gzip unsupported");const text=await new Response(new Blob([b]).stream().pipeThrough(new DecompressionStream("gzip"))).text();return JSON.parse(text)};
     const [d,s,k,f]=await Promise.allSettled([jf(base+"directory.json"+DV),jf(base+"staff.json"+DV),jgz(base+"knowledge.json.gz"+DV).catch(()=>jf(base+"knowledge.json"+DV)),jf(base+"forms-catalog.json?v=20261105-5")]);
@@ -2496,7 +2496,7 @@ touch();
 })();
 </script>
 <script src="feedback-collector.js?v=20261127-local-draft1"></script>
-<script src="round-fixes.js?v=20261128-354"></script>
+<script src="round-fixes.js?v=20261128-355"></script>
 <script src="ordinary-association-notice.js?v=1"></script>
 <script src="member-expulsion-phrasing.js?v=1"></script>
 <script src="founding-meeting-notice.js?v=1"></script>
@@ -2518,8 +2518,8 @@ touch();
 <script src="mail-election-results.js?v=1"></script>
 <script src="post-election-first-meeting.js?v=3"></script>
 <script src="member-roster-access.js?v=20261127-election-copy"></script>
-<script src="election-roster-sharing.js?v=20261128-354-u2"></script>
-<script src="association-venue-use-and-grants.js?v=20261128-354-u2"></script>
+<script src="election-roster-sharing.js?v=20261128-355-u2"></script>
+<script src="association-venue-use-and-grants.js?v=20261128-355-u2"></script>
 <script src="association-in-kind-mixed-sales.js?v=1"></script>
 <script src="association-donation-tax.js?v=2"></script>
 <script src="election-dual-capacity.js?v=1"></script>
@@ -2535,10 +2535,10 @@ touch();
 <script src="cooperative-stock-exit.js?v=2"></script>
 <script src="cooperative-liquidation-residue.js?v=2"></script>
 <script src="association-meeting-sequence.js?v=1"></script>
-<script src="meeting-kind-notice-review.js?v=20261128-354-u2"></script>
+<script src="meeting-kind-notice-review.js?v=20261128-355-u2"></script>
 <script src="office-resignation-scope.js?v=1"></script>
 <script src="association-assembly-recount.js?v=1"></script>
-<script src="mail-election-organization.js?v=20261128-354-u2"></script>
+<script src="mail-election-organization.js?v=20261128-355-u2"></script>
 <script src="association-handover-refusal.js?v=2"></script>
 <script src="association-sameday-finance.js?v=1"></script>
 <script src="cooperative-expulsion-sequence.js?v=1"></script>
@@ -2546,10 +2546,10 @@ touch();
 <script src="association-venue-only-proxy.js?v=1"></script>
 <script src="association-corporate-member-officers.js?v=1"></script>
 <script src="association-cpa-independence.js?v=1"></script>
-<script src="representative-system-transition.js?v=20261128-354"></script>
+<script src="representative-system-transition.js?v=20261128-355"></script>
 <script src="grant-and-missing-meeting-record.js?v=2"></script>
-<script src="village-office-and-association.js?v=2"></script>
-<script src="association-borrowed-equipment.js?v=20261128-354-u2"></script>
+<script src="village-office-and-association.js?v=20261128-r37"></script>
+<script src="association-borrowed-equipment.js?v=20261128-355-u2"></script>
 <script src="association-local-venue.js?v=1"></script>
 <script src="grant-evidence-and-privacy.js?v=1"></script>
 <script src="cooperative-conflicts-and-contracts.js?v=1"></script>
@@ -2557,19 +2557,19 @@ touch();
 <script src="association-dissolution-estate.js?v=2"></script>
 <script src="association-liquidation-path.js?v=1"></script>
 <script src="staff-volunteer-cost.js?v=1"></script>
-<script src="staff-relative-conflicts.js?v=20261128-354"></script>
+<script src="staff-relative-conflicts.js?v=20261128-355"></script>
 <script src="association-pickup-and-service.js?v=1"></script>
 <script src="grant-accrual-assets.js?v=1"></script>
 <script src="grant-project-closeout.js?v=1"></script>
 <script src="association-shared-office.js?v=1"></script>
-<script src="officer-eligibility-and-elections.js?v=20261128-354"></script>
+<script src="officer-eligibility-and-elections.js?v=20261128-355"></script>
 <script src="cooperative-meeting-relocation.js?v=1"></script>
 <script src="financial-handover.js?v=1"></script>
 <script src="staff-records-handover.js?v=1"></script>
 <script src="branch-correspondence.js?v=1"></script>
 <script src="meeting-proxy-scope.js?v=1"></script>
 <script src="event-fees-and-fundraising.js?v=1"></script>
-<script src="volunteer-team-governance.js?v=3"></script>
+<script src="volunteer-team-governance.js?v=20261128-r37"></script>
 <script src="grant-multiple-sources.js?v=2"></script>
 <script src="grant-procurement-threshold.js?v=2"></script>
 <script src="association-legal-property.js?v=2"></script>
@@ -2583,7 +2583,7 @@ touch();
 <script src="cooperative-contract-representation.js?v=1"></script>
 <script src="contract-signing-authority.js?v=1"></script>
 <script src="venue-equipment-repair.js?v=1"></script>
-<script src="vehicle-gift-and-registry.js?v=1"></script>
+<script src="vehicle-gift-and-registry.js?v=20261128-r37"></script>
 <script src="election-staff-objection.js?v=2"></script>
 <script src="election-ballot-staff-roles.js?v=1"></script>
 <script src="candidate-membership-tenure.js?v=1"></script>
@@ -2592,7 +2592,7 @@ touch();
 <script src="volunteer-plan-and-team-lead.js?v=1"></script>
 <script src="association-rescheduled-notice.js?v=1"></script>
 <script src="meeting-notice-calendar.js?v=1"></script>
-<script src="association-court-representation.js?v=1"></script>
+<script src="association-court-representation.js?v=20261128-r37"></script>
 <script src="community-association-continuity.js?v=1"></script>
 <script src="cooperative-charter-membership.js?v=1"></script>
 <script src="cooperative-meeting-ballots.js?v=1"></script>
@@ -2614,14 +2614,14 @@ touch();
 <script src="association-fiscal-cases.js?v=1"></script>
 <script src="association-coop-quorum-volunteer-grant.js?v=20261127-coop-formula"></script>
 <script src="association-postponed-proxy.js?v=20261128-new-date"></script>
-<script src="association-representative-quorum.js?v=20261128-354"></script>
+<script src="association-representative-quorum.js?v=20261128-355"></script>
 <script src="coop-farm-verified-split.js?v=1"></script>
 <script src="association-filing-and-donation-scope.js?v=1"></script>
 <script src="association-leave-and-court-stages.js?v=1"></script>
 <script src="association-dues-grant-and-motion.js?v=1"></script>
 <script src="association-roster-election-exceptions.js?v=1"></script>
 <script src="association-finance-meeting-month.js?v=20261128-minutes-date"></script>
-<script src="association-minutes-finance.js?v=20261128-354"></script>
+<script src="association-minutes-finance.js?v=20261128-355"></script>
 <script src="verified-mixed-questions.js?v=20261128-r31-account"></script>
 <script src="association-wages-and-signing.js?v=1"></script>
 <script src="association-admission-equality.js?v=1"></script>
@@ -2665,20 +2665,20 @@ touch();
 <script src="cooperative-activity-grant-route.js?v=20261127-coop-use"></script>
 <script src="association-roster-record-correction.js?v=20261127-roster-record"></script>
 <script src="coop-association-representative-eligibility.js?v=20261127-rep-eligibility"></script>
-<script src="association-representative-candidate.js?v=20261128-354"></script>
+<script src="association-representative-candidate.js?v=20261128-355"></script>
 <script src="association-designated-donation-cooperative-deficit.js?v=1"></script>
 <script src="association-cooperative-court-certificate.js?v=1"></script>
 <script src="credit-cooperative-funds-custody.js?v=1"></script>
-<script src="association-volunteer-insurance.js?v=1"></script>
+<script src="association-volunteer-insurance.js?v=20261128-r37"></script>
 <script src="association-overdue-term-signing.js?v=20261127-contract-rent"></script>
 <script src="association-expulsion-agenda-guild-collection.js?v=20261127-exp-vote"></script>
 <script src="verified-clause-routing.js?v=1"></script>
 <script src="association-budget-prior-balance.js?v=20261127-prior-balance"></script>
-<script src="association-audit-borrowing.js?v=20261128-354-u2"></script>
+<script src="association-audit-borrowing.js?v=20261128-355-u2"></script>
 <script src="association-finance-report-kind.js?v=20261127-two-periods"></script>
 <script src="association-minutes-filing-kind.js?v=1"></script>
 <script src="association-decision-audit.js?v=1"></script>
-<script src="association-chair-vote.js?v=20261128-354"></script>
+<script src="association-chair-vote.js?v=20261128-355"></script>
 <script src="association-office-status.js?v=20261127-deprivation"></script>
 <script src="land-agent-guild-practice.js?v=20261127-refusal-license"></script>
 <script src="guild-practice-registration.js?v=3"></script>
@@ -2693,7 +2693,7 @@ touch();
 <script src="association-dissolution-subsidized-assets.js?v=20261127-grant-assets"></script>
 <script src="association-dissolution-financial-notice.js?v=1"></script>
 <script src="association-membership-suspension.js?v=20261127-member-rights"></script>
-<script src="meeting-quorum-kind-clarification.js?v=20261128-354-u2"></script>
+<script src="meeting-quorum-kind-clarification.js?v=20261128-355-u2"></script>
 <script src="association-roster-handover.js?v=20261127-private-roster"></script>
 <script src="cooperative-roster-handover.js?v=1"></script>
 <script src="cooperative-inspection-association-roster.js?v=1"></script>
@@ -2708,15 +2708,15 @@ touch();
 <script src="clan-association-scope.js?v=1"></script>
 <script src="association-director-lecture-fee.js?v=1"></script>
 <script src="in-kind-donation-distinction.js?v=1"></script>
-<script src="meeting-convening-distinction.js?v=20261128-354"></script>
-<script src="answer-arbiter.js?v=20261128-354-lease"></script>
-<script src="question-understanding.js?v=20261128-354"></script>
-<script src="counter-upgrade.js?v=20261128-354"></script>
-<script src="keyword-menu.js?v=20261128-354"></script>
-<script src="ai-assist.js?v=20261128-354"></script>
+<script src="meeting-convening-distinction.js?v=20261128-355"></script>
+<script src="answer-arbiter.js?v=20261128-355-lease"></script>
+<script src="question-understanding.js?v=20261128-355"></script>
+<script src="counter-upgrade.js?v=20261128-355"></script>
+<script src="keyword-menu.js?v=20261128-355"></script>
+<script src="ai-assist.js?v=20261128-355"></script>
 <script src="ai-understand.js?v=1"></script>
-<script src="answer-guard.js?v=20261128-354-cross30-budget-compare-neg-fallback1"></script>
-<script src="festive.js?v=20261128-354" defer></script>
+<script src="answer-guard.js?v=20261128-355-cross30-budget-compare-neg-fallback1"></script>
+<script src="festive.js?v=20261128-355" defer></script>
 </body>
 </html>
 

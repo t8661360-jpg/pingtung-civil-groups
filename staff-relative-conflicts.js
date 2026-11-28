@@ -21,6 +21,7 @@ function parse(q,prior){
  const fresh=/^新題[:：]?/.test(full),raw=full.replace(/^新題[:：]?/,'');
  const t=clean(raw);
  if(/職業工會|勞工工會|工會|管委會|家長會|農會|漁會|公司董事|外籍配偶|委託.{0,14}出席|照服員|公務員兼職/.test(t))return null;
+ if(/(?:^|[^常])理事(?:的|之)?(?:女兒|兒子|太太|先生|配偶|老婆|老公|媳婦|女婿|親戚|親屬)/.test(t)&&!/理事長|會長|主席|合作社|經理/.test(t)&&/(?:大會|同意|通過)/.test(t))return null; /* 第37輪交叉：一般理事親屬＋要不要大會同意，交給 round-fixes */
  const creditOnly=/信用合作社|信合社/.test(t);
  const ordinary=/合作社/.test(t.replace(/信用合作社|信合社/g,''));
  const socialOrg=/協會|社會團體|社團法人|社區發展/.test(t);
