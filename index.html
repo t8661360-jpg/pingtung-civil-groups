@@ -1611,6 +1611,7 @@ let communityContinuityContext=null;
 let rescheduledNoticeContext=null;
 let noticeCalendarContext=null;
 let paymentOrderContext=false;
+let harassmentTriageContext=null;
 let deceasedHandoverContext=null;
 let candidateMembershipContext=null;
 async function ask(q){
@@ -1622,6 +1623,7 @@ async function ask(q){
   const heldRescheduledNotice=rescheduledNoticeContext;rescheduledNoticeContext=null;
   const heldNoticeCalendar=noticeCalendarContext;noticeCalendarContext=null;
   const heldPaymentOrder=paymentOrderContext;paymentOrderContext=false;
+  const heldHarassmentTriage=harassmentTriageContext;harassmentTriageContext=null;
   const heldDeceasedHandover=deceasedHandoverContext;deceasedHandoverContext=null;
   const heldCandidateMembership=candidateMembershipContext;candidateMembershipContext=null;
   const heldCharitablePermit=charitablePermitContext;charitablePermitContext=null;
@@ -1679,6 +1681,8 @@ async function ask(q){
   }
   const heldDateQuestion=postponedProxyDateQuestion;postponedProxyDateQuestion=null;
   const heldRecountQuestion=assemblyRecountQuestion;assemblyRecountQuestion=null;
+  const harassment=window.verifiedAssociationHarassmentTriage?.(q,heldHarassmentTriage);
+  if(harassment){financeMeetingPlanner=null;harassmentTriageContext=harassment.triageContext||null;renderAnswer(q.replace(/[;；]櫃檯確認事件類型:[a-z]+$/i,""),harassment);return;}
   const dirCountPlan=window.RegistryCountIntent?.query(q,TOWNS,CAT_ALIAS,heldDirectoryCount);
   if(dirCountPlan){
     busy=true;financeMeetingPlanner=null;
@@ -2598,6 +2602,7 @@ touch();
 <script src="volunteer-plan-and-team-lead.js?v=1"></script>
 <script src="association-rescheduled-notice.js?v=1"></script>
 <script src="meeting-notice-calendar.js?v=1"></script>
+<script src="association-harassment-triage.js?v=1"></script>
 <script src="association-payment-order.js?v=1"></script>
 <script src="association-court-representation.js?v=20261128-r37"></script>
 <script src="community-association-continuity.js?v=1"></script>
