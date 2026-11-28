@@ -30,6 +30,7 @@ function parse(q,prior){
  const follow=!!prior&&!fresh&&(pick||rolePick||/^(?:更正|補充|確認|其實|不是|剛才|剛剛|那|只有)/.test(raw)&&(creditOnly||ordinary||socialOrg||guild||positions.test(t)||family.test(t))||creditOnly&&positions.test(t)&&/(?:也同樣|也是嗎|也可以嗎|也是一樣嗎)/.test(t));
  const p=follow?prior:{};
  const samePerson=/監事.{0,14}(?:兼|做事務員|做技術員)|(?:經理|會計|出納|聘任職員).{0,16}(?:當選|被選成|選上|同時當|兼(?:任|著)?)(?:了)?理事|理事.{0,12}(?:兼任|兼著|兼職).{0,8}(?:經理|會計|出納|聘任職員)|兼原職/.test(t);
+ if(!follow&&ordinary&&/監事.{0,14}(?:兼|當|做)/.test(t)&&/會計|出納/.test(t)&&!family.test(t)&&!/理事主席|經理|薪/.test(t))return null;
  if(!follow&&!(family.test(t)&&((positions.test(t)&&hire.test(t))||/親屬關係.{0,10}(?:同時任職|可不可以)|爸爸和女兒.{0,10}做事|家人.{0,10}(?:錄取|聘|迴避)/.test(t))||samePerson&&ordinary))return null;
  const explicit=pick?[pick]:[...(socialOrg?['s']:[]),...(ordinary?['c']:[]),...(creditOnly?['f']:[]),...(guild?['g']:[])];
  const list=explicit.length?explicit:p.list||[];
