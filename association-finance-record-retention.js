@@ -10,6 +10,7 @@ const grantLink={title:'屏東縣政府對民間團體補助經費作業要點�
 function route(q){
  const raw=String(q??'').trim(),t=raw.normalize('NFKC').replace(/\s+/g,'');
  if(!t||t.length>535)return null;
+ if(/投票|開票|參選|候選人|選務/.test(t)&&/監票|唱票|記票|發選舉票/.test(t)&&!/統一發票|電子發票|開(?:立|具)發票|會計憑證|收支憑證|支出(?:憑證|傳票)|年度決算|報帳|核銷|會計帳/.test(t))return null;
  const z=t.replace(/(?:不是|並非|不屬於)(?:一般|原本的)?(?:信用合作社|工商(?:同業)?公會|商業(?:同業)?公會|工業(?:同業)?公會|公會|合作社|協會)(?=$|[，,；;。])/g,'');
  if(/信用合作社|信合社|農會|漁會|工會|基金會|財團法人|管委會|政治獻金|公益勸募/.test(z))return null;
  const guild=/工商(?:團體|(?:同業)?公會)|商業(?:同業)?公會|工業(?:同業)?公會/.test(z);

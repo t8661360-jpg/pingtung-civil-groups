@@ -1605,9 +1605,11 @@ let communityMultiContext=null;
 let associationMeetingSequenceContext=null;
 let charitablePermitContext=null;
 let directoryCountContext=null;
+let ballotStaffStage=null;
 async function ask(q){
   q=String(q||"").trim();if(!q||busy)return;
   const heldDirectoryCount=directoryCountContext;directoryCountContext=null;
+  const heldBallotStaffStage=ballotStaffStage;ballotStaffStage=null;
   const heldCharitablePermit=charitablePermitContext;charitablePermitContext=null;
   const priorMeetingSequence=associationMeetingSequenceContext;associationMeetingSequenceContext=null;
   const heldElectionDual=electionDualContext;electionDualContext=null;
@@ -1691,6 +1693,9 @@ async function ask(q){
   if(postalBox){financeMeetingPlanner=null;renderAnswer(q,postalBox);return;}
   const venueRepair=window.verifiedVenueEquipmentRepair?.(q,heldVenueRepair);
   if(venueRepair){financeMeetingPlanner=null;venueRepairContext=venueRepair.venueRepairContext||null;renderAnswer(q,venueRepair);return;}
+  const ballotStaff=window.verifiedElectionBallotStaffRoles?.(q,heldBallotStaffStage)
+    ||(window.isOrdinaryCoopStaffDispute?.(q)?window.verifiedElectionStaffObjection?.(q):null);
+  if(ballotStaff){financeMeetingPlanner=null;ballotStaffStage=ballotStaff.pendingBallotStage||null;renderAnswer(q,ballotStaff);return;}
   const financeRecords=window.verifiedFinanceRecordRetention?.(q);
   if(financeRecords){financeMeetingPlanner=null;renderAnswer(q,financeRecords);return;}
   const budgetAssemblyVote=window.verifiedAssociationBudgetAssemblyVote?.(q);
@@ -2526,6 +2531,7 @@ touch();
 <script src="venue-equipment-repair.js?v=1"></script>
 <script src="vehicle-gift-and-registry.js?v=1"></script>
 <script src="election-staff-objection.js?v=2"></script>
+<script src="election-ballot-staff-roles.js?v=1"></script>
 <script src="association-charter-membership-term.js?v=1"></script>
 <script src="association-withdrawal-and-filing.js?v=2"></script>
 <script src="association-meeting-finance-sequence.js?v=1"></script>
@@ -2560,7 +2566,7 @@ touch();
 <script src="association-budget-assembly-vote.js?v=1"></script>
 <script src="association-postal-box-and-seat.js?v=1"></script>
 <script src="directory-count-intent.js?v=1"></script>
-<script src="association-finance-record-retention.js?v=1"></script>
+<script src="association-finance-record-retention.js?v=2"></script>
 <script src="charitable-permit-changes.js?v=20261128-asset-scope"></script>
 <script src="charitable-fundraising-stages.js?v=1"></script>
 <script src="community-cooperative-pause.js?v=1"></script>
