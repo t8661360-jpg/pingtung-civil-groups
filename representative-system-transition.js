@@ -96,6 +96,8 @@ function forCoop(raw,t){
 function answer(q){
  const raw=String(q??'').trim(),t=raw.normalize('NFKC').replace(/\s+/g,'');
  if(!t||t.length>410||!reps.test(t)||!status.test(t)||!scope.test(t)||/信用合作社|信合社|保險合作社|工會|公會|農會|漁會|基金會|管委會|政黨|創立會/.test(t))return null;
+ /* 佇列#90：只問理事長是否須具會員代表身分（沒問任期、換屆、投票、核備），交給會員代表制候選資格答案 */
+ if(/理事長.{0,12}(?:一定|必須|要|需|得|是不是|是否).{0,8}(?:會員代表|代表身分|是代表)/.test(t)&&!/任期|重算|重新起算|提前|換屆|改選|投票|核備|備查|名額|同意/.test(t))return null;
  const tag=t.match(/改制團體確認:(一般協會|一般合作社)/)?.[1];
  const mainAssociation=tag==='一般協會'||soc.test(t)&&coop.test(t)&&t.search(soc)<t.search(coop)&&/會員代表|全體會員/.test(t.slice(0,t.search(coop)));
  if(!mainAssociation&&(coop.test(t)||tag==='一般合作社')){
