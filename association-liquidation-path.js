@@ -31,6 +31,7 @@ function parse(q,prior){
  const t=norm(q);if(!t||t.length>470||/^新題/.test(t))return null;
  const reduced=t.replace(/(?:不是|非|並非)(?:一家|一般)?(?:財團法人|合作社|信合社|公司|破產)/g,'');
  if(excluded.test(reduced))return null;
+ if(!/^(?:更正|補充|確認|選擇|改成|其實)/.test(reduced)&&!prior&&/誰(?:要|來|會)?(?:負責|還|賠|扛|承擔)/.test(reduced)&&!/表決|票|多少人|幾個人|幾人|門檻|半數|一半|關(?:帳|賬|戶)|銷戶|存款|捐|移轉|贈與/.test(reduced))return null;
  const prefix=/^(?:更正(?:一下)?|補充(?:一下)?|確認|選擇|改成|其實)/.test(reduced);
  const specified=identify(reduced);
  const follow=prior&&prefix&&(specified||/清算人|結清|剛開完|沒有破產|法院法人已登記/.test(reduced));
