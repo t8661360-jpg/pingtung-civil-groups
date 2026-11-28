@@ -226,7 +226,7 @@ function normalizeQuestionR232(s){
  return s;
 }
 function normalizeQuestion(q){
- return normalizeQuestionR245(normalizeQuestionR244(normalizeQuestionR235(normalizeQuestionR234(normalizeQuestionR233(normalizeQuestionR232(normalizeQuestionR229(normalizeQuestionR228(normalizeQuestionR227(normalizeQuestionR225(normalizeQuestionR223(normalizeQuestion223(normalizeQuestion222(normalizeQuestion221(normalizeQuestion216(normalizeQuestion215(normalizeQuestion214(normalizeQuestion212(normalizeQuestion210(normalizeQuestion209(normalizeQuestion208(normalizeQuestion207(normalizeQuestion206(normalizeQuestion202(normalizeQuestion201(normalizeQuestion200(normalizeQuestion194(normalizeQuestion193(normalizeQuestion192(normalizeQuestion191(normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(normalizeQuestionU5(normalizeQuestionU3(normalizeQuestionU4(normalizeQuestionU2(normalizeQuestionU6(normalizeQuestionU8(normalizeQuestionU7(normalizeQuestionR237(normalizeQuestionR238(normalizeQuestionR239(normalizeQuestionR240(fixTyposU1(q))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
+ return normalizeQuestionR246(normalizeQuestionR245(normalizeQuestionR244(normalizeQuestionR235(normalizeQuestionR234(normalizeQuestionR233(normalizeQuestionR232(normalizeQuestionR229(normalizeQuestionR228(normalizeQuestionR227(normalizeQuestionR225(normalizeQuestionR223(normalizeQuestion223(normalizeQuestion222(normalizeQuestion221(normalizeQuestion216(normalizeQuestion215(normalizeQuestion214(normalizeQuestion212(normalizeQuestion210(normalizeQuestion209(normalizeQuestion208(normalizeQuestion207(normalizeQuestion206(normalizeQuestion202(normalizeQuestion201(normalizeQuestion200(normalizeQuestion194(normalizeQuestion193(normalizeQuestion192(normalizeQuestion191(normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(normalizeQuestionU5(normalizeQuestionU3(normalizeQuestionU4(normalizeQuestionU2(normalizeQuestionU6(normalizeQuestionU8(normalizeQuestionU7(normalizeQuestionR237(normalizeQuestionR238(normalizeQuestionR239(normalizeQuestionR240(fixTyposU1(q)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
 }
 /* 第200輪（根源）：入會退會與會員資格換問法——
    「忘記繳／忘了繳／漏繳會費」＝沒繳會費（原本「忘記繳會費會被退會嗎」被當成退費）；
@@ -12920,6 +12920,28 @@ function normalizeQuestionR244(s){
  if(/(志工|義工)/.test(s)&&/(沒|未|沒有)受過(任何|基礎|特殊)?(教育)?(訓練|訓)/.test(s))s=s.replace(/(沒|未|沒有)受過(任何|基礎|特殊)?(教育)?(訓練|訓)/,'沒受訓');
  return s;
 }
+function normalizeQuestionR246(s){
+ s=String(s||'');
+ /* 「退他／刪掉掛名會員」＝除名；「入會多久才被選為理監事」＝新會員多久可以當理事 */
+ if(/會員|會籍/.test(s)&&/(退|刪|踢|剔|清|拿|移)(除)?掉?(他|她|它|他們|這些人|這種人)|把(他|她|他們|這些人)(退|刪|踢|剔|清|移)(除)?掉?|(刪|踢|剔|清|拿|移)(除)?掉|(剔|踢)除/.test(s)&&!/(資料|名冊|檔案|個資|紀錄|文件|帳|垃圾)/.test(s))
+  s=s.replace(/(退|刪|踢|剔|清|拿|移)(除)?掉?(他|她|它|他們|這些人|這種人)|把(他|她|他們|這些人)(退|刪|踢|剔|清|移)(除)?掉?|(刪|踢|剔|清|拿|移)(除)?掉|(剔|踢)除/g,'除名');
+ if(/入會/.test(s)&&/(被選為|被選上|選為|當選|選上|選任)(理監事|理事|監事)/.test(s))
+  s=s.replace(/入會(幾個月|幾年|多久|滿多久|滿幾個月|滿幾年|多長時間|多少時間).{0,6}(被選為|被選上|選為|當選|選上|選任)(理監事|理事|監事)/,'剛入會多久可以當理事');
+ /* 「要繳清會費才能投票」＝「沒繳會費可以投票嗎」，交給既有的欠會費答案 */
+ if(/(繳清|繳完|付清|繳齊)(了)?(常年)?會費.{0,3}才(能|可以|會|有)?(投票|表決|選舉|參選|被選舉|出席|開會|參加大會|有投票權)/.test(s))
+  s=s.replace(/(要|得|需要|必須|一定要|是不是要)?(先)?(繳清|繳完|付清|繳齊)(了)?(常年)?會費.{0,3}才(能|可以|會|有)?(投票|表決|選舉|參選|被選舉|出席|開會|參加大會|有投票權)/,function(m,a,b,c,d,e,f,g){return '沒繳會費可以'+(g==='有投票權'?'投票':g);});
+ return s;
+}
+function patrolR246(t){
+ if(/(合作社|社員|政黨|基金會|寺廟|宗教|祭祀|社區發展|工會)/.test(t))return null;
+ const call='\n\n其他細節請洽縣府社會處承辦人員，縣府總機 08-7320415。';
+ const R=(title,summary,statutes)=>({direct:true,category:'人民團體會務說明',title,summary:summary+call,statutes,notes:[],actions:[{label:'聯絡承辦',view:'contact',sub:''}]});
+ const G=n=>({title:'人民團體會務輔導辦法第'+n+'條',source:LAW+'D0020094'});
+ /* 欠會費的會員可不可以不算進開會人數 */
+ if(/(欠|沒繳|未繳|不繳|拖欠|積欠|欠繳).{0,6}(會費)|(會費).{0,4}(沒繳|未繳|欠|不繳)/.test(t)&&(/(不算|不計|扣掉|扣除|排除|不列|不算進|不算在).{0,4}(人數|名冊|出席|基數|母數|總數|開會)/.test(t)||/(人數|名冊|母數|基數).{0,3}(扣掉|扣除|剔除|拿掉|刪掉|不算|排除)/.test(t)))
+  return R('欠會費的會員可以不算進開會人數嗎：法規沒有這樣規定，會員資格要依章程和名冊認定','人民團體法沒有規定欠繳會費的會員可以不列入開會人數。會員只有在死亡、喪失會員資格，或經會員（會員代表）大會決議除名時才算出會（人民團體法第15條）；還沒有出會的，仍然是會員。\n\n大會的成會人數，是以理事會審定的應出席會員名冊為準（人民團體會務輔導辦法第10條），決議要有應出席人員過半數出席（人民團體會務輔導辦法第16條；人民團體法第27條）。名冊要載明「權利義務受限制情形」，所以如果章程有訂欠費的限制，要依章程在名冊上註明，不能由理事長或承辦人自行把人從名冊剔除。\n\n想清理長期欠費的會員，建議先看章程有沒有訂喪失會員資格的事由；沒有訂的，只能依人民團體法第14條、第27條，經大會出席三分之二以上同意除名。',[P(15),G(10),G(16),P(27),P(14)]);
+ return null;
+}
 function normalizeQuestionR245(s){
  s=String(s||'');
  /* 會址只是換樓層／搬到同棟隔壁＝會址搬家（原本沒有對到，變成關鍵字選單） */
@@ -13837,6 +13859,7 @@ function verifiedRoundAnswer(q,ctx){
  if(!x)try{x=cross1127r13(norm(q))}catch(e){x=null}
  if(!x&&!verifiedRoundAnswer._r12)try{x=cross1127r12(norm(q),ctx)}catch(e){x=null} /* 導向既有答案時不再進第12輪規則，避免「名譽理事長可以投票嗎」這類導向題自我遞迴 */
  if(x&&x.__redir12){const R=x.__redir12;x=null;let a=null;verifiedRoundAnswer._r12=true;try{a=verifiedRoundAnswer(normalizeQuestion(R.q),ctx)}catch(e){a=null}finally{verifiedRoundAnswer._r12=false}if(a&&a.summary&&R.re.test(a.title||''))x=Object.assign({},a,{direct:true,questionState:R.fl},R.ext?R.ext(a):{});}
+ if(!x) try{x=patrolR246(norm(q))}catch(e){x=null}
  if(!x) try{x=patrolR245(norm(q))}catch(e){x=null}
  if(!x) try{x=patrolR244(norm(q))}catch(e){x=null}
  if(!x) try{x=patrolR243(norm(q))}catch(e){x=null}

@@ -1,0 +1,20 @@
+/* 第246輪：入會退會 */
+const r=require('./round-fixes.js');
+const zlib=require('zlib'),fs=require('fs');
+const st=JSON.parse(zlib.gunzipSync(fs.readFileSync('data/statutes.json.gz')));
+const A=q=>r.verifiedRoundAnswer(r.normalizeQuestion(q),{});
+let bad=0;
+const pos=(qs,k)=>qs.forEach(q=>{const a=A(q);const t=a&&a.title||'';if(!t.includes(k)){bad++;console.log('✗',q,'=>',t||'(無)','期望',k)}});
+const neg=(qs,k)=>qs.forEach(q=>{const a=A(q);const t=a&&a.title||'';if(t.includes(k)){bad++;console.log('✗反',q,'=>',t)}});
+pos(['沒繳會費的會員可以不算人數嗎','欠會費的人開會時可以不算進出席人數嗎','欠繳會費的會員可以從名冊扣掉嗎'],'欠會費的會員可以不算進開會人數');
+pos(['會員掛名不來開會能退他嗎','會員不來開會可以把他退掉嗎','掛名會員可以刪掉嗎','掛名的會員可以踢掉嗎','很久沒來的會員能不能剔除'],'除名');
+pos(['入會幾個月才能被選為理監事','入會多久才可以當選理事','入會滿幾年才能被選上理事'],'新會員入會後多久');
+pos(['欠會費可以參選嗎','會員要繳清會費才能投票嗎','要先繳完會費才能參選嗎','會費繳清了才有投票權嗎','是不是一定要繳清會費才能出席大會'],'會費');
+neg(['會員退會後名冊要刪除嗎','會員資料清掉可以嗎','退會的人個資要刪掉嗎','會員名冊可以清除嗎'],'除名');
+const chk=(a,s,l)=>{if(!a||!a.includes(s)){bad++;console.log('✗原文',l,s)}};
+const P=st.laws.D0050091.articles,G=st.laws.D0020094.articles;
+chk(P[16],'表決權、選舉權、被選舉權與罷免權','§16');chk(P[12],'會員之權利與義務','§12');
+chk(G[10],'權利義務受限制情形','輔導§10');chk(G[16],'出席人數以簽到或報到人數計算','輔導§16');
+chk(P[15],'喪失會員資格者','§15');chk(P[27],'會員（會員代表）之除名','§27');
+if(bad)throw new Error('r246 失敗 '+bad);
+console.log('r246 ok');
