@@ -1604,8 +1604,10 @@ let legalPropertyContext=null;
 let communityMultiContext=null;
 let associationMeetingSequenceContext=null;
 let charitablePermitContext=null;
+let directoryCountContext=null;
 async function ask(q){
   q=String(q||"").trim();if(!q||busy)return;
+  const heldDirectoryCount=directoryCountContext;directoryCountContext=null;
   const heldCharitablePermit=charitablePermitContext;charitablePermitContext=null;
   const priorMeetingSequence=associationMeetingSequenceContext;associationMeetingSequenceContext=null;
   const heldElectionDual=electionDualContext;electionDualContext=null;
@@ -1661,6 +1663,13 @@ async function ask(q){
   }
   const heldDateQuestion=postponedProxyDateQuestion;postponedProxyDateQuestion=null;
   const heldRecountQuestion=assemblyRecountQuestion;assemblyRecountQuestion=null;
+  const dirCountPlan=window.RegistryCountIntent?.query(q,TOWNS,CAT_ALIAS,heldDirectoryCount);
+  if(dirCountPlan){
+    busy=true;financeMeetingPlanner=null;
+    try{await loadAll();if(dirCountPlan.kind==="count")directoryCountContext=dirCountPlan;renderAnswer(q,window.RegistryCountIntent.response(q,dirCountPlan,STORE.dir.rows,STORE.dir.meta));}
+    finally{busy=false;}
+    return;
+  }
   if(heldRecountQuestion&&window.isAssemblyRecountReply?.(q)){
     const full=heldRecountQuestion+"；補充："+q;
     const matched=window.verifiedAssociationAssemblyRecount?.(full);
@@ -2548,6 +2557,7 @@ touch();
 <script src="association-court-account-attachment.js?v=1"></script>
 <script src="association-budget-assembly-vote.js?v=1"></script>
 <script src="association-postal-box-and-seat.js?v=1"></script>
+<script src="directory-count-intent.js?v=1"></script>
 <script src="charitable-permit-changes.js?v=20261128-asset-scope"></script>
 <script src="charitable-fundraising-stages.js?v=1"></script>
 <script src="community-cooperative-pause.js?v=1"></script>
