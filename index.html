@@ -1615,6 +1615,7 @@ let harassmentTriageContext=null;
 let foodDonationContext=false;
 let socialWorkPracticeContext=false;
 let communityCareServiceContext=false;
+let privacyIncidentContext=null;
 let deceasedHandoverContext=null;
 let candidateMembershipContext=null;
 async function ask(q){
@@ -1630,6 +1631,7 @@ async function ask(q){
   const heldFoodDonation=foodDonationContext;foodDonationContext=false;
   const heldSocialWorkPractice=socialWorkPracticeContext;socialWorkPracticeContext=false;
   const heldCommunityCareService=communityCareServiceContext;communityCareServiceContext=false;
+  const heldPrivacyIncident=privacyIncidentContext;privacyIncidentContext=null;
   const heldDeceasedHandover=deceasedHandoverContext;deceasedHandoverContext=null;
   const heldCandidateMembership=candidateMembershipContext;candidateMembershipContext=null;
   const heldCharitablePermit=charitablePermitContext;charitablePermitContext=null;
@@ -1687,6 +1689,8 @@ async function ask(q){
   }
   const heldDateQuestion=postponedProxyDateQuestion;postponedProxyDateQuestion=null;
   const heldRecountQuestion=assemblyRecountQuestion;assemblyRecountQuestion=null;
+  const privacyIncident=window.verifiedPrivacyIncidentGuidance?.(q,heldPrivacyIncident);
+  if(privacyIncident){financeMeetingPlanner=null;privacyIncidentContext=privacyIncident.privacyIncidentContext||null;renderAnswer(q.replace(/^個資事故類型確認:[a-z]+$/i,'個資事故通報'),privacyIncident);return;}
   const socialWorkPractice=window.verifiedSocialWorkerPracticeTriage?.(q,heldSocialWorkPractice);
   if(socialWorkPractice){financeMeetingPlanner=null;socialWorkPracticeContext=true;renderAnswer(q.replace(/[;；]櫃檯確認社工執業:[a-z]+$/i,""),socialWorkPractice);return;}
   const foodDonation=window.verifiedAssociationFoodDonationSafety?.(q,heldFoodDonation);
@@ -2614,6 +2618,7 @@ touch();
 <script src="volunteer-plan-and-team-lead.js?v=1"></script>
 <script src="association-rescheduled-notice.js?v=1"></script>
 <script src="meeting-notice-calendar.js?v=1"></script>
+<script src="privacy-incident-guidance.js?v=1"></script>
 <script src="community-care-service-triage.js?v=1"></script>
 <script src="social-worker-practice-triage.js?v=1"></script>
 <script src="association-food-donation-safety.js?v=2"></script>
@@ -2739,7 +2744,7 @@ touch();
 <script src="meeting-convening-distinction.js?v=20261128-357"></script>
 <script src="answer-arbiter.js?v=20261128-357-lease"></script>
 <script src="question-understanding.js?v=20261128-357"></script>
-<script src="counter-upgrade.js?v=20261128-357"></script>
+<script src="counter-upgrade.js?v=20261128-privacy1640"></script>
 <script src="keyword-menu.js?v=20261128-357"></script>
 <script src="ai-assist.js?v=20261128-357"></script>
 <script src="ai-understand.js?v=1"></script>

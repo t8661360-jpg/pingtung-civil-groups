@@ -16,11 +16,24 @@ async function loadStatutes(){
  if(!statutePromise)statutePromise=(async()=>{const response=await fetch('data/statutes.json.gz?v=20261128-357');if(!response.ok)throw Error('法條原文讀取失敗');const bytes=new Uint8Array(await response.arrayBuffer());let text;if(bytes[0]===31&&bytes[1]===139){text=await new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'))).text()}else text=new TextDecoder().decode(bytes);statuteData=JSON.parse(text)})().catch(error=>{console.warn(error);statutePromise=null});
  return statutePromise;
 }
+const PDPA_CURRENT_COMPARE='https://www.pdpc.gov.tw/News_Html/100/';
+/* The published text is not always the operative text. Fail closed when a bundle flags a changed article. */
+function statuteStatus(row){
+ const code=String(row?.source||'').match(/pcode=([A-Z0-9]+)/)?.[1];
+ const title=String(row?.title||'');
+ const m=title.match(/第\s*(\d+(?:-\d+)?)\s*條(?:之\s*(\d+))?/);
+ if(!code||!m)return null;
+ const number=m[1]+(m[2]?'-'+m[2]:'');
+ const law=statuteData.laws[code];
+ const status=law?.notYetEffective;
+ if(!law||!status||!norm(title).startsWith(norm(law.name))||!status.amendedArticles?.includes(number))return null;
+ return {number,blocked:!status.restoredToEffective?.includes(number),url:code==='I0050021'?PDPA_CURRENT_COMPARE:law.source||row.source};
+}
 function statuteFor(row){
- if(!row)return null;const code=String(row.source||'').match(/pcode=([A-Z0-9]+)/);const number=String(row.title||'').match(/第\s*(\d+(?:-\d+)?)\s*條/);if(!code||!number)return null;
+ if(!row)return null;const status=statuteStatus(row);if(status?.blocked)return null;const code=String(row.source||'').match(/pcode=([A-Z0-9]+)/);const number=String(row.title||'').match(/第\s*(\d+(?:-\d+)?)\s*條/);if(!code||!number)return null;
  if(code[1]==='G0380069'&&number[1]==='27')return {name:"\u4fe1\u7528\u5408\u4f5c\u793e\u793e\u54e1\u4ee3\u8868\u7406\u4e8b\u76e3\u4e8b\u7d93\u7406\u4eba\u61c9\u5177\u5099\u8cc7\u683c\u689d\u4ef6\u53ca\u9078\u8058\u8fa6\u6cd5",number:'27',text:"\u4fe1\u7528\u5408\u4f5c\u793e\u4e4b\u9078\u8209\uff0c\u9078\u8209\u4eba\u61c9\u89aa\u81ea\u51fa\u5e2d\uff0c\u4e0d\u5f97\u59d4\u8a17\u4ed6\u4eba\u4ee3\u7406\u3002",modified:"\u4fee\u6b63\u65e5\u671f\uff1a\u6c11\u570b 109 \u5e74 10 \u6708 26 \u65e5",verifiedAt:'2026-11-06',url:'https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=G0380069&flno=27'};
  const law=statuteData.laws[code[1]];if(!law||!law.articles[number[1]]||!norm(row.title).startsWith(norm(law.name)))return null;
- return {...law,number:number[1],text:law.articles[number[1]],url:`https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=${code[1]}&flno=${number[1]}`};
+ return {...law,number:number[1],text:law.articles[number[1]],modified:status?'現行有效版本（與已公布但未施行修正不同）':law.modified,url:status?.url||`https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=${code[1]}&flno=${number[1]}`};
 }
 /* 只顯示與回答正文相關的條文：正文（含注意事項）引用到該條號，或條文內容與正文高度重疊；避免把無關條文硬附在答案下方 */
 function citedArticleNumbers(text){const out=new Set();String(text||'').replace(/第\s*([\d\s、，,及和與至到\-－~～之]+)\s*[條點]/g,(m,g)=>{g.split(/[、，,及和與\s]+/).forEach(x=>{const r=x.match(/^(\d+)\s*[至到\-－~～]\s*(\d+)$/);if(r){for(let i=+r[1];i<=+r[2]&&i-+r[1]<30;i++)out.add(String(i))}else{const n=x.match(/\d+(?:[之\-]\d+)?/);if(n)out.add(n[0].replace('之','-'))}});return m});String(text||'').replace(/第\s*(\d+)\s*條之\s*(\d+)/g,(m,x,y)=>{out.add(x+'-'+y);return m});return out}/* 第159輪：「第71條之1」也要認得，否則內文有引用的條文被濾掉 */
@@ -36,12 +49,14 @@ function relevantStatutes(a){const list=a.statutes||[];if(list.length<=1)return 
  if(kept.length)return kept;
  const best=scored.slice().sort((x,y)=>y.overlap-x.overlap)[0];return best&&best.overlap>=0.15?[best.row]:[list[0]]}
 function originalLawBlock(row){
+ const status=statuteStatus(row);
+ if(status?.blocked){const url=/^https?:/.test(status.url)?status.url:PDPA_CURRENT_COMPARE;return `<p class="statute-ref"><strong>${esc(row.title)}</strong>｜本地版本含尚未施行的修正，不作為現行原文。<a href="${esc(url)}" target="_blank" rel="noopener">查閱官方現行與未施行對照 ↗</a></p>`;}
  const original=statuteFor(row);
  if(!original){const src=String(row&&row.source||'');const link=/^https?:/.test(src)?`<a href="${esc(src)}" target="_blank" rel="noopener">查閱官方原文 ↗</a>`:esc(src);return `<p class="statute-ref"><strong>${esc(row&&row.title||'相關規定')}</strong>${link?'｜'+link:''}</p>`;}
  return `<details class="statute-original"><summary>${esc(original.name)} 第${esc(original.number)}條<small>看原文</small></summary><div class="statute-text">${esc(original.text)}</div><p class="statute-version">${esc(original.modified||'版本日期請見官方來源')}｜原文核對：${esc(original.verifiedAt)}</p><a href="${esc(original.url)}" target="_blank" rel="noopener">查閱官方本條原文 ↗</a></details>`;
 }
 function rulingTag(r){const m=String(r.rdate||'').split('-');const d=m.length===3?'民國'+Number(m[0])+'年'+Number(m[1])+'月'+Number(m[2])+'日':'';return [r.org||'函釋',d,r.no||''].filter(Boolean).join('　')||'函釋資料與現行對照'}
-function knowledgeCard(r){return `<details class="plain-card"><summary>${esc(r.title.replaceAll('白話說明','法規說明'))}<small>${esc(r.cat==='正式函釋索引'?rulingTag(r):r.cat==='逐條法規白話導讀'?'法規導讀':'實務問題說明')}</small></summary><div class="plain-content">${r.cat==='逐條法規白話導讀'?originalLawBlock(r):''}<h3>法規說明</h3>${readable(r.text)}<details><summary>資料來源與適用提醒</summary><p>${sourceLinks(r.source)}</p><p>資料日期：${esc(r.date||'未標示')}。這是輔助說明，個案應核對現行法規、章程與原函適用情況。</p>${r.review?`<p>${esc(r.review)}</p>`:''}</details></div></details>`}
+function knowledgeCard(r){if(statuteStatus(r)?.blocked)return originalLawBlock(r);return `<details class="plain-card"><summary>${esc(r.title.replaceAll('白話說明','法規說明'))}<small>${esc(r.cat==='正式函釋索引'?rulingTag(r):r.cat==='逐條法規白話導讀'?'法規導讀':'實務問題說明')}</small></summary><div class="plain-content">${r.cat==='逐條法規白話導讀'?originalLawBlock(r):''}<h3>法規說明</h3>${readable(r.text)}<details><summary>資料來源與適用提醒</summary><p>${sourceLinks(r.source)}</p><p>資料日期：${esc(r.date||'未標示')}。這是輔助說明，個案應核對現行法規、章程與原函適用情況。</p>${r.review?`<p>${esc(r.review)}</p>`:''}</details></div></details>`}
 const COOP_RULING={title:'合作社社員大會通過的決議，一定有效嗎？',cat:'正式函釋索引',date:'2014-12-17',source:'https://mojlaw.moj.gov.tw/LawContentExShow.aspx?etype=etype5&id=FE274576&keyword=&type=E',text:'法務部法律字第10303514440號函說明：決議即使經社員大會表決通過，也不能違反法律的強制或禁止規定。\n本函針對消費合作社分配盈餘的個案表示：如果主管機關認定相關規定屬強制規定，且該分配決議違反規定，決議就可能無效。\n對民眾來說，投票通過不等於合法。遇到盈餘分配或追繳爭議，應把決議、交易及主管機關文件一併交給承辦人確認。\n本函討論的是特定歷史案件；不能直接推論所有分配決議都無效，仍須核對現行規定與個案事實。'};
 const baseLoadAll=loadAll;
 function articleRows(q){
@@ -272,7 +287,7 @@ function exactArticleAnswer(q){
   const match=String(q).normalize('NFKC').match(/([\u4e00-\u9fff]+(?:法|辦法|細則|準則))第\s*(\d+(?:-\d+)?)\s*條/);
   if(!match)return null;
   const rows=articleRows(q);
-  if(rows.length){const row=rows[0];return{category:'法規說明',title:row.title,summary:row.text,refs:[{title:row.title,cat:'法規說明',source:row.source,date:row.date}],notes:[],actions:[{label:'查詢其他法規',view:'law',sub:/合作社/.test(row.title)?'合作社':'人民團體'}]};}
+  if(rows.length){const row=rows[0];const status=statuteStatus(row);if(status?.blocked)return {category:'條文查詢',title:row.title,summary:'本地版本含尚未施行的修正，不作為現行條文。請核對官方對照所列的生效狀態。',statutes:[row],notes:[]};return{category:'法規說明',title:row.title,summary:row.text,refs:[{title:row.title,cat:'法規說明',source:row.source,date:row.date}],notes:[],actions:[{label:'查詢其他法規',view:'law',sub:/合作社/.test(row.title)?'合作社':'人民團體'}]};}
   return{category:'條文查詢',title:match[1].replace(/^(請問|查詢|查一下|說明|解釋)/,'')+'第'+match[2]+'條',summary:'目前尚未找到這一條的完整對應資料，請確認法規名稱與條號，或至相關法令頁查閱官方原文。',notes:[],actions:[{label:'前往法規查詢',view:'law',sub:/合作社/.test(q)?'合作社':'人民團體'}]};
 }
 // Scope retrieval before selecting the best result, rather than filtering only the top hit.
@@ -347,7 +362,7 @@ $('#form-types').addEventListener('click',e=>{const button=e.target.closest('[da
 const baseIntent=intentOf;
 intentOf=function(q){if(/(?:法|辦法|細則|準則)第[0-9一二三四五六七八九十百]+|法規說明|函釋/.test(q))return{kind:'ai'};return baseIntent(q)};
 const baseAnswer=renderAnswer;
-renderAnswer=function(q,a){const exact=["village-association","coop-conflict","association-dissolution-estate","member-death-election","election-objection","charitable-fundraising-stages","election-roster-sharing","association-donation-tax","election-dual-capacity","grant-procurement-threshold","association-legal-property","community-multiple-membership"].includes(a?.questionState?.domain)?null:exactArticleAnswer(q),focused=a&&(a.questionState||a.direct)?a:focusedQuestionAnswer(q);if(exact||focused)a=exact||focused;const label=s=>String(s||'').replaceAll('逐條法規白話導讀','逐條法規說明').replaceAll('白話說明','法規說明');a={...a,title:label(a.title),category:label(a.category),related:(a.related||[]).map(label),refs:(a.refs||[]).map(r=>({...r,title:label(r.title),cat:label(r.cat)}))};baseAnswer(q,a);const el=board.querySelector('.summary');if(el){const row=articleRows(a.title||q)[0];const originals=a.statutes&&a.statutes.length?relevantStatutes(a):row?[row]:[];el.innerHTML='<div class="answer-first"><strong>重點回答</strong>'+readable(a.summary||'')+'</div>'+(originals.length?'<h3 class="statute-head">依據的法條</h3>'+originals.map(originalLawBlock).join(''):'');}lastQuestionContext=a.questionState||(window.CounterQuestions?window.CounterQuestions.understand(q,lastQuestionContext):null);};
+renderAnswer=function(q,a){const exact=["village-association","coop-conflict","association-dissolution-estate","member-death-election","election-objection","charitable-fundraising-stages","election-roster-sharing","association-donation-tax","election-dual-capacity","grant-procurement-threshold","association-legal-property","community-multiple-membership"].includes(a?.questionState?.domain)||a?.questionState?.domain==='privacy-incident'?null:exactArticleAnswer(q),focused=a&&(a.questionState||a.direct)?a:focusedQuestionAnswer(q);if(exact||focused)a=exact||focused;const label=s=>String(s||'').replaceAll('逐條法規白話導讀','逐條法規說明').replaceAll('白話說明','法規說明');a={...a,title:label(a.title),category:label(a.category),related:(a.related||[]).map(label),refs:(a.refs||[]).map(r=>({...r,title:label(r.title),cat:label(r.cat)}))};baseAnswer(q,a);const el=board.querySelector('.summary');if(el){const row=articleRows(a.title||q)[0];const originals=a.statutes&&a.statutes.length?relevantStatutes(a):row?[row]:[];el.innerHTML='<div class="answer-first"><strong>重點回答</strong>'+readable(a.summary||'')+'</div>'+(originals.length?'<h3 class="statute-head">依據的法條</h3>'+originals.map(originalLawBlock).join(''):'');}lastQuestionContext=a.questionState||(window.CounterQuestions?window.CounterQuestions.understand(q,lastQuestionContext):null);};
 function renderMeetUpgrade(){
  $('#meetbody').innerHTML=`<div class="tabs" role="tablist"><button class="tab" role="tab" id="meet-people" aria-selected="true">人民團體會務</button><button class="tab" role="tab" id="meet-coop" aria-selected="false">合作社會務</button></div><div id="meet-content"></div>`;
  const draw=coop=>{$('#meet-people').setAttribute('aria-selected',!coop);$('#meet-coop').setAttribute('aria-selected',coop);$('#meet-content').innerHTML=coop?`<div class="panel"><h2>合作社會務怎麼辦？</h2><p>先確認您要辦的是開會、改選、年度財務或變更登記，再選擇下列項目。</p>${[["社員大會與理監事會","先確認章程及會議種類，再準備通知、議程與簽到表；會後整理紀錄及決議。",5],["改選與交接","先確認任期、選舉方式及候選程序，再使用對應的選票、委託書與會議紀錄表單。",6],["年度決算與預算","依合作社的會計年度準備決算、監事審核及社員大會紀錄，核對應報送的書表。",4],["理監事、章程或社址變更","先完成必要的會議決議，再準備變更申請及相關證明。",3],["解散與清算","解散及清算有不同階段，請依承辦人提供的流程與各階段書表辦理。",7]].map(([t,d,n])=>`<div class="sec"><h3>${t}</h3><p>${d}</p><a href="data/coop/forms-${n}.zip" download>下載對應書表</a>　<button class="btn ghost" data-coop-law="${t}">查法規說明</button></div>`).join('')}</div>`:MEET.map(itemPanel).join('');$('#meet-content').querySelectorAll('[data-coop-law]').forEach(b=>b.onclick=()=>{lawCat='合作社';location.hash='law';renderLaw()})};$('#meet-people').onclick=()=>draw(false);$('#meet-coop').onclick=()=>draw(true);draw(false);

@@ -1,0 +1,32 @@
+'use strict';
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),zlib=require('node:zlib');
+const {route}=require('./privacy-incident-guidance.js');
+const check=(a,r)=>assert.match(JSON.stringify(a),r);
+const base=route('屏東縣立案協會共有六千會員資料，名冊外洩，要不要通報？');
+check(base,/屏東縣政府/);check(base,/5,000/);check(base,/72小時/);check(base,/不要把名冊/);
+check(route('那如果恰好1000筆呢？',base.privacyIncidentContext),/正好1,000筆也達門檻/);
+assert.equal(route('換題，信用合作社選舉可以請社員代投嗎？',base.privacyIncidentContext),null);
+assert.equal(route('人民團體法第27條，會員大會決議怎麼算？'),null);
+assert.equal(route('協會會員名冊可以在選舉前寄給全體嗎？'),null);
+check(route('一般協會會員只有八百筆，名冊寄錯人，這樣要怎麼辦？'),/不到本辦法的書面通報門檻/);
+const correction=route('剛剛說錯，不是合作社，是一家私立日照機構，長照名單被寄給陌生人，請問要通報嗎？',base.privacyIncidentContext);
+check(correction,/不能直接套用人民團體/);assert.doesNotMatch(correction.summary,/請向屏東縣政府通報/);
+const unknown=route('會員名冊誤傳到外部，該怎麼通報？');
+assert.equal(unknown.choices.length,4);
+for(const choice of unknown.choices)assert.ok(route(choice.question,unknown.privacyIncidentContext));
+check(route('個資法第20-1條生效了嗎？'),/施行日尚未確定/);
+const raw=fs.readFileSync('counter-upgrade.js','utf8');
+const injected=JSON.parse(zlib.gunzipSync(fs.readFileSync('data/statutes.json.gz')));
+const src=raw.slice(raw.indexOf('const PDPA_CURRENT_COMPARE'),raw.indexOf('function rulingTag'));
+const c=vm.createContext({statuteData:injected,norm:x=>String(x).replace(/\s+/g,''),esc:String});
+vm.runInContext(src,c); const row=(n,source='https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=I0050021',name='個人資料保護法')=>({title:name+'第'+n+'條',source});
+for(const n of [27,48,'20-1',21,55]){
+ assert.equal(c.statuteFor(row(n)),null); const block=c.originalLawBlock(row(n));
+ assert.match(block,/尚未施行/);assert.match(block,/pdpc.gov.tw\/News_Html\/100/);
+ assert.doesNotMatch(block,/statute-original|（刪除）/);
+}
+assert.match(c.statuteFor(row(12)).text,/應查明後以適當方式通知當事人/);
+assert.match(c.originalLawBlock(row(12)),/現行有效版本/);
+assert.ok(c.statuteFor(row(2)));
+assert.ok(c.statuteFor(row(27,'https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050091','人民團體法')));
+console.log('Privacy incident guidance and pending-original gate passed');
