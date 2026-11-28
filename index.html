@@ -1584,6 +1584,8 @@ async function ask(q){
     if(matched){financeMeetingPlanner=null;postponedProxyDateQuestion=matched.followNewDate?heldDateQuestion:null;renderAnswer(q,matched);return;}
   }
   if(!financeMeetingPlanner&&typeof window.createFinanceMeetingPlanner==="function")financeMeetingPlanner=window.createFinanceMeetingPlanner({board,showAnswer:renderAnswer});
+  const venueOnlyProxy=window.verifiedAssociationVenueOnlyProxy?.(q);
+  if(venueOnlyProxy){financeMeetingPlanner=null;renderAnswer(q,venueOnlyProxy);return;}
   const cooperativeExpulsion=window.verifiedCooperativeExpulsionSequence?.(q);
   if(cooperativeExpulsion){financeMeetingPlanner=null;cooperativeExpulsionQuestion=cooperativeExpulsion.needsCoopTotal?q:null;renderAnswer(q,cooperativeExpulsion);return;}
   const chairHandover=window.verifiedAssociationHandoverRefusal?.(q);
@@ -2243,6 +2245,7 @@ touch();
 <script src="association-sameday-finance.js?v=1"></script>
 <script src="cooperative-expulsion-sequence.js?v=1"></script>
 <script src="pingtung-grant-applicant-and-stages.js?v=1"></script>
+<script src="association-venue-only-proxy.js?v=1"></script>
 <script src="director-absence-clarification.js?v=1"></script>
 <script src="association-records-and-term.js?v=2"></script>
 <script src="association-external-audits.js?v=1"></script>
