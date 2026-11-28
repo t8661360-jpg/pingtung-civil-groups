@@ -1595,6 +1595,7 @@ let contractSigningContext=null;
 let venueRepairContext=null;
 let staffRelativeContext=null;
 let vehicleRegistryContext=null;
+let guildBudgetContext=null;
 let branchCorrespondenceContext=null;
 let meetingProxyScopeContext=null;
 let eventFinanceContext=null;
@@ -1628,6 +1629,7 @@ async function ask(q){
   const heldVenueRepair=venueRepairContext;venueRepairContext=null;
   const heldStaffRelative=staffRelativeContext;staffRelativeContext=null;
   const heldVehicleRegistry=vehicleRegistryContext;vehicleRegistryContext=null;
+  const heldGuildBudget=guildBudgetContext;guildBudgetContext=null;
   const heldBranchCorrespondence=branchCorrespondenceContext;branchCorrespondenceContext=null;
   const heldMeetingProxyScope=meetingProxyScopeContext;meetingProxyScopeContext=null;
   const heldEventFinance=eventFinanceContext;eventFinanceContext=null;
@@ -1705,6 +1707,8 @@ async function ask(q){
   if(volunteerGovernance){financeMeetingPlanner=null;volunteerGovernanceContext=volunteerGovernance.volunteerGovernanceContext||null;renderAnswer(q,volunteerGovernance);return;}
   const eventFinance=window.verifiedEventFeesAndFundraising?.(q,heldEventFinance);
   if(eventFinance){financeMeetingPlanner=null;eventFinanceContext=eventFinance.eventFinanceContext||null;renderAnswer(q,eventFinance);return;}
+  const guildBudget=window.verifiedGuildGrantAndBudget?.(q,heldGuildBudget);
+  if(guildBudget){financeMeetingPlanner=null;guildBudgetContext=guildBudget.guildBudgetContext||null;renderAnswer(q,guildBudget);return;}
   const grantAccrual=window.verifiedGrantAccrualAssets?.(q,heldGrantAccrual);
   if(grantAccrual){financeMeetingPlanner=null;grantAccrualContext=grantAccrual.grantAccrualContext||null;renderAnswer(q,grantAccrual);return;}
   const staffRelative=window.verifiedStaffRelativeConflicts?.(q,heldStaffRelative);
@@ -2527,6 +2531,7 @@ touch();
 <script src="election-objection-preservation.js?v=1"></script>
 <script src="professional-guild-meeting-rules.js?v=1"></script>
 <script src="guild-meeting-records.js?v=1"></script>
+<script src="guild-grant-and-budget.js?v=1"></script>
 <script src="charitable-permit-changes.js?v=20261128-asset-scope"></script>
 <script src="charitable-fundraising-stages.js?v=1"></script>
 <script src="community-cooperative-pause.js?v=1"></script>
