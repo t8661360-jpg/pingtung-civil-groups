@@ -1575,6 +1575,7 @@ let borrowedEquipmentContext=null;
 let coopReconvenedElectionContext=null;
 let electionDualContext=null;
 let grantProcContext=null;
+let grantEvidenceContext=null;
 let legalPropertyContext=null;
 let communityMultiContext=null;
 let associationMeetingSequenceContext=null;
@@ -1585,6 +1586,7 @@ async function ask(q){
   const priorMeetingSequence=associationMeetingSequenceContext;associationMeetingSequenceContext=null;
   const heldElectionDual=electionDualContext;electionDualContext=null;
   const heldProcFacts=grantProcContext;grantProcContext=null;
+  const heldGrantEvidence=grantEvidenceContext;grantEvidenceContext=null;
   const heldCommunityMulti=communityMultiContext;communityMultiContext=null;
   const heldLegalProperty=legalPropertyContext;legalPropertyContext=null;
   const heldVenueUse=venueUseContext;venueUseContext=null;
@@ -1634,6 +1636,8 @@ async function ask(q){
   if(datedReschedule){financeMeetingPlanner=null;postponedProxyDateQuestion=datedReschedule.followNewDate?q:null;renderAnswer(q,datedReschedule);return;}
   const specialGuild=window.verifiedProfessionalGuildMeetingRules?.(q);
   if(specialGuild){financeMeetingPlanner=null;renderAnswer(q,specialGuild);return;}
+  const grantEvidence=window.verifiedGrantEvidenceAndPrivacy?.(q,heldGrantEvidence);
+  if(grantEvidence){financeMeetingPlanner=null;grantEvidenceContext=grantEvidence.proofContext?q:null;renderAnswer(q,grantEvidence);return;}
   const permitFull=heldCharitablePermit&&window.isCharitablePermitCorrection?.(q)?heldCharitablePermit+"；更新資料："+q:q;
   const permitResult=window.verifiedCharitablePermitChanges?.(permitFull);
   if(permitResult){financeMeetingPlanner=null;charitablePermitContext=permitResult.retainPermitQuestion?permitFull:null;renderAnswer(q,permitResult);return;}
@@ -2369,6 +2373,7 @@ touch();
 <script src="village-office-and-association.js?v=2"></script>
 <script src="association-borrowed-equipment.js?v=1"></script>
 <script src="association-local-venue.js?v=1"></script>
+<script src="grant-evidence-and-privacy.js?v=1"></script>
 <script src="cooperative-conflicts-and-contracts.js?v=1"></script>
 <script src="volunteer-team-training-and-grants.js?v=1"></script>
 <script src="association-dissolution-estate.js?v=1"></script>
