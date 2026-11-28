@@ -1,0 +1,24 @@
+/* 第248輪：解散與清算 */
+const r=require('./round-fixes.js');
+const zlib=require('zlib'),fs=require('fs');
+const st=JSON.parse(zlib.gunzipSync(fs.readFileSync('data/statutes.json.gz')));
+const A=q=>r.verifiedRoundAnswer(r.normalizeQuestion(q),{});
+let bad=0;
+const pos=(qs,k)=>qs.forEach(q=>{const a=A(q);const t=a&&a.title||'';if(!t.includes(k)){bad++;console.log('✗',q,'=>',t||'(無)','期望',k)}});
+const neg=(qs,k)=>qs.forEach(q=>{const a=A(q);const t=a&&a.title||'';if(t.includes(k)){bad++;console.log('✗反',q,'=>',t)}});
+pos(['理監事都過世了協會要怎麼辦','沒有理事長也沒有理事了怎麼召開大會','理事和監事全都往生了怎麼辦','理事監事全部聯絡不上要怎麼辦'],'全部不在了');
+neg(['理事跟監事通通不做了協會怎麼辦','理監事全部辭職了還能開會嗎'],'理事、監事全部不在了');neg(['理事跟監事通通不做了協會怎麼辦'],'理事、監事辭職：書面');
+neg(['理事要辭職怎麼辦','我想辭掉監事','理事想辭職要經過誰同意'],'全部不在了');
+pos(['清算要花多少錢','清算費用誰出','解散清算要付多少費用'],'清算要花多少錢');
+neg(['清算人可以領報酬嗎','清算人費用怎麼算'],'清算要花多少錢');
+pos(['解散決議可以撤銷嗎','解散案通過了可以反悔嗎','解散大會決議無效嗎','解散決議可以取消嗎','解散的決議能不能推翻'],'解散決議能不能反悔');
+neg(['縣府命令解散可以撤銷嗎'],'解散決議能不能反悔');
+pos(['協會解散後會員可以另外成立新協會嗎','解散後想重新組一個協會','協會解散了我們可以再成立新的社團嗎'],'協會解散後想再成立');
+pos(['清算人要簽名蓋章嗎','清算人要用印嗎'],'清算人要簽名蓋章');
+pos(['解散決議後還要收常年會費嗎','清算期間會員還要繳會費嗎','清算中還要交會費嗎','解散後還要繳會費嗎'],'要不要繼續繳（收）會費');
+neg(['解散後已繳的會費可以退嗎'],'要不要繼續繳（收）會費');
+const P=st.laws.D0050091.articles,M=st.laws.B0000001.articles,G=Object.values(st.laws).find(l=>(l.name||l.title)=='人民團體會務輔導辦法').articles;
+const chk=(o,n,s)=>{if(!o[n]||!o[n].includes(s)){bad++;console.log('✗法條',n,s)}};
+chk(P,23,'辭職經理事會或監事會決議通過');chk(P,32,'指定理事一人召集');chk(P,27,'團體之解散');chk(P,25,'由理事長召集');chk(P,58,'撤銷其決議');chk(P,8,'向主管機關申請許可');chk(P,10,'三十日內');
+chk(M,56,'三個月內請求法院撤銷');chk(M,56,'無效');chk(M,40,'移交賸餘財產');chk(G,27,'清算程序');
+if(bad){console.log('失敗',bad);throw new Error('r248')}console.log('r248 OK');
