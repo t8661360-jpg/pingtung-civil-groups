@@ -9,8 +9,12 @@ const stations=mk('屏東縣警察局所屬分局及派出所一覽','https://da
 const labels={owner:'能私下聯絡失主',regular:'價值不明或超過500元',small:'價值500元以下（含500元）'};
 const norm=s=>String(s||'').normalize('NFKC').replace(/\s/g,'');
 function route(q,prior){
- const t=norm(q);
- if(!t||t.length>480||/^(換題|新題|另問)/.test(t))return null;
+ const original=norm(q);
+ const reset=/^(?:換題|新題|另問)(?=$|[,:。，：;；!?！？])/;
+ const fresh=reset.test(original);
+ if(fresh)prior=null;
+ const t=original.replace(/^(?:換題|新題|另問)(?=$|[,:。，：;；!?！？])[,.:。，：;；!?！？]*/,'');
+ if(!t||t.length>480)return null;
  const pick=t.match(/^櫃檯失物確認:([a-z]+)$/)?.[1];
  if(pick&&(!prior||!labels[pick]))return null;
  const follow=prior&&/^(?:那|更正|補充|其實|我剛|如果|所以)/.test(t)&&/失主|通知|拾得|警察|錢包|袋子|之?公告|招領|認領|百元|500|補助器材|金融卡/.test(t);
@@ -27,7 +31,7 @@ function route(q,prior){
  const above=/(?<!不)(?:超過|超出|大於|多於)(?:500|五百)|(?:不只|不止)(?:500|五百)/.test(t);
  const fixed=pick==='small'?'small':pick==='regular'?'regular':!unsure&&(amount!==undefined)&&!above&&Number(amount)<=500?'small':!unsure&&((amount!==undefined)&&Number(amount)>500||above)?'regular':rich?'regular':held.value||'unknown';
  const privateReach=pick==='owner'||/能(?:私下)?聯絡|聯繫得上|已(?:經)?連絡上|電話打通|聯絡到了/.test(t)&&!/不能|無法|聯絡不到|不知/.test(t);
- const nameOnly=/有失主姓名|知道名字|只有姓名|知道姓名|有姓名/.test(t);
+ const nameOnly=/有失主姓名|(?:只寫|寫著|只看到)(?:失主)?姓名|知道名字|只有姓名|知道姓名|有姓名/.test(t);
  const transfer=/沒有送警察|沒送警察|未交警察|只.{0,8}(?:群組|公告)|貼了半年|六個月|半年/.test(t)||!!held.transfer;
  const perks=/酬謝|報酬|酬金|謝禮|幾成|七天|7天/.test(t)||!!held.perks;
  const hazard=/危險|易壞|腐壞|變質|藥品/.test(t)||!!held.hazard;

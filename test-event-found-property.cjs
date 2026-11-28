@@ -7,7 +7,7 @@ assert.match(all(phone),/不要出售、入帳或開捐贈收據/);
 assert.match(all(phone),/不會因期滿轉給拾得人/);
 const school=r('我們協會借學校辦活動，撿到裝證件、藥品、現金及車鑰匙的袋子，總幹事說一個月沒人認就當協會捐款，志工要求酬謝，學校不想代管。有失主照片和電話，發群組、向校方或警方報、什麼要登記、怎樣確認認領、查無人多久、現金能不能入帳開收據、危險或易壞品怎麼處理、補助器材是否同一套，請分開說。');
 for(const re of [/場館不收時.+交派出所/,/不貼姓名、電話、證件照/,/雙人|兩人清點/,/代領者確認授權/,/未交存/,/十分之一/,/七日涉及/,/第806條/,/補助器材另查權屬/])assert.match(all(school),re);
-const owner=r('那如果袋子上有失主姓名，協會還要送警察嗎？',school.foundPropertyContext);
+const owner=r('那如果袋子上只寫失主姓名，協會還要送警察嗎？',school.foundPropertyContext);
 assert.match(all(owner),/只有姓名不一定聯繫得到/);
 assert.match(all(owner),/已說校方或場館不代收.+直接交派出所/);
 assert.match(all(owner),/聯繫不上、身份存疑或沒人來，就交派出所/);
@@ -23,5 +23,13 @@ const chosen=unsure.choices.map(c=>r(c.question,unsure.foundPropertyContext));
 assert.match(chosen[0].title,/確認失主/);assert.match(all(chosen[1]),/逾6個月/);assert.match(all(chosen[2]),/逾15日/);
 for(const x of chosen)assert.equal(x.choices,undefined);
 assert.equal(r('櫃檯失物確認:owner'),null);
+for(const prefix of ['換題，','新題：','另問：']){
+ const fresh=r(prefix+'協會活動撿到錢包，能當捐款嗎？',school.foundPropertyContext);
+ assert.match(all(fresh),/不要出售、入帳或開捐贈收據/);
+ assert.doesNotMatch(all(fresh),/學校|補助器材|第806條|十分之一/);
+ assert.equal(r(prefix+'那還要聯絡失主嗎？',school.foundPropertyContext),null);
+ assert.equal(r(prefix+'櫃檯失物確認:owner',school.foundPropertyContext),null);
+}
+
 for(const q of ['換題，信用合作社社員選舉能不能代投？','志工把協會的補助器材轉交其他單位，可以當捐贈嗎？','協會想買手機送志工，要怎麼報帳？','協會遺失立案證書，如何補發？'])assert.equal(r(q,school.foundPropertyContext),null);
 console.log('event-found-property: official flow, privacy, scoped answers and retained-state choices passed');
