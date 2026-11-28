@@ -1593,6 +1593,7 @@ let staffRecordsContext=null;
 let guildRecordsContext=null;
 let contractSigningContext=null;
 let venueRepairContext=null;
+let staffRelativeContext=null;
 let branchCorrespondenceContext=null;
 let meetingProxyScopeContext=null;
 let eventFinanceContext=null;
@@ -1624,6 +1625,7 @@ async function ask(q){
   const heldGuildRecords=guildRecordsContext;guildRecordsContext=null;
   const heldContractSigning=contractSigningContext;contractSigningContext=null;
   const heldVenueRepair=venueRepairContext;venueRepairContext=null;
+  const heldStaffRelative=staffRelativeContext;staffRelativeContext=null;
   const heldBranchCorrespondence=branchCorrespondenceContext;branchCorrespondenceContext=null;
   const heldMeetingProxyScope=meetingProxyScopeContext;meetingProxyScopeContext=null;
   const heldEventFinance=eventFinanceContext;eventFinanceContext=null;
@@ -1701,6 +1703,8 @@ async function ask(q){
   if(eventFinance){financeMeetingPlanner=null;eventFinanceContext=eventFinance.eventFinanceContext||null;renderAnswer(q,eventFinance);return;}
   const grantAccrual=window.verifiedGrantAccrualAssets?.(q,heldGrantAccrual);
   if(grantAccrual){financeMeetingPlanner=null;grantAccrualContext=grantAccrual.grantAccrualContext||null;renderAnswer(q,grantAccrual);return;}
+  const staffRelative=window.verifiedStaffRelativeConflicts?.(q,heldStaffRelative);
+  if(staffRelative){financeMeetingPlanner=null;staffRelativeContext=staffRelative.staffRelativeContext||null;renderAnswer(q,staffRelative);return;}
   const staffExpense=window.verifiedStaffVolunteerCost?.(q,heldStaffExpense);
   if(staffExpense){financeMeetingPlanner=null;staffExpenseContext=staffExpense.staffExpenseContext||null;renderAnswer(q,staffExpense);return;}
   const liquidationPath=window.verifiedAssociationLiquidationPath?.(q,heldLiquidationPath);
@@ -2463,6 +2467,7 @@ touch();
 <script src="association-dissolution-estate.js?v=2"></script>
 <script src="association-liquidation-path.js?v=1"></script>
 <script src="staff-volunteer-cost.js?v=1"></script>
+<script src="staff-relative-conflicts.js?v=1"></script>
 <script src="association-pickup-and-service.js?v=1"></script>
 <script src="grant-accrual-assets.js?v=1"></script>
 <script src="grant-project-closeout.js?v=1"></script>
