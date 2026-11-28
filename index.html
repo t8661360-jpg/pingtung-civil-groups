@@ -1586,6 +1586,7 @@ let receiveAuthorityContext=null;
 let grantAccrualContext=null;
 let officeAddressContext=null;
 let officerEligibilityContext=null;
+let coopMeetingRelocationContext=null;
 let legalPropertyContext=null;
 let communityMultiContext=null;
 let associationMeetingSequenceContext=null;
@@ -1606,6 +1607,7 @@ async function ask(q){
   const heldGrantAccrual=grantAccrualContext;grantAccrualContext=null;
   const heldOfficeAddress=officeAddressContext;officeAddressContext=null;
   const heldOfficerEligibility=officerEligibilityContext;officerEligibilityContext=null;
+  const heldCoopMeetingRelocation=coopMeetingRelocationContext;coopMeetingRelocationContext=null;
   const heldCommunityMulti=communityMultiContext;communityMultiContext=null;
   const heldLegalProperty=legalPropertyContext;legalPropertyContext=null;
   const heldVenueUse=venueUseContext;venueUseContext=null;
@@ -1648,6 +1650,8 @@ async function ask(q){
     if(matched){financeMeetingPlanner=null;postponedProxyDateQuestion=matched.followNewDate?heldDateQuestion:null;renderAnswer(q,matched);return;}
   }
   if(!financeMeetingPlanner&&typeof window.createFinanceMeetingPlanner==="function")financeMeetingPlanner=window.createFinanceMeetingPlanner({board,showAnswer:renderAnswer});
+  const coopMeetingRelocation=window.verifiedCooperativeMeetingRelocation?.(q,heldCoopMeetingRelocation);
+  if(coopMeetingRelocation){financeMeetingPlanner=null;coopMeetingRelocationContext=coopMeetingRelocation.coopMeetingRelocationContext||null;renderAnswer(q,coopMeetingRelocation);return;}
   const coopElectionQ=window.cooperativeReconvenedElectionFollow?.(heldCoopReconvened,q)||q;
   const coopElection=window.verifiedCooperativeReconvenedElection?.(coopElectionQ);
   if(coopElection){financeMeetingPlanner=null;coopReconvenedElectionContext=coopElection.trackCoopElection?coopElectionQ:null;renderAnswer(q,coopElection);return;}
@@ -2423,6 +2427,7 @@ touch();
 <script src="grant-accrual-assets.js?v=1"></script>
 <script src="association-shared-office.js?v=1"></script>
 <script src="officer-eligibility-and-elections.js?v=1"></script>
+<script src="cooperative-meeting-relocation.js?v=1"></script>
 <script src="grant-multiple-sources.js?v=2"></script>
 <script src="grant-procurement-threshold.js?v=2"></script>
 <script src="association-legal-property.js?v=2"></script>
