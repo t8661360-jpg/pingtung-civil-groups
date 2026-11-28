@@ -1,0 +1,37 @@
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const {route}=require('./association-formation-stage.js');
+const prep='協會拿到縣府准予籌組，到底有多久要開成立大會？申請了展延但還沒有同意，可以自己多一個月嗎？';
+const held='成立大會開完，理監事都選了，還沒收到縣府核准立案證書，這樣算已立案嗎？多久送件，要不要去法院？';
+const filed='屏東協會已收到立案證書，只有法人還沒登記，地方法院由理事長一人簽可以嗎？多久把證書回報縣府？';
+const unknown='協會在籌組或立案其中一個階段，我不確定到哪了，要先辦統編、開戶還是去法院？';
+const text=x=>[x.summary,...x.steps.flat()].join('\n');
+assert.equal(route(prep).formationStageContext.stage,'prep');
+assert.match(text(route(prep)),/許可後6個月.*最多延長3個月/);
+assert.match(text(route(prep)),/成立大會後30日內/);
+assert.match(text(route(prep)),/提出申請不等於展延已獲准/);
+assert.equal(route(held).formationStageContext.stage,'held');
+assert.equal(route('理監事都選好了，成立大會已開，還沒有拿到縣府立案證書，辦統編和團體開戶可以嗎？').formationStageContext.stage,'held');
+assert.match(text(route(held)),/不等於已立案/);
+assert.equal(route(filed).formationStageContext.stage,'filed');
+assert.match(text(route(filed)),/全體理事簽名或蓋章/);
+assert.match(text(route(filed)),/完成登記後30日內/);
+const cash=route('協會有立案證書但沒有法院法人登記，中華郵政開戶要用私人戶頭嗎？');
+assert.match(text(cash),/負責人姓名與團體名稱同列戶名/);
+assert.match(text(cash),/不是理事長自己的私人戶頭/);
+const menu=route(unknown);
+assert.equal(menu.formationStageContext.stage,'unknown');
+assert.equal(menu.choices.length,3);
+for(const [i,k] of ['prep','held','filed'].entries())assert.equal(route(menu.choices[i].question,menu.formationStageContext).formationStageContext.stage,k);
+const picked=route(menu.choices[1].question,menu.formationStageContext);
+assert.equal(route('更正，已收到縣府立案證書，法院法人登記沒做，去法院只有理事長簽可以嗎？',picked.formationStageContext).formationStageContext.stage,'filed');
+assert.equal(route('更正不是還沒立案：我找到縣府立案證書，只有法院法人登記尚未做，先前讀錯。是不是一定要重辦成立大會才能申請法人？',picked.formationStageContext).formationStageContext.stage,'filed');
+for(const q of ['換題，協會民國115年5月21日舉辦售票音樂會，套新娛樂稅嗎？','合作社籌組許可半年多久成立？','籌組申請被正式駁回，幾天內訴願？','協會立案後的會員大會如何改期？','協會開戶？','櫃檯立案階段:funds']){
+ assert.equal(route(q,picked.formationStageContext),null,q);
+}
+assert.equal(route(menu.choices[0].question),null);
+const html=fs.readFileSync(require.resolve('./index.html'),'utf8');
+assert.match(html,/成立大會後 30 日內檢送大會與理監事會紀錄/);
+assert.doesNotMatch(html,/籌備期間有特殊情形，也可以報請延長一個月/);
+assert.match(html,/法人登記聲請書（全體聲請理事簽名或蓋章/);
+console.log('formation deadlines, court signature, stage correction, and separate bank account passed');
