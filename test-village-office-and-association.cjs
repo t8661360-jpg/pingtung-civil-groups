@@ -19,5 +19,8 @@ const msg=e('協會在村里長投票日想在LINE群轉傳一則訊息，可以
 assert.equal(msg.choices.length,2);
 e(msg.choices[0].question,/純中立資訊不是拉票/);
 e(msg.choices[1].question,/投票日整天不得競選或助選/);
+e('今天村里長投票，一般協會的群組想轉貼別人的助選圖，晚上開票後才貼也不行嗎？不用補助款就沒關係嗎？',/投票日整天不得競選或助選/,/沒有用補助款或已過投票時間/);
+e('今天只是分享政府的投票時間地點，不附候選人資訊，我們協會的LINE群可不可以發？',/中立通知和助選要分開/);
+e('村長已當選還沒有上任，協會可以請他簽理事長本人的位置嗎？還是必須改蓋村辦章？',/尚未就職，不能用新任村里長身分簽署/,/可以|仍可依該案規定以協會理事長身分簽/,/不要改蓋村辦章/);
 for(const q of ['我不是要選村長，是我們協會理事長落選，現在要怎麼重新改選或繼續做？','屏東村里長在哪裡投票？','我們協會改成會員代表制後能提前改選嗎？','一般合作社要如何登記新理事長？'])assert.equal(a(q),null,q);
 console.log('PASS association and village-office registration, duties, election day, spending and data purpose');
