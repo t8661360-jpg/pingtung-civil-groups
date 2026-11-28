@@ -20,6 +20,8 @@ function route(q){
  const correction=/更正|有錯|是否正確|改正|寫信|抄錯/.test(t);
  const id=/身分證|身份證|證號|簽名|電話|手機|地址|個資/.test(t);
  const scope=/協會|合作社|人民團體|社會團體|社團法人|理事長|這一社|社員|當選.{0,5}簡歷/.test(t);
+ /* 理解把關 2026-11-28：問退會後大會出席人數怎麼算，不是名冊對外分享 */
+ if(/出席人數|應出席|成會|法定人數/.test(t)&&!distribute&&!exposed)return null;
  if(!scope||!(roster||(filing&&id)||(candidate&&/選舉|換屆/.test(t)))||!(distribute||filing||candidate||expires||exposed||correction)||/過世|死亡|遺產/.test(t))return null;
  if(!/選舉|投票|大會|改選|換屆|會員|社員|名冊/.test(t)&&!filing)return null;
  const inline=/補充[：:]是(?:一般)?(協會|合作社)/.exec(raw);

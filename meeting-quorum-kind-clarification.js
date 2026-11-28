@@ -39,6 +39,7 @@ function scope(q){
  const kinds=[];
  if(/會員(?:代表)?大會/.test(body))kinds.push('assembly');
  if(!kinds.length&&!coop&&/(?:解散|臨時|定期|常年|年度)大會/.test(body))kinds.push('assembly'); // 第237輪：「解散大會」就是會員大會
+ if(!kinds.length&&!coop&&/會員代表(?!.{0,6}(?:理事|監事))/.test(body)&&!/理事會|監事會|聯席/.test(body))kinds.push('assembly'); // 2026-11-28：「會員代表要幾個人才能開會」就是會員代表大會，不用再問會議種類
  if(/社員(?:代表)?大會/.test(body))kinds.push('coopAssembly');
  if(/社務會/.test(body))kinds.push('coopJoint');
  if(/(?:理事會|理監並稱)/.test(body))kinds.push(coop?'coopBoard':'board');

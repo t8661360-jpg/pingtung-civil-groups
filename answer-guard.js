@@ -30,7 +30,7 @@
   const ASK = /[?？]|嗎|呢$|怎麼|如何|怎樣|可以|可不可以|能不能|能否|是否|幾|多久|多少|誰|哪|什麼|甚麼|啥|要不要|需不需要|有沒有|會不會|算不算|一定要/;
   const fixedUnknown = q => { try { if (typeof reportUnanswered === 'function') reportUnanswered(q); } catch (e) {}
     return { category: '其他', title: '抱歉，這個問題難倒小屏了', summary: '抱歉，這個問題難倒小屏了，小屏暫時無法回答喔！建議您先電洽承辦人員詢問～縣府總機 08-7320415 轉社會處承辦人', notes: [], actions: [{ label: '聯絡承辦', view: 'contact', sub: '' }, { label: '回到常見問題', view: 'home', sub: '' }], unanswered: true, guarded: true }; };
-  const menu = (q, first) => { const rel = [...(first ? [first] : []), ...similar(q, 6).filter(x => x !== first)].slice(0, 7);
+  const menu = (q, first) => { const rel = [...(first ? [first] : []), ...similar(q, 6).filter(x => x !== first && NFK(x) !== NFK(q))].slice(0, 7); // 2026-11-28：不要把民眾原句列成選項（點了又回到同一個選單）
     if (!rel.length) return fixedUnknown(q);
     return { direct: true, category: '請選擇問題', title: '您是不是要問以下相關的問題？',
       summary: '小屏不確定有沒有聽懂您的問題，怕直接回答會答錯。請點選下面最接近您想問的問題；都不是的話，請換個說法再問一次，或電洽承辦人員。',
@@ -227,8 +227,9 @@
   }
   function menu2(q, rel, why) {
     const seen = new Set(), list = [];
-    for (const x of rel) { if (!x || seen.has(x)) continue; seen.add(x); list.push(x); if (list.length >= 8) break; }
-    if (list.length < 2) for (const x of similar(q, 3, 0.15)) { if (!seen.has(x)) { seen.add(x); list.push(x); } } // 找不到夠像的問題時放寬一點，仍然沒有才用固定用語
+    const self = NFK(q); // 2026-11-28：選單不列民眾原句本身，避免點了又回到同一個選單
+    for (const x of rel) { if (!x || seen.has(x) || NFK(x) === self) continue; seen.add(x); list.push(x); if (list.length >= 8) break; }
+    if (list.length < 2) for (const x of similar(q, 3, 0.15)) { if (!seen.has(x) && NFK(x) !== self) { seen.add(x); list.push(x); } } // 找不到夠像的問題時放寬一點，仍然沒有才用固定用語
     if (!list.length) return fixedPhrase2(q, list);
     return { direct: true, category: '請選擇問題', title: '您是不是要問以下相關的問題？',
       summary: (why || '小屏不確定有沒有聽懂您的問題，怕直接回答會答錯。') + '請點選下面最接近您想問的問題；都不是的話，請換個說法再問一次，或電洽承辦人員。',

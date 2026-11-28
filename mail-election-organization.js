@@ -22,6 +22,8 @@ function type(name){return /信用合作社|信合社/.test(name)?'credit':/合�
 function route(q){
  const source=String(q??'').normalize('NFKC').replace(/\s/g,'').replace(/(?<=\d),(?=\d{3}(?!\d))/g,'');
  if(!source||source.length>435||other.test(source)||!election.test(source))return null;
+ /* 理解把關 2026-11-28：用寄選票「表決修章、議案」不是理監事通訊選舉 */
+ if(/修章|修改章程|章程修改|議案|提案/.test(source)&&/表決|投票|同意/.test(source)&&!/選舉|改選|當選|選理事|選監事|理監事選/.test(source))return null;
  // Exclude negated aliases (e.g. 「不是一般合作社，是信用合作社」).
  const t=source.replace(/(?:不是|並非|非屬)(信用合作社|信合社|一般合作社|普通合作社|合作社|一般協會|協會)/g,'不是這類');
  const names=[...t.matchAll(organization)].map(m=>type(m[0]));

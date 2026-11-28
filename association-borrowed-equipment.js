@@ -25,6 +25,8 @@ function route(q){
  const grant=/補助|核銷|縣府核准買|縣府核准購/.test(t);
  const explicitLicensedResidue=/(?:公益勸募|核准勸募|公開勸募).{0,13}(?:餘款|賸餘|剩餘)|(?:餘款|賸餘|剩餘).{0,10}(?:公開|核准)勸募/.test(t);
  if(!objects||!(official||borrow)||!(closing||damaged||sale||receipt)||explicitLicensedResidue)return null;
+ /* 理解把關 2026-11-28：用補助款「買的」設備是協會自己的財產，不是借用器材；沒提到借用或所有權不清時交給補助財產的答案 */
+ if(grant&&!borrow&&!label&&/(?:補助|補助款).{0,8}(?:買|購|添購|購置|蓋|建)|(?:買|購置|添購|蓋)的?.{0,6}(?:設備|器材|音響|東西)|補助(?:款)?的?(?:設備|器材|音響|財產)/.test(t))return null;
  if(/(?:參選|要選|競選|當選|就職|任期|兼職|兼任).{0,8}(?:里長|村長)|(?:里長|村長).{0,8}(?:能兼|可以兼|參選|當選|就職)/.test(t)&&!closing&&!receipt&&!damaged&&!sale)return null;
  const status=t.match(/財物確認[：:](借用不移轉|已合法捐贈入帳)/)?.[1];
  const unknown=(label||closing&&!/借用|租借|借來|借的|借了|向.{0,14}借/.test(t))&&!status;

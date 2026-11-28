@@ -116,6 +116,8 @@ function route(raw,prior){
  }
  if(/合作社|社員大會/.test(clean))return null;
  if(!follow&&!((qNotice&&qRecord)||(qYear&&(qNotice||qRecord||f==='joint'))||(qCharter&&(qNotice||qRecord))||(f==='joint'&&qJointFail)))return null;
+ /* 理解把關 2026-11-28：修改章程只能在會員大會，不用再問哪一種會議；沒有改期時交給既有的修章答案 */
+ if(!f&&qCharter&&!qYear&&!(qNotice&&qRecord)&&!condition.change&&!follow)return null;
  if(!f){
   const a=make('先確認是哪一種會議','改期時，誰應收到通知、提前幾天、紀錄要不要報備，都要先看開的是哪一種會。',[],[act,meetings]);
   return {...a,choiceHeading:'您要改的是哪種會議？',choices:Object.entries(form).filter(([k])=>k!=='coopBoard').map(([k,label])=>({label,question:'請選擇一般協會的'+label}))};

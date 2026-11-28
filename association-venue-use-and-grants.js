@@ -9,6 +9,9 @@ function follow(q){const x=norm(q);return x.length<190&&/^(?:更正|補充|不�
 function route(q){
  const raw=String(q??'').trim(),t=norm(raw);
  if(!t||t.length>630||!/協會|社會團體|人民團體|合作社/.test(t)||/信用合作社|信合社|工業同業公會|商業同業公會|職業工會/.test(t))return null;
+ /* 理解把關 2026-11-28：印花稅是稅務問題；只問會址能不能借用（沒有活動、場地、費用）交給會址答案 */
+ if(/印花稅/.test(t))return null;
+ if(/會址|社址|登記地址/.test(t)&&!/活動|場地|教室|場館|場租|押金|保證金|水電|補助|核銷|里民中心|取消|退款|房東|租約/.test(t))return null;
  const f=t.split('更新情況:').at(-1), combined=/確認用途:/.test(t);
  const assoc=/(?:協會|社會團體|人民團體)/.test(t);
  const coop=/合作社/.test(t)&&!/不是合作社|不涉及合作社/.test(t);
