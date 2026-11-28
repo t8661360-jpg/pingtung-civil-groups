@@ -1558,9 +1558,15 @@ function smartFallback(q,kb){
   }
   return{related:parts.related||[],category:parts.category||"服務說明",title:parts.title||"小屏的回覆",summary:parts.summary,steps:parts.steps||[],docs:parts.docs||[],where:parts.where||[],guide:parts.guide||[],laws:parts.laws||[],notes:parts.notes||[],refs:parts.refs||[],groups:parts.groups||[],dirMeta:parts.dirMeta||"",staff:parts.staff||[],actions:parts.actions||[]};
 }
-let financeMeetingPlanner, postponedProxyDateQuestion, assemblyRecountQuestion;
+let financeMeetingPlanner, postponedProxyDateQuestion, assemblyRecountQuestion, sameDayReportQuestion;
 async function ask(q){
   q=String(q||"").trim();if(!q||busy)return;
+  const heldReportQuestion=sameDayReportQuestion;sameDayReportQuestion=null;
+  const replyKind=heldReportQuestion&&window.sameDayFinanceReply?.(q);
+  if(replyKind){
+    const matched=window.verifiedAssociationSameDayFinance?.(heldReportQuestion+"；報表種類確認："+replyKind+"。");
+    if(matched){financeMeetingPlanner=null;postponedProxyDateQuestion=null;assemblyRecountQuestion=null;renderAnswer(q,matched);return;}
+  }
   const heldDateQuestion=postponedProxyDateQuestion;postponedProxyDateQuestion=null;
   const heldRecountQuestion=assemblyRecountQuestion;assemblyRecountQuestion=null;
   if(heldRecountQuestion&&window.isAssemblyRecountReply?.(q)){
@@ -1583,6 +1589,8 @@ async function ask(q){
   if(coopLiquidationResidue){financeMeetingPlanner=null;renderAnswer(q,coopLiquidationResidue);return;}
   const canceledGrantInKind=typeof window.verifiedAssociationCanceledGrantInKind==="function"?window.verifiedAssociationCanceledGrantInKind(q):null;
   if(canceledGrantInKind){financeMeetingPlanner=null;renderAnswer(q,canceledGrantInKind);return;}
+  const sameDayFinance=window.verifiedAssociationSameDayFinance?.(q);
+  if(sameDayFinance){financeMeetingPlanner=null;sameDayReportQuestion=sameDayFinance.needsReportChoice?q:null;renderAnswer(q,sameDayFinance);return;}
   const fiscalGrant=typeof window.verifiedAssociationFiscalGrant==="function"?window.verifiedAssociationFiscalGrant(q):null;
   if(fiscalGrant){financeMeetingPlanner=null;renderAnswer(q,fiscalGrant);return;}
   const fiscalTax=typeof window.verifiedAssociationFiscalTax==="function"?window.verifiedAssociationFiscalTax(q):null;
@@ -2223,6 +2231,7 @@ touch();
 <script src="association-assembly-recount.js?v=1"></script>
 <script src="mail-election-organization.js?v=1"></script>
 <script src="association-handover-refusal.js?v=1"></script>
+<script src="association-sameday-finance.js?v=1"></script>
 <script src="director-absence-clarification.js?v=1"></script>
 <script src="association-records-and-term.js?v=2"></script>
 <script src="association-external-audits.js?v=1"></script>
