@@ -15,13 +15,14 @@ function route(q){
  const multi=/兩(?:邊|筆|份|家|個|處|場)|二個以上|另(?:一個|一筆|一邊)|各自|各向|各一筆|多(?:個)?機關|同時|重複|重覆|雙邊|各報/.test(t)||countyPair||(gov&&nationalNamed&&/縣|市|公所/.test(t));
  if(!multi)return null;
  const distinct=/不同(?:活動|企劃|計畫|案|場次)|兩場.{0,5}不同|各辦一場|不是同一(?:場|案|計畫)/.test(t);
- const same=/同一(?:場|案|活動|個案|計[畫劃]|件)|同年度同一|同個活動|同件事|同一計/.test(t)&&!distinct;
+ const singleActivity=countyPair&&/同年|同年度/.test(t)&&/都報.{0,4}一場活動|都(?:申請|送).{0,4}一場活動/.test(t);
+ const same=(singleActivity||/同一(?:場|案|活動|個案|計[畫劃]|件)|同年度同一|同個活動|同件事|同一計/.test(t))&&!distinct;
  const condition=/重[複覆](?:申請|核銷|請領|請款|報)|同(?:一|張|筆).{0,12}(?:單據|發票|收據|憑證|費用|支出)|兩邊.{0,5}(?:申請|核銷|請款|報)|能.{0,5}都申請|可以.{0,8}申請|要.{0,6}(?:寫|揭露|列)|報帳|補救|更正|分攤|補保險|補印刷|各報/.test(t);
  if(!(same||distinct||condition))return null;
  // Give way to existing guidance when a primarily different fiscal question names two sources in passing.
  if(/抬頭|轉項|挪用|改列|餐費改|改成餐|個人名義/.test(t)&&!same&&!distinct&&!/重[複覆]|兩邊都核銷/.test(t))return null;
  const done=/已(?:經)?(?:都|先|各)?核銷|已(?:經)?向兩邊核銷|都(?:已經?|各|先)?核銷|(?:核銷|結案)(?:完|後)|已(?:經)?請過款|都撥款|各報整筆/.test(t)&&!/尚未核銷|還沒核銷|未核銷|還沒報/.test(t);
- const sent=!done&&/已(?:經)?(?:送|申請|報)|已經兩邊|都送了|送兩邊|送出(?:後|了)|都(?:先)?送件|先報了|送件之後|已送件/.test(t);
+ const sent=!done&&/已(?:經)?(?:送|申請|報)|已經兩邊|都送了|都報(?:了)?.{0,4}一場活動|送兩邊|送出(?:後|了)|都(?:先)?送件|先報了|送件之後|已送件/.test(t);
  const marked=/；來源確認：/.test(raw);
  const acrossYears=/不同年|跨年|去年.{0,20}今年|今年.{0,20}去年/.test(t);
  const external=away&&!/其實是屏東|因屏東縣府核定|是屏東縣府核定/.test(t);
