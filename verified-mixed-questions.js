@@ -451,10 +451,12 @@ function coopBoardVacancies(q){
  const effective=['書面送達社址就生效','理事、監事或主席請辭須以書面提出；辭職書送達合作社社址所在地時即生效，不必等理事會或監事會批准。應完成交接，辭職和遞補情形應在會議提出報告。'];
  const meeting=['報備不等於完成補選','仍應按規定召集、通知並辦理選舉。若現任人數太少、候補無法遞補或無法依法召集，請先備妥章程、現任和候補名單與相關紀錄，向合作社的主管機關確認可行程序；不要把函報當成已通過。'];
  const chairStep=['主席職務出缺另看任期','理事會主席或監事會主席出缺，原則上自出缺日起一個月內，分別召開理事會或監事會補選；所遺任期未滿六個月時，得各由理事或監事互推一人代理。這與一般理監事席次的半數門檻不是同一件事。'];
+ const whoAuth=/主管機關/.test(t)&&/縣/.test(t);
+ const authStep=['主管機關就是縣政府','合作社在縣的主管機關就是縣（市）政府（合作社法第2條之1），所以報屏東縣政府就可以，不是另外找一個機關。'];
  return {direct:true,category:'合作社會務',title:chair&&!dual?'合作社主席出缺：補選或代理，看剩餘任期':'合作社理監事出缺：分別遞補，未達半數才補選',
  summary:chair&&!dual?(remaining?'剩餘任期未滿六個月時，不是一定要立即補選，可以先由同一會的理事或監事互推一人代理。':'主席出缺原則一個月內由同一會補選；剩餘任期未滿六個月時，也可以互推一人代理。'):/(?:理事會|監事會)(?:批准|准辭|同意)|書面.{0,9}社址/.test(t)?'不必等理事會或監事會批准。書面辭職送達社址即生效，確有缺額後要先遞補，再看是否需要補選。':filing?'不能只報縣府就補選。先分別遞補，遞補後各自低於章程名額半數的組別才須補選。':'先由候補依序遞補，各組遞補後仍未達章程名額半數，才須補選。',
- steps:[...(chair?[chairStep]:[]),...(dual||!chair?[seat]:[]),effective,...(filing||dual?[meeting]:[])],
- refs:[rule(7),rule(8),...(filing||dual?[coop(46),coop(48),rule(18),rule(29)]:[])],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
+ steps:[...(whoAuth?[authStep]:[]),...(chair?[chairStep]:[]),...(dual||!chair?[seat]:[]),effective,...(filing||dual?[meeting]:[])],
+ refs:[...(whoAuth?[coop('2-1')]:[]),rule(7),rule(8),...(filing||dual?[coop(46),coop(48),rule(18),rule(29)]:[])],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
 }
 function creditCooperativeVacancy(q){
  const t=String(q??'').normalize('NFKC').replace(/\s/g,'');

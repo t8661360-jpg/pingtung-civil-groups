@@ -13586,6 +13586,59 @@ function cross1127r20(t){
  }
  return null;
 }
+function cross1128r23(t){
+ if(cross1128r23._busy)return null;
+ const S=(n,pc,a)=>({title:n+'第'+a+'條',source:LAW+pc});
+ const PT=a=>S('人民團體法','D0050091',a),EL=a=>S('人民團體選舉罷免辦法','D0050093',a),FN=a=>S('社會團體財務處理辦法','D0050097',a),WK=a=>S('社會團體工作人員管理辦法','D0050096',a),AD=a=>S('人民團體會務輔導辦法','D0020094',a),CO=a=>S('合作社法','D0050112',a),CE=a=>S('合作社選舉罷免辦法','D0050022',a);
+ const fl={focus:'cross-1128r23',domain:'social'};
+ const act=[{label:'聯絡承辦',view:'contact',sub:''}];
+ const tail='\n\n其他細節請洽縣府社會處承辦人員，縣府總機 08-7320415。';
+ const strip=s=>String(s||'').replace(/\n+(其他細節|詳細|如果您的協會已經遇到)[^\n]*$/,'');
+ const redir=(q,re,ext)=>{let a=null;cross1128r23._busy=true;try{a=verifiedRoundAnswer(normalizeQuestion(q),{})}catch(e){a=null}finally{cross1128r23._busy=false}
+  if(!a||!a.summary||!re.test(a.title||''))return null;return Object.assign({},a,{direct:true,questionState:fl},ext?ext(a):{});};
+ /* 合作社理事主席辭職：報誰、要不要重選 */
+ if(/合作社/.test(t)&&/主席/.test(t)&&/(辭職|請辭|不做|出缺|過世)/.test(t)&&/(報縣府|縣政府|縣府|主管機關|報誰|報哪|要報)/.test(t)){
+  return{direct:true,category:'合作社',title:'合作社理事會主席辭職：主管機關就是縣政府；一個月內召開理事會補選，剩餘任期未滿六個月可互推代理',
+   summary:'合作社在縣的主管機關就是縣政府（合作社法第2條之1），所以不是另外一個機關，報屏東縣政府就可以。\n\n要不要重選：\n1. 主席辭職要用書面提出，辭職書送達合作社社址就生效；原本的工作要完成交接，交接、辭職情形要在會議中提出報告（合作社選舉罷免辦法第8條）。\n2. 理事會主席出缺，要自出缺之日起一個月內召開理事會議補選；出缺時剩下的任期未滿六個月的，可以由理事互推一人代理（同辦法第7條第2項）。\n3. 補選的選舉會議紀錄要報請主管機關備查（同辦法第29條）。'+tail,
+   statutes:[CO('2-1'),CE(8),CE(7),CE(29)],notes:[],actions:act,questionState:{focus:'cross-1128r23',domain:'coop'}};
+ }
+ /* 同業公會沒開會員代表大會就改章程 */
+ if(/(同業公會|商業公會|工業公會)/.test(t)&&/章程/.test(t)&&/(沒開|沒有開|不開|未開|未經|沒經過|沒有經過|沒經|跳過)/.test(t)&&/(改|修|變更)/.test(t)){
+  const a=redir('商業同業公會章程變更',/章程變更/,x=>({title:'同業公會不能沒開會員代表大會就改章程：章程變更要經大會三分之二出席、出席三分之二同意，紀錄報縣府備查',
+   summary:'不可以。章程變更是會員大會的決議事項，沒有開會員代表大會、由理事會或理事長自己改，不符合規定。\n\n'+x.summary}));if(a)return a;
+ }
+ if(/(合作社|社員|股金|公會|職業團體|工會|農會|漁會)/.test(t))return null;
+ /* 社區發展協會解散：剩下的錢＋補助設備 */
+ if(/(社區發展協會|社區協會)/.test(t)&&/解散/.test(t)&&/(剩下的錢|剩的錢|剩餘財產|剩下的財產|存款|剩下)/.test(t)&&/(補助|設備|器材)/.test(t)){
+  const a=redir('社區發展協會解散剩餘財產歸誰',/剩餘財產/,x=>({title:x.title+'；用補助款買的設備要看補助核定函',
+   summary:x.summary+'\n\n至於公所或縣府補助買的設備：解散後要不要繳回、交給誰，要看當初的補助核定函和補助單位的認定，本站查不到統一規定，請洽原補助單位（例如鄉鎮市公所）確認。'+tail}));if(a)return a;
+ }
+ /* 理事、監事兼會計、出納＋要不要報備 */
+ if(/(監事|理事|召集人|常務)/.test(t)&&/(兼|同時當|同時擔任|同時做|順便當)/.test(t)&&/(會計|出納|總幹事|秘書長|幹事)/.test(t)&&/(報備|報縣府|報縣政府|備查|報社會處)/.test(t)&&!/會計師/.test(t)){
+  return{direct:true,category:'工作人員',title:'理事、監事（含監事會召集人）不能兼任會計、出納等工作人員：不是報備就可以',
+   summary:'不可以，所以也不是報備的問題。\n\n協會的工作人員（總幹事、幹事、會計、出納等）不得由選任之職員擔任（社會團體工作人員管理辦法第4條）；理事、監事、監事會召集人都是選出來的職員，不能同時當會計或出納，報縣府備查也不會讓它變成可以。\n\n真的要請他擔任會計，必須先辭去理事或監事的職務。'+tail,
+   statutes:[WK(4)],notes:[],actions:act,questionState:fl};
+ }
+ /* 不開大會、改用書面投票 */
+ if(/大會/.test(t)&&/(書面|通訊|寄信|郵寄|傳閱|紙本)/.test(t)&&/(投票|表決|選舉)/.test(t)&&/(代替|取代|不開|不想開|免開|就好|不用開)/.test(t)&&!/委託/.test(t)){
+  const a=redir('今年不開大會，用書面傳閱可以嗎',/不能用書面報告代替/,x=>({title:'會員大會不能用書面投票代替：定期大會每年要召開一次；只有理監事選舉可在章程訂定採通訊選舉',
+   summary:strip(x.summary)+'\n\n書面投票只有一種情形可以用：理事、監事的選舉，章程有訂定的，可以採用通訊選舉，而且要訂定通訊選舉辦法，經理事會通過後報主管機關備查（人民團體選舉罷免辦法第23條）。這是選舉的方式，不能拿來代替大會其他的議案。\n\n要不要報縣府：大會開完，會議紀錄要在閉會後三十日內報縣府備查（人民團體會務輔導辦法第12條）。'+tail,
+   statutes:(x.statutes||[]).concat([EL(23),AD(12)])}));if(a)return a;
+ }
+ /* 前提錯誤：協會不用報年度預算 */
+ if(/預算/.test(t)&&/(不用報|不必報|免報|不需要報|不需報|可以不報|不報也|不用送|免送)/.test(t)&&!/(補助|計畫書|核銷)/.test(t)){
+  const a=redir('預算沒報縣府會不會被撤銷立案',/年度工作計畫不是年度開始前/,x=>({title:'協會要報年度預算：年度開始前由理事會編好，年度終了後三個月內連同決算提大會通過再報縣府',
+   summary:'不是，協會的年度預算要報。人民團體每年都要編造預算、決算報告，提經會員（會員代表）大會通過，並報主管機關核備（人民團體法第34條）。\n\n'+x.summary,
+   statutes:[PT(34)].concat(x.statutes||[])}));if(a)return a;
+ }
+ /* 理事會借錢給理事長，監事反對 */
+ if(/(借錢|借款|借給|貸給|借.{0,4}錢)/.test(t)&&/(理事長|理事|會長|會員)/.test(t)&&/監事/.test(t)&&/(不行|反對|不同意|說了算|誰對|誰大|聽誰|糾正)/.test(t)){
+  const a=redir('協會可以借錢給理事長嗎',/借給理事長/,x=>({title:'理事會決議借錢給理事長、監事反對：監事會可以提糾正意見，理事會不處理時由會員大會審議',
+   summary:strip(x.summary)+'\n\n理事會和監事會意見不同時：協會的經費收支要在理事會提出審議，並送監事會監察；監事會發現有不當情事的，要提出糾正意見送理事會處理；理事會不處理的，監事會可以提報會員（會員代表）大會審議（人民團體會務輔導辦法第17條）。所以最後是由會員大會決定，不是理事會說了就算。'+tail,
+   statutes:(x.statutes||[]).concat([AD(17)])}));if(a)return a;
+ }
+ return null;
+}
 function cross1128r22(t){
  if(cross1128r22._busy)return null;
  const S=(n,pc,a)=>({title:n+'第'+a+'條',source:LAW+pc});
@@ -13704,7 +13757,8 @@ function cross1127r21(t){
 }
 function verifiedRoundAnswer(q,ctx){
  let x=null;
- try{x=cross1128r22(norm(q))}catch(e){x=null}
+ try{x=cross1128r23(norm(q))}catch(e){x=null}
+ if(!x)try{x=cross1128r22(norm(q))}catch(e){x=null}
  if(!x)try{x=cross1127r21(norm(q))}catch(e){x=null}
  if(!x)try{x=cross1127r20(norm(q))}catch(e){x=null}
  if(!x)try{x=cross1127r19(norm(q))}catch(e){x=null}
