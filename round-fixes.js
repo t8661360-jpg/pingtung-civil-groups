@@ -13604,6 +13604,54 @@ function cross1127r20(t){
  }
  return null;
 }
+function cross1128r24(t){
+ if(cross1128r24._busy)return null;
+ const S=(n,pc,a)=>({title:n+'第'+a+'條',source:LAW+pc});
+ const PT=a=>S('人民團體法','D0050091',a),EL=a=>S('人民團體選舉罷免辦法','D0050093',a),CB=a=>S('商業團體法','D0050100',a),CBR=a=>S('商業團體法施行細則','D0050101',a),CPR=a=>S('合作社組織編制及人事管理準則','D0050198',a);
+ const fl={focus:'cross-1128r24',domain:'social'};
+ const act=[{label:'聯絡承辦',view:'contact',sub:''}];
+ const tail='\n\n其他細節請洽縣府社會處承辦人員，縣府總機 08-7320415。';
+ const HARD='抱歉，這個問題難倒小屏了，小屏暫時無法回答喔！建議您先電洽承辦人員詢問～';
+ const strip=s=>String(s||'').replace(/\n+(其他細節|詳細|如果您的協會已經遇到|不確定的地方)[^\n]*$/,'');
+ const redir=(q,re,ext)=>{let a=null;cross1128r24._busy=true;try{a=verifiedRoundAnswer(normalizeQuestion(q),{})}catch(e){a=null}finally{cross1128r24._busy=false}
+  if(!a||!a.summary||!re.test(a.title||''))return null;return Object.assign({},a,{direct:true,questionState:fl},ext?ext(a):{});};
+ /* 合作社理事兼經理：要誰同意 */
+ if(/合作社/.test(t)&&/理事/.test(t)&&/(兼|同時當|同時擔任|順便當)/.test(t)&&/(經理|會計|出納|聘任職員|職員)/.test(t)&&/(社員大會|大會|同意|核准|誰批|誰准)/.test(t)&&!/監事/.test(t)){
+  return{direct:true,category:'合作社',title:'合作社理事原則上不能兼經理等聘任職員；情形特殊要經主管機關（縣府）同意，不是社員大會同意',
+   summary:'原則上不可以。合作社理事不得兼任聘任職員；只有情形特殊、經主管機關同意的，才不受限制（合作社組織編制及人事管理準則第7條）。合作社在屏東縣的主管機關就是縣政府。\n\n所以要同意的是縣府，不是社員大會；社員大會通過，也不能代替主管機關的同意。\n\n經理、會計、出納等都是聘任職員（同準則第3條），由理事會公開考選任用，或授權總經理、經理等主管公開遴選後提請理事會通過任用（同準則第5條）。'+tail,
+   statutes:[CPR(7),CPR(3),CPR(5)],notes:[],actions:act,questionState:{focus:'cross-1128r24',domain:'coop'}};
+ }
+ /* 公會會員代表過世、離職：誰遞補、要不要報縣府 */
+ if(/公會/.test(t)&&/會員代表/.test(t)&&/(過世|死亡|往生|去世|離職|退休|出缺|不在了|走了)/.test(t)&&!/(理事|監事|工會|合作社)/.test(t)){
+  const rep=/(報縣府|縣政府|縣府|報備|備查|要報)/.test(t);
+  const a=redir('公會會員代表可以改派嗎',/換人或出缺/,x=>({title:x.title+(rep?'；會員代表名冊在大會十五日前報縣府備查':''),
+   summary:'會員代表不是由候補遞補，而是由派他的公司、行號改派新的代表。\n\n'+strip(x.summary)+(rep?'\n\n要不要報縣府：公會平時要辦理會員代表的異動登記，每年召開大會一個月前辦理會籍總清查，造具會員及會員代表名冊，在大會十五日前報主管機關（縣府）備查（商業團體法施行細則第13條）；公會也要在大會一個月前通知會員，在大會二十日前以書面聲明會員代表是否改派（同細則第14條）。':'')+tail,
+   statutes:(x.statutes||[]).concat(rep?[CBR(13),CBR(14)]:[])}));if(a)return a;
+ }
+ if(/(合作社|社員|股金|工會|農會|漁會)/.test(t))return null;
+ /* 國際性社團的分會、地區組織：找縣府還是內政部 */
+ if(/(扶輪|獅子會|同濟會|青商會|崇她|國際性|國際團體)/.test(t)&&/(立案|申請成立|成立|組織)/.test(t)&&/(縣府|縣政府|內政部|找誰|找哪|向誰|主管機關)/.test(t)){
+  const a=redir('國際同濟會的縣分會要立案，是找縣府還是找內政部',/國際性團體/);if(a)return a;
+ }
+ /* 理事長連任：章程寫的跟法律不一樣 */
+ if(/(理事長|會長)/.test(t)&&/連任/.test(t)&&/章程/.test(t)&&/(不一樣|不同|為準|哪個|衝突|牴觸|抵觸|比較寬|寫可以)/.test(t)){
+  const q=/社區/.test(t)?'社區發展協會理事長可以連任幾次':'理事長可以連任幾次';
+  const a=redir(q,/連任/,x=>({title:'理事長連任以法律為準：最多連任一次，章程不能放寬',
+   summary:'以人民團體法為準。「理事長之連任，以一次為限」是人民團體法第20條直接規定的，章程寫得比這個寬（例如可以連任兩次以上），仍然只能連任一次；章程對理事、監事的連選連任有更嚴格限制的，依章程（同條「章程另有限制」）。\n\n'+strip(x.summary)+tail}));if(a)return a;
+ }
+ /* 團體內部選舉買票 */
+ if(/(買票|賄選|賄賂|收買|給錢|送錢|送禮)/.test(t)&&/(選舉|改選|投票|選票|當選)/.test(t)&&!/(議員|立委|村長|里長|鄉長|市長|縣長|代表會|公職)/.test(t)){
+  return{direct:true,category:'其他',title:'抱歉，這個問題難倒小屏了',
+   summary:HARD+'\n\n本站查到的法規沒有規定協會內部選舉有人買票時，選舉結果是不是無效；人民團體選舉罷免辦法第10條只規定選舉票本身（例如夾寫文字、用鉛筆圈寫）的無效情形，不包括買票。請先保留相關證據，並洽承辦人員確認；涉及刑事責任的，請洽警察機關或地檢署。'+tail,
+   statutes:[EL(10)],notes:[],actions:act,questionState:fl};
+ }
+ /* 理事長領薪水＋要不要扣所得稅 */
+ if(/(理事長|理事|監事|會長)/.test(t)&&/(薪水|薪資|支薪|月薪|領錢)/.test(t)&&/(所得稅|扣繳|扣稅|報稅|繳稅)/.test(t)){
+  const a=redir('協會理事長可以領薪水嗎',/無給職/,x=>({title:'理事長也是無給職，不能領薪水；出席費、交通費要不要扣繳請洽國稅局',
+   summary:'理事長也是理事，同樣是無給職，不能領薪水。\n\n'+strip(x.summary)+'\n\n要不要扣所得稅：理事長、理事、監事是無給職，不能領薪水；協會酌發的出席費、交通費要不要扣繳或申報，屬國稅局的認定，請洽國稅局。'+tail}));if(a)return a;
+ }
+ return null;
+}
 function cross1128r23(t){
  if(cross1128r23._busy)return null;
  const S=(n,pc,a)=>({title:n+'第'+a+'條',source:LAW+pc});
@@ -13775,7 +13823,8 @@ function cross1127r21(t){
 }
 function verifiedRoundAnswer(q,ctx){
  let x=null;
- try{x=cross1128r23(norm(q))}catch(e){x=null}
+ try{x=cross1128r24(norm(q))}catch(e){x=null}
+ if(!x)try{x=cross1128r23(norm(q))}catch(e){x=null}
  if(!x)try{x=cross1128r22(norm(q))}catch(e){x=null}
  if(!x)try{x=cross1127r21(norm(q))}catch(e){x=null}
  if(!x)try{x=cross1127r20(norm(q))}catch(e){x=null}
