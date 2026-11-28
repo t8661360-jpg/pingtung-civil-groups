@@ -1,0 +1,14 @@
+const assert=require('node:assert/strict');
+const {route}=require('./association-guest-greeting.js');
+const a=q=>{const v=route(q);assert(v,q);return v;};
+const all=r=>[r.title,r.summary,...r.steps.flat()].join(' ');
+assert.match(all(a('協會辦的活動有政治人物來致詞，算不算違反不得從事政治活動？')),/來賓單純致詞，不等於協會助選/);
+assert.match(all(a('社區協會經縣府補助辦餐會，里長也是候選人，只說活動辛苦了；台下有人喊投他，協會要怎麼區分？')),/不把個別行為一概當成協會行為/);
+const day=all(a('一般協會在投票當天四點後辦活動，有補助，候選人只招呼，主持人要求大家投他；直播片段想貼LINE，印刷費用補助可以嗎？'));
+assert.match(day,/四點過後也是/);assert.match(day,/不要直接以原活動補助核銷/);assert.match(day,/屏東縣選舉委員會/);
+const types=a('有人說活動上有政治人物，我沒聽到致詞，也不知道是不是候選人或是不是投票日；該先確認什麼才不會誤判？');
+assert.equal(types.choices.length,4);assert.equal(new Set(types.choices.map(x=>a(x.question).title)).size,4);
+assert.match(all(a('更正：沒有候選人號次、沒拜票，且不是投票日，也沒有使用補助，只問受邀民代單純致詞。')),/來賓單純致詞，不等於協會助選/);
+assert.match(all(a('不是公職候選，是我們協會理事改選的候選人，在會員大會自我介紹，能套用公職選罷法投票日的規定嗎？')),/不適用公職人員選舉罷免法/);
+for(const q of ['協會理事長可以用協會名義幫候選人站台嗎？','合作社理事候選人選舉自我介紹可不可以？','協會要申請補助，活動沒有邀候選人','新題：枋寮鄉全部存續團體幾個？'])assert.equal(route(q),null,q);
+console.log('Ceremonial remarks, public election timing, spending, and choices passed');
