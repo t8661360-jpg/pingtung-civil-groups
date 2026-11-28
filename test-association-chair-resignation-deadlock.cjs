@@ -1,0 +1,11 @@
+const assert=require('node:assert/strict');
+const {route}=require('./association-chair-resignation-deadlock.js');
+const response=q=>{const a=route(q);assert(a,q);return [a.title,a.summary,...a.steps.flat()].join(' ');};
+assert.match(response('理事長要辭職但沒人要接，理事會可以不准他辭嗎？'),/不能因此說理事會可無限期拒絕/);
+assert.match(response('協會理事長只在會員大會口頭說不做，沒有書面也沒理事會決議；他就不再是理事長了嗎？'),/不因這句話就卸任/);
+assert.match(response('書面辭呈送到兩週了，理事會一直不開，任期只剩四個月；能直接找得票最高的理事接嗎？'),/不要只憑票數最高就直接接任/);
+const approved=response('理事會上週已准辭，理事長剩五個月，章程沒寫代理也沒有常務理事；接下來應補選還是互推，什麼時候起算？');
+assert.match(approved,/從准辭決議日算/);assert.match(approved,/走理事互推/);assert.match(approved,/一個月內/);
+assert.match(response('理事會已通過理事長辭職，還有八個月任期，補選從哪一天起算？'),/不符合「不足六個月」/);
+for(const q of ['更正，這回不是辭職，是理事長過世，有公章尚待交接。','合作社理事長只口頭說不做','協會理事長辭呈還沒決議，能撤回辭呈嗎','普通理事已提出辭職，理事會不開','新題：竹田鄉文史團體有幾個？','協會會員大會的選舉如何算最高票？'])assert.equal(route(q),null,q);
+console.log('Association chair resignation and deadlock cases passed');
