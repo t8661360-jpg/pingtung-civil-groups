@@ -1566,6 +1566,7 @@ let financeMeetingPlanner, postponedProxyDateQuestion, assemblyRecountQuestion, 
 let electionObjectionContext=null, charityQuestionContext=null;
 let rosterSharingContext=null;
 let donationTaxContext=null;
+let inKindMixedSalesContext=null;
 let electionDualContext=null;
 let grantProcContext=null;
 let legalPropertyContext=null;
@@ -1580,6 +1581,7 @@ async function ask(q){
   const heldProcFacts=grantProcContext;grantProcContext=null;
   const heldCommunityMulti=communityMultiContext;communityMultiContext=null;
   const heldLegalProperty=legalPropertyContext;legalPropertyContext=null;
+  const heldMixedSales=inKindMixedSalesContext;inKindMixedSalesContext=null;
   const heldDonationTax=donationTaxContext;donationTaxContext=null;
   const heldRosterSharing=rosterSharingContext;rosterSharingContext=null;
   const heldCharityQuestion=charityQuestionContext;charityQuestionContext=null;
@@ -1617,6 +1619,9 @@ async function ask(q){
   if(permitResult){financeMeetingPlanner=null;charitablePermitContext=permitResult.retainPermitQuestion?permitFull:null;renderAnswer(q,permitResult);return;}
   const charityQuestion=heldCharityQuestion&&window.isCharitableFundraisingFactReply?.(q)?heldCharityQuestion+"；"+q:q;
   const rosterQuestion=heldRosterSharing&&window.isElectionRosterSharingFactReply?.(q)?heldRosterSharing+"；"+q:q;
+  const mixedQuestion=heldMixedSales&&window.isInKindMixedSalesFollow?.(q)?heldMixedSales+"；更正事實："+q:q;
+  const mixedGoods=window.verifiedInKindMixedSales?.(mixedQuestion);
+  if(mixedGoods){financeMeetingPlanner=null;inKindMixedSalesContext=mixedGoods.trackMixedGoods?mixedQuestion:null;renderAnswer(q,mixedGoods);return;}
   const donationQuestion=heldDonationTax&&window.isAssociationDonationTaxFactReply?.(q)?heldDonationTax+"；"+q:q;
   const donationTax=window.verifiedAssociationDonationTax?.(donationQuestion);
   if(donationTax){financeMeetingPlanner=null;donationTaxContext=donationTax.needsDonationFacts?donationQuestion:null;renderAnswer(q,donationTax);return;}
@@ -2306,6 +2311,7 @@ touch();
 <script src="post-election-first-meeting.js?v=2"></script>
 <script src="member-roster-access.js?v=20261127-election-copy"></script>
 <script src="election-roster-sharing.js?v=1"></script>
+<script src="association-in-kind-mixed-sales.js?v=1"></script>
 <script src="association-donation-tax.js?v=2"></script>
 <script src="election-dual-capacity.js?v=1"></script>
 <script src="association-fee-charter.js?v=1"></script>
