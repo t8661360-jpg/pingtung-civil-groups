@@ -1606,10 +1606,12 @@ let associationMeetingSequenceContext=null;
 let charitablePermitContext=null;
 let directoryCountContext=null;
 let ballotStaffStage=null;
+let candidateMembershipContext=null;
 async function ask(q){
   q=String(q||"").trim();if(!q||busy)return;
   const heldDirectoryCount=directoryCountContext;directoryCountContext=null;
   const heldBallotStaffStage=ballotStaffStage;ballotStaffStage=null;
+  const heldCandidateMembership=candidateMembershipContext;candidateMembershipContext=null;
   const heldCharitablePermit=charitablePermitContext;charitablePermitContext=null;
   const priorMeetingSequence=associationMeetingSequenceContext;associationMeetingSequenceContext=null;
   const heldElectionDual=electionDualContext;electionDualContext=null;
@@ -1693,6 +1695,8 @@ async function ask(q){
   if(postalBox){financeMeetingPlanner=null;renderAnswer(q,postalBox);return;}
   const venueRepair=window.verifiedVenueEquipmentRepair?.(q,heldVenueRepair);
   if(venueRepair){financeMeetingPlanner=null;venueRepairContext=venueRepair.venueRepairContext||null;renderAnswer(q,venueRepair);return;}
+  const membershipTenure=window.verifiedCandidateMembershipTenure?.(q,heldCandidateMembership);
+  if(membershipTenure){financeMeetingPlanner=null;candidateMembershipContext=membershipTenure.membershipQuestion||null;renderAnswer(q,membershipTenure);return;}
   const ballotStaff=window.verifiedElectionBallotStaffRoles?.(q,heldBallotStaffStage)
     ||(window.isOrdinaryCoopStaffDispute?.(q)?window.verifiedElectionStaffObjection?.(q):null);
   if(ballotStaff){financeMeetingPlanner=null;ballotStaffStage=ballotStaff.pendingBallotStage||null;renderAnswer(q,ballotStaff);return;}
@@ -2532,6 +2536,7 @@ touch();
 <script src="vehicle-gift-and-registry.js?v=1"></script>
 <script src="election-staff-objection.js?v=2"></script>
 <script src="election-ballot-staff-roles.js?v=1"></script>
+<script src="candidate-membership-tenure.js?v=1"></script>
 <script src="association-charter-membership-term.js?v=1"></script>
 <script src="association-withdrawal-and-filing.js?v=2"></script>
 <script src="association-meeting-finance-sequence.js?v=1"></script>
