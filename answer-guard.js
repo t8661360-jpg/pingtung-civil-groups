@@ -102,7 +102,7 @@
     if (p1.length < 5 || p2.length < 5) return null;
     /* 第3輪：後半換成另一種團體（「…，協會理事長又是怎樣」「…，合作社社員也有戶籍限制嗎」）是在問第二件事，不是承接前半 */
     const ty1 = typesOf(p1), ty2 = typesOf(p2), diffType = ty1.length === 1 && ty2.length === 1 && ty1[0] !== ty2[0];
-    const SUF3 = /(又是怎樣|又是怎麼樣|又是如何|又怎樣|又怎麼樣|又如何|也一樣嗎|也是嗎|也是這樣嗎|也相同嗎|也是一樣嗎)$/;
+    const SUF3 = /(又是怎樣|又是怎麼樣|又是如何|又怎樣|又怎麼樣|又如何|也一樣嗎|也是嗎|也是這樣嗎|也相同嗎|也是一樣嗎|也可以嗎|也能嗎|也行嗎|也適用嗎)$/; // 2026-11-28：「…公會會員代表可以委託出席嗎，協會會員也可以嗎」
     if (diffType && SUF3.test(p2) && p2.length < 16) { const k = p1.search(/怎麼|如何|可以|可不可以|能不能|幾|多久|多少|誰|要不要|需不需要|有沒有|會不會|一定要/); const subj = p2.replace(SUF3, '').replace(/的$/, '');
       if (k >= 2 && subj.length >= 2) { const re1 = TYPES.find(x => x[0] === ty1[0])[1], re2 = TYPES.find(x => x[0] === ty2[0])[1];
         p2 = subj.replace(new RegExp(re2.source, 'g'), '') ? subj + p1.slice(k) : p1.replace(new RegExp(re1.source), subj); } }
@@ -509,6 +509,30 @@
     return null;
   }
   if (typeof window !== 'undefined') window.__understandingGuard8 = understandingGuard8;
+  /* ── 理解把關 2026-11-28 第1輪（接在第8輪之後）──
+     A. 問「名稱可以跟別的協會一樣嗎」，答案沒談到名稱相同（例如被「改名程序」搶答）→ 選單，第一項是名稱限制。
+     B. 駕照、行照、監理站、罰單、牌照稅等個人監理業務，答案沒談到 → 固定用語（不要配到「車子登記到協會」）。
+     C. 東西壞了「誰要修、找誰修、維修費誰出」，答案沒談維修 → 選單（不要配到「財產報廢」）。 */
+  function understandingGuard9(q, a) {
+    if (!a || !a.title || a.unanswered || a.guarded) return null;
+    if (/您是不是要問|難倒小屏|想先確認|暫時無法回覆|兩件事|兩種團體/.test(a.title)) return null;
+    const fs = a.questionState && a.questionState.focus;
+    if (fs === 'guard-menu' || fs === 'keyword-menu' || fs === 'clarify' || fs === 'compound') return null;
+    if (a.category === '業務分流' || a.category === '打招呼' || a.category === '團體查詢' || (a.groups && a.groups.length)) return null;
+    const raw = NFK(q); if (raw.length < 5) return null;
+    const at = answerText(a);
+    /* A */
+    if (/(名稱|名字|會名|名號|同名|撞名|重名)/.test(raw) && (/(跟|和|與|同)(別的|其他|別人|別家|另一個|已經有的|現有的?|人家的?).{0,10}(一樣|相同|重複|同名)|同名|撞名|重名|名稱重複|名字重複/.test(raw)) && !/相同|同名|重複|一樣/.test(at))
+      return menu2(q, ['協會的名稱可以跟別的協會一樣嗎', '協會想換名字', ...similar(q, 5)], '');
+    /* B */
+    if (/(駕照|考照|路考|行照|監理站|監理所|監理處|罰單|牌照稅|燃料稅|換照|驗車|汽車牌照|機車牌照)/.test(raw) && !/(駕照|行照|罰單|考照|牌照)/.test(at)) // 「車子要依監理機關規定」這種順帶一提不算有答到
+      return fixedPhrase2(q, []);
+    /* C */
+    if (/(壞了|壞掉|故障|不能用|不會動|不動了|漏水|破掉|損壞)/.test(raw) && /(誰要?修|誰來修|誰負責修?|找誰修|誰出錢|修理費|維修費|修繕費|誰付|誰負擔)/.test(raw) && !/(維修|修理|修繕)/.test(at))
+      return menu2(q, similar(q, 7), '');
+    return null;
+  }
+  if (typeof window !== 'undefined') window.__understandingGuard9 = understandingGuard9;
   function guard(q, a) {
     try { const w4 = ghostwrite4(q, a); if (w4) return w4; } catch (e) {}
     try { const c = compareGuard(q, a) || compareTopic(q, a) || compound(q, a); if (c) return c; } catch (e) {}
@@ -517,6 +541,7 @@
     try { const u4 = understandingGuard5(q, a); if (u4) return u4; } catch (e) {}
     try { const u7 = understandingGuard7(q, a); if (u7) return u7; } catch (e) {}
     try { const u8 = understandingGuard8(q, a); if (u8) return u8; } catch (e) {}
+    try { const u9 = understandingGuard9(q, a); if (u9) return u9; } catch (e) {}
     try { const u6 = understandingGuard6(q, a); if (u6) return u6; } catch (e) {}
     try {
       if (!a || a.direct || a.questionState || a.unanswered || !a.title) return null;

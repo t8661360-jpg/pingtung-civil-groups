@@ -833,7 +833,7 @@ async function saveChunked(coll,rows,metaExtra){
 async function loadAll(force){
   if(loadPromise&&!force)return loadPromise;
   loadPromise=(async()=>{
-    const base=document.baseURI.replace(/[^/]*$/,"")+"data/";const DV="?v=20261128-335";
+    const base=document.baseURI.replace(/[^/]*$/,"")+"data/";const DV="?v=20261128-336";
     const jf=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);return r.json()};
     const jgz=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);const b=new Uint8Array(await r.arrayBuffer());if(b[0]!==31||b[1]!==139)return JSON.parse(new TextDecoder().decode(b));if(typeof DecompressionStream==="undefined")throw new Error("gzip unsupported");const text=await new Response(new Blob([b]).stream().pipeThrough(new DecompressionStream("gzip"))).text();return JSON.parse(text)};
     const [d,s,k,f]=await Promise.allSettled([jf(base+"directory.json"+DV),jf(base+"staff.json"+DV),jgz(base+"knowledge.json.gz"+DV).catch(()=>jf(base+"knowledge.json"+DV)),jf(base+"forms-catalog.json?v=20261105-5")]);
@@ -1543,7 +1543,7 @@ function smartFallback(q,kb){
   const twn=townOf(q);
   if(twn&&/統編|統一編號|國稅|扣繳|所得稅|免稅|報稅/.test(q)){const tr=STORE.kn.rows.find(r=>r.cat==="國稅轄區"&&r.text.includes(twn));if(tr)parts.where=[`${twn}的國稅窗口：`+tr.text,...(parts.where||[])]}
   /* 規則型問句（要不要、可不可以、需要…）沒有查詢名冊的字眼時，不要退回列名冊，改走「難倒小屏」交承辦補答案 */
-  if(!kb&&!parts.summary&&!PROCESS_RE.test(q)&&ENTITY_RE.test(q)&&STORE.dir.rows.length&&!(/要不要|需不需要|需要|可不可以|可以|能不能|能否|是否|一定要|必須|必要|會不會|為什麼|為何|怎樣|怎麼|如何|嗎|呢|要做|要辦|要幾|幾件|幾次|做什麼|要什麼|是什麼|什麼意思|是啥|好處|目的|意義|看什麼|評比|評鑑|優點|缺點|用途|遺失|不見了|弄丟|丟掉|掉了|找不到|壞掉|過期|被偷|被搶/.test(q)&&!QUERY_RE.test(q))){
+  if(!kb&&!parts.summary&&!PROCESS_RE.test(q)&&ENTITY_RE.test(q)&&STORE.dir.rows.length&&!(/要不要|需不需要|需要|可不可以|可以|能不能|能否|是否|一定要|必須|必要|會不會|為什麼|為何|怎樣|怎麼|如何|嗎|呢|誰要|誰來|誰負責|誰出|誰付|找誰|壞了|壞掉|故障|維修|修理|要做|要辦|要幾|幾件|幾次|做什麼|要什麼|是什麼|什麼意思|是啥|好處|目的|意義|看什麼|評比|評鑑|優點|缺點|用途|遺失|不見了|弄丟|丟掉|掉了|找不到|壞掉|過期|被偷|被搶/.test(q)&&!QUERY_RE.test(q))){
     const t=detectType(q),c=detectCat(q),d=townOf(q);
     if((c||t||d)&&!dirQueryFrom(q,{}).rule){const r=searchDir({kw:"",d,c,t},10);
       if(r.total&&!parts.groups){parts.groups=r.rows.slice(0,6);parts.dirMeta=dirMetaLine();
@@ -2337,7 +2337,7 @@ touch();
 })();
 </script>
 <script src="feedback-collector.js?v=20261127-local-draft1"></script>
-<script src="round-fixes.js?v=20261128-335"></script>
+<script src="round-fixes.js?v=20261128-336"></script>
 <script src="ordinary-association-notice.js?v=1"></script>
 <script src="member-expulsion-phrasing.js?v=1"></script>
 <script src="founding-meeting-notice.js?v=1"></script>
@@ -2387,7 +2387,7 @@ touch();
 <script src="association-venue-only-proxy.js?v=1"></script>
 <script src="association-corporate-member-officers.js?v=1"></script>
 <script src="association-cpa-independence.js?v=1"></script>
-<script src="representative-system-transition.js?v=20261128-335"></script>
+<script src="representative-system-transition.js?v=20261128-336"></script>
 <script src="grant-and-missing-meeting-record.js?v=1"></script>
 <script src="village-office-and-association.js?v=2"></script>
 <script src="association-borrowed-equipment.js?v=1"></script>
@@ -2416,7 +2416,7 @@ touch();
 <script src="association-fiscal-cases.js?v=1"></script>
 <script src="association-coop-quorum-volunteer-grant.js?v=20261127-coop-formula"></script>
 <script src="association-postponed-proxy.js?v=20261128-new-date"></script>
-<script src="association-representative-quorum.js?v=20261128-335"></script>
+<script src="association-representative-quorum.js?v=20261128-336"></script>
 <script src="coop-farm-verified-split.js?v=1"></script>
 <script src="association-filing-and-donation-scope.js?v=1"></script>
 <script src="association-leave-and-court-stages.js?v=1"></script>
@@ -2459,7 +2459,7 @@ touch();
 <script src="cooperative-activity-grant-route.js?v=20261127-coop-use"></script>
 <script src="association-roster-record-correction.js?v=20261127-roster-record"></script>
 <script src="coop-association-representative-eligibility.js?v=20261127-rep-eligibility"></script>
-<script src="association-representative-candidate.js?v=20261128-335"></script>
+<script src="association-representative-candidate.js?v=20261128-336"></script>
 <script src="association-designated-donation-cooperative-deficit.js?v=1"></script>
 <script src="association-cooperative-court-certificate.js?v=1"></script>
 <script src="credit-cooperative-funds-custody.js?v=1"></script>
@@ -2472,7 +2472,7 @@ touch();
 <script src="association-finance-report-kind.js?v=20261127-two-periods"></script>
 <script src="association-minutes-filing-kind.js?v=1"></script>
 <script src="association-decision-audit.js?v=1"></script>
-<script src="association-chair-vote.js?v=20261128-335"></script>
+<script src="association-chair-vote.js?v=20261128-336"></script>
 <script src="association-office-status.js?v=20261127-deprivation"></script>
 <script src="land-agent-guild-practice.js?v=20261127-refusal-license"></script>
 <script src="guild-practice-registration.js?v=2"></script>
@@ -2502,15 +2502,15 @@ touch();
 <script src="clan-association-scope.js?v=1"></script>
 <script src="association-director-lecture-fee.js?v=1"></script>
 <script src="in-kind-donation-distinction.js?v=1"></script>
-<script src="meeting-convening-distinction.js?v=20261128-335"></script>
-<script src="answer-arbiter.js?v=20261128-335-lease"></script>
-<script src="question-understanding.js?v=20261128-335"></script>
-<script src="counter-upgrade.js?v=20261128-335"></script>
-<script src="keyword-menu.js?v=20261128-335"></script>
-<script src="ai-assist.js?v=20261128-335"></script>
+<script src="meeting-convening-distinction.js?v=20261128-336"></script>
+<script src="answer-arbiter.js?v=20261128-336-lease"></script>
+<script src="question-understanding.js?v=20261128-336"></script>
+<script src="counter-upgrade.js?v=20261128-336"></script>
+<script src="keyword-menu.js?v=20261128-336"></script>
+<script src="ai-assist.js?v=20261128-336"></script>
 <script src="ai-understand.js?v=1"></script>
-<script src="answer-guard.js?v=20261128-335-fallback1"></script>
-<script src="festive.js?v=20261128-335" defer></script>
+<script src="answer-guard.js?v=20261128-336-fallback1"></script>
+<script src="festive.js?v=20261128-336" defer></script>
 </body>
 </html>
 

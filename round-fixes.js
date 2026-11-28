@@ -100,6 +100,24 @@ function normalizeQuestionU6(s){
 /* 理解把關第8輪（2026-11-27，根源）：
    1. 「理事長說今年沒錢不開大會了，這樣可以嗎？會被解散嗎」＝會員大會可以不開嗎（原本被「沒錢＋解散」的規則搶答成「沒有錢也可以解散」）。
    2. 「理監事選舉的候選人可以自己當監票員嗎」＝候選人可以當監票員嗎（原本答成監事會召集人）。 */
+/* 理解把關 2026-11-28 第1輪（接在第8輪之後）：
+   ① 「監事會三個監事只來兩個，可以開嗎」＝問出席門檻，不是問誰召集；
+   ② 「成立十年從來沒改過章程，會不會有問題」＝章程要不要定期重訂；
+   ③ 社區發展協會解散＋公所補助蓋的涼亭、買的設備＝解散後補助財產歸屬 */
+function normalizeQuestionU9(s){
+ s=String(s||'');
+ if(!/合作社|社員/.test(s)){
+  const m=s.match(/(理監事聯席會|理事會|監事會)/)||(/監事/.test(s)&&!/理事/.test(s)?['','監事會']:(/理事/.test(s)&&!/監事/.test(s)?['','理事會']:null));
+  if(m&&/(只來|只到|來了|到了|出席了?|才來|才到)(?:了)?[0-9一二兩三四五六七八九十]+(?:個|位|人|名)|[0-9一二兩三四五六七八九十]+(?:個|位|名)?人?(?:來了|到了|出席了?)/.test(s)&&!/(照開|硬開|還是開|照樣開|仍然開|照常開|不夠|不足|沒過半|未過半)/.test(s)&&/(可以開|能開|開得成|算數|有效|成會|流會|可以開會|能不能開|可不可以開|可以嗎|能決議|可以決議|可以表決)/.test(s)&&!/(大會|委託|代理|連署|臨時)/.test(s))s=m[1]+'要幾個人出席才能開';
+ }
+ if(!/合作社|社員/.test(s)&&/章程/.test(s)&&/((沒|沒有|從來沒|從沒|都沒|一直沒|未曾|不曾|很久沒)(改|修|修改|修正|動|更新|重訂)過?|.{1,4}年(都)?(沒|沒有|未)(改|修|動|更新))/.test(s)&&/(問題|可以嗎|要不要|需不需要|一定要|違法|違規|會怎樣|會不會|被罰|有沒有關係|沒關係|算不算)/.test(s)&&!/(怎麼改|如何改|怎麼修|幾個人|三分之二|報縣府|核備|照新|依新|按新|新規定|新的規定|新法|直接(照|依|按|用|做))/.test(s))s='章程需要每年重新訂嗎';
+ /* ⑤ 「新協會可以跟現有的協會同名嗎」＝名稱限制（不是查名冊；問「有沒有人用、幫我查」的仍走名稱比對） */
+ if(!/合作社|社員|公會|工會/.test(s)&&/(同名|撞名|重名|名稱重複|名字重複|(名稱|名字).{0,8}(一樣|相同))/.test(s)&&/(協會|團體|社團|學會)/.test(s)&&/(可以|能不能|可不可以|能否|嗎|怎麼辦|行不行|違法)/.test(s)&&!/(查|有沒有人|有人用|被用|是否已|怎麼改名|改名要|改名怎麼|報內政部|報縣府|要報|解散|撤銷|廢止|註銷)/.test(s))s='協會的名稱可以跟別的協會一樣嗎';
+ /* ④ 「協會會員可以委託別人出席嗎」沒講出席什麼會：會員能出席的就是會員大會 */
+ if(!/理事|監事|合作社|社員|公會|職業團體|工會/.test(s))s=s.replace(/(會員(?:代表)?)(可以|能不能|可不可以|能否|能)?委託(?:別人|他人|其他會員|其他人|人|家人|朋友)?(?:代理)?出席(嗎|呢)?$/,'$1$2委託別人出席會員大會$3');
+ if(/社區(發展)?協會/.test(s)&&/(解散|收掉|不辦了|結束)/.test(s)&&/補助/.test(s)&&/(涼亭|設施|設備|器材|建物|房子|蓋的|蓋了|買的|買了|東西|財產|活動中心)/.test(s)&&!/(怎麼解散|解散程序|幾個人|三分之二|清算人)/.test(s))s='社區發展協會要解散，剩下的錢跟公所的補助設備要給誰';
+ return s;
+}
 function normalizeQuestionU8(s){
  s=String(s||'');
  if(!/合作社|社員|公會|工會|社區發展|理事會|監事會|理監事會/.test(s)&&/(不開|不想開|不要開|沒開|沒有開|不召開|不辦)(會員)?大會/.test(s)&&/(沒錢|沒有錢|沒經費|沒有經費|經費不夠|經費不足|錢不夠|沒預算|太窮|(會被|會不會被|會遭|被)(解散|廢止|撤銷|處罰|罰))/.test(s)&&!/(想|要|打算|準備|怎麼|如何)解散/.test(s))s='會員大會可以不開嗎';
@@ -226,7 +244,7 @@ function normalizeQuestionR232(s){
  return s;
 }
 function normalizeQuestion(q){
- return normalizeQuestionR247(normalizeQuestionR246(normalizeQuestionR245(normalizeQuestionR244(normalizeQuestionR235(normalizeQuestionR234(normalizeQuestionR233(normalizeQuestionR232(normalizeQuestionR229(normalizeQuestionR228(normalizeQuestionR227(normalizeQuestionR225(normalizeQuestionR223(normalizeQuestion223(normalizeQuestion222(normalizeQuestion221(normalizeQuestion216(normalizeQuestion215(normalizeQuestion214(normalizeQuestion212(normalizeQuestion210(normalizeQuestion209(normalizeQuestion208(normalizeQuestion207(normalizeQuestion206(normalizeQuestion202(normalizeQuestion201(normalizeQuestion200(normalizeQuestion194(normalizeQuestion193(normalizeQuestion192(normalizeQuestion191(normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(normalizeQuestionU5(normalizeQuestionU3(normalizeQuestionU4(normalizeQuestionU2(normalizeQuestionU6(normalizeQuestionU8(normalizeQuestionU7(normalizeQuestionR237(normalizeQuestionR238(normalizeQuestionR239(normalizeQuestionR240(fixTyposU1(q))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
+ return normalizeQuestionR247(normalizeQuestionR246(normalizeQuestionR245(normalizeQuestionR244(normalizeQuestionR235(normalizeQuestionR234(normalizeQuestionR233(normalizeQuestionR232(normalizeQuestionR229(normalizeQuestionR228(normalizeQuestionR227(normalizeQuestionR225(normalizeQuestionR223(normalizeQuestion223(normalizeQuestion222(normalizeQuestion221(normalizeQuestion216(normalizeQuestion215(normalizeQuestion214(normalizeQuestion212(normalizeQuestion210(normalizeQuestion209(normalizeQuestion208(normalizeQuestion207(normalizeQuestion206(normalizeQuestion202(normalizeQuestion201(normalizeQuestion200(normalizeQuestion194(normalizeQuestion193(normalizeQuestion192(normalizeQuestion191(normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(normalizeQuestionU5(normalizeQuestionU3(normalizeQuestionU4(normalizeQuestionU2(normalizeQuestionU6(normalizeQuestionU8(normalizeQuestionU9(normalizeQuestionU7(normalizeQuestionR237(normalizeQuestionR238(normalizeQuestionR239(normalizeQuestionR240(fixTyposU1(q)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
 }
 /* 第200輪（根源）：入會退會與會員資格換問法——
    「忘記繳／忘了繳／漏繳會費」＝沒繳會費（原本「忘記繳會費會被退會嗎」被當成退費）；
@@ -3816,6 +3834,8 @@ function anonymousDonation(t){
 const MOI=(d,no,s,n)=>({title:'內政部'+d+no+'函',source:'https://www.moi.gov.tw/News_Content.aspx?n='+(n||14119)+'&s='+s});
 function viceChair(t){
  if(!/副理事長/.test(t)||/合作社|副理事主席/.test(t))return null;
+ /* 理解把關 2026-11-28：問副理事長能不能兼會計、出納、總幹事等工作人員，交給理監事兼任工作人員的規則 */
+ if(/(兼|當|擔任|做)(?:任|當|做)?(?:協會的?|本會的?)?(?:會計|出納|總幹事|秘書長?|幹事|工作人員|職員|專職)/.test(t))return null;
  if(!/(可以|能不能|可不可以|設|置|怎麼|如何|產生|選|提名|幾|要不要|需要|有沒有|規定|代理|職權|一定)/.test(t))return null;
  return{direct:true,category:'人民團體會務說明',title:'協會可以設副理事長：不是法定必要職位，人數和產生方式要先寫進章程',
  summary:'可以設，但要先在章程寫清楚。\n\n人民團體法只規定協會要有理事、監事，理事可以互選常務理事，再選出一位理事長（第17條），沒有提到副理事長。內政部的函釋說：副理事長不是法規規定一定要有的職員，也不在人民團體選舉罷免辦法規定的範圍內，怎麼產生，在章程明定就可以。\n\n所以要設副理事長，請這樣做：\n• 在章程寫明設幾位、怎麼產生（例如由理事互選，或由理事長提名經理事會同意）、任期和職權（例如協助理事長、理事長請假時代理）。\n• 章程原本沒有這個職位的，要先修改章程：會員過半數出席、出席人數三分之二以上同意（第27條），通過後30日內報縣府核備（第54條）。\n• 章程還沒修改之前，請不要先選出或對外使用副理事長的名義。',
@@ -9662,7 +9682,9 @@ function normalizeQuestion123(q){
   if(/(協會|本會|社團|團體|學會|我們)/.test(s)){
    s=s.replace(/(協會|本會|社團|團體|學會|我們)(買的|買來的|購置的|採購的|自己的|所有的|的|有的)?(東西|物品|器材|設備|財物)/g,'$1財產');
   }
-  if(NOUN.test(s)&&VERB.test(s)&&!/財產/.test(s))s+='財產';
+  /* 理解把關 2026-11-28：「冷氣壞了誰要修」是問維修，不是報廢或財產處分，不補「財產」 */
+  const repair=/(修理|維修|修繕|誰要?修|誰來修|找人修|送修|修好|修一修|修繕費|出錢修|付錢修|錢修|誰負責修|找誰修)/.test(s)&&!/(報廢|廢棄|淘汰|汰換|丟)/.test(s);
+  if(!repair&&NOUN.test(s)&&VERB.test(s)&&!/財產/.test(s))s+='財產';
  }
  return s;
 }
