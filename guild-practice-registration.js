@@ -13,7 +13,7 @@ function guildPractice(q){
  const qualifiers=/何時|先|要不要|需要|資格|一定|可以|能否|能不能|能.{0,3}不|有沒有|沒(?:有)?加入|未加入|還沒|拒收|拒絕|怎麼|如何|要.{0,4}辦|應不應|得不|可否|沒入會/.test(t);
  if(!news||!qualifiers)return null;
  const selected=Object.keys(profiles).filter(k=>({nurse:/護理師|護士|護理人員/,physician:/醫師(?!護士)|(?<!護理)醫生/,social:/社會工作師|社工師/})[k].test(t));
- const company=/商業同業公會|商業公會/.test(t)&&/拒絕|拒收|申請|入會|加入/.test(t);
+ const company=/商業同業公會|商業公會/.test(t)&&/拒絕|拒收|申請|入會|加入/.test(t)&&!(/(一定要|一定得|必須|必需|要不要|需不需要|強制|非.{0,3}不可|不加入|不入會)/.test(t)&&!/(拒絕|拒收|不讓|不准|刁難|抵制)/.test(t));/* 第243輪：「一定要入會嗎」問的是公司行號有沒有義務入會，不是公會能不能拒絕，交給「原則上要加入」答案 */
  if(!selected.length&&!company)return null;
  if(/事務所開業|(?:成立|開設|設立).{0,7}事務所|開業執照|診所開業|(?:成立|開設|設立).{0,5}診所/.test(t))return null;
  if(!company&&/退會|換照|歇業|停業|復業|支援報備|終止會員資格/.test(t))return null;
