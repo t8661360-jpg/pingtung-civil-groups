@@ -12942,6 +12942,18 @@ function normalizeQuestionR247(s){
   s=s.replace(/(要不要|一定要|需不需要|是不是要|必須|得).{0,3}(是|為|住在|住)?(本|該|這個|我們)?(社區|村里|村|里)(的|內)?(人|居民|會員)?(嗎)?/,'可以是外村的人嗎');
  return s;
 }
+function patrolR249(t){
+ if(/(合作社|社員|政黨|基金會|寺廟|宗教|祭祀|工會|公會|公司|營利|社區發展|社區|村里)/.test(t))return null;
+ if(!/組織區域/.test(t))return null;
+ if(/(章程|改|修改|變更|設籍|住|會員|名譽|顧問|寫)/.test(t.replace(/組織區域/g,'')))return null;
+ const call='\n\n其他細節請洽縣府社會處承辦人員，縣府總機 08-7320415。';
+ const R=(title,summary)=>({direct:true,category:'人民團體會務說明',title,summary:summary+call,statutes:[P(5),P(12),P(6)],notes:[],actions:[{label:'聯絡承辦',view:'contact',sub:''}]});
+ if(/(跨|別的縣|其他縣|外縣|全國|別縣|兩個縣|二個縣|多個縣)/.test(t))
+  return R('協會組織區域可以跨縣市嗎：原則依行政區域，能不能跨縣市法規沒有明文，請洽承辦','人民團體法第5條規定，人民團體的組織區域以行政區域為原則，並得分級組織；分級組織的設立，要依本法規定向當地主管機關辦理。\n\n組織區域是章程要載明的事項（第12條第3款）。至於屏東縣立案的協會，組織區域能不能跨出縣界、要怎麼申請，人民團體法沒有進一步的明文，本站查不到，不敢亂講，請先電洽承辦人員確認。');
+ if(/(什麼|是啥|甚麼|意思|指|代表|定義|怎麼算|如何訂)/.test(t))
+  return R('組織區域是什麼意思：團體活動、招收會員的行政區域範圍','組織區域，就是協會以哪一個行政區域為範圍來組織，例如全縣，或某一個鄉鎮市。人民團體法第5條規定，組織區域以行政區域為原則，並得分級組織。\n\n它是章程一定要寫的事項（第12條第3款）；會址則要設在主管機關所在地區，報經核准才可設在其他地區（第6條）。要改組織區域，要走修改章程的程序，細節請洽承辦人員。');
+ return null;
+}
 function patrolR248(t){
  if(/(合作社|社員|政黨|基金會|寺廟|宗教|祭祀|工會|公會|公司|營利|社區發展)/.test(t))return null;
  const call='\n\n其他細節請洽縣府社會處承辦人員，縣府總機 08-7320415。';
@@ -14163,6 +14175,7 @@ function verifiedRoundAnswer(q,ctx){
  if(!x)try{x=cross1127r13(norm(q))}catch(e){x=null}
  if(!x&&!verifiedRoundAnswer._r12)try{x=cross1127r12(norm(q),ctx)}catch(e){x=null} /* 導向既有答案時不再進第12輪規則，避免「名譽理事長可以投票嗎」這類導向題自我遞迴 */
  if(x&&x.__redir12){const R=x.__redir12;x=null;let a=null;verifiedRoundAnswer._r12=true;try{a=verifiedRoundAnswer(normalizeQuestion(R.q),ctx)}catch(e){a=null}finally{verifiedRoundAnswer._r12=false}if(a&&a.summary&&R.re.test(a.title||''))x=Object.assign({},a,{direct:true,questionState:R.fl},R.ext?R.ext(a):{});}
+ if(!x) try{x=patrolR249(norm(q))}catch(e){x=null}
  if(!x) try{x=patrolR248(norm(q))}catch(e){x=null}
  if(!x) try{x=patrolR247(norm(q))}catch(e){x=null}
  if(!x) try{x=patrolR246(norm(q))}catch(e){x=null}
