@@ -1590,6 +1590,7 @@ let coopMeetingRelocationContext=null;
 let handoverFinanceContext=null;
 let branchCorrespondenceContext=null;
 let meetingProxyScopeContext=null;
+let eventFinanceContext=null;
 let legalPropertyContext=null;
 let communityMultiContext=null;
 let associationMeetingSequenceContext=null;
@@ -1614,6 +1615,7 @@ async function ask(q){
   const heldHandoverFinance=handoverFinanceContext;handoverFinanceContext=null;
   const heldBranchCorrespondence=branchCorrespondenceContext;branchCorrespondenceContext=null;
   const heldMeetingProxyScope=meetingProxyScopeContext;meetingProxyScopeContext=null;
+  const heldEventFinance=eventFinanceContext;eventFinanceContext=null;
   const heldCommunityMulti=communityMultiContext;communityMultiContext=null;
   const heldLegalProperty=legalPropertyContext;legalPropertyContext=null;
   const heldVenueUse=venueUseContext;venueUseContext=null;
@@ -1673,6 +1675,8 @@ async function ask(q){
   if(handoverFinance){financeMeetingPlanner=null;handoverFinanceContext=handoverFinance.handoverFinanceContext||null;renderAnswer(q,handoverFinance);return;}
   const receiptScope=window.verifiedAssociationPickupAndService?.(q,heldReceiveAuthority);
   if(receiptScope){financeMeetingPlanner=null;receiveAuthorityContext=receiptScope.receiveAuthorityContext||null;renderAnswer(q,receiptScope);return;}
+  const eventFinance=window.verifiedEventFeesAndFundraising?.(q,heldEventFinance);
+  if(eventFinance){financeMeetingPlanner=null;eventFinanceContext=eventFinance.eventFinanceContext||null;renderAnswer(q,eventFinance);return;}
   const grantAccrual=window.verifiedGrantAccrualAssets?.(q,heldGrantAccrual);
   if(grantAccrual){financeMeetingPlanner=null;grantAccrualContext=grantAccrual.grantAccrualContext||null;renderAnswer(q,grantAccrual);return;}
   const staffExpense=window.verifiedStaffVolunteerCost?.(q,heldStaffExpense);
@@ -2443,6 +2447,7 @@ touch();
 <script src="financial-handover.js?v=1"></script>
 <script src="branch-correspondence.js?v=1"></script>
 <script src="meeting-proxy-scope.js?v=1"></script>
+<script src="event-fees-and-fundraising.js?v=1"></script>
 <script src="grant-multiple-sources.js?v=2"></script>
 <script src="grant-procurement-threshold.js?v=2"></script>
 <script src="association-legal-property.js?v=2"></script>
