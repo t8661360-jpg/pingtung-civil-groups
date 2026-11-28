@@ -1589,6 +1589,7 @@ let officeAddressContext=null;
 let officerEligibilityContext=null;
 let coopMeetingRelocationContext=null;
 let handoverFinanceContext=null;
+let staffRecordsContext=null;
 let branchCorrespondenceContext=null;
 let meetingProxyScopeContext=null;
 let eventFinanceContext=null;
@@ -1616,6 +1617,7 @@ async function ask(q){
   const heldOfficerEligibility=officerEligibilityContext;officerEligibilityContext=null;
   const heldCoopMeetingRelocation=coopMeetingRelocationContext;coopMeetingRelocationContext=null;
   const heldHandoverFinance=handoverFinanceContext;handoverFinanceContext=null;
+  const heldStaffRecords=staffRecordsContext;staffRecordsContext=null;
   const heldBranchCorrespondence=branchCorrespondenceContext;branchCorrespondenceContext=null;
   const heldMeetingProxyScope=meetingProxyScopeContext;meetingProxyScopeContext=null;
   const heldEventFinance=eventFinanceContext;eventFinanceContext=null;
@@ -1677,6 +1679,8 @@ async function ask(q){
   if(branchCorrespondence){financeMeetingPlanner=null;branchCorrespondenceContext=branchCorrespondence.branchCorrespondenceContext||null;renderAnswer(q,branchCorrespondence);return;}
   const grantCloseout=window.verifiedGrantProjectCloseout?.(q,heldGrantCloseout);
   if(grantCloseout){financeMeetingPlanner=null;grantCloseoutContext=grantCloseout.grantCloseoutContext||null;renderAnswer(q,grantCloseout);return;}
+  const staffRecords=window.verifiedStaffRecordsHandover?.(q,heldStaffRecords);
+  if(staffRecords){financeMeetingPlanner=null;staffRecordsContext=staffRecords.staffRecordsContext||null;renderAnswer(q,staffRecords);return;}
   const handoverFinance=window.verifiedFinancialHandover?.(q,heldHandoverFinance);
   if(handoverFinance){financeMeetingPlanner=null;handoverFinanceContext=handoverFinance.handoverFinanceContext||null;renderAnswer(q,handoverFinance);return;}
   const receiptScope=window.verifiedAssociationPickupAndService?.(q,heldReceiveAuthority);
@@ -2454,6 +2458,7 @@ touch();
 <script src="officer-eligibility-and-elections.js?v=1"></script>
 <script src="cooperative-meeting-relocation.js?v=1"></script>
 <script src="financial-handover.js?v=1"></script>
+<script src="staff-records-handover.js?v=1"></script>
 <script src="branch-correspondence.js?v=1"></script>
 <script src="meeting-proxy-scope.js?v=1"></script>
 <script src="event-fees-and-fundraising.js?v=1"></script>
