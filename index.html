@@ -1589,6 +1589,7 @@ let officerEligibilityContext=null;
 let coopMeetingRelocationContext=null;
 let handoverFinanceContext=null;
 let branchCorrespondenceContext=null;
+let meetingProxyScopeContext=null;
 let legalPropertyContext=null;
 let communityMultiContext=null;
 let associationMeetingSequenceContext=null;
@@ -1612,6 +1613,7 @@ async function ask(q){
   const heldCoopMeetingRelocation=coopMeetingRelocationContext;coopMeetingRelocationContext=null;
   const heldHandoverFinance=handoverFinanceContext;handoverFinanceContext=null;
   const heldBranchCorrespondence=branchCorrespondenceContext;branchCorrespondenceContext=null;
+  const heldMeetingProxyScope=meetingProxyScopeContext;meetingProxyScopeContext=null;
   const heldCommunityMulti=communityMultiContext;communityMultiContext=null;
   const heldLegalProperty=legalPropertyContext;legalPropertyContext=null;
   const heldVenueUse=venueUseContext;venueUseContext=null;
@@ -1661,6 +1663,8 @@ async function ask(q){
   if(coopElection){financeMeetingPlanner=null;coopReconvenedElectionContext=coopElection.trackCoopElection?coopElectionQ:null;renderAnswer(q,coopElection);return;}
   const officeAddress=window.verifiedAssociationSharedOffice?.(q,heldOfficeAddress);
   if(officeAddress){financeMeetingPlanner=null;officeAddressContext=officeAddress.officeAddressContext||null;renderAnswer(q,officeAddress);return;}
+  const meetingProxyScope=window.verifiedMeetingProxyScope?.(q,heldMeetingProxyScope);
+  if(meetingProxyScope){financeMeetingPlanner=null;meetingProxyScopeContext=meetingProxyScope.meetingProxyScopeContext||null;renderAnswer(q,meetingProxyScope);return;}
   const officerEligibility=window.verifiedOfficerEligibilityAndElections?.(q,heldOfficerEligibility);
   if(officerEligibility){financeMeetingPlanner=null;officerEligibilityContext=officerEligibility.officerEligibilityContext||null;renderAnswer(q,officerEligibility);return;}
   const branchCorrespondence=window.verifiedBranchCorrespondence?.(q,heldBranchCorrespondence);
@@ -2438,6 +2442,7 @@ touch();
 <script src="cooperative-meeting-relocation.js?v=1"></script>
 <script src="financial-handover.js?v=1"></script>
 <script src="branch-correspondence.js?v=1"></script>
+<script src="meeting-proxy-scope.js?v=1"></script>
 <script src="grant-multiple-sources.js?v=2"></script>
 <script src="grant-procurement-threshold.js?v=2"></script>
 <script src="association-legal-property.js?v=2"></script>
