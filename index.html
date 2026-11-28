@@ -1591,6 +1591,7 @@ let handoverFinanceContext=null;
 let branchCorrespondenceContext=null;
 let meetingProxyScopeContext=null;
 let eventFinanceContext=null;
+let volunteerGovernanceContext=null;
 let legalPropertyContext=null;
 let communityMultiContext=null;
 let associationMeetingSequenceContext=null;
@@ -1616,6 +1617,7 @@ async function ask(q){
   const heldBranchCorrespondence=branchCorrespondenceContext;branchCorrespondenceContext=null;
   const heldMeetingProxyScope=meetingProxyScopeContext;meetingProxyScopeContext=null;
   const heldEventFinance=eventFinanceContext;eventFinanceContext=null;
+  const heldVolunteerGovernance=volunteerGovernanceContext;volunteerGovernanceContext=null;
   const heldCommunityMulti=communityMultiContext;communityMultiContext=null;
   const heldLegalProperty=legalPropertyContext;legalPropertyContext=null;
   const heldVenueUse=venueUseContext;venueUseContext=null;
@@ -1675,6 +1677,8 @@ async function ask(q){
   if(handoverFinance){financeMeetingPlanner=null;handoverFinanceContext=handoverFinance.handoverFinanceContext||null;renderAnswer(q,handoverFinance);return;}
   const receiptScope=window.verifiedAssociationPickupAndService?.(q,heldReceiveAuthority);
   if(receiptScope){financeMeetingPlanner=null;receiveAuthorityContext=receiptScope.receiveAuthorityContext||null;renderAnswer(q,receiptScope);return;}
+  const volunteerGovernance=window.verifiedVolunteerTeamGovernance?.(q,heldVolunteerGovernance);
+  if(volunteerGovernance){financeMeetingPlanner=null;volunteerGovernanceContext=volunteerGovernance.volunteerGovernanceContext||null;renderAnswer(q,volunteerGovernance);return;}
   const eventFinance=window.verifiedEventFeesAndFundraising?.(q,heldEventFinance);
   if(eventFinance){financeMeetingPlanner=null;eventFinanceContext=eventFinance.eventFinanceContext||null;renderAnswer(q,eventFinance);return;}
   const grantAccrual=window.verifiedGrantAccrualAssets?.(q,heldGrantAccrual);
@@ -2448,6 +2452,7 @@ touch();
 <script src="branch-correspondence.js?v=1"></script>
 <script src="meeting-proxy-scope.js?v=1"></script>
 <script src="event-fees-and-fundraising.js?v=1"></script>
+<script src="volunteer-team-governance.js?v=1"></script>
 <script src="grant-multiple-sources.js?v=2"></script>
 <script src="grant-procurement-threshold.js?v=2"></script>
 <script src="association-legal-property.js?v=2"></script>
