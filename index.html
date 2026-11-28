@@ -1614,6 +1614,7 @@ let paymentOrderContext=false;
 let harassmentTriageContext=null;
 let foodDonationContext=false;
 let socialWorkPracticeContext=false;
+let communityCareServiceContext=false;
 let deceasedHandoverContext=null;
 let candidateMembershipContext=null;
 async function ask(q){
@@ -1628,6 +1629,7 @@ async function ask(q){
   const heldHarassmentTriage=harassmentTriageContext;harassmentTriageContext=null;
   const heldFoodDonation=foodDonationContext;foodDonationContext=false;
   const heldSocialWorkPractice=socialWorkPracticeContext;socialWorkPracticeContext=false;
+  const heldCommunityCareService=communityCareServiceContext;communityCareServiceContext=false;
   const heldDeceasedHandover=deceasedHandoverContext;deceasedHandoverContext=null;
   const heldCandidateMembership=candidateMembershipContext;candidateMembershipContext=null;
   const heldCharitablePermit=charitablePermitContext;charitablePermitContext=null;
@@ -1689,6 +1691,8 @@ async function ask(q){
   if(socialWorkPractice){financeMeetingPlanner=null;socialWorkPracticeContext=true;renderAnswer(q.replace(/[;；]櫃檯確認社工執業:[a-z]+$/i,""),socialWorkPractice);return;}
   const foodDonation=window.verifiedAssociationFoodDonationSafety?.(q,heldFoodDonation);
   if(foodDonation){financeMeetingPlanner=null;foodDonationContext=true;renderAnswer(q.replace(/[;；]櫃檯確認食品狀態:[a-z]+$/i,""),foodDonation);return;}
+  const careService=window.verifiedCommunityCareServiceTriage?.(q,heldCommunityCareService);
+  if(careService){financeMeetingPlanner=null;communityCareServiceContext=true;renderAnswer(q.replace(/[;；]櫃檯確認社區照顧:[a-z]+$/i,""),careService);return;}
   const harassment=window.verifiedAssociationHarassmentTriage?.(q,heldHarassmentTriage);
   if(harassment){financeMeetingPlanner=null;harassmentTriageContext=harassment.triageContext||null;renderAnswer(q.replace(/[;；]櫃檯確認事件類型:[a-z]+$/i,""),harassment);return;}
   const dirCountPlan=window.RegistryCountIntent?.query(q,TOWNS,CAT_ALIAS,heldDirectoryCount);
@@ -2610,8 +2614,9 @@ touch();
 <script src="volunteer-plan-and-team-lead.js?v=1"></script>
 <script src="association-rescheduled-notice.js?v=1"></script>
 <script src="meeting-notice-calendar.js?v=1"></script>
+<script src="community-care-service-triage.js?v=1"></script>
 <script src="social-worker-practice-triage.js?v=1"></script>
-<script src="association-food-donation-safety.js?v=1"></script>
+<script src="association-food-donation-safety.js?v=2"></script>
 <script src="association-harassment-triage.js?v=1"></script>
 <script src="association-payment-order.js?v=1"></script>
 <script src="association-court-representation.js?v=20261128-r37"></script>

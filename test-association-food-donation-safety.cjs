@@ -16,6 +16,7 @@ assert.match(route(e.choices[0].question).title,/即期/);
 assert.match(route(e.choices[1].question).title,/冷藏或冷凍/);
 assert.match(route(e.choices[2].question).title,/自製熟食/);
 assert.match(route(e.choices[3].question).title,/停止發放/);
+assert.match(route('協會送共餐食物給弱勢，已發下去多人不舒服疑似食品中毒。要聯絡誰？').title,/停止發放.*通知衛生局/);
 assert.equal(route('另問：佳冬鄉學術文化團體有幾個存續？',true),null);
 assert.equal(route('協會收到企業捐款要開收據嗎？'),null);
 assert.equal(route('社區想做共餐與見面活動，要怎麼申請據點？'),null);

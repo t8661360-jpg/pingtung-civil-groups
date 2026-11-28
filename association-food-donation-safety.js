@@ -17,7 +17,7 @@ function route(q,active){
  if(!t||t.length>485||/^(?:另問|新題|換題)/.test(t))return null;
  const selected=t.match(/;櫃檯確認食品狀態:(packed|cold|home|incident)$/)?.[1];
  const food=/食品|食物|熟食|生鮮|餐食|食材|便當|送餐|供餐|共餐/.test(t);
- const giving=/捐|贈|發放|送給|發給|物資銀行|食物銀行|送餐/.test(t);
+ const giving=/捐|贈|發放|送給|發給|發下去|分發|已發|送出|物資銀行|食物銀行|送餐/.test(t);
  const scope=/協會|社會團體|人民團體|志工|物資銀行|食物銀行|公益|救助|弱勢|家戶/.test(t);
  const follow=active&&/^(?:補充|更正|假設|那|如果|其實)/.test(t)&&food&&giving;
  const specific=/即期|過期|效期|有效日期|保存期限|常溫|冷藏|冷凍|冷鏈|停電|破損|未標|沒標|自製|散裝|疑似中毒|疑似食品中毒|食安|沒過期/.test(t);
