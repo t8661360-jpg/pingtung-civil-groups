@@ -1559,8 +1559,13 @@ function smartFallback(q,kb){
   return{related:parts.related||[],category:parts.category||"服務說明",title:parts.title||"小屏的回覆",summary:parts.summary,steps:parts.steps||[],docs:parts.docs||[],where:parts.where||[],guide:parts.guide||[],laws:parts.laws||[],notes:parts.notes||[],refs:parts.refs||[],groups:parts.groups||[],dirMeta:parts.dirMeta||"",staff:parts.staff||[],actions:parts.actions||[]};
 }
 let financeMeetingPlanner, postponedProxyDateQuestion, assemblyRecountQuestion, sameDayReportQuestion, cooperativeExpulsionQuestion;
+let electionObjectionContext=null;
 async function ask(q){
   q=String(q||"").trim();if(!q||busy)return;
+  const priorElectionObjection=electionObjectionContext;electionObjectionContext=null;
+  const electionFollow=priorElectionObjection&&window.isElectionObjectionFactReply?.(q);
+  const electionQuestion=electionFollow?priorElectionObjection+"；"+q:q;
+
   const heldCoopRemoval=cooperativeExpulsionQuestion;cooperativeExpulsionQuestion=null;
   if(heldCoopRemoval&&window.isCooperativeExpulsionTotalReply?.(q)){
     const matched=window.verifiedCooperativeExpulsionSequence?.(heldCoopRemoval+"；補充："+q);
@@ -1584,6 +1589,8 @@ async function ask(q){
     if(matched){financeMeetingPlanner=null;postponedProxyDateQuestion=matched.followNewDate?heldDateQuestion:null;renderAnswer(q,matched);return;}
   }
   if(!financeMeetingPlanner&&typeof window.createFinanceMeetingPlanner==="function")financeMeetingPlanner=window.createFinanceMeetingPlanner({board,showAnswer:renderAnswer});
+  const electionObjection=window.verifiedElectionObjectionPreservation?.(electionQuestion);
+  if(electionObjection){financeMeetingPlanner=null;electionObjectionContext=electionObjection.needsElectionFacts?electionQuestion:null;renderAnswer(q,electionObjection);return;}
   const memberDeathVoting=window.verifiedMemberDeathElectionContinuity?.(q);
   if(memberDeathVoting){financeMeetingPlanner=null;renderAnswer(q,memberDeathVoting);return;}
   const multipleGrants=window.verifiedGrantMultipleSources?.(q);
@@ -2308,6 +2315,7 @@ touch();
 <script src="association-resigned-chair-withdrawal.js?v=1"></script>
 <script src="member-death-kind-clarification.js?v=2"></script>
 <script src="member-death-election-continuity.js?v=1"></script>
+<script src="election-objection-preservation.js?v=1"></script>
 <script src="community-cooperative-pause.js?v=1"></script>
 <script src="association-event-private-contact.js?v=1"></script>
 <script src="association-guild-join-location.js?v=20261127-join-location"></script>
@@ -2375,7 +2383,7 @@ touch();
 <script src="meeting-convening-distinction.js?v=20261128-325"></script>
 <script src="answer-arbiter.js?v=20261128-325"></script>
 <script src="question-understanding.js?v=20261128-325"></script>
-<script src="counter-upgrade.js?v=20261128-325-death-election"></script>
+<script src="counter-upgrade.js?v=20261128-325-election-objection"></script>
 <script src="keyword-menu.js?v=20261128-325"></script>
 <script src="ai-assist.js?v=20261128-325"></script>
 <script src="ai-understand.js?v=1"></script>
