@@ -1,0 +1,18 @@
+'use strict';
+const assert=require('node:assert/strict');
+const {route}=require('./pingtung-public-event-safety.js');
+const check=(a,re)=>assert.match(JSON.stringify(a),re);
+const a=route('社區協會受縣府補助，改在部分縣道辦活動，同時1200人四小時，有發電機、保險與下雨延期，應先怎麼報備？');
+check(a,/60日/);check(a,/7日/);check(a,/天候等不可抗力/);check(a,/公告區域/);check(a,/道路主管/);check(a,/公共意外責任保險證明/);
+check(route('所以如果只把攤位移回廣場，不封路，保險也不用了嗎？',a.pingtungEventContext),/不表示免投保/);
+const b=route('協會借到公園辦成果展，預估八百人，有棚架和臨時用電，下雨怎麼辦？');
+check(b,/未達1,000人/);assert.doesNotMatch(JSON.stringify(b),/開始日前60日/);
+const base=route('協會借到學校操場辦園遊會，拿到同意就可以搭舞台嗎？');
+assert.equal(base.choices.length,4);
+for(const c of base.choices)assert.ok(route(c.question,base.pingtungEventContext));
+const other=route('高雄協會要在公園辦活動，搭棚架，活動安全要報備嗎？');
+check(other,/不直接套屏東時限/);assert.doesNotMatch(JSON.stringify(other),/60日/);
+assert.equal(route('換題，合作社股金可以同一年退出就拿回嗎？',a.pingtungEventContext),null);
+assert.equal(route('協會志工要買意外保險嗎？'),null);
+assert.equal(route('協會要辦會員大會，怎麼借場地與補助？'),null);
+console.log('Pingtung public event safety, local thresholds and independent branches passed');
