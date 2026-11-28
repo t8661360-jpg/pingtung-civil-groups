@@ -1584,6 +1584,8 @@ async function ask(q){
     if(matched){financeMeetingPlanner=null;postponedProxyDateQuestion=matched.followNewDate?heldDateQuestion:null;renderAnswer(q,matched);return;}
   }
   if(!financeMeetingPlanner&&typeof window.createFinanceMeetingPlanner==="function")financeMeetingPlanner=window.createFinanceMeetingPlanner({board,showAnswer:renderAnswer});
+  const dissolutionEstate=window.verifiedAssociationDissolutionEstate?.(q);
+  if(dissolutionEstate){financeMeetingPlanner=null;renderAnswer(q,dissolutionEstate);return;}
   const volunteerTeamTraining=window.verifiedVolunteerTeamTrainingAndGrants?.(q);
   if(volunteerTeamTraining){financeMeetingPlanner=null;renderAnswer(q,volunteerTeamTraining);return;}
   const coopConflicts=window.verifiedCoopConflictsAndContracts?.(q);
@@ -2267,6 +2269,7 @@ touch();
 <script src="village-office-and-association.js?v=2"></script>
 <script src="cooperative-conflicts-and-contracts.js?v=1"></script>
 <script src="volunteer-team-training-and-grants.js?v=1"></script>
+<script src="association-dissolution-estate.js?v=1"></script>
 <script src="director-absence-clarification.js?v=1"></script>
 <script src="association-records-and-term.js?v=2"></script>
 <script src="association-external-audits.js?v=1"></script>
@@ -2366,7 +2369,7 @@ touch();
 <script src="meeting-convening-distinction.js?v=20261128-324"></script>
 <script src="answer-arbiter.js?v=20261128-324"></script>
 <script src="question-understanding.js?v=20261128-324"></script>
-<script src="counter-upgrade.js?v=20261128-324-village-contract"></script>
+<script src="counter-upgrade.js?v=20261128-324-dissolution-estate"></script>
 <script src="keyword-menu.js?v=20261128-324"></script>
 <script src="ai-assist.js?v=20261128-324"></script>
 <script src="ai-understand.js?v=1"></script>
