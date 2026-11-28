@@ -122,6 +122,71 @@ function route(q,prior) {
     x.cross?'先核對章程的組織區域、新址使用權及新舊主管機關。已登記為社團法人者，另確認法院主事務所的變更。':
     '確認正式地址才走遷址程序；聯絡資料、章程與法院登記是否要跟著改，分開核對。',steps,refs,extra);
 }
-if (typeof module === 'object' && module.exports) module.exports = {route};
-else root.verifiedAssociationSharedOffice = route;
+const scopeRule=law('人民團體法第3、5、6、12、27、54條：區域、會址與修章','D0050091');
+const moveRule=law('人民團體會務輔導辦法第3、6、8條：證書、分支及會址','D0020094');
+const corpVote=law('民法第53條：社團法人變更章程','B0000001');
+const moveCourt=law('法人及夫妻財產制契約登記規則第21、22、28、30條','B0010017');
+const moveOptions={registered:'有法院法人登記',notregistered:'沒有法院法人登記',formal:'要搬正式會址',service:'只新增固定服務點',mail:'只改收信地址'};
+function moveDetails(q,prior){
+ const t=norm(q);
+ if(!t||t.length>510||/^(?:換題|新題|另問)|合作社|社員大會|公會|工會|財團法人|農會|漁會|管委會/.test(t))return null;
+ const command=t.match(/^櫃檯會址確認:([a-z]+)$/)?.[1];
+ if(command&&(!prior||!moveOptions[command]))return null;
+ const continuing=prior&&/^(?:我剛(?:確認|查到)|剛查到|更正|其實|那|所以)(?:不是|我們|有|沒有|還|搬|要|只|也|已|這|了|是)/.test(t)&&/會址|法院|章程|縣市|內埔|正式|據點|地址|銀行|補助/.test(t);
+ const association=/協會|社會團體|人民團體|社團法人|屏東.{0,6}(?:的|立案).{0,5}團體|(?:不是要搬|不搬)正式會址|會址暨章程/.test(t)||continuing;
+ const office=/會址|主事務所|登記地址|正式地址/.test(t);
+ const move=/搬|換|遷|改|異動|變更|舊址|舊會址/.test(t);
+ const servicePoint=/(?:據點|服務點|辦事處|分支機構|分會)/.test(t);
+ const noMove=/(?:不是|不|沒有要)(?:要|打算)?(?:搬|遷|變更|改)(?:正式)?(?:會址|主事務所)|(?:正式會址|登記地址|主事務所)(?:都|仍)?不(?:變|搬|動|改)/.test(t);
+ const negCross=/(?:不是|沒有|不)(?:要)?(?:搬去|搬到|遷往)?外縣市|沒(?:有)?跨縣市|都在屏東|還在屏東|縣內|同一縣市/.test(t);
+ const cross=!negCross&&/外縣市|跨縣市|別的縣市|別縣市|他縣市|屏東.{0,45}(?:高雄|臺南|台南|臺東|台東)|(?:會址|主事務所).{0,12}(?:高雄|臺南|台南|臺東|台東)/.test(t);
+ const noCorp=/(?:沒有|並未|未曾|還沒|沒)(?:去|向|在)?(?:法院)?(?:辦過|辦理|做過|做|辦)?(?:法人)?登記|(?:不是|非)社團法人/.test(t);
+ const uncertainCorp=/(?:不知|不確定|不知道|不清楚).{0,8}(?:法人|法院).{0,6}登記/.test(t);
+ const corp=!noCorp&&!uncertainCorp&&/社團法人|(?:已|有).{0,6}(?:法院|法人)登記/.test(t);
+ const narrow=(office&&move&&/章程|換證|立案證書|法院|組織區域|主管機關/.test(t))||(servicePoint&&office&&/分支|服務點|據點/.test(t));
+ if(!command&&!continuing&&(!association||!narrow||noMove&&!servicePoint&&!/通訊地址|聯絡地址|收信地址/.test(t)))return null;
+ const known=continuing||command?prior||{}:{};
+ const noNumber=/章程.{0,12}(?:只寫|只載|只列).{0,12}(?:屏東縣|縣市|所在縣|鄉鎮)|章程.{0,15}(?:沒寫|沒載|沒有寫|未載|不寫|不載|不是).{0,5}(?:完整)?(?:門牌|地址)/.test(t);
+ const charter=!noNumber&&/章程.{0,9}(?:門牌|舊會址|舊地址)|章程上.{0,5}(?:寫|有).{0,6}(?:門牌|地址)/.test(t);
+ let kind=command==='formal'?'formal':command==='service'?'service':command==='mail'?'mail':noMove&&servicePoint?'service':office&&move?'formal':known.kind||'unclear';
+ if(!command&&!servicePoint&&(noMove&&/通訊地址|聯絡地址|收信地址/.test(t)||/只(?:要)?(?:改|換)(?:通訊|聯絡|收信)地址/.test(t)&&!cross&&!office))kind='mail';
+ if(!command&&/只改通訊地址/.test(t)&&cross&&!noMove)kind='formal';
+ const ctx={kind,cross:cross||!!known.cross&&!negCross&&!/搬到(?:內埔|潮州|東港|佳冬|枋寮)|搬往(?:內埔|潮州|東港|佳冬|枋寮)/.test(t),
+  status:command==='registered'?'yes':command==='notregistered'?'no':uncertainCorp?'unknown':corp?'yes':noCorp?'no':known.status||'unknown',
+  charter:charter?'exact':noNumber?'county':known.charter||'unknown',
+  branches:servicePoint||!!known.branches,business:/銀行|國稅|統編|稅籍|補助|核銷/.test(t)||!!known.business,
+  site:/口頭|房東|租約|場所證明|使用證明/.test(t)||!!known.site};
+ const steps=[], refs=[scopeRule,moveRule]; let title,summary,keys=[];
+ if(kind==='mail'){
+  title='只改收信地址，不是正式遷址'; summary='實際會址沒有搬，才可以只更新收信地址。若人員、主要辦公處與會務已搬走，不要把它報成只改通訊。';
+  steps.push(['分開更新收信資料','向原承辦確認通訊欄位，另通知仍寄件的單位，保留原公文和期限。沒有變更正式會址時，不因此去法院變更主事務所。']);
+ }else if(kind==='service'){
+  title='新增固定服務點，不等於搬正式會址';
+  summary='先說明在新點做什麼、是否常設、是否有負責人或對外辦理會務。固定服務點不一定是分支，也不會因借到辦公室就改變會籍或組織區域。';
+  steps.push(['若實際要設正式分支','依章程擬組織簡則，經會員（代表）大會決議後報主管機關核准，才實施。跨縣市由原立案主管機關先確認適用範圍及資格。'],['只有口頭答應時','先向有權提供場地的人取得載明用途、期限的書面同意，並向承辦確認應附的場所證明，不用在櫃檯貼完整門牌或契約。']);
+ }else{
+  title=ctx.cross?'跨縣市搬正式會址：先確認縣府程序，再分辨法院登記':'協會搬正式會址：先分清會址備查與修章';
+  summary=ctx.cross?'不能用「只改通訊地址」代替正式遷址。原則上會址設於主管機關所在地區；要設在外縣市，先向原立案主管機關確認並依法申請核准。搬家本身不自動變更會籍、組織區域或主管機關。':'若在原主管機關轄區內搬正式會址，先經理事會決議並報立案主管機關備查。若章程的條文也會變，不能只靠理事會辦理。';
+  steps.push(['會址與場所文件','理事會紀錄載明新址，準備由會址所有權人或有權人出具的書面使用同意等佐證。請屏東縣原承辦確認申辦表和附件，以及立案證書是否另需處理；不要和法院的法人登記證書混為一談。']);
+  if(ctx.charter==='county'&&!ctx.cross) steps.push(['若新址仍符合章程','章程只寫屏東縣、未列門牌且新址仍符合章程，不因門牌變動而必須修章或重新成立。']);
+  else {
+   const group='一般未辦法院法人登記的協會修章，須會員（代表）過半出席、出席者三分之二以上同意。';
+   const legal='已辦法院登記的社團法人，依民法第53條：全體會員過半出席、出席者四分之三以上同意，或全體會員三分之二以上書面同意。';
+   steps.push(['條文真的要改才另辦修章', (ctx.charter==='exact'?'章程載明舊門牌，換正式地址要修改相應條文。':'若新址超出章程所載地址範圍，或組織區域要變，先向主管機關確認修章程序。')+(ctx.status==='yes'?legal:ctx.status==='no'?group:group+legal)+'修章後三十日內報主管機關核備。']);if(ctx.status!=='no')refs.push(corpVote);
+  }
+  if(ctx.status==='yes'){
+   steps.push(['已辦法人登記：縣府程序之外，另辦法院變更','由董事向管轄法院登記處聲請，附會址變更證明及依法應備的主管機關核准文件。跨法院轄區時，原登記法院依登記規則第30條記明原因並移送登記簿謄本或影本，先向登記處核對受理地院和文件。完成才換發法院法人登記證書。']);refs.push(moveCourt,nonContentious);
+  }else if(ctx.status==='no'){
+   steps.push(['未辦法人登記：這次不用去法院變更','縣府立案不等於法院法人登記。依原立案主管機關程序辦會址，不需先新辦法人登記，也不因這次搬家重辦成立。']);
+  }else if(ctx.cross||/法院|法人登記/.test(t)){
+   steps.push(['先找是否有法院核發的法人登記證書','縣府立案證書不能代替。已有法院登記才另外辦主事務所變更；沒有就走原立案機關程序，不先跑法院。']);keys=['registered','notregistered'];
+  }
+  if(ctx.branches)steps.push(['舊址若要留作分會，另看實際用途','只是借場地或收件，和設正式分支機構是不同事；正式設分支須依章程擬組織簡則，經會員（代表）大會通過並報主管機關核准。']);
+  if(ctx.business)steps.push(['銀行、稅籍、補助不會一起自動更新','保存核備或核准文件。有戶頭或已辦統編者，向往來銀行、國稅機關分別核對異動文件；不能把換地址當成重申請統編。補助聯絡資料或核定場地不同，先按核定函向原補助承辦確認是否要事先同意。']);
+ }
+ if(kind==='unclear')keys=['formal','service','mail'];
+ return {direct:true,category:'人民團體會務｜會址與分支',title,summary,steps,refs,questionState:{focus:'cross-association-office-move-details'},officeMoveContext:ctx,actions:[{label:'聯絡承辦',view:'contact',sub:''}],...(keys.length?{choiceHeading:'請確認一項，其他已知條件會保留',choices:keys.map(k=>({label:moveOptions[k],question:'櫃檯會址確認:'+k}))}:{})};
+}
+if (typeof module === 'object' && module.exports) module.exports = {route,moveDetails};
+else {root.verifiedAssociationSharedOffice=route;root.verifiedAssociationOfficeMoveDetails=moveDetails;}
 })(typeof window === 'object' ? window : globalThis);
