@@ -1,0 +1,41 @@
+(function(root){
+'use strict';
+const ref=(title,source)=>({title,source});
+const process=ref('行政程序法第68、92、96、98、110、174條','https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=A0030055');
+const appeal=ref('訴願法第4、14、56至59、77條','https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=A0030020');
+const labels={missing:'只有提醒或通知補件',decision:'收到不予核備、駁回或其他正式准駁',delivery:'已收到函，想先核對送達及期限'};
+const overview={missing:'單純提醒或通知補件，通常不是最後的駁回，不用只因收到這封就立刻訴願。先保住補件期限、請原承辦說明要補哪些資料；若內容已作成最後決定，則另看救濟。',decision:'若公文已對外作成駁回或不予核備的決定，先看救濟方式與合法送達日。補資料、請承辦再看或一般陳情，不會自動停止或延長訴願期限。',delivery:'先查哪一次是合法送達，不是看誰較晚拆信。依法規完成的電子送達也可能有效；資料不全時不要等到最晚的日期才處理。',unknown:'先分是叫您補資料，還是機關已作成最後決定。若正式處分可能已送達，現在就核對公文的救濟欄與送達證明，不要等補件或電話回覆才處理期限。'};
+const norm=s=>String(s||'').normalize('NFKC').replace(/\s/g,'');
+function route(q,prior){
+ const raw=norm(q);const newQ=/^(?:換題|新題|另問)(?=$|[,:。，;!?])/;
+ if(newQ.test(raw))prior=null;
+ const t=raw.replace(/^(?:換題|新題|另問)(?=$|[,:。，;!?])[,.:。，;!?]*/,'');
+ if(!t||t.length>430)return null;
+ const selected=t.match(/^櫃檯行政函確認:([a-z]+)$/)?.[1];
+ if(selected&&(!prior||!labels[selected]))return null;
+ if(!selected&&/法院(?:民事)?支付命令|民事判決|刑事判決|刑事告訴|法院.{0,5}傳票|勞資調解|合作社社員大會/.test(t))return null;
+ const org=/協會|社會團體|人民團體|縣府|社會處|主管機關|承辦|縣政府/.test(t);
+ const subject=/核備|立案|申請案|補件|正式函|行政處分|行政救濟|准駁|駁回/.test(t);
+ const timing=/缺資料|補(?:件|正|送|資料|文件)|期限|延長|駁回|不予|訴願|救濟|送達|收件/.test(t);
+ const follow=prior&&/^(?:我?更正|我?補充|其實|那|所以|如果|我剛)/.test(t)&&/公文|核備|承辦|訴願|救濟|紙本|電子|補件|期限|變成.*駁回/.test(t);
+ const signal=/補件|補正|缺資料|缺件|駁回|不予(?:核備|立案|受理|許可)|訴願|救濟|行政處分|准駁|處分.{0,10}送達/.test(t);
+ if(!selected&&!((org||/正式(?:公文|函).{0,10}(?:不予|駁回)|不予(?:核備|立案).{0,14}(?:正式公文|正式函)/.test(t))&&subject&&timing&&signal)&&!follow)return null;
+ const keep=follow||selected?prior||{}:{};
+ const noDecision=/沒有(?:正式|准駁|駁回|不予)|(?:尚未|未|沒有)(?:正式)?(?:作成)?(?:駁回|准駁|不予核備)|尚未(?:正式|准駁)|只有.{0,20}(?:提醒|請求補|要求補)|只是(?:請|要)?補件/.test(t)&&!/(?:不(?:只是|是)|並非)(?:請|要求)?補件|已收到.{0,10}(?:不予|駁回)/.test(t);
+ const final=/不予核備|不予立案|不予受理|不予許可|駁回|准駁公文|行政處分/.test(t)&&!noDecision;
+ const dated=/電子.{0,16}紙本|紙本.{0,16}電子|送達時間|送達日期|幾天起算|不同日|未.{0,5}寫.{0,3}救濟|(?:沒|未).{0,4}(?:寫|載明|告知).{0,6}救濟/.test(t);
+ const missing=/補件|補正|缺資料|缺件/.test(t);
+ const ambiguous=/不知道|不確定|分不清|不曉得/.test(t)&&/補件|補正/.test(t)&&/駁回|准駁|處分|不予/.test(t);
+ const kind=selected||(ambiguous?'unknown':noDecision?'missing':final?'decision':dated?'delivery':missing?'missing':keep.kind||'unknown');
+ const steps=[];
+ if(kind==='missing'||kind==='unknown')steps.push(['先用正式管道補資料、留收件證明','通知只寫缺件時，可以依通知管道在期限內先送目前已有的資料，一併請承辦書面列清單及截止日。來不及時先提書面展延請求，保存發送與收件。未獲准不要當成期限已延長，也不能保證補送就一定核備。']);
+ if(kind!=='missing')steps.push(['正式處分通常是合法送達次日起30日','依訴願法第14條，行政處分達到或公告期滿的次日起一般30日內提出，通常以原處分機關或受理訴願機關收受為準，不憑郵戳或晚找到信的日期。應先核對是否有特別救濟程序。']);
+ if(kind!=='missing'||dated||keep.dated)steps.push(['電子與紙本不一致，先保留兩套紀錄','留掛號信封、簽收或送達證書、系統是否標明依法送達及時間。行政程序法第68條允許依法規以電子文件送達，看到影本、簡訊提醒或LINE訊息不等於已完成法定送達。確認先前是否已合法送達，不能直接挑較晚一天。']);
+ if(kind!=='missing')steps.push(['依發文名義確認受理機關，並行保期限','一般具訴願書由團體代表或有授權的代理人依法簽章，附原函及必要證據，經原行政處分機關向訴願管轄機關提出。先核發文機關名義及救濟教示，不必等機關答補件才提出。單純補送或電話詢問不是當然的訴願或不服表示。訴願法第57條另有期限內向原處分機關或訴願管轄機關明確表示不服、再於三十日內補送訴願書的規定，但若不確定來函性質或方式，宜儘早請法制或律師核對。'],['沒有寫救濟期限，不是自動多一年','行政程序法第98條針對未告知或錯告且因此遲誤者有補救；不先假設適用，也別以此等待。近期限時帶公文與送達資料請政府法制窗口或律師確認。']);
+ steps.push(['程序提醒和最後處分，看內容不只看標題','行政程序法第92、174條：重點是機關有無對外直接作成法律效果；承辦LINE提醒缺件一般不是獨立的正式駁回。程序處置原則隨對實體決定聲明不服，法律另定或得強制執行者例外。不要把含身分資料或完整公文上傳到小屏。']);
+ const choices=!selected&&kind==='unknown'?Object.entries(labels).map(([k,label])=>({label,question:'櫃檯行政函確認:'+k})):null;
+ return {direct:true,category:'團體會務｜補件、處分與救濟',title:kind==='missing'?'補件提醒和正式駁回不同':kind==='decision'?'正式不予核備或駁回：補件與訴願期限分開':kind==='delivery'?'先核對送達與行政救濟期限':'先分補件通知、正式准駁或送達',summary:overview[kind],steps,refs:[process,appeal],questionState:{focus:'cross-administrative-relief'},administrativeReliefContext:{kind,dated:dated||!!keep.dated},...(choices?{choiceHeading:'請選目前收到的文件或想確認的事項',choices}:null)};
+}
+if(typeof module==='object'&&module.exports)module.exports={route};
+else root.verifiedAdministrativeRelief=route;
+})(typeof window==='object'?window:globalThis);

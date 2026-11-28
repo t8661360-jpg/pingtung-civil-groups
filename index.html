@@ -1613,6 +1613,7 @@ let officeMoveContext=null;
 let foundPropertyContext=null;
 let elderSafetyContext=null;
 let entertainmentTaxContext=null;
+let administrativeReliefContext=null;
 let noticeCalendarContext=null;
 let paymentOrderContext=false;
 let harassmentTriageContext=null;
@@ -1637,6 +1638,7 @@ async function ask(q){
   const heldFoundProperty=foundPropertyContext;foundPropertyContext=null;
   const heldElderSafety=elderSafetyContext;elderSafetyContext=null;
   const heldEntertainmentTax=entertainmentTaxContext;entertainmentTaxContext=null;
+  const heldAdministrativeRelief=administrativeReliefContext;administrativeReliefContext=null;
   const heldNoticeCalendar=noticeCalendarContext;noticeCalendarContext=null;
   const heldPaymentOrder=paymentOrderContext;paymentOrderContext=false;
   const heldHarassmentTriage=harassmentTriageContext;harassmentTriageContext=null;
@@ -1707,6 +1709,8 @@ async function ask(q){
   const heldRecountQuestion=assemblyRecountQuestion;assemblyRecountQuestion=null;
   const elderSafety=window.verifiedElderSafeguarding?.(q,heldElderSafety);
   if(elderSafety){financeMeetingPlanner=null;elderSafetyContext=elderSafety.elderSafetyContext;renderAnswer(q.replace(/^櫃檯長者保護確認:[a-z]+$/i,'確認目前的安全或支援需求'),elderSafety);return;}
+  const administrativeRelief=window.verifiedAdministrativeRelief?.(q,heldAdministrativeRelief);
+  if(administrativeRelief){financeMeetingPlanner=null;administrativeReliefContext=administrativeRelief.administrativeReliefContext;renderAnswer(q.replace(/^櫃檯行政函確認:[a-z]+$/i,'確認補件、准駁或送達'),administrativeRelief);return;}
   const entertainmentTax=window.verifiedEntertainmentTax?.(q,heldEntertainmentTax);
   if(entertainmentTax){financeMeetingPlanner=null;entertainmentTaxContext=entertainmentTax.entertainmentTaxContext;renderAnswer(q.replace(/^櫃檯娛樂稅確認:[a-z]+$/i,'確認活動類型或日期'),entertainmentTax);return;}
   const foundProperty=window.verifiedEventFoundProperty?.(q,heldFoundProperty);
@@ -2626,6 +2630,7 @@ touch();
 <script src="event-found-property.js?v=2"></script>
 <script src="elder-safeguarding.js?v=1"></script>
 <script src="entertainment-tax.js?v=1"></script>
+<script src="administrative-relief.js?v=1"></script>
 <script src="officer-eligibility-and-elections.js?v=20261128-357"></script>
 <script src="cooperative-meeting-relocation.js?v=1"></script>
 <script src="financial-handover.js?v=1"></script>
