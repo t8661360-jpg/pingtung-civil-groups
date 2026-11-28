@@ -1283,6 +1283,8 @@ function coopChairAndShare(q){
 function associationMembershipIdentity(q){
  const t=String(q||'').normalize('NFKC').replace(/\s/g,'').replace(/身份證/g,'身分證');
  if(t.length>165||!/身分證|身分證明文件|身分證明/.test(t)||/工會|公會|合作社|農會|漁會|基金會|改選證明|印鑑|轉帳|銀行|申辦補助|登記為法人|選任職員簡歷|投票時|投票當天/.test(t))return null;
+ /* 交叉巡檢第28輪：問外籍人士能不能當理事、監事（順帶問身分證）是資格題，交給 round-fixes */
+ if(/(外籍|外國|新住民|外配)/.test(t)&&/(理事長|理事|監事)/.test(t)&&/(擔任|當|可以|能不能)/.test(t))return null;
  const join=/入會|加入.{0,12}(?:協會|社團|團體)|成為會員|新會員|會員申請/.test(t);
  const roster=/名冊|會籍|會員大會.{0,9}(?:留|收|查|驗)/.test(t);
  const entity=/協會|社團|團體|會員/.test(t);
