@@ -1566,8 +1566,10 @@ let electionDualContext=null;
 let grantProcContext=null;
 let legalPropertyContext=null;
 let communityMultiContext=null;
+let associationMeetingSequenceContext=null;
 async function ask(q){
   q=String(q||"").trim();if(!q||busy)return;
+  const priorMeetingSequence=associationMeetingSequenceContext;associationMeetingSequenceContext=null;
   const heldElectionDual=electionDualContext;electionDualContext=null;
   const heldProcFacts=grantProcContext;grantProcContext=null;
   const heldCommunityMulti=communityMultiContext;communityMultiContext=null;
@@ -1615,6 +1617,8 @@ async function ask(q){
   if(legalProperty){financeMeetingPlanner=null;legalPropertyContext=legalProperty.needsLegalFacts?legalPropertyQuestion:null;renderAnswer(q,legalProperty);return;}
   const rosterSharing=window.verifiedElectionRosterSharing?.(rosterQuestion);
   if(rosterSharing){financeMeetingPlanner=null;rosterSharingContext=rosterSharing.needsRosterFacts?rosterQuestion:null;renderAnswer(q,rosterSharing);return;}
+  const meetingSequence=window.verifiedAssociationMeetingSequence?.(q,priorMeetingSequence);
+  if(meetingSequence){financeMeetingPlanner=null;associationMeetingSequenceContext=q;renderAnswer(q,meetingSequence);return;}
   const dualQuestion=heldElectionDual&&window.isElectionDualCapacityFactReply?.(q)?heldElectionDual+"；"+q:q;
   const dualCapacity=window.verifiedElectionDualCapacity?.(dualQuestion);
   if(dualCapacity){financeMeetingPlanner=null;electionDualContext=dualCapacity.needsDualFacts?dualQuestion:null;renderAnswer(q,dualCapacity);return;}
@@ -2303,6 +2307,7 @@ touch();
 <script src="cooperative-address-proof.js?v=1"></script>
 <script src="liquidation-creditor-notice.js?v=2"></script>
 <script src="cooperative-liquidation-residue.js?v=1"></script>
+<script src="association-meeting-sequence.js?v=1"></script>
 <script src="association-assembly-recount.js?v=1"></script>
 <script src="mail-election-organization.js?v=1"></script>
 <script src="association-handover-refusal.js?v=1"></script>
