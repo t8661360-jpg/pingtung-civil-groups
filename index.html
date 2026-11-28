@@ -1565,10 +1565,12 @@ let donationTaxContext=null;
 let electionDualContext=null;
 let grantProcContext=null;
 let legalPropertyContext=null;
+let communityMultiContext=null;
 async function ask(q){
   q=String(q||"").trim();if(!q||busy)return;
   const heldElectionDual=electionDualContext;electionDualContext=null;
   const heldProcFacts=grantProcContext;grantProcContext=null;
+  const heldCommunityMulti=communityMultiContext;communityMultiContext=null;
   const heldLegalProperty=legalPropertyContext;legalPropertyContext=null;
   const heldDonationTax=donationTaxContext;donationTaxContext=null;
   const heldRosterSharing=rosterSharingContext;rosterSharingContext=null;
@@ -1605,6 +1607,9 @@ async function ask(q){
   const donationQuestion=heldDonationTax&&window.isAssociationDonationTaxFactReply?.(q)?heldDonationTax+"；"+q:q;
   const donationTax=window.verifiedAssociationDonationTax?.(donationQuestion);
   if(donationTax){financeMeetingPlanner=null;donationTaxContext=donationTax.needsDonationFacts?donationQuestion:null;renderAnswer(q,donationTax);return;}
+  const communityMultiQuestion=heldCommunityMulti&&window.isCommunityMultipleMembershipFactReply?.(q)?heldCommunityMulti+"；"+q:q;
+  const communityMulti=window.verifiedCommunityMultipleMembership?.(communityMultiQuestion);
+  if(communityMulti){financeMeetingPlanner=null;communityMultiContext=communityMulti.needsDualMembershipFacts?communityMultiQuestion:null;renderAnswer(q,communityMulti);return;}
   const legalPropertyQuestion=heldLegalProperty&&window.isAssociationLegalPropertyFactReply?.(q)?heldLegalProperty+"；"+q:q;
   const legalProperty=window.verifiedAssociationLegalProperty?.(legalPropertyQuestion);
   if(legalProperty){financeMeetingPlanner=null;legalPropertyContext=legalProperty.needsLegalFacts?legalPropertyQuestion:null;renderAnswer(q,legalProperty);return;}
@@ -2316,6 +2321,7 @@ touch();
 <script src="grant-multiple-sources.js?v=2"></script>
 <script src="grant-procurement-threshold.js?v=1"></script>
 <script src="association-legal-property.js?v=1"></script>
+<script src="community-multiple-membership.js?v=1"></script>
 <script src="director-absence-clarification.js?v=1"></script>
 <script src="association-records-and-term.js?v=2"></script>
 <script src="association-external-audits.js?v=1"></script>
@@ -2418,7 +2424,7 @@ touch();
 <script src="meeting-convening-distinction.js?v=20261128-327"></script>
 <script src="answer-arbiter.js?v=20261128-327"></script>
 <script src="question-understanding.js?v=20261128-327"></script>
-<script src="counter-upgrade.js?v=20261128-327-association-legal-property"></script>
+<script src="counter-upgrade.js?v=20261128-327-community-multiple"></script>
 <script src="keyword-menu.js?v=20261128-327"></script>
 <script src="ai-assist.js?v=20261128-327"></script>
 <script src="ai-understand.js?v=1"></script>
