@@ -16,6 +16,7 @@ const noFee=t=>/沒有(?:另外)?收(?:費|錢|志工月費)|小隊不收|服務
 function parse(q,prev){
  const t0=norm(q);
  if(!t0||t0.length>590||/^新題/.test(t0)||outside.test(t0))return null;
+ if(/時數.{0,8}(?:抵|折抵|換)/.test(t0))return null;
  const k=Object.keys(cases).find(k=>cases[k][1]===t0);
  if(k)return {...prev,org:k,picked:true};
  const corrected=!!prev&&/^(更正|其實|補充|剛才說錯)/.test(t0)&&/章程|計畫|協會|合作社|社股|隊/.test(t0);
