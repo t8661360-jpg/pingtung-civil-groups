@@ -1,7 +1,7 @@
 (function(root){
 'use strict';
 const norm=v=>String(v??'').normalize('NFKC').replace(/臺/g,'台').replace(/\s+/g,'');
-const reset=/(?:^|[，,。；;!?？！])(?:我說|現在|我想|想先|再|先|那)?(?:換(?:個|一個)?問題|換(?:一|個)?題|改問|新(?:的)?問題|新題|另一(?:個)?問題)(?=[:：,，;；。!?？！]|$)[:：,，;；。!?？！]*/g;
+const reset=/(?:^|[，,。；;!?？！])(?:我說|現在|我想|想先|再|先|那)?(?:換(?:個|一個)?問題|換(?:一|個)?題|改問|另外問|另問|新(?:的)?問題|新題|另一(?:個)?問題)(?=[:：,，;；。!?？！]|$)[:：,，;；。!?？！]*/g;
 const quant=/有多少|有幾(?:個|家|間|筆)?|幾(?:個|家|間|筆)|多少(?:個|家|間|筆)?|總數|總計|各有|團體數|社團數|有幾筆|數量|小計/;
 const dword=/名冊|團體|協會|學會|宗教|慈善|體育|文化|社團|公會|合作社|老人會|社區發展|總數/;
 const noName=/不用(?:查|找|列)?(?:團體)?(?:全名|特定名稱|具名資料)|(?:不是|不想|不要|不必)(?:要)?(?:找|查)(?:哪個|特定|團體)?(?:團體名稱|協會名稱|個別團體|特定(?:團體|協會)?|名稱)|只(?:想|要|需)(?:知道|看|查|給|列)?(?:存續|總數|數量|小計)|不用列(?:聯絡|人名|地址)|不要列(?:聯絡|人名|地址)/;
@@ -19,13 +19,13 @@ function query(input,towns,cats,prior){
  for(const m of raw.matchAll(reset)){const tail=raw.slice(m.index+m[0].length);if(tail){s=tail;resetFound=true;}}
  const force=/名冊查詢確認:(全縣|先選鄉鎮)/.exec(s)?.[1];
  const needsDates=artifact.test(s),negativeName=noName.test(s),correction=correct.test(s);
- let relevant=s.replace(notRegion,'').replace(/(?:不是|並非|不查|不用查|不是問)(?:要|問|查|找)?(?:公司(?:營業)?登記|工商(?:營業)?登記|會員名冊|社員名冊|個人名單|特定團體|團體全名|哪個特定名稱)(?=$|[，,。；;、])/g,'');
- const locs=[];
- for(const town of towns||[]){
-  const base=norm(town).slice(0,-1),full=norm(town);
-  if(!base)continue;
-  const neg=new RegExp('(?:不是|不要|不查|不要算|不包括|排除)(?:問|找|查)?(?:屏東)?'+full+'(?=$|[，,。；;、])|(?:不是|不查|排除)(?:屏東)?'+base+'(?=$|[，,。；;、])','g');
+ let relevant=s.replace(notRegion,'').replace(/(?:不是|並非|不查|不用查|不是問)(?:在|要)?(?:問|查|找)?(?:公司(?:營業)?登記|工商(?:營業)?登記|會員名冊|社員名冊|個人名單|特定團體|團體全名|哪個特定名稱)(?=$|[，,。；;、])/g,'');
+ const locs=[],keys=(towns||[]).map(town=>[town,norm(town).slice(0,-1),norm(town)]).filter(([,base])=>base);
+ for(const [,base,full] of keys){
+  const neg=new RegExp('(?:不是|不要|不查|不要算|不包括|排除)(?:問|找|查)?(?:屏東)?'+full+'(?=$|[，,。；;、])|(?:不是|不查|排除)(?:屏東)?'+base+'(?=$|[，,。；;、])|(?:屏東)?'+full+'(?:先)?(?:不要|不算|不用查|不列|排除)(?=$|[，,。；;、])','g');
   relevant=relevant.replace(neg,'');
+ }
+ for(const [town,base,full] of keys){
   let at=relevant.indexOf(full);
   if(at<0&&base!=='屏東'){
    const m=new RegExp(base+'(?!會|里|路|村|街|鄉公所|鎮公所|公司)').exec(relevant);if(m)at=m.index;
@@ -47,23 +47,31 @@ function query(input,towns,cats,prior){
  }
  filters.sort((a,b)=>a.at-b.at);
  const explicitCommunityAlias=/社區發展類(?:型)?/.test(relevant)&&filters.some(f=>f.key==='t'&&f.name==='社區發展協會')&&/存續|未解散|各有|幾(?:個|家|間|筆)|有多少|數量|總數/.test(relevant);
- const statusLive=onlyLive.test(s),statusGone=onlyGone.test(s),statusExtra=include.test(s);
+ const statusInput=regions.reduce((acc,town)=>acc.replaceAll(norm(town),''),s);
+ const statusLive=onlyLive.test(statusInput),statusGone=onlyGone.test(statusInput),statusExtra=include.test(statusInput);
  const explicitAll=/(?:全縣|整個屏東縣|屏東縣(?:全部|所有))/.test(relevant)||force==='全縣';
- const carry=!resetFound&&!force&&correction&&prior&&regions.length===1&&/其他一樣|其餘不變|只想知道|總數|一共有/.test(s);
- const listTarget=filters.length||dword.test(relevant)||carry;
+ const carry=!resetFound&&!force&&correction&&prior&&regions.length===1&&/其他(?:條件)?一樣|其餘(?:條件)?不變|只想知道|總數|一共有/.test(s);
+ const probe=locs.length?relevant.slice(locs.at(-1)[1]):relevant;
+ const unsupported=(!filters.length&&!carry&&(regions.length||explicitAll)&&/存續|未解散|還在運作|總數|總計|團體數|小計/.test(relevant))?
+   /(?:鄉|鎮|市|全縣|整個屏東縣)(?:的|目前|登記的|已立案的)*([\p{Script=Han}]{1,12}?類(?:型)?)(?=(?:民間)?(?:團體|協會|社團|學會)|存續|未解散|已解散|目前|[，,]|有|幾|多少)/u.exec(probe)?.[1]:'';
+ const knownGeneric=/^(?:全|全部|所有|各|各種|各類|全部名冊|所有名冊|名冊|兩|三|四|五|這幾|這兩|這三)類(?:型)?$/;
+ const unknownType=unsupported&&!knownGeneric.test(unsupported);
+ const listTarget=filters.length||dword.test(relevant)||carry||unknownType;
  if(!(quant.test(relevant)||carry||force)||!listTarget)return null;
  if(!regions.length&&!explicitAll&&!force&&!(negativeName||needsDates)&&!/比較|各有|分開/.test(s))return null;
  if(/幾個人|幾位|多少人|多少錢|多少費用|多少預算|幾天|幾年|幾月|幾歲|幾次|幾成|比例|每個團體|(?:有多少|有幾|多少名|幾位)(?:個|位|名)?(?:會員|社員|理事|監事|工作人員)|(?:會員|社員|理事).{0,5}(?:有多少|總數|有幾個)|一個團體.{0,9}(?:要|最多|至少)/.test(relevant))return null;
  if(/成立(?:需要|要件)|申請(?:資料|補助|流程)|怎麼(?:解散|成立|報名|加入)|如何(?:解散|成立|報名)|會員人數|理事名額|改選要|會員資格|補助款|法人登記|討論預算|費用要|法院扣押|會費|名冊要報|會員大會|註冊流程|(?:改|變更|修)章程|怎麼報名|怎麼成立|要申請|需要資金|怎麼辦理/.test(relevant))return null;
  if(/「[^」]{2,40}」|『[^』]{2,40}』|重複|撞名|想取名|名稱是否可用/.test(relevant))return null;
  if(/(?:公司|工商)(?:營業)?登記|會員名冊|社員名冊/.test(relevant))return null;
+ if(unknownType)return {kind:'unsupported',name:unsupported,regions};
  if(!force&&!resetFound&&!correction&&!negativeName&&!needsDates&&!statusLive&&!statusGone&&!statusExtra&&!explicitCommunityAlias&&regions.length<2&&filters.length<2&&!/只要|比較|各有|總數|小計|總計|團體數/.test(s))return null;
  if(!filters.length&&carry)filters.push(...prior.filters);
  if(!filters.length&&/文化/.test(s))return null; // no agreed type: don't silently count all
  if(!filters.length)filters.push({name:'全部名冊類別',key:'all'});
  if(regions.length>5||filters.length>4)return {kind:'narrow',regions,filters,scope:'live'};
  if(explicitAll&&!regions.length)regions=[''];
- const scope=statusGone&&!statusExtra?'gone':statusExtra?(statusLive||liveMention.test(s)||/差別|分開|各有|也想|如果|話是/.test(s)?'both':'all'):'live';
+ const preserveScope=carry&&!statusLive&&!statusGone&&!statusExtra&&!liveMention.test(s)&&/其他(?:條件)?一樣|其餘(?:條件)?不變/.test(s)&&['live','gone','all','both'].includes(prior.scope);
+ const scope=preserveScope?prior.scope:statusGone&&!statusExtra?'gone':statusExtra?(statusLive||liveMention.test(s)||/差別|分開|各有|也想|如果|話是/.test(s)?'both':'all'):'live';
  if(!regions.length)return {kind:'region',regions,filters,scope,s,needsDates};
  const relation=/各(?:類|種)|兩類|三類|這(?:兩|三)類|類別.{0,8}各|分開.{0,8}(?:小計|算|統計)|(?:學術文化|文化)類.{0,8}(?:慈善|宗教|體育)類.{0,8}各/.test(relevant);
  if(regions.length>1&&filters.length>1){
@@ -84,6 +92,7 @@ function response(input,plan,rows,meta){
  const q=String(input??'').trim();
  const nav={label:'到團體查詢頁篩選',view:'search',sub:''};
  const out=(title,summary,steps=[],tail={})=>({direct:true,category:'團體查詢',title,summary,steps,actions:[nav],questionState:{focus:tail.choices?'clarify':'compound'},...tail});
+ if(plan.kind==='unsupported')return out('團體名冊統計｜未找到這個獨立分類','「'+plan.name+'」不是這份名冊中小屏能獨立統計的類別，我不會把它算成 0，也不會改算全部。可到團體查詢頁以名稱關鍵字查找，或改用名冊中的正式類別，例如「體育運動團體」。');
  if(plan.kind==='narrow')return out('團體名冊統計｜先確認要分開數哪幾組','您提到多個鄉鎮市和類別。可補充「每個鄉鎮各算兩類」，或指定各地要算的類別；我不把不同條件一起合算。');
  if(plan.kind==='region'){
   const chosen=/名冊查詢確認:先選鄉鎮/.test(norm(q));
