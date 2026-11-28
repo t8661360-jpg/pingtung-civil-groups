@@ -1,0 +1,20 @@
+/* 第245輪：會址與章程 */
+const r=require('./round-fixes.js');
+const zlib=require('zlib'),fs=require('fs');
+const st=JSON.parse(zlib.gunzipSync(fs.readFileSync('data/statutes.json.gz')));
+const A=q=>r.verifiedRoundAnswer(r.normalizeQuestion(q),{});
+let bad=0;
+const pos=(qs,k)=>qs.forEach(q=>{const a=A(q);const t=a&&a.title||'';if(!t.includes(k)){bad++;console.log('✗',q,'=>',t||'(無)','期望',k)}});
+const neg=(qs,k)=>qs.forEach(q=>{const a=A(q);const t=a&&a.title||'';if(t.includes(k)){bad++;console.log('✗反',q,'=>',t)}});
+pos(['會址只是換樓層要報備嗎','辦公室搬到樓上要報備嗎','我們會所換到同棟大樓另一層要通知縣府嗎','協會地址從二樓搬到一樓要不要報縣府','會址只是搬到隔壁要報備嗎'],'會所搬到同縣的其他地方要通知縣府嗎');
+pos(['章程改錯了可以撤回嗎','章程已經通過了想改回原來的可以嗎','章程修正案想撤案','章程改了發現寫錯怎麼辦','章程修正後反悔了','章程發現改錯要怎麼更正'],'章程改錯了想撤回或改回原樣');
+neg(['縣府不同意章程修改怎麼辦','章程修改誰核准'],'章程改錯了想撤回');
+pos(['縣府不同意章程修改怎麼辦','章程修改縣府要核准嗎'],'章程修改誰核准');
+neg(['會員不同意修改章程怎麼辦','會員反對修改章程怎麼辦'],'章程修改誰核准');
+const chk=(a,s,l)=>{if(!a||!a.includes(s)){bad++;console.log('✗原文',l,s)}};
+const P=st.laws.D0050091.articles,G=st.laws.D0020094.articles;
+chk(P[27],'章程之訂定與變更','人團§27');chk(P[27],'出席人數三分之二以上同意','人團§27');
+chk(P[54],'其章程、選任職員簡歷冊或負責人名冊如有異動，應於三十日內報請主管機關核備','人團§54');
+chk(P[6],'報經主管機關核准者，得設於其他地區','人團§6');chk(G[8],'應經理事會決議通過後，報主管機關備查','輔導§8');
+if(bad)throw new Error('r245 失敗 '+bad);
+console.log('r245 ok');

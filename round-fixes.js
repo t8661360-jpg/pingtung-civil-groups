@@ -226,7 +226,7 @@ function normalizeQuestionR232(s){
  return s;
 }
 function normalizeQuestion(q){
- return normalizeQuestionR244(normalizeQuestionR235(normalizeQuestionR234(normalizeQuestionR233(normalizeQuestionR232(normalizeQuestionR229(normalizeQuestionR228(normalizeQuestionR227(normalizeQuestionR225(normalizeQuestionR223(normalizeQuestion223(normalizeQuestion222(normalizeQuestion221(normalizeQuestion216(normalizeQuestion215(normalizeQuestion214(normalizeQuestion212(normalizeQuestion210(normalizeQuestion209(normalizeQuestion208(normalizeQuestion207(normalizeQuestion206(normalizeQuestion202(normalizeQuestion201(normalizeQuestion200(normalizeQuestion194(normalizeQuestion193(normalizeQuestion192(normalizeQuestion191(normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(normalizeQuestionU5(normalizeQuestionU3(normalizeQuestionU4(normalizeQuestionU2(normalizeQuestionU6(normalizeQuestionU8(normalizeQuestionU7(normalizeQuestionR237(normalizeQuestionR238(normalizeQuestionR239(normalizeQuestionR240(fixTyposU1(q)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
+ return normalizeQuestionR245(normalizeQuestionR244(normalizeQuestionR235(normalizeQuestionR234(normalizeQuestionR233(normalizeQuestionR232(normalizeQuestionR229(normalizeQuestionR228(normalizeQuestionR227(normalizeQuestionR225(normalizeQuestionR223(normalizeQuestion223(normalizeQuestion222(normalizeQuestion221(normalizeQuestion216(normalizeQuestion215(normalizeQuestion214(normalizeQuestion212(normalizeQuestion210(normalizeQuestion209(normalizeQuestion208(normalizeQuestion207(normalizeQuestion206(normalizeQuestion202(normalizeQuestion201(normalizeQuestion200(normalizeQuestion194(normalizeQuestion193(normalizeQuestion192(normalizeQuestion191(normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(normalizeQuestionU5(normalizeQuestionU3(normalizeQuestionU4(normalizeQuestionU2(normalizeQuestionU6(normalizeQuestionU8(normalizeQuestionU7(normalizeQuestionR237(normalizeQuestionR238(normalizeQuestionR239(normalizeQuestionR240(fixTyposU1(q))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
 }
 /* 第200輪（根源）：入會退會與會員資格換問法——
    「忘記繳／忘了繳／漏繳會費」＝沒繳會費（原本「忘記繳會費會被退會嗎」被當成退費）；
@@ -10039,7 +10039,7 @@ function patrol130(t){
    return mk('志願服務','志工可以代表協會對外發言或簽約嗎：法規沒有規定，由協會自己授權','志願服務法沒有規定志工可不可以代表運用單位對外發言、簽約。志工有義務遵守運用單位訂定的規章（志願服務法第15條第2款），也要對因服務而取得的訊息保守秘密（第6款）。\n\n要不要授權志工代表協會，由協會依章程和理事會決議決定，建議在志願服務計畫或內部規章中寫清楚授權範圍。',[VS(15),VS(7)]);
  }
  if(/章程/.test(t)&&!/(第\d+條|章程範例|範本|立案|籌備|成立大會|訂定章程|訂章程|怎麼寫|如何寫|條款)/.test(t)){
-  if(!/(法人|社區發展|大會|會員代表|誰決定|誰說了算)/.test(t)&&(/(退件|被退|退回|駁回)/.test(t)&&/(怎麼辦|怎麼處理|如何處理|怎麼補|怎麼辦理)/.test(t)||!/(退件|被退|退回|駁回)/.test(t))&&/(退件|被退|駁回|誰核准|誰批准|誰同意|誰審|縣府.{0,3}(要|會|有)?(審|同意|核准|批准|不同意|不核)|主管機關.{0,3}(要|會)?(審|同意|核准|批准|不同意)|(不同意|不核備|不核准|核不過|核備不過|備不過))/.test(t)&&(/(改|修|變更|異動|修正|核備|報|縣府|主管機關)/.test(t)||/章程.{0,2}(誰核准|誰批准|誰同意|誰審)/.test(t))&&!/(名稱|會址|地址)/.test(t))
+  if(!/(法人|社區發展|大會|會員代表|誰決定|誰說了算)/.test(t)&&(/(退件|被退|退回|駁回)/.test(t)&&/(怎麼辦|怎麼處理|如何處理|怎麼補|怎麼辦理)/.test(t)||!/(退件|被退|退回|駁回)/.test(t))&&/(退件|被退|駁回|誰核准|誰批准|誰同意|誰審|縣府.{0,3}(要|會|有)?(審|同意|核准|批准|不同意|不核)|主管機關.{0,3}(要|會)?(審|同意|核准|批准|不同意)|(不同意|不核備|不核准|核不過|核備不過|備不過))/.test(t)&&(/(改|修|變更|異動|修正|核備|報|縣府|主管機關)/.test(t)||/章程.{0,2}(誰核准|誰批准|誰同意|誰審)/.test(t))&&!/(名稱|會址|地址)/.test(t)&&!/(會員|理事|監事|代表|有人|大家|多數|少數|成員).{0,4}(不同意|反對)/.test(t))
    return mk('人民團體會務說明','章程修改誰核准：由大會決議、報縣府核備；縣府不同意怎麼辦，法規沒有寫','章程的訂定與變更，由會員（會員代表）大會決議，過半數出席、出席人數三分之二以上同意（人民團體法第27條）。通過後，三十日內「報請主管機關核備」（第54條），法律用的是核備，不是核准。\n\n縣府認為章程條文不符規定要退回補正時，怎麼辦理，人民團體法沒有寫程序。團體有違反法令、章程的情形，主管機關可以警告、撤銷其決議並限期改善（第58條）。\n\n如果已辦法人登記，而且是受設立許可的社團，變更章程還要得到主管機關許可（民法第53條第2項）。',[P(27),P(54),P(58),CIV]);
   if(/(舊章程|舊的章程|原章程|原來的章程|新章程|新的章程|修正前|修正後|章程舊的|章程新的|章程.{0,3}(舊的|新的)).{0,8}(還能用|能用|可以用|還有效|有效|算數|還算|失效|作廢|取代|適用)|(還能用|能用|可以用|還有效|算數|失效|作廢|取代).{0,6}(舊章程|新章程)/.test(t)){
    const a=patrol22('章程修改後何時生效');if(a&&a.title)return Object.assign({},a,{direct:true});
@@ -12920,6 +12920,21 @@ function normalizeQuestionR244(s){
  if(/(志工|義工)/.test(s)&&/(沒|未|沒有)受過(任何|基礎|特殊)?(教育)?(訓練|訓)/.test(s))s=s.replace(/(沒|未|沒有)受過(任何|基礎|特殊)?(教育)?(訓練|訓)/,'沒受訓');
  return s;
 }
+function normalizeQuestionR245(s){
+ s=String(s||'');
+ /* 會址只是換樓層／搬到同棟隔壁＝會址搬家（原本沒有對到，變成關鍵字選單） */
+ if(/會址|辦公室|會所|會館|地址/.test(s)&&/(換|搬|移|調)(到|去|至)?(別的|另一|其他|上|下|同一?棟的?)?(樓層|一樓|二樓|三樓|樓上|樓下|隔壁)|同一?棟(大樓)?(內)?(搬|換|移)/.test(s))s=s.replace(/(只是)?(換|搬|移|調)(到|去|至)?(別的|另一|其他|上|下|同一?棟的?)?(樓層|一樓|二樓|三樓|樓上|樓下|隔壁)|同一?棟(大樓)?(內)?(搬|換|移)(家|位置|樓層)?/,'搬家');
+ return s;
+}
+function patrolR245(t){
+ if(/(合作社|社員|政黨|基金會|寺廟|宗教|祭祀|社區發展)/.test(t))return null;
+ const call='\n\n其他細節請洽縣府社會處承辦人員，縣府總機 08-7320415。';
+ const R=(title,summary,statutes)=>({direct:true,category:'人民團體會務說明',title,summary:summary+call,statutes,notes:[],actions:[{label:'聯絡承辦',view:'contact',sub:''}]});
+ /* 章程已經大會通過／報送後，發現改錯了、想撤回或改回原樣 */
+ if(/章程/.test(t)&&/(改錯|修錯|寫錯|改壞|改回來|改回去|改回原|反悔|撤回|撤銷|收回|取消.{0,3}(修正|修改|變更)|不想改了|恢復原|撤案|撤件)/.test(t)&&!/(縣府|主管機關).{0,4}(撤銷|撤回)/.test(t)&&!/(名稱|會址|地址|第\d+條)/.test(t))
+  return R('章程改錯了想撤回或改回原樣：法規沒有撤回的規定，要再依修改章程的程序辦理','章程的訂定與變更，是會員（會員代表）大會的決議事項，要出席人數三分之二以上同意（人民團體法第27條）；章程有異動，要在三十日內報請主管機關核備（第54條）。\n\n人民團體法沒有「撤回」已通過章程修正案的專門規定。要改回原樣或更正，比較穩妥的做法是照同樣的程序再提案：召開會員（會員代表）大會，經出席人數三分之二以上同意修正，再於三十日內報縣府核備。理事會、監事會無權自行修改章程。\n\n如果修正案已經報送縣府、還在審查中，能不能先撤件或補正，法規沒有寫，請先電洽承辦人員。',[P(27),P(54)]);
+ return null;
+}
 function patrolR244(t){
  if(/(合作社|社員|政黨|基金會|寺廟|宗教|祭祀)/.test(t))return null;
  const VS=n=>({title:'志願服務法第'+n+'條',source:LAW+'D0050131'});
@@ -13770,6 +13785,7 @@ function verifiedRoundAnswer(q,ctx){
  if(!x)try{x=cross1127r13(norm(q))}catch(e){x=null}
  if(!x&&!verifiedRoundAnswer._r12)try{x=cross1127r12(norm(q),ctx)}catch(e){x=null} /* 導向既有答案時不再進第12輪規則，避免「名譽理事長可以投票嗎」這類導向題自我遞迴 */
  if(x&&x.__redir12){const R=x.__redir12;x=null;let a=null;verifiedRoundAnswer._r12=true;try{a=verifiedRoundAnswer(normalizeQuestion(R.q),ctx)}catch(e){a=null}finally{verifiedRoundAnswer._r12=false}if(a&&a.summary&&R.re.test(a.title||''))x=Object.assign({},a,{direct:true,questionState:R.fl},R.ext?R.ext(a):{});}
+ if(!x) try{x=patrolR245(norm(q))}catch(e){x=null}
  if(!x) try{x=patrolR244(norm(q))}catch(e){x=null}
  if(!x) try{x=patrolR243(norm(q))}catch(e){x=null}
  if(!x) try{x=patrolR242(norm(q))}catch(e){x=null}
