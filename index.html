@@ -1577,6 +1577,7 @@ let electionDualContext=null;
 let grantProcContext=null;
 let grantEvidenceContext=null;
 let coopStockContext=null;
+let noticeReviewContext=null;
 let legalPropertyContext=null;
 let communityMultiContext=null;
 let associationMeetingSequenceContext=null;
@@ -1589,6 +1590,7 @@ async function ask(q){
   const heldProcFacts=grantProcContext;grantProcContext=null;
   const heldGrantEvidence=grantEvidenceContext;grantEvidenceContext=null;
   const heldCoopStock=coopStockContext;coopStockContext=null;
+  const heldNoticeReview=noticeReviewContext;noticeReviewContext=null;
   const heldCommunityMulti=communityMultiContext;communityMultiContext=null;
   const heldLegalProperty=legalPropertyContext;legalPropertyContext=null;
   const heldVenueUse=venueUseContext;venueUseContext=null;
@@ -1634,6 +1636,8 @@ async function ask(q){
   const coopElectionQ=window.cooperativeReconvenedElectionFollow?.(heldCoopReconvened,q)||q;
   const coopElection=window.verifiedCooperativeReconvenedElection?.(coopElectionQ);
   if(coopElection){financeMeetingPlanner=null;coopReconvenedElectionContext=coopElection.trackCoopElection?coopElectionQ:null;renderAnswer(q,coopElection);return;}
+  const noticeReview=window.verifiedMeetingKindNoticeReview?.(q,heldNoticeReview);
+  if(noticeReview){financeMeetingPlanner=null;noticeReviewContext=noticeReview.noticeReviewContext||null;renderAnswer(q,noticeReview);return;}
   const datedReschedule=window.verifiedSameYearAssociationMeetingDate?.(q);
   if(datedReschedule){financeMeetingPlanner=null;postponedProxyDateQuestion=datedReschedule.followNewDate?q:null;renderAnswer(q,datedReschedule);return;}
   const specialGuild=window.verifiedProfessionalGuildMeetingRules?.(q);
@@ -2364,6 +2368,7 @@ touch();
 <script src="cooperative-stock-exit.js?v=1"></script>
 <script src="cooperative-liquidation-residue.js?v=2"></script>
 <script src="association-meeting-sequence.js?v=1"></script>
+<script src="meeting-kind-notice-review.js?v=1"></script>
 <script src="association-assembly-recount.js?v=1"></script>
 <script src="mail-election-organization.js?v=1"></script>
 <script src="association-handover-refusal.js?v=2"></script>
