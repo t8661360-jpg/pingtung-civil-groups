@@ -1697,6 +1697,10 @@ async function ask(q){
   }
   const heldDateQuestion=postponedProxyDateQuestion;postponedProxyDateQuestion=null;
   const heldRecountQuestion=assemblyRecountQuestion;assemblyRecountQuestion=null;
+  const rescheduledNotice=window.verifiedAssociationRescheduledNotice?.(q,heldRescheduledNotice);
+  const displayReschedule=q.replace(/[;；]會議確認[:：](?:會員大會|理事會|監事會|理監事聯席會議)[。.]?$/,'');
+  const needsRescheduleSelector=rescheduledNotice&&(rescheduledNotice.choices?.length||displayReschedule!==q);
+  if(needsRescheduleSelector||rescheduledNotice?.noticeContext?.type==='coop-assembly'){financeMeetingPlanner=null;rescheduledNoticeContext=rescheduledNotice.noticeContext||null;renderAnswer(displayReschedule,rescheduledNotice);return;}
   const youthParticipation=window.verifiedYouthVolunteerWorkTriage?.(q,heldYouthParticipation);
   if(youthParticipation){financeMeetingPlanner=null;youthParticipationContext=youthParticipation.youthParticipationContext;renderAnswer(q.replace(/^櫃檯確認青少年:[a-z]+$/i,'青少年志工、學校時數與工作'),youthParticipation);return;}
   const publicEvent=window.verifiedPingtungPublicEventSafety?.(q,heldPingtungEvent);
@@ -1749,8 +1753,7 @@ async function ask(q){
   if(courtRepresentation){financeMeetingPlanner=null;renderAnswer(q,courtRepresentation);return;}
   const noticeCalendar=window.verifiedMeetingNoticeCalendar?.(q,new Date(),heldNoticeCalendar);
   if(noticeCalendar){financeMeetingPlanner=null;noticeCalendarContext=noticeCalendar.nextNoticeDate||null;renderAnswer(q.replace(/[;；]通知日期確認:[a-z]+$/i,""),noticeCalendar);return;}
-  const rescheduledNotice=window.verifiedAssociationRescheduledNotice?.(q,heldRescheduledNotice);
-  if(rescheduledNotice){financeMeetingPlanner=null;rescheduledNoticeContext=rescheduledNotice.noticeContext||null;renderAnswer(q,rescheduledNotice);return;}
+  if(rescheduledNotice){financeMeetingPlanner=null;rescheduledNoticeContext=rescheduledNotice.noticeContext||null;renderAnswer(displayReschedule,rescheduledNotice);return;}
   if(heldDateQuestion&&window.isMeetingDateCorrection?.(q)){
     const corrected=window.applyMeetingDateCorrection(heldDateQuestion,q);
     const matched=window.verifiedAssociationPostponedProxy?.(corrected);
@@ -2632,7 +2635,7 @@ touch();
 <script src="guild-liquidation-residue.js?v=1"></script>
 <script src="association-term-convocation.js?v=1"></script>
 <script src="volunteer-plan-and-team-lead.js?v=1"></script>
-<script src="association-rescheduled-notice.js?v=1"></script>
+<script src="association-rescheduled-notice.js?v=3"></script>
 <script src="meeting-notice-calendar.js?v=1"></script>
 <script src="youth-volunteer-work-triage.js?v=2"></script>
 <script src="pingtung-public-event-safety.js?v=1"></script>
