@@ -1573,6 +1573,8 @@ async function ask(q){
     if(matched){financeMeetingPlanner=null;postponedProxyDateQuestion=matched.followNewDate?heldDateQuestion:null;renderAnswer(q,matched);return;}
   }
   if(!financeMeetingPlanner&&typeof window.createFinanceMeetingPlanner==="function")financeMeetingPlanner=window.createFinanceMeetingPlanner({board,showAnswer:renderAnswer});
+  const chairHandover=window.verifiedAssociationHandoverRefusal?.(q);
+  if(chairHandover){financeMeetingPlanner=null;renderAnswer(q,chairHandover);return;}
   const electionOrganization=window.verifiedElectionOrganization?.(q);
   if(electionOrganization){financeMeetingPlanner=null;renderAnswer(q,electionOrganization);return;}
   const assemblyRecount=typeof window.verifiedAssociationAssemblyRecount==="function"?window.verifiedAssociationAssemblyRecount(q):null;
@@ -2220,6 +2222,7 @@ touch();
 <script src="cooperative-liquidation-residue.js?v=1"></script>
 <script src="association-assembly-recount.js?v=1"></script>
 <script src="mail-election-organization.js?v=1"></script>
+<script src="association-handover-refusal.js?v=1"></script>
 <script src="director-absence-clarification.js?v=1"></script>
 <script src="association-records-and-term.js?v=2"></script>
 <script src="association-external-audits.js?v=1"></script>
