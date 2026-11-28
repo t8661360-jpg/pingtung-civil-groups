@@ -1,0 +1,18 @@
+const assert=require('node:assert/strict');
+const {route}=require('./association-payment-order.js');
+const answer=(q,active)=>JSON.stringify(route(q,active));
+assert.match(answer('協會收到法院支付命令，說二十日內異議，理事長要親自出庭嗎？'),/不是開庭通知/);
+assert.match(answer('法院把支付命令寄去協會舊會址，今天才拿到'),/不一定是法律上的送達日/);
+const blended=answer('我們是社團法人協會，支付命令有一部分不同意，總幹事可代送異議嗎？需要向縣府申報嗎？');
+for(const pattern of [/全部或一部/,/不必說明理由/,/代送與代簽/,/縣府不是/,/轉入民事訴訟或調解/,/強制執行/])assert.match(blended,pattern);
+assert.match(answer('更正：是民事開庭通知，不是支付命令，可以只寄書面嗎？',true),/不能自行認定只寄書面/);
+assert.equal(route('另問：佳冬鄉學術文化團體有幾個存續？',true),null);
+assert.equal(route('協會想向法院聲請支付命令追欠款'),null);
+assert.equal(route('合作社收到支付命令'),null);
+assert.equal(route('法院民事調解通知，總幹事代表嗎'),null);
+const un=route('協會收到法院來信，但不確定是哪種通知，理事長要到嗎？');
+assert.deepEqual(un.choices.map(x=>x.label),['法院支付命令','法院開庭通知','尚未確認公文標題']);
+assert.match(answer(un.choices[0].question),/異議期限/);
+assert.match(answer(un.choices[1].question),/不能自行認定/);
+assert.equal(route(un.choices[2].question).choices.length,3);
+console.log('payment order: deadline, correction, scoped objection, choices and cross-topic checks passed');
