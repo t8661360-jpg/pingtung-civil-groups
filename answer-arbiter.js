@@ -25,7 +25,8 @@ const TOPIC_RE=TOPICS.map(g=>({name:g[0],re:new RegExp(g.map(w=>w.replace(/[.*+?
 // 泛詞：幾乎每題都有，不能當作「對題」的證據
 const WEAK=new Set(['協會','合作社','理事','監事','會員','社員','理事會','監事會','會員大會','社員大會','理事長','社區發展協會']);
 
-function topicsOf(s){const t=norm(s);const out=[];for(const g of TOPIC_RE)if(g.re.test(t))out.push(g.name);return out;}
+// A rental contract expiring is not an officer term expiring. Keep any separate office term mention.
+function topicsOf(s){const t=norm(s), officeText=t.replace(/(?:租約|租賃契約|借用契約|場地合約|契約|合約)(?:快|即將|已經|已|將|本月底|月底|下月底|下月|這週|下週|在本月){0,3}(?:到期|屆滿)/g,'場地契約');const out=[];for(const g of TOPIC_RE)if(g.re.test(g.name==='任期'?officeText:t))out.push(g.name);return out;}
 
 // 問法類型：民眾到底想要「一個數字」「一個期限」「一個程序」還是「可不可以」
 function askType(q){

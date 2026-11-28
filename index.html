@@ -1567,6 +1567,7 @@ let electionObjectionContext=null, charityQuestionContext=null;
 let rosterSharingContext=null;
 let donationTaxContext=null;
 let inKindMixedSalesContext=null;
+let venueUseContext=null;
 let electionDualContext=null;
 let grantProcContext=null;
 let legalPropertyContext=null;
@@ -1581,6 +1582,7 @@ async function ask(q){
   const heldProcFacts=grantProcContext;grantProcContext=null;
   const heldCommunityMulti=communityMultiContext;communityMultiContext=null;
   const heldLegalProperty=legalPropertyContext;legalPropertyContext=null;
+  const heldVenueUse=venueUseContext;venueUseContext=null;
   const heldMixedSales=inKindMixedSalesContext;inKindMixedSalesContext=null;
   const heldDonationTax=donationTaxContext;donationTaxContext=null;
   const heldRosterSharing=rosterSharingContext;rosterSharingContext=null;
@@ -1619,6 +1621,9 @@ async function ask(q){
   if(permitResult){financeMeetingPlanner=null;charitablePermitContext=permitResult.retainPermitQuestion?permitFull:null;renderAnswer(q,permitResult);return;}
   const charityQuestion=heldCharityQuestion&&window.isCharitableFundraisingFactReply?.(q)?heldCharityQuestion+"；"+q:q;
   const rosterQuestion=heldRosterSharing&&window.isElectionRosterSharingFactReply?.(q)?heldRosterSharing+"；"+q:q;
+  const venueUseQuestion=heldVenueUse&&window.isVenueUseCorrection?.(q)?heldVenueUse+"；更新情況："+q:q;
+  const venueUse=window.verifiedAssociationVenueUseAndGrants?.(venueUseQuestion);
+  if(venueUse){financeMeetingPlanner=null;venueUseContext=venueUse.venueNeedsFollow?venueUseQuestion:null;renderAnswer(q,venueUse);return;}
   const mixedQuestion=heldMixedSales&&window.isInKindMixedSalesFollow?.(q)?heldMixedSales+"；更正事實："+q:q;
   const mixedGoods=window.verifiedInKindMixedSales?.(mixedQuestion);
   if(mixedGoods){financeMeetingPlanner=null;inKindMixedSalesContext=mixedGoods.trackMixedGoods?mixedQuestion:null;renderAnswer(q,mixedGoods);return;}
@@ -2311,6 +2316,7 @@ touch();
 <script src="post-election-first-meeting.js?v=2"></script>
 <script src="member-roster-access.js?v=20261127-election-copy"></script>
 <script src="election-roster-sharing.js?v=1"></script>
+<script src="association-venue-use-and-grants.js?v=1"></script>
 <script src="association-in-kind-mixed-sales.js?v=1"></script>
 <script src="association-donation-tax.js?v=2"></script>
 <script src="election-dual-capacity.js?v=1"></script>
@@ -2446,7 +2452,7 @@ touch();
 <script src="association-director-lecture-fee.js?v=1"></script>
 <script src="in-kind-donation-distinction.js?v=1"></script>
 <script src="meeting-convening-distinction.js?v=20261128-331"></script>
-<script src="answer-arbiter.js?v=20261128-331"></script>
+<script src="answer-arbiter.js?v=20261128-331-lease"></script>
 <script src="question-understanding.js?v=20261128-331"></script>
 <script src="counter-upgrade.js?v=20261128-331"></script>
 <script src="keyword-menu.js?v=20261128-331"></script>
