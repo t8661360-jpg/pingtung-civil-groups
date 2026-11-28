@@ -1619,6 +1619,7 @@ let privacyIncidentContext=null;
 let civilMediationContext=null;
 let eventSponsorshipContext=null;
 let pingtungEventContext=null;
+let youthParticipationContext=null;
 let deceasedHandoverContext=null;
 let candidateMembershipContext=null;
 async function ask(q){
@@ -1638,6 +1639,7 @@ async function ask(q){
   const heldCivilMediation=civilMediationContext;civilMediationContext=null;
   const heldEventSponsorship=eventSponsorshipContext;eventSponsorshipContext=null;
   const heldPingtungEvent=pingtungEventContext;pingtungEventContext=null;
+  const heldYouthParticipation=youthParticipationContext;youthParticipationContext=null;
   const heldDeceasedHandover=deceasedHandoverContext;deceasedHandoverContext=null;
   const heldCandidateMembership=candidateMembershipContext;candidateMembershipContext=null;
   const heldCharitablePermit=charitablePermitContext;charitablePermitContext=null;
@@ -1695,6 +1697,8 @@ async function ask(q){
   }
   const heldDateQuestion=postponedProxyDateQuestion;postponedProxyDateQuestion=null;
   const heldRecountQuestion=assemblyRecountQuestion;assemblyRecountQuestion=null;
+  const youthParticipation=window.verifiedYouthVolunteerWorkTriage?.(q,heldYouthParticipation);
+  if(youthParticipation){financeMeetingPlanner=null;youthParticipationContext=youthParticipation.youthParticipationContext;renderAnswer(q.replace(/^櫃檯確認青少年:[a-z]+$/i,'青少年志工、學校時數與工作'),youthParticipation);return;}
   const publicEvent=window.verifiedPingtungPublicEventSafety?.(q,heldPingtungEvent);
   if(publicEvent){financeMeetingPlanner=null;pingtungEventContext=publicEvent.pingtungEventContext;renderAnswer(q.replace(/^櫃檯確認活動安全:[a-z]+$/i,'活動安全與場地程序'),publicEvent);return;}
   const sponsorship=window.verifiedEventSponsorshipConsideration?.(q,heldEventSponsorship);
@@ -2630,6 +2634,7 @@ touch();
 <script src="volunteer-plan-and-team-lead.js?v=1"></script>
 <script src="association-rescheduled-notice.js?v=1"></script>
 <script src="meeting-notice-calendar.js?v=1"></script>
+<script src="youth-volunteer-work-triage.js?v=2"></script>
 <script src="pingtung-public-event-safety.js?v=1"></script>
 <script src="event-sponsorship-consideration.js?v=1"></script>
 <script src="civil-mediation-triage.js?v=1"></script>

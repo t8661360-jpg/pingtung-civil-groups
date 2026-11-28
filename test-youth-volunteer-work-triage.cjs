@@ -1,0 +1,18 @@
+'use strict';
+const assert=require('node:assert/strict');
+const {route}=require('./youth-volunteer-work-triage.js');
+const check=(x,re)=>assert.match(JSON.stringify(x),re);
+const volunteer=route('我們協會找16歲的高中生當志工，家長同意後能辦服務證和保險嗎？');
+check(volunteer,/志工意外事故保險/);check(volunteer,/服務證及紀錄冊/);
+const paid=route('不是志工，協會聘16歲學生每小時有薪，晚上9點可以做嗎？');
+check(paid,/法定代理人同意書/);check(paid,/不能僅用第48條/);check(paid,/不能用志工意外險代替/);
+const both=route('我們社區協會和高中合辦活動，學生14、15、17歲，有薪排班與自願服務學習混在一起，名冊與照片怎麼辦？');
+assert.equal(both.choices.length,4);
+check(route('不是打工，是15歲學生公益服務；給車錢和便當，時數能不能當學校服務學習？'),/可依法補助交通及誤餐/);
+for(const x of both.choices) assert.ok(route(x.question,both.youthParticipationContext));
+check(both,/未滿15歲原則不得僱用/);check(both,/每週不超過40小時/);check(both,/參加同意不等於/);
+check(route('如果只有14歲的人也領時薪呢？',both.youthParticipationContext),/先向所在地勞工主管/);
+assert.equal(route('換題，協會會費就可以算政府補助嗎？',both.youthParticipationContext),null);
+assert.equal(route('我們協會聘67歲退休會員做行政還能當志工嗎？'),null);
+assert.equal(route('我們的協會16歲會員能否具備入會資格並投票？'),null);
+console.log('Youth workplace safeguards and volunteer, school and data scope passed');
