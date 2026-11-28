@@ -58,6 +58,8 @@ function route(q){
  const mid=chosen?chosen==='任期中換人':interim.test(t);
  const full=chosen?chosen==='整屆改選':!mid&&/整屆|全屆|換屆|理監事.{0,5}改選|理事.{0,4}監事.{0,4}改選/.test(t);
  if(!transition.test(mainText)||(!disputed.test(mainText)&&!mid)||/會員名冊複印|對外公開名冊|團體解散|補助費|核銷|員工欠薪|申請成立/.test(t))return null;
+ // 交接前先另開新帳戶：本站查無依據，交給 round-fixes 回固定用語（佇列 #108）
+ if(/(?:先|另|自己|新)開.{0,2}(?:帳)?戶|開新帳戶|新帳戶|換帳戶|另開/.test(mainText))return null;
  const bank=bankQuestion.test(mainText);
  if(bank&&/(?:個人|私人)(?:戶|帳戶|存摺)|他人名下|借會員.{0,4}(?:存摺|帳戶)/.test(mainText))
    return {direct:true,category:'協會財務｜私人帳戶與交接',title:'私人帳戶不能只換印鑑就當成協會團體戶',
