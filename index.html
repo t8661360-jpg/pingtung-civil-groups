@@ -1610,6 +1610,7 @@ let grantFinanceContext=null;
 let communityContinuityContext=null;
 let rescheduledNoticeContext=null;
 let officeMoveContext=null;
+let foundPropertyContext=null;
 let noticeCalendarContext=null;
 let paymentOrderContext=false;
 let harassmentTriageContext=null;
@@ -1631,6 +1632,7 @@ async function ask(q){
   const heldCommunityContinuity=communityContinuityContext;communityContinuityContext=null;
   const heldRescheduledNotice=rescheduledNoticeContext;rescheduledNoticeContext=null;
   const heldOfficeMove=officeMoveContext;officeMoveContext=null;
+  const heldFoundProperty=foundPropertyContext;foundPropertyContext=null;
   const heldNoticeCalendar=noticeCalendarContext;noticeCalendarContext=null;
   const heldPaymentOrder=paymentOrderContext;paymentOrderContext=false;
   const heldHarassmentTriage=harassmentTriageContext;harassmentTriageContext=null;
@@ -1699,6 +1701,8 @@ async function ask(q){
   }
   const heldDateQuestion=postponedProxyDateQuestion;postponedProxyDateQuestion=null;
   const heldRecountQuestion=assemblyRecountQuestion;assemblyRecountQuestion=null;
+  const foundProperty=window.verifiedEventFoundProperty?.(q,heldFoundProperty);
+  if(foundProperty){financeMeetingPlanner=null;foundPropertyContext=foundProperty.foundPropertyContext;renderAnswer(q.replace(/^櫃檯失物確認:[a-z]+$/i,'確認活動失物的狀況'),foundProperty);return;}
   const officeMove=window.verifiedAssociationOfficeMoveDetails?.(q,heldOfficeMove);
   if(officeMove){financeMeetingPlanner=null;officeMoveContext=officeMove.officeMoveContext;renderAnswer(q.replace(/^櫃檯會址確認:[a-z]+$/i,'確認會址、分支或法院登記'),officeMove);return;}
   const rescheduledNotice=window.verifiedAssociationRescheduledNotice?.(q,heldRescheduledNotice);
@@ -2611,6 +2615,7 @@ touch();
 <script src="grant-accrual-assets.js?v=1"></script>
 <script src="grant-project-closeout.js?v=1"></script>
 <script src="association-shared-office.js?v=3"></script>
+<script src="event-found-property.js?v=1"></script>
 <script src="officer-eligibility-and-elections.js?v=20261128-357"></script>
 <script src="cooperative-meeting-relocation.js?v=1"></script>
 <script src="financial-handover.js?v=1"></script>
