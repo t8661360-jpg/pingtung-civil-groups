@@ -1693,6 +1693,8 @@ async function ask(q){
   if(meetingProxyScope){financeMeetingPlanner=null;meetingProxyScopeContext=meetingProxyScope.meetingProxyScopeContext||null;renderAnswer(q,meetingProxyScope);return;}
   const officerEligibility=window.verifiedOfficerEligibilityAndElections?.(q,heldOfficerEligibility);
   if(officerEligibility){financeMeetingPlanner=null;officerEligibilityContext=officerEligibility.officerEligibilityContext||null;renderAnswer(q,officerEligibility);return;}
+  const grantApplicantAndPayee=window.verifiedPingtungGrantApplicantAndPayee?.(q);
+  if(grantApplicantAndPayee){financeMeetingPlanner=null;renderAnswer(q,grantApplicantAndPayee);return;}
   const branchCorrespondence=window.verifiedBranchCorrespondence?.(q,heldBranchCorrespondence);
   if(branchCorrespondence){financeMeetingPlanner=null;branchCorrespondenceContext=branchCorrespondence.branchCorrespondenceContext||null;renderAnswer(q,branchCorrespondence);return;}
   const formerOfficerMeetingExpense=window.verifiedFormerOfficerMeetingExpense?.(q);
@@ -2464,7 +2466,7 @@ touch();
 <script src="association-handover-refusal.js?v=2"></script>
 <script src="association-sameday-finance.js?v=1"></script>
 <script src="cooperative-expulsion-sequence.js?v=1"></script>
-<script src="pingtung-grant-applicant-and-stages.js?v=1"></script>
+<script src="pingtung-grant-applicant-and-stages.js?v=2"></script>
 <script src="association-venue-only-proxy.js?v=1"></script>
 <script src="association-corporate-member-officers.js?v=1"></script>
 <script src="association-cpa-independence.js?v=1"></script>

@@ -62,6 +62,60 @@ function answer(q){
  return {direct:true,category:'屏東縣補助｜申請主體與分場核銷',title,summary:(/屏東/.test(t)&&directGrant&&social?'':'如果您問的是屏東縣民間團體補助：')+summary,steps,
   refs:[rules,...(who?[sample]:[]),...(accountAsk||isPrivate||who?[accounts,receipts]:[])],questionState:{focus:'compound'},actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
 }
-if(typeof module!=='undefined'&&module.exports){module.exports=answer;return;}
+
+const sameYearRule={title:'屏東縣政府對民間團體補助經費作業要點第2、3、4、5、6、8、10、11點',source:'https://portal.ptc.edu.tw/bulletin/attachment.php?a_sn=33872&b_sn=B114003910'};
+const guildFinance={title:'工商團體財務處理辦法第25、26條：團體收入及收據',source:'https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050106'};
+function applicantAndPayee(q){
+ const raw=String(q??'').trim(),t=clean(raw);
+ if(!t||t.length>520)return null;
+ const z=t.replace(/(?:不是|並非|非屬)(?:一般|原來的)?(?:工商公會|商業(?:同業)?公會|工業(?:同業)?公會|公會|社會團體|協會|合作社)/g,'');
+ if(/(?:沒有要|不再|不問|不是問)(?:再|請|談|問|申請)?(?:補助|補件)|個人生活補助|低收入戶|租屋補助|就業補助|醫療補助|護理師公會|職業公會|工會|信用合作社|合作社|農會|漁會|建築物租賃契約/.test(z))return null;
+ const explicit=/補助|核銷/.test(z)||/縣府通案/.test(z)&&/領款收據/.test(z),implicit=/(?:聲明書.{0,30}(?:代簽|領據|核定)|已(?:經)?用協會申請.{0,30}(?:戶名|收據|領據))/.test(z);
+ const assoc=/協會|社會團體|社團法人/.test(z)&&!/商業(?:同業)?公會|工業(?:同業)?公會/.test(z);
+ const commerce=/商業(?:同業)?公會/.test(z),industry=/工業(?:同業)?公會/.test(z);
+ const guild=commerce||industry;
+ const loose=/未立案|沒(?:有)?立案|還沒成立|沒有成立|居民(?:小隊|團隊)|發起人|未登記(?:小隊|團體)/.test(z);
+ const explicitApp=/用.{0,8}(?:自己|自已|本人|理事長|私人|個人).{0,8}(?:名字|名義|申請)|(?:個人|理事長|團體|協會).{0,5}(?:名字|名義|當申請人)|申請人|申請主體|申請單位|負責人.{0,8}(?:簽|蓋章)|代簽|代表.{0,6}簽/.test(z);
+ const account=/私人(?:帳(?:戶)?|戶頭|存摺)|個人(?:銀行)?(?:帳(?:戶)?|戶頭|帳號|存摺)|自己(?:的)?(?:帳戶|戶頭)|轉給前任|匯給前任|(?:戶名|領款收據|領據|收據(?:抬頭|要開誰))|匯(?:入|進|到|至)?.{0,5}(?:團體|協會|公會|個人|私人)(?:帳戶|戶頭|戶)?|(?:團體|協會|公會)(?:的)?帳戶/.test(z);
+ const local=/屏東|本縣|縣府|縣政府|公所/.test(z);
+ const out=/中央|部會|文化部|衛福部|內政部|國科會|勞動部|公益彩券回饋金|(?:臺北|台北|新北|桃園|臺中|台中|臺南|台南|高雄|基隆|新竹|嘉義|彰化|苗栗|南投|宜蘭|花蓮|臺東|台東|雲林|澎湖|金門|連江)(?:市|縣)?(?:政府|縣府|市府|的(?:縣|市)?補助)/.test(z);
+ if(out||!(explicit||implicit)||!(assoc||guild||loose)||!(explicitApp||account||loose&&/個人|名義|團體補助/.test(z)))return null;
+ if(!local&&!implicit&&!guild&&!explicitApp&&!account)return null;
+ if(/(?:紀錄|記錄).{0,8}(?:漏報|沒報|沒送|漏寄)|紀錄要寄/.test(z)&&!account&&!explicitApp)return null;
+ const mixed=/同一(?:件|個|案|活動)|兩邊都送|重複|同一張.{0,8}(?:收據|發票|單據)/.test(z)&&/兩邊|重複|同一張|公所|另一(?:個|項|案)|多個/.test(z);
+ const tag=t.match(/補助名義確認:(一般通案|另有專案|已核定給團體|不清楚)/)?.[1];
+ const approved=tag==='已核定給團體'||/(?:已(?:經)?|原|原先|原來|當初).{0,12}(?:核定|核准)|核定是.{0,10}(?:協會|公會|團體)/.test(z)&&!/還沒核准|尚未核定|沒有核准|未核定/.test(z);
+ const special=tag==='另有專案'||/青年(?:隊|提案)|個人專案|特別方案|特殊補助|特定計畫|另有.*(?:計畫|專案)/.test(z);
+ const year=/未滿一年|未滿1年|立案.{0,8}(?:八|九|十|幾|[1-9]|1[01])個月/.test(z);
+ const group=commerce?'商業同業公會':industry?'工業同業公會':assoc?(/社區發展協會/.test(z)?'社區發展協會':'協會'):'未立案團隊';
+ const steps=[];
+ if(!approved||explicitApp){
+   if(tag!=='另有專案')steps.push(['一般民間團體補助，不用個人名義代替團體',
+    (!local?'若是屏東縣一般民間團體補助，':'')+'相關要點第2、4點的申請對象是符合條件的民間團體，不以通案補助個人舉辦的活動。'+(year?'您說團體立案未滿一年，通案要點第5點列為不予補助，不能改成幹部名字送件來改變資格。':loose?'未立案的居民小隊，不能用發起人名字把活動改成這類團體補助；另有非營利方案時看其公告。':'依計畫公告查該團體是否符合資格，不因負責人有資格就能代替團體。')]);
+   if(assoc||guild)steps.push(['代表簽署與個人當申請人不同',
+     '以'+group+'申請時，申請單位填立案全名；依章程及有效任職文件有代表權的人，可在負責人欄按指定表件簽章。不能先用自己名字申請，再把個人獲核定的補助款當作團體收入；先核對申請人，不能靠改撥款帳戶改變原核定對象。核定案以原公告和核定函為準。通案一般附申請函、申請單位聲明書、計畫及經費概算；經公所陳報時依其程序。']);
+   if(special||loose||tag==='不清楚')steps.push(['另有青年或個人專案，先取得計畫名稱',
+    '先向原受理窗口確認公告接受的是個人、未立案團隊或立案團體，並確認申請人、領據、收款及能否合辦。未知道計畫名稱或公告，不能判定可申請，也不能將不同計畫的規則互套。']);
+ }
+ if(approved||account){
+   steps.push(['核定給團體的款，不改匯前任或代表人私人帳戶',
+    (approved?'先照原核定函確認受補助單位、戶名與撥款文件。':'以公告和核定函核對受補助單位、戶名與撥款文件。')+
+    (assoc||guild?'團體收入不能存放於個人；公帳暫不能用，請原核定機關確認正式補正或帳戶異動方式，不先匯私人戶再轉手。':'若核定給立案團體，應按規定用團體帳戶；若屬另有個人專案，依該案規則。')]);
+   steps.push(['領款收據、廠商發票和代墊，不是同一件事',
+    '領款收據由獲核定的受補助單位按官方表件開立，負責人可依表件簽章；廠商發票依實際交易與原核定規定開立，別自行改抬頭。'+(/代墊|墊錢|私人卡|先付|先用私人/.test(z)?'前任或幹部先付的錢，由團體憑真實交易、支出憑證與合法授權另行審核；代墊不等於補助款應匯給個人。':'不能用個人領據取代團體應出具的正式收據。')]);
+ }
+ if(mixed)steps.push(['同一案及同一筆支出，先核對是否重複',
+    '如適用縣府通案，第11點規定同年度同一申請案，不得向本府多個機關、單位重複申請；不要把轉報公所當成可以再送一份。不同計畫若允許分攤，要查各自書面規定，按實支及第8點列明各機關補助項目、金額；不能擅自用同一張單據把同一筆支出重複核銷。']);
+ const opts=!tag&&!approved&&raw.length<330&&(special||loose||implicit&&!explicit)&&(!/一般民間團體的縣府補助|縣府一般民間團體補助/.test(z)||special);
+ const summary=approved?'已核定給團體，不等於可以把款先匯私人帳戶；請原補助承辦確認正式補正。':
+  tag==='另有專案'?'先看該專案公告允許何種申請人、誰可代表簽署，以及領款收據和入帳規定，不套用一般民間團體補助。':
+  '先分清是團體通案或另有個人專案；同筆補助的申請人、代表簽署、領款收據與撥款不能混用。'+(account&&assoc?'團體名義核定才用協會帳戶，不能用理事長個人名義申請後再靠匯款改成協會補助。':'');
+ return {direct:true,category:group+'｜補助申請名義、收據與收款',title:group+'：補助申請人、代表簽章和收款要分清',summary,steps,
+ refs:[sameYearRule,sample,...(assoc?[accounts,receipts]:guild?[guildFinance]:[])],actions:[{label:'聯絡承辦',view:'contact',sub:''}],questionState:{focus:opts?'clarify':'compound'},
+ ...(opts?{choiceHeading:'您目前問的是哪一種補助？',choices:[['一般民間團體補助','一般通案'],['另外公告的青年或個人專案','另有專案'],['已用團體名義獲核定','已核定給團體'],['還不清楚是哪一種','不清楚']].map(([label,key])=>({label,question:raw+'；補助名義確認：'+key+'。'}))}:{})};
+}
+
+if(typeof module!=='undefined'&&module.exports){module.exports=answer;module.exports.applicantAndPayee=applicantAndPayee;return;}
 root.verifiedPingtungGrantApplicantAndStages=answer;
+root.verifiedPingtungGrantApplicantAndPayee=applicantAndPayee;
 })(typeof window!=='undefined'?window:globalThis);
