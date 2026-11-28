@@ -1721,6 +1721,9 @@ async function ask(q){
   if(foundProperty){financeMeetingPlanner=null;foundPropertyContext=foundProperty.foundPropertyContext;renderAnswer(q.replace(/^櫃檯失物確認:[a-z]+$/i,'確認活動失物的狀況'),foundProperty);return;}
   const officeMove=window.verifiedAssociationOfficeMoveDetails?.(q,heldOfficeMove);
   if(officeMove){financeMeetingPlanner=null;officeMoveContext=officeMove.officeMoveContext;renderAnswer(q.replace(/^櫃檯會址確認:[a-z]+$/i,'確認會址、分支或法院登記'),officeMove);return;}
+  const noticeCalendar=window.verifiedMeetingNoticeCalendar?.(q,new Date(),heldNoticeCalendar);
+  const knownElectionNotice=noticeCalendar&&(noticeCalendar.questionState?.focus==='cross-election-notice'||(/改選/.test(q)&&!/改期|改到|挪到|延期|改在|改為/.test(q)&&noticeCalendar.questionState?.focus==='cross-meeting-notice-calendar'));
+  if(knownElectionNotice){financeMeetingPlanner=null;noticeCalendarContext=noticeCalendar.nextNoticeDate||null;renderAnswer(q.replace(/[;；](?:通知日期確認|改選通知確認):[a-z]+$/i,""),noticeCalendar);return;}
   const rescheduledNotice=window.verifiedAssociationRescheduledNotice?.(q,heldRescheduledNotice);
   const displayReschedule=q.replace(/[;；]會議確認[:：](?:會員大會|理事會|監事會|理監事聯席會議)[。.]?$/,'');
   const needsRescheduleSelector=rescheduledNotice&&(rescheduledNotice.choices?.length||displayReschedule!==q);
@@ -1775,8 +1778,7 @@ async function ask(q){
   if(paymentOrder){financeMeetingPlanner=null;paymentOrderContext=true;renderAnswer(q.replace(/[;；]櫃檯確認法院文書:[a-z]+$/i,""),paymentOrder);return;}
   const courtRepresentation=window.verifiedAssociationCourtRepresentation?.(q);
   if(courtRepresentation){financeMeetingPlanner=null;renderAnswer(q,courtRepresentation);return;}
-  const noticeCalendar=window.verifiedMeetingNoticeCalendar?.(q,new Date(),heldNoticeCalendar);
-  if(noticeCalendar){financeMeetingPlanner=null;noticeCalendarContext=noticeCalendar.nextNoticeDate||null;renderAnswer(q.replace(/[;；]通知日期確認:[a-z]+$/i,""),noticeCalendar);return;}
+  if(noticeCalendar){financeMeetingPlanner=null;noticeCalendarContext=noticeCalendar.nextNoticeDate||null;renderAnswer(q.replace(/[;；](?:通知日期確認|改選通知確認):[a-z]+$/i,""),noticeCalendar);return;}
   if(rescheduledNotice){financeMeetingPlanner=null;rescheduledNoticeContext=rescheduledNotice.noticeContext||null;renderAnswer(displayReschedule,rescheduledNotice);return;}
   if(heldDateQuestion&&window.isMeetingDateCorrection?.(q)){
     const corrected=window.applyMeetingDateCorrection(heldDateQuestion,q);
@@ -2665,7 +2667,7 @@ touch();
 <script src="association-term-convocation.js?v=1"></script>
 <script src="volunteer-plan-and-team-lead.js?v=1"></script>
 <script src="association-rescheduled-notice.js?v=3"></script>
-<script src="meeting-notice-calendar.js?v=1"></script>
+<script src="meeting-notice-calendar.js?v=2"></script>
 <script src="youth-volunteer-work-triage.js?v=2"></script>
 <script src="pingtung-public-event-safety.js?v=1"></script>
 <script src="event-sponsorship-consideration.js?v=1"></script>

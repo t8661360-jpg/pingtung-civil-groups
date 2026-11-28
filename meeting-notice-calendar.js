@@ -31,9 +31,40 @@ function readDates(t,now){
  });
 }
 const labelDays=k=>k==='assembly'?15:7;
+const election={title:'人民團體選舉罷免辦法：選舉方式及改選程序',source:'https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0050093'};
+function electionNotice(t,now){
+ const pick=t.match(/;改選通知確認:(assembly|joint)$/)?.[1];
+ const b=t.replace(/;改選通知確認:[a-z]+$/,'').replace(/^(?:換題|新題|另問)[,。:;]*/,'');
+ if(!/改選|改聘.{0,8}理監事|選舉.{0,5}(?:理事|監事|理事長)|選(?:理監事|理事長)|(?:理監事|理事長).{0,6}選舉/.test(b)||!/通知|幾[天日]前|提前幾|何時寄/.test(b))return null;
+ if(/成立大會|籌備|合作社|信合社|公會|工會|農會|漁會|青年會議|管委會|通訊選舉|改期|挪到|延期|補選|罷免|章程|核銷|決算|農曆|(?:選後|開完會後|選完).{0,8}通知|選舉結果.{0,5}通知|通知.{0,5}選舉結果/.test(b))return null;
+ const clean=b.replace(/(?:不是|不辦|並非)(?:會員(?:代表)?大會|理監事聯席會(?:議)?|理事會)(?=[,。;、，]|而是|是)/g,'');
+ const kinds=[...new Set([...clean.matchAll(classRe)].map(m=>type(m[0])))];
+ const needChoice=!pick&&(!kinds.length||/不知道|不確定|分不清/.test(b)&&/(?:會員(?:代表)?大會).{0,12}(?:還是|或)|(?:還是|或).{0,10}(?:會員(?:代表)?大會)/.test(b));
+ const out=(title,summary,steps=[],extra={})=>({direct:true,category:'協會改選｜開會通知',title,summary,steps,refs:[p,r,election],questionState:{focus:'cross-election-notice'},...extra});
+ if(needChoice)return out('先分改選理監事的會員大會，或另開的理監事聯席會','改選理監事通常由會員（代表）大會辦理；另開理監事聯席會選理事長是另一場。一般通知分別是15日前及7日前，不能把兩個期限混用。',[],{choiceHeading:'您這次要通知哪一場？',choices:['assembly','joint'].map(k=>({label:k==='assembly'?'會員大會改選理監事':'理監事聯席會選理事長',question:b+'；改選通知確認:'+k}))});
+ const targets=pick?[pick]:kinds;
+ if(targets.includes('coop'))return null;
+ if(targets.length>1&&readDates(clean,now).length)return null; // let the existing calendar assign the date to each scene
+ const em=/緊急事故|緊急臨時|開會前一[日天]|開會前一天/.test(clean);
+ const ds=readDates(clean,now);
+ const steps=targets.map(k=>{
+  const n=labelDays(k);
+  const duty=k==='assembly'?'通知各會員（代表）會議種類、時間、地點及議程，並報請主管機關派員列席。':'通知這場會議的應出席人員，寫明會議種類、時間、地點及議程。';
+  const d=ds.length===1?ds[0]:null;
+  const date=!em&&d?.date?' 依會議日 '+d.label+' 回推，一般應於 '+stamp(new Date(+d.date-n*86400000))+' 或更早完成通知。':d?.invalid?' 您給的日期不存在，請核對年月日。':d&&!d.date?' 若要算確切日子，請再補年份。':'';
+  return [labels[k]+'：一般'+n+'日前',duty+date];
+ });
+ const summary=(targets.length>1?'先看各場。改選理監事的會員（代表）大會是15日前通知；另開的理監事聯席會或理事會是7日前通知。':targets[0]==='assembly'?'這場是會員（代表）大會，議程有改選理監事，也仍應在15日前通知各會員（代表），不是理事會的7日前。':'這場是'+labels[targets[0]]+'，一般應於7日前通知；另有會員（代表）大會改選理監事時，大會要另外在15日前通知。')+(em?' 只有因緊急事故召集臨時會且已於會前一日送達，才有例外；單純通知來不及或例行改選，不能當緊急事故。':'');
+ return { ...out(targets.length>1?'兩場改選會議的通知分開算':targets[0]==='assembly'?'會員大會改選理監事：15日前通知':labels[targets[0]]+'：7日前通知',summary,steps),...(!ds.length&&targets.length===1?{nextNoticeDate:{kind:targets[0]}}:{}) };
+}
+
 function route(input,now=new Date(),previous=null){
  const t=String(input??'').normalize('NFKC').replace(/\s/g,'');
- if(!t||t.length>380||/^(?:新題|另問|另外問)|信用合作社|信合社|工會|公會|農會|漁會|管委會|基金會|成立大會|籌備|理監事改選|罷免|補選|視訊|章程|委員會|核銷|補助|決算/.test(t))return null;
+ if(!t||t.length>380)return null;
+ const specialized=electionNotice(t,now);
+ if(specialized)return specialized;
+ if(/^(?:新題|另問|另外問)|信用合作社|信合社|工會|公會|農會|漁會|管委會|基金會|成立大會|籌備|罷免|補選|視訊|章程|委員會|核銷|補助|決算/.test(t))return null;
+ if(/理監事改選/.test(t)&&!(/會員(?:代表)?大會/.test(t)&&/理事會|監事會|理監事聯席/.test(t)))return null;
  const dateReply=previous&&/^(?:(?:日期|改成|定在|在|是)[：:]?)?(?:(?:民國|西元)?\d{2,4}年|明年|今年)?(?:(?:下個月|下月|這個月|本月)[一二三四五六七八九十廿兩\d]{1,3}(?:日|號)|[一二三四五六七八九十廿兩\d]{1,3}(?:月|[/-])[一二三四五六七八九十廿兩\d]{1,3}(?:日|號)?)。?$/.test(t);
  if(dateReply&&labels[previous.kind]&&previous.kind!=='coop')return route(labels[previous.kind]+'開會通知 '+t+'；通知日期確認:'+previous.kind,now);
  const chosen=t.match(/;通知日期確認:(assembly|directors|supervisors|joint|coop)$/)?.[1];
