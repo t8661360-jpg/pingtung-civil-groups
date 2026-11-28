@@ -1584,6 +1584,8 @@ async function ask(q){
     if(matched){financeMeetingPlanner=null;postponedProxyDateQuestion=matched.followNewDate?heldDateQuestion:null;renderAnswer(q,matched);return;}
   }
   if(!financeMeetingPlanner&&typeof window.createFinanceMeetingPlanner==="function")financeMeetingPlanner=window.createFinanceMeetingPlanner({board,showAnswer:renderAnswer});
+  const volunteerTeamTraining=window.verifiedVolunteerTeamTrainingAndGrants?.(q);
+  if(volunteerTeamTraining){financeMeetingPlanner=null;renderAnswer(q,volunteerTeamTraining);return;}
   const coopConflicts=window.verifiedCoopConflictsAndContracts?.(q);
   if(coopConflicts){financeMeetingPlanner=null;renderAnswer(q,coopConflicts);return;}
   const villageOffice=window.verifiedVillageOfficeAndAssociation?.(q);
@@ -2264,6 +2266,7 @@ touch();
 <script src="grant-and-missing-meeting-record.js?v=1"></script>
 <script src="village-office-and-association.js?v=2"></script>
 <script src="cooperative-conflicts-and-contracts.js?v=1"></script>
+<script src="volunteer-team-training-and-grants.js?v=1"></script>
 <script src="director-absence-clarification.js?v=1"></script>
 <script src="association-records-and-term.js?v=2"></script>
 <script src="association-external-audits.js?v=1"></script>
