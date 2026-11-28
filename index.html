@@ -1598,6 +1598,8 @@ async function ask(q){
   if(canceledGrantInKind){financeMeetingPlanner=null;renderAnswer(q,canceledGrantInKind);return;}
   const sameDayFinance=window.verifiedAssociationSameDayFinance?.(q);
   if(sameDayFinance){financeMeetingPlanner=null;sameDayReportQuestion=sameDayFinance.needsReportChoice?q:null;renderAnswer(q,sameDayFinance);return;}
+  const grantApplicantAndStages=window.verifiedPingtungGrantApplicantAndStages?.(q);
+  if(grantApplicantAndStages){financeMeetingPlanner=null;renderAnswer(q,grantApplicantAndStages);return;}
   const fiscalGrant=typeof window.verifiedAssociationFiscalGrant==="function"?window.verifiedAssociationFiscalGrant(q):null;
   if(fiscalGrant){financeMeetingPlanner=null;renderAnswer(q,fiscalGrant);return;}
   const fiscalTax=typeof window.verifiedAssociationFiscalTax==="function"?window.verifiedAssociationFiscalTax(q):null;
@@ -2240,6 +2242,7 @@ touch();
 <script src="association-handover-refusal.js?v=1"></script>
 <script src="association-sameday-finance.js?v=1"></script>
 <script src="cooperative-expulsion-sequence.js?v=1"></script>
+<script src="pingtung-grant-applicant-and-stages.js?v=1"></script>
 <script src="director-absence-clarification.js?v=1"></script>
 <script src="association-records-and-term.js?v=2"></script>
 <script src="association-external-audits.js?v=1"></script>
