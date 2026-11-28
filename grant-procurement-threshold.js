@@ -22,7 +22,8 @@ function route(input){
  const procurement=/採購|招標|買.{0,10}(?:設備|器材|東西)|設備.{0,8}(?:預算|費|價|採購)|比價|報價|器材.{0,8}講師|拆.{0,4}發票|買屋/.test(q);
  const focused=/採購法|招標|監督|公告金額|達.{0,4}半數|過半|比價|核定函|發包|代辦採購|幾家|能不能買|先買|購買|預算|設備.{0,6}費/.test(q);
  const unknownSource=/兩(?:家|邊|筆|個)補助/.test(q)&&/只知道|還不知道|不確定/.test(q);
- if(!scope||(!authority&&!unknownSource)||!funded||!procurement||!focused)return null;
+ const numericExample=/政府採購法.{0,5}[4四]條/.test(q)&&/補助[0-9,.]+(?:萬|元)/.test(q)&&/採購[0-9,.]+(?:萬|元)/.test(q)&&!/機關自行|機關自己|公所自行|縣府自行/.test(q);
+ if((!scope&&!numericExample)||(!authority&&!unknownSource)||!funded||!procurement||!focused)return null;
  if(/發票.{0,16}(?:都想用|兩邊.{0,4}全額|各.{0,3}全額)|重複核銷/.test(q)&&!/採購法|招標|公告金額|半數/.test(q))return null;
  const selected=/性質確認:([^。；]+)/.exec(q)?.[1]??'';
  const privateGrant=/非政府補助|不是政府補助|完全自籌|只有私人.{0,8}(?:贊助|捐助)/.test(q);
@@ -32,10 +33,12 @@ function route(input){
  const serve=selected==='機關買服務'||(!selected&&!unclear&&/機關買服務|發包.{0,12}(?:提供|請|承作)|政府委託.{0,7}(?:辦課|教課|上課|執行服務)/.test(modes)&&!/補助.{0,14}自辦/.test(modes));
  const delegate=selected==='委託代辦採購'||(!selected&&!unclear&&/(?:縣府|機關|政府).{0,8}委託.{0,8}(?:代辦|代為)採購/.test(modes));
  const arts=/藝文採購|藝文團體.{0,70}(?:演出|展演|創作)|補助.{0,55}(?:受託|舞團|劇團|團隊).{0,14}演出/.test(modes)&&!/不是藝文|非屬藝文/.test(q);
- const divided=/拆.{0,7}(?:發票|單|批)|分批|同規格.{0,9}器材|化整為零|能先拆開/.test(q);
+ const divided=/拆.{0,7}(?:發票|單|批)|分(?:開|成|兩|二|2).{0,6}發票|(?:兩|二|2)批交貨|分批|同規格.{0,9}器材|化整為零|能先拆開/.test(q);
  const u='(萬|千|億|元)';
  const n='([0-9][0-9,.]*)';
- const t=money(q,new RegExp('(?:採購計畫總價|採購預算|採購總價|採購金額|同一採購總價|設備採購|採購|器材報價|設備報價|報價)[為是:約]*'+n+u));
+ const t0=money(q,new RegExp('(?:採購計畫總價|採購預算|採購總價|採購金額|同一採購總價|設備採購|採購|器材報價|設備報價|報價)[為是:約]*'+n+u));
+ const batch=/同一批|同批|同一筆採購/.test(q)&&/器材|設備|採購/.test(q)&&!/活動總(?:額|預算)|整場活動/.test(q);
+ const t=t0??(batch?money(q,new RegExp('預算[為是:約]*'+n+u)):null);
  const parts=[];
  for(const m of q.matchAll(new RegExp('(?:縣府|縣政府|中央(?:機關)?|公所|文化處|教育處|政府|甲機關|乙機關)(?:那|分別|的)?(?:補助|補|核給)?[為是:約]*'+n+u,'g'))){
    const next=q.slice(m.index+m[0].length,m.index+m[0].length+48).split(/[，,。；;？?]/)[0];
