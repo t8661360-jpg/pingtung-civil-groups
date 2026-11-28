@@ -1,0 +1,17 @@
+const assert=require('node:assert/strict');
+const {route}=require('./association-bank-switch.js');
+const answer=q=>{const a=route(q);assert(a,q);return [a.title,a.summary,...a.steps.flat()].join(' ')};
+assert.match(answer('協會帳戶要換銀行，要理事會決議嗎，要報縣府嗎？'),/不能一概而論/);
+assert.match(answer('協會原本在郵局，想搬去銀行，只是換帳戶，要理事會決議或報縣府嗎？'),/第16、17條沒有列出.*不表示一定不用/);
+assert.match(answer('社區發展協會保留原帳戶、另外開專案補助帳戶；核定函只寫原帳戶，何時先跟補助承辦確認？'),/改匯或關戶前/);
+assert.match(answer('只換開戶銀行，原來帳有準備基金與普通收入，換後是否仍專戶、可由誰辦移轉？'),/準備基金仍然要專戶/);
+const joined=answer('報帳快到了，承辦換人；新理事長尚未就任，還要把原銀行停掉、補助款正在撥、準備基金專戶也要換，能否現在由新理事長去關戶？');
+assert.match(joined,/尚未就任.*關戶/);assert.match(joined,/保留原帳戶/);assert.match(joined,/仍然要專戶/);
+const corrected=answer('更正，沒有換銀行，也沒有補助款，是同家銀行理事長印鑑異動。');
+assert.match(corrected,/只換理事長印鑑/);assert.doesNotMatch(corrected,/補助/);
+const options=route('協會銀行資料要變更，要先做什麼？').choices;
+assert.equal(options.length,3);
+assert.equal(new Set(options.map(x=>route(x.question)?.title)).size,3);
+assert.equal(route('我要換銀行帳戶，怎麼辦？'),null);
+for(const q of ['理事長過世，遺失公章和準備基金存摺，能先換銀行嗎','我們是合作社，現在要換銀行','協會收到法院扣押的通知，可以關戶嗎','新題：來義鄉全部存續團體有幾個？','協會可以用準備基金買器材嗎？','當選未就任的協會理事長可以先向銀行更印嗎？'])assert.equal(route(q),null,q);
+console.log('Association bank switch, grant accounts and seal corrections passed');

@@ -1701,6 +1701,8 @@ async function ask(q){
   if(deceasedHandover){financeMeetingPlanner=null;deceasedHandoverContext=deceasedHandover.handoverDeathContext||null;renderAnswer(q,deceasedHandover);return;}
   const chairResignationDeadlock=window.verifiedAssociationChairResignationDeadlock?.(q);
   if(chairResignationDeadlock){financeMeetingPlanner=null;renderAnswer(q,chairResignationDeadlock);return;}
+  const bankSwitch=window.verifiedAssociationBankSwitch?.(q);
+  if(bankSwitch){financeMeetingPlanner=null;renderAnswer(q,bankSwitch);return;}
   const coopBoardProxy=window.verifiedCoopBoardProxyQuorum?.(q);
   if(coopBoardProxy){financeMeetingPlanner=null;renderAnswer(q,coopBoardProxy);return;}
   const volunteerPlanLead=window.verifiedVolunteerPlanAndTeamLead?.(q);
@@ -2554,6 +2556,7 @@ touch();
 <script src="guild-liquidation-residue.js?v=1"></script>
 <script src="association-term-convocation.js?v=1"></script>
 <script src="volunteer-plan-and-team-lead.js?v=1"></script>
+<script src="association-bank-switch.js?v=1"></script>
 <script src="association-chair-resignation-deadlock.js?v=1"></script>
 <script src="association-deceased-handover.js?v=1"></script>
 <script src="coop-board-proxy-quorum.js?v=1"></script>
