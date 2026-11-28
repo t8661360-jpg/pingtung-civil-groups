@@ -2692,25 +2692,6 @@ const CHECKS = [
   ['會員連續三年沒繳會費，可以直接從名冊刪除嗎，要不要通知他', '不能直接從名冊刪除'],   // cross r36
   ['公會開會員大會縣府派的人沒來，決議還有效嗎', '派員沒到決議就無效'],   // cross r36
   ['會員大會紀錄還沒報縣府，理事會可以先照決議執行嗎', '沒有規定報備前決議不能執行'],   // cross r36
-];
-
-const fails = []; const log = m => console.log(m);
-const bust = '?check=' + Date.now();
-const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
-try {
-  // 0. 首頁檔案完整性（防止截斷內容被寫入）
-  const res = await fetch(BASE + 'index.html' + bust);
-  const html = await res.text();
-  if (res.status !== 200) fails.push(`index.html HTTP ${res.status}`);
-  if (!html.trimStart().startsWith('<!DOCTYPE')) fails.push('index.html 開頭不是 <!DOCTYPE（可能被寫入不完整內容）');
-  if (/truncated output|tokens truncated/i.test(html)) fails.push('index.html 含截斷標記');
-  for (const f of ['data/directory.json', 'data/forms-catalog.json', 'data/forms-s1.json', 'round-fixes.js', 'counter-upgrade.js', 'question-understanding.js']) {
-    const r = await fetch(BASE + f + bust, { method: 'HEAD' });
-    if (r.status !== 200) fails.push(`${f} HTTP ${r.status}`);
-  }
-  // 1. 桌機問答
-  const page = await browser.newPage({ viewport: { width: 1400, height: 900 } });
-  const errs = [  // 交叉巡檢 2026-11-28 第30輪
   ['公會的理事連續兩次沒來開會，候補可以直接遞補嗎，還是要開大會', '視同辭職'],
   ['社區發展協會可以辦勸募嗎，募到的錢可以拿來發理監事車馬費嗎', '使用計畫'],
   ['理事只剩5個人還能選理事長嗎', '三分之二'],
@@ -2738,7 +2719,38 @@ try {
   ['會員退會算不算喪失理事資格', '退會後就不是會員'],
   ['監事退會算不算喪失監事資格', '失去會員資格'],
   ['理事不是會員了還能當嗎', '失去會員資格'],
+  ['志願服務計畫要送哪裡', '志願服務計畫要送縣政府和該計畫的目的事業主管機關備案'],   // 第258輪 志工／魅力社區
+  ['志工計畫書要交給哪個單位', '目的事業主管機關備案'],
+  ['志工隊的計畫要送去哪', '目的事業主管機關備案'],
+  ['忘了幫志工辦保險怎麼辦', '漏幫志工辦意外事故保險'],
+  ['志工沒有投保意外險會怎樣', '漏幫志工辦意外事故保險'],
+  ['魅力社區評鑑是誰辦', '沒有查到「評鑑」'],
+  ['魅力社區可以用LINE送件嗎', '不能只用LINE'],
+  ['魅力社區可以傳真嗎', '不能只用LINE'],
+  ['魅力社區經費核銷怎麼辦', '怎麼核銷'],
+  ['魅力社區結案怎麼辦', '怎麼核銷'],
+  ['魅力社區申請期限', '什麼時候收件'],
+  ['魅力社區什麼時候截止', '什麼時候收件'],
+  ['魅力社區沒申請到怎麼辦', '沒有寫名額'],
 ];
+
+const fails = []; const log = m => console.log(m);
+const bust = '?check=' + Date.now();
+const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
+try {
+  // 0. 首頁檔案完整性（防止截斷內容被寫入）
+  const res = await fetch(BASE + 'index.html' + bust);
+  const html = await res.text();
+  if (res.status !== 200) fails.push(`index.html HTTP ${res.status}`);
+  if (!html.trimStart().startsWith('<!DOCTYPE')) fails.push('index.html 開頭不是 <!DOCTYPE（可能被寫入不完整內容）');
+  if (/truncated output|tokens truncated/i.test(html)) fails.push('index.html 含截斷標記');
+  for (const f of ['data/directory.json', 'data/forms-catalog.json', 'data/forms-s1.json', 'round-fixes.js', 'counter-upgrade.js', 'question-understanding.js']) {
+    const r = await fetch(BASE + f + bust, { method: 'HEAD' });
+    if (r.status !== 200) fails.push(`${f} HTTP ${r.status}`);
+  }
+  // 1. 桌機問答
+  const page = await browser.newPage({ viewport: { width: 1400, height: 900 } });
+  const errs = [];
   page.on('pageerror', e => errs.push(String(e)));
   await page.goto(BASE + bust, { waitUntil: 'load', timeout: 60000 });
   await page.waitForTimeout(4000);

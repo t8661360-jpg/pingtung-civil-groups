@@ -18,6 +18,7 @@ function route(q){
  const leadIntent=(lead.test(cleanTitle(main))&&leadAsk.test(main))||/隊員.{0,9}選完.{0,13}撤掉/.test(main);
  const planIntent=plan.test(main)||/志工/.test(main)&&/(?:尚未|還沒|沒)(?:有)?報.{0,3}計[畫劃]|(?:募|召|招)到.{0,4}志工/.test(main);
  if(!leadIntent&&!planIntent)return null;
+ if(planIntent&&!leadIntent&&/(送|交|遞|報|寄).{0,3}(去|到|給)?.{0,2}(哪|誰|什麼單位)|哪(裡|個單位|邊|個機關).{0,3}(送|交|備案|報|辦)/.test(main))return null; /* 第258輪：計畫要送哪裡＝備案對象，交給 round-fixes 的備案規則 */
  if(/會費|月費|食材費|材料費|報帳|制服|背心|收據|便當|交通費/.test(main)&&!(leadIntent||content.test(main)||/不備案|沒(?:有)?備案|還沒報計畫/.test(main)))return null;
  const govt=/公所自己的|公所(?:自己|直接).{0,5}(?:用|運用|志工)|(?:鄉|鎮|市|區)公所.{0,8}(?:主辦|自己|運用)|(?:各級)?政府機關.{0,8}(?:自己|運用|主辦)|公立學校|公立機構/.test(main);
  const hospital=/醫院志工隊|醫院.{0,9}(?:主辦|自己|運用)/.test(main);
