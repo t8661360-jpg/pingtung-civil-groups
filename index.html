@@ -1584,6 +1584,8 @@ async function ask(q){
     if(matched){financeMeetingPlanner=null;postponedProxyDateQuestion=matched.followNewDate?heldDateQuestion:null;renderAnswer(q,matched);return;}
   }
   if(!financeMeetingPlanner&&typeof window.createFinanceMeetingPlanner==="function")financeMeetingPlanner=window.createFinanceMeetingPlanner({board,showAnswer:renderAnswer});
+  const corporateMemberOfficers=window.verifiedAssociationCorporateMemberOfficers?.(q);
+  if(corporateMemberOfficers){financeMeetingPlanner=null;renderAnswer(q,corporateMemberOfficers);return;}
   const venueOnlyProxy=window.verifiedAssociationVenueOnlyProxy?.(q);
   if(venueOnlyProxy){financeMeetingPlanner=null;renderAnswer(q,venueOnlyProxy);return;}
   const cooperativeExpulsion=window.verifiedCooperativeExpulsionSequence?.(q);
@@ -2246,6 +2248,7 @@ touch();
 <script src="cooperative-expulsion-sequence.js?v=1"></script>
 <script src="pingtung-grant-applicant-and-stages.js?v=1"></script>
 <script src="association-venue-only-proxy.js?v=1"></script>
+<script src="association-corporate-member-officers.js?v=1"></script>
 <script src="director-absence-clarification.js?v=1"></script>
 <script src="association-records-and-term.js?v=2"></script>
 <script src="association-external-audits.js?v=1"></script>
