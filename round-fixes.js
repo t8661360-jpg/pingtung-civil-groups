@@ -226,7 +226,7 @@ function normalizeQuestionR232(s){
  return s;
 }
 function normalizeQuestion(q){
- return normalizeQuestionR235(normalizeQuestionR234(normalizeQuestionR233(normalizeQuestionR232(normalizeQuestionR229(normalizeQuestionR228(normalizeQuestionR227(normalizeQuestionR225(normalizeQuestionR223(normalizeQuestion223(normalizeQuestion222(normalizeQuestion221(normalizeQuestion216(normalizeQuestion215(normalizeQuestion214(normalizeQuestion212(normalizeQuestion210(normalizeQuestion209(normalizeQuestion208(normalizeQuestion207(normalizeQuestion206(normalizeQuestion202(normalizeQuestion201(normalizeQuestion200(normalizeQuestion194(normalizeQuestion193(normalizeQuestion192(normalizeQuestion191(normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(normalizeQuestionU5(normalizeQuestionU3(normalizeQuestionU4(normalizeQuestionU2(normalizeQuestionU6(normalizeQuestionU8(normalizeQuestionU7(normalizeQuestionR237(normalizeQuestionR238(normalizeQuestionR239(normalizeQuestionR240(fixTyposU1(q))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
+ return normalizeQuestionR244(normalizeQuestionR235(normalizeQuestionR234(normalizeQuestionR233(normalizeQuestionR232(normalizeQuestionR229(normalizeQuestionR228(normalizeQuestionR227(normalizeQuestionR225(normalizeQuestionR223(normalizeQuestion223(normalizeQuestion222(normalizeQuestion221(normalizeQuestion216(normalizeQuestion215(normalizeQuestion214(normalizeQuestion212(normalizeQuestion210(normalizeQuestion209(normalizeQuestion208(normalizeQuestion207(normalizeQuestion206(normalizeQuestion202(normalizeQuestion201(normalizeQuestion200(normalizeQuestion194(normalizeQuestion193(normalizeQuestion192(normalizeQuestion191(normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(normalizeQuestionU5(normalizeQuestionU3(normalizeQuestionU4(normalizeQuestionU2(normalizeQuestionU6(normalizeQuestionU8(normalizeQuestionU7(normalizeQuestionR237(normalizeQuestionR238(normalizeQuestionR239(normalizeQuestionR240(fixTyposU1(q)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
 }
 /* 第200輪（根源）：入會退會與會員資格換問法——
    「忘記繳／忘了繳／漏繳會費」＝沒繳會費（原本「忘記繳會費會被退會嗎」被當成退費）；
@@ -4504,7 +4504,7 @@ function patrol7(t){
   return Object.assign({},base,{category:'補助經費',title:'補助核銷的單據抬頭：本站沒有統一規定，請依核定函或洽承辦人員',
   summary:'縣府補助作業要點只規定核銷時要附各項支用的單據、領款收據和實際支用明細表（第8點），沒有寫發票或收據的抬頭要開給誰。\n\n建議在取得單據前，先向承辦人員確認抬頭和統一編號怎麼寫，避免核銷時被退回，縣府總機 08-7320415。',
   statutes:[PT_GRANT(8)]});
- if(vol&&/(領錢|領薪|領錢|給錢|給薪|有薪|付薪|薪水|報酬|酬勞|工資|車馬費|領補助|有錢|拿錢|收錢)/.test(t)&&!/僱|雇|聘|勞保|勞基|加班/.test(t))
+ if(vol&&/(領錢|領薪|領錢|給錢|給薪|有薪|付薪|薪水|報酬|酬勞|工資|車馬費|領補助|有錢|拿錢|收錢)/.test(t)&&!/僱|雇|勞保|勞基|加班/.test(t.replace(/聘(請|用)?.{0,2}(志工|義工)/g,''))&&!/(聘|雇|僱)(請|用)?(總幹事|會計|職員|員工|工作人員|秘書)/.test(t))
   return Object.assign({},base,{category:'志願服務',title:'志工不是領薪水：志願服務不以獲取報酬為目的，運用單位得補助交通、誤餐等費用',
   summary:'志願服務的定義是「不以獲取報酬為目的」（志願服務法第3條第1款），所以志工不是領薪水的工作人員，志工也要拒絕向受服務者收取報酬（第15條第7款）。\n\n運用單位必要時，可以補助志工的交通、誤餐和特殊保險等經費（第16條）。\n\n如果是聘請、支薪的工作人員，就不是志工，要看勞動法規。',
   statutes:[VS(3),VS(15),VS(16)]});
@@ -4705,7 +4705,7 @@ function patrol22(t){
   summary:'會務輔導辦法只規定會議紀錄要載明開會日期、出缺席狀況和會議決議，並於閉會後自行留存；會員（會員代表）大會紀錄要在閉會後三十日內報縣府備查（人民團體會務輔導辦法第12條）。法規沒有訂紀錄寫錯時的更正方式，也沒有說單純錯字一定要重開會。\n如果只是文字誤植，大會紀錄已經報縣府備查的，請先電洽承辦人員確認怎麼補正；如果是決議的內容本身要改變，那就要依該會議的表決程序重新決議（例如理事會要有理事過半數出席、出席過半數同意，人民團體法第29條）。'+tail,
   statutes:[G(12),P(29)]});
  /* 誰負責寫、誰簽名、補寫 */
- if((MIN.test(t)||/(紀錄|記錄).{0,4}(沒|未|不|無).{0,2}人?(簽|蓋章)/.test(t))&&/(誰|哪位|什麼人|由誰|負責|紀錄人|記錄人|紀錄人員|記錄人員|代寫|代為|指派|(請|找|叫|讓|派).{0,6}(寫|做|記)|簽|蓋章|蓋.{0,5}章|簽章|用印|蓋印|蓋圖記|補寫|補記|補做|事後|沒寫|忘記|忘了|沒做|沒有做|沒有寫|沒存|存檔|不見|弄丟|沒有人|沒人|無人)/.test(t)&&(!/(什麼|哪些|怎麼寫|怎麼做|保存|留存|留幾年|多久|看|查閱|外人|公告|貼|幾份|送|報縣府|備查)/.test(t)||/(沒|未|不|無).{0,2}(人)?(簽|蓋章)/.test(t)))
+ if(!/紀錄冊/.test(t)&&(MIN.test(t)||/(紀錄|記錄).{0,4}(沒|未|不|無).{0,2}人?(簽|蓋章)/.test(t))&&/(誰|哪位|什麼人|由誰|負責|紀錄人|記錄人|紀錄人員|記錄人員|代寫|代為|指派|(請|找|叫|讓|派).{0,6}(寫|做|記)|簽|蓋章|蓋.{0,5}章|簽章|用印|蓋印|蓋圖記|補寫|補記|補做|事後|沒寫|忘記|忘了|沒做|沒有做|沒有寫|沒存|存檔|不見|弄丟|沒有人|沒人|無人)/.test(t)&&(!/(什麼|哪些|怎麼寫|怎麼做|保存|留存|留幾年|多久|看|查閱|外人|公告|貼|幾份|送|報縣府|備查)/.test(t)||/(沒|未|不|無).{0,2}(人)?(簽|蓋章)/.test(t)))
   return Object.assign({},base,{title:'會議紀錄誰來寫、要不要簽名、忘了寫怎麼辦：法規只規定要載明哪些事項，沒有規定由誰寫或一定要簽名',
   summary:'人民團體會務輔導辦法第12條只規定，會員（會員代表）大會、理事會、監事會和理監事聯席會議的紀錄，要載明開會日期、出缺席狀況、會議決議等事項，並於閉會後自行留存、提供會員查閱。法規沒有指定由誰擔任紀錄，也沒有要求一定要簽名或蓋章，也沒有訂事後補寫的期限；實務上多由主席和紀錄簽章，要怎麼做可以訂在章程或會議規則裡。\n要特別留意的是：會員（會員代表）大會紀錄要在閉會後三十日內報縣府備查，補寫要趕在這個期限內。如果紀錄遺失或沒寫，已經超過期限，請電洽承辦人員確認。'+tail,
   statutes:[G(12)]});
@@ -5133,7 +5133,7 @@ function patrol23(t){
  return null;
 }
 function patrol21(t){
- if(!/(志工|志願服務|義工|服務紀錄冊|志願服務證|基礎訓練)/.test(t))return null;
+ if(!/(志工|志願服務|義工|服務紀錄冊|志願服務證|基礎訓練|服務證)/.test(t))return null;
  const t0=t;t=t.replace(/志工會/g,'志工');
  if(/合作社|公會|工會|政黨|基金會|寺廟|宗教|議員|管委會|競選|政治|稅|員工|工作人員|總幹事|理事|監事|會員|魅力|社區發展|勸募|縣府補助|申請補助|核銷|解散協會|清算/.test(t))return null;
  const base={direct:true,category:'志願服務',notes:[],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
@@ -8165,7 +8165,7 @@ function patrol91(t){
  if(/(志工|義工)/.test(t)&&/(拍照|照片|臉書|FB|IG|貼文|社群|上傳|貼網站|貼在網路|發文)/i.test(t)&&!/(個資|名冊)/.test(t))
   return again('志工照片可以貼在網站嗎');
  /* 志工同時在兩個以上單位服務 */
- if(/(志工|義工)/.test(t)&&/(同時|兩個|二個|多個|兩家|好幾個|很多個|雙重|兼|一個以上|兩邊)/.test(t)&&/(協會|單位|團體|志工隊|服務|加入|參加)/.test(t)&&!/(會員|入會|職員|員工|幹事|行政人員|會務人員|工作人員|領薪)/.test(t))
+ if(/(志工|義工)/.test(t)&&(/(同時|兩個|二個|多個|兩家|好幾個|很多個|雙重|兼|一個以上|兩邊)/.test(t)&&/(協會|單位|團體|志工隊|服務|加入|參加)/.test(t)||/(協會以外|協會之外|別的協會|別的團體|其他協會|其他團體|不同的?(單位|協會|團體))/.test(t)&&/(服務|當|做|去|參加)/.test(t)&&!/(轉|換|調)/.test(t))&&!/(會員|入會|職員|員工|幹事|行政人員|會務人員|工作人員|領薪)/.test(t))
   return Object.assign({},base,{title:'志工可以同時在兩個以上單位服務嗎：志願服務法沒有限制，紀錄冊可繼續使用',
   summary:'本站查到的志願服務法和志願服務證及服務紀錄冊管理辦法，沒有限制志工同時在兩個以上運用單位服務。\n\n管理辦法只明文規定志工轉換運用單位時，服務紀錄冊要繼續使用（管理辦法第7條）；各運用單位仍要把志工受訓、保險、服務日期時數與內容登載在紀錄冊（管理辦法第4條）。\n\n各運用單位也可以在自己的志願服務計畫中訂定志工的管理方式（志願服務法第7條第2項），志工有義務遵守各單位訂定的規章（第15條第2款），所以同時服務是否另有要求，請向各單位確認。'+tail,
   statutes:[VSC(7),VSC(4),VS(7),VS(15)]});
@@ -10059,7 +10059,7 @@ function normalizeQuestion137(s){
 /* 第137輪：會議紀錄、簽到、開會通知單（會務輔導辦法§10、11、12、16；人民團體法§26、29、58；個資法§5、20） */
 function patrol137(t){
  /* 0. 志工服務紀錄冊（不是會議紀錄）要留多久 */
- if(/(志工|志願服務)/.test(t)&&/(服務紀錄|紀錄冊|服務記錄)/.test(t)&&/(留|保存|保留|多久|幾年|銷毀|丟)/.test(t))
+ if(/(志工|志願服務)/.test(t)&&/(服務紀錄|紀錄冊|服務記錄)/.test(t)&&/(留|保存|保留|多久|幾年|銷毀|丟)/.test(t)&&!/(弄丟|搞丟|遺失|掉了|不見|損壞|補發|換發|補辦|重辦|重領|壞了|破了)/.test(t))
   return{direct:true,category:'志願服務',notes:[],actions:[{label:'聯絡承辦',view:'contact',sub:''}],title:'志工服務紀錄要保存多久：法規沒有訂保存年限，紀錄冊由志工保管，單位要登載並登錄資訊系統',
   summary:'志願服務證及服務紀錄冊管理辦法沒有訂志工服務紀錄的保存年限，本站也查不到其他保存年限的規定。\n辦法規定：服務紀錄冊由志工使用及保管（第6條第1項）；志願服務運用單位要把志工的訓練內容與時數、保險、服務日期、時數與內容、獎勵、照片登載於紀錄冊，並登錄於全國志願服務資訊整合系統；縣（市）已建置地方資訊系統的，可以登錄在地方系統，由地方主管機關轉登錄（第4條）。紀錄冊損壞或遺失，志工可以向運用單位申請換發或補發（第8條）。\n單位自己另外留存的服務資料要留多久，請洽縣府社會處承辦人員，縣府總機 08-7320415。',
   statutes:[{title:'志願服務證及服務紀錄冊管理辦法第4條',source:LAW+'D0050132'},{title:'志願服務證及服務紀錄冊管理辦法第6條',source:LAW+'D0050132'},{title:'志願服務證及服務紀錄冊管理辦法第8條',source:LAW+'D0050132'}]};
@@ -12907,6 +12907,35 @@ function normalizeQuestionR240(s){
  if(/榮譽卡/.test(s)&&!/(志工|義工|志願|銀行|信用|會員|愛心|悠遊|會籍|理事|榮譽理事)/.test(s))s=s.replace(/(志願服務)?榮譽卡/,'志願服務榮譽卡');
  return s;
 }
+/* 第244輪：志工／志願服務。
+   1. 「協會聘志工可以給薪水嗎」被理監事無給職搶答（根源：志工領錢規則把「聘」一律當成僱用而排除，「聘志工」是口語）。
+   2. 「服務證遺失補發」難倒小屏、「紀錄冊弄丟了」答成保存年限（管理辦法§8、§3、§5）。
+   3. 「志服隊」被當成協會解散；「沒受過訓」沒對到受訓規則（根源：normalizeQuestion 缺口語同義詞）。
+   4. 「志工怎麼加入」「志服法規定協會要做什麼」「志工能不能在別的單位服務」原本難倒小屏；志願服務法、管理辦法皆已核對 data/statutes.json.gz。 */
+function normalizeQuestionR244(s){
+ s=String(s||'');
+ if(/志服隊/.test(s))s=s.replace(/志服隊/g,'志工隊');
+ if(/(?<!服務)(?<!志工)(?<!志願)紀錄冊/.test(s)&&/(遺失|弄丟|搞丟|丟了|掉了|不見|損壞|壞了|破了|補發|換發|補辦|重辦|重領)/.test(s)&&!/(會議|開會|理事會|監事會|大會|聯席|決議|簽到)/.test(s))s=s.replace(/(?<!服務)(?<!志工)(?<!志願)紀錄冊/,'志工服務紀錄冊');
+ if(/志服法/.test(s))s=s.replace(/志服法/g,'志願服務法');
+ if(/(志工|義工)/.test(s)&&/(沒|未|沒有)受過(任何|基礎|特殊)?(教育)?(訓練|訓)/.test(s))s=s.replace(/(沒|未|沒有)受過(任何|基礎|特殊)?(教育)?(訓練|訓)/,'沒受訓');
+ return s;
+}
+function patrolR244(t){
+ if(/(合作社|社員|政黨|基金會|寺廟|宗教|祭祀)/.test(t))return null;
+ const VS=n=>({title:'志願服務法第'+n+'條',source:LAW+'D0050131'});
+ const VSC=n=>({title:'志願服務證及服務紀錄冊管理辦法第'+n+'條',source:LAW+'D0050132'});
+ const call='\n\n其他細節請洽縣府社會處承辦人員，縣府總機 08-7320415。';
+ const R=(title,summary,statutes)=>({direct:true,category:'志願服務',title,summary:summary+call,statutes,notes:[],actions:[{label:'聯絡承辦',view:'contact',sub:''}]});
+ const vol=/(志工|義工|志願服務|服務證|紀錄冊|服務紀錄冊)/.test(t);
+ if(!vol)return null;
+ /* 聘、請志工要不要給錢：口語的「聘志工」不是僱用，答案同「志工不是領薪水」 */
+ if(/(聘|請|找|雇|僱)(請|用)?.{0,2}(志工|義工)/.test(t)&&/(給錢|給薪|付薪|薪水|薪資|報酬|酬勞|工資|付錢|發錢|給工資|要錢|有錢|領錢|拿錢)/.test(t)&&!/(勞保|勞基|加班|就業)/.test(t))
+  return R('志工不是領薪水：志願服務不以獲取報酬為目的，運用單位得補助交通、誤餐等費用','志願服務的定義是「不以獲取報酬為目的」（志願服務法第3條第1款），所以志工不是領薪水的工作人員，志工也要拒絕向受服務者收取報酬（第15條第1項第7款）。\n\n運用單位必要時，可以補助志工的交通、誤餐和特殊保險等經費（第16條）。\n\n如果是聘請、支薪的工作人員，就不是志工，要看勞動法規。',[VS(3),VS(15),VS(16)]);
+ /* 志願服務法規定運用單位要做哪些事 */
+ if(/志願服務法/.test(t)&&/(規定|要求|寫)/.test(t)&&/(協會|運用單位|單位|團體)/.test(t)&&/(做|辦|負責|義務|責任|哪些|什麼|甚麼|有什麼)/.test(t)&&!/(罰|處罰|違反|罰鍰)/.test(t))
+  return R('協會運用志工時，志願服務法要求運用單位要做的事','協會是經政府立案的團體，運用志工時就是志願服務運用單位（志願服務法第3條）。法規要求運用單位要做的事主要有：\n1. 依志願服務計畫運用志工，運用前把計畫和立案證書影本送縣政府及目的事業主管機關備案；章程所載存立目的與志願服務計畫相符的，運用前免申請備案，但仍要在年度結束後二個月內函報辦理情形（第7條）。\n2. 辦理基礎訓練和特殊訓練（第9條）。\n3. 確保志工在安全衛生的環境服務，並指定專人督導（第10條、第11條）。\n4. 發給志願服務證及服務紀錄冊（第12條）。\n5. 為志工辦理意外事故保險（第16條）。\n6. 定期考核志工個人及團隊的服務績效（第19條）。\n其中每一項的細節，可以再問小屏，例如「志工保險」「志工訓練」「志工隊要備案嗎」。',[VS(3),VS(7),VS(9),VS(10),VS(11),VS(12),VS(16),VS(19)]);
+ return null;
+}
 /* 第243輪：職業團體。
    1. 「商業同業公會一定要入會嗎」被公會入會（不得拒絕）規則搶答，答成公會不能拒絕，與「開店一定要入商業公會嗎」不一致（根源：guild-practice-registration 的 company 條件）。
    2. 「商業公會能叫會員一定要出席嗎」被公會名稱規則的「能叫」吃掉（根源：名稱規則補排除）。
@@ -13084,7 +13113,7 @@ function patrolR233(t){
   return{direct:true,category:'志願服務',title:'志工可以把協會的東西帶回家嗎：法規只規定要妥善保管，能不能帶走看單位規章',
   summary:'志願服務法規定，志工有義務妥善保管志願服務運用單位提供的可利用資源（志願服務法第15條第1項第8款），也要遵守運用單位訂定的規章（第15條第1項第2款）。\n\n至於東西能不能帶回家、借用要不要登記，法規沒有明文規定，要看協會自己的規章或志願服務計畫；沒有經過同意就帶走，容易引起誤會，建議先向負責督導的人說明、登記。\n\n其他細節請洽縣府社會處承辦人員，縣府總機 08-7320415。',
   statutes:[V(15)],notes:[],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
- if(!EX.test(t)&&/(想|要|願意|有意願|有意|有興趣|有心|打算|可以)(去|來|來去)?(當|做|成為|加入|參加|擔任|報名)(志工|義工|志願服務|志工隊)|(報名|登記|申請)(當|做|成為|加入|擔任)?(志工|義工)/.test(t)&&/(去哪|哪裡|哪邊|在哪|向誰|找誰|跟誰|報名|登記|窗口|管道|要怎麼加入|怎麼加入|如何加入)/.test(t))
+ if(!EX.test(t)&&/(想|要|願意|有意願|有意|有興趣|有心|打算|可以)(去|來|來去)?(當|做|成為|加入|參加|擔任|報名)(志工|義工|志願服務|志工隊)|(報名|登記|申請)(當|做|成為|加入|擔任)?(志工|義工)|^(志工|義工)(要|該)?(怎麼|如何|怎樣)(加入|報名|當|參加)/.test(t)&&/(去哪|哪裡|哪邊|在哪|向誰|找誰|跟誰|報名|登記|窗口|管道|要怎麼加入|怎麼加入|如何加入)/.test(t))
   return{direct:true,category:'志願服務',title:'想當志工去哪裡報名：向想服務的志願服務運用單位報名，志願服務法沒有訂統一的報名窗口',
   summary:'想當志工，請直接向您想服務的單位詢問和報名。志工是由「志願服務運用單位」召募的，運用單位指的是運用志工的機關、機構、學校、法人或經政府立案的團體（志願服務法第3條第3款），召募時要把志願服務計畫公告（第6條第1項）。\n\n志願服務法沒有規定一個統一的報名窗口。加入之後，運用單位要辦理基礎訓練和特殊訓練（第9條），完成教育訓練後，由運用單位發給志願服務證及服務紀錄冊（第12條）。\n\n如果想知道縣內有哪些單位在招志工，請洽縣府社會處承辦人員，縣府總機 08-7320415。',
   statutes:[V(3),V(6),V(9),V(12)],notes:[],actions:[{label:'聯絡承辦',view:'contact',sub:''}]};
@@ -13687,6 +13716,7 @@ function verifiedRoundAnswer(q,ctx){
  if(!x)try{x=cross1127r13(norm(q))}catch(e){x=null}
  if(!x&&!verifiedRoundAnswer._r12)try{x=cross1127r12(norm(q),ctx)}catch(e){x=null} /* 導向既有答案時不再進第12輪規則，避免「名譽理事長可以投票嗎」這類導向題自我遞迴 */
  if(x&&x.__redir12){const R=x.__redir12;x=null;let a=null;verifiedRoundAnswer._r12=true;try{a=verifiedRoundAnswer(normalizeQuestion(R.q),ctx)}catch(e){a=null}finally{verifiedRoundAnswer._r12=false}if(a&&a.summary&&R.re.test(a.title||''))x=Object.assign({},a,{direct:true,questionState:R.fl},R.ext?R.ext(a):{});}
+ if(!x) try{x=patrolR244(norm(q))}catch(e){x=null}
  if(!x) try{x=patrolR243(norm(q))}catch(e){x=null}
  if(!x) try{x=patrolR242(norm(q))}catch(e){x=null}
  if(!x) try{x=patrolR241(norm(q))}catch(e){x=null}
