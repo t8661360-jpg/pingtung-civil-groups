@@ -1609,6 +1609,7 @@ let ballotStaffStage=null;
 let grantFinanceContext=null;
 let communityContinuityContext=null;
 let rescheduledNoticeContext=null;
+let noticeCalendarContext=null;
 let deceasedHandoverContext=null;
 let candidateMembershipContext=null;
 async function ask(q){
@@ -1618,6 +1619,7 @@ async function ask(q){
   const heldGrantFinance=grantFinanceContext;grantFinanceContext=null;
   const heldCommunityContinuity=communityContinuityContext;communityContinuityContext=null;
   const heldRescheduledNotice=rescheduledNoticeContext;rescheduledNoticeContext=null;
+  const heldNoticeCalendar=noticeCalendarContext;noticeCalendarContext=null;
   const heldDeceasedHandover=deceasedHandoverContext;deceasedHandoverContext=null;
   const heldCandidateMembership=candidateMembershipContext;candidateMembershipContext=null;
   const heldCharitablePermit=charitablePermitContext;charitablePermitContext=null;
@@ -1701,6 +1703,8 @@ async function ask(q){
   if(communityContinuity){financeMeetingPlanner=null;communityContinuityContext=communityContinuity.continuityContext||null;renderAnswer(q,communityContinuity);return;}
   const courtRepresentation=window.verifiedAssociationCourtRepresentation?.(q);
   if(courtRepresentation){financeMeetingPlanner=null;renderAnswer(q,courtRepresentation);return;}
+  const noticeCalendar=window.verifiedMeetingNoticeCalendar?.(q,new Date(),heldNoticeCalendar);
+  if(noticeCalendar){financeMeetingPlanner=null;noticeCalendarContext=noticeCalendar.nextNoticeDate||null;renderAnswer(q.replace(/[;；]通知日期確認:[a-z]+$/i,""),noticeCalendar);return;}
   const rescheduledNotice=window.verifiedAssociationRescheduledNotice?.(q,heldRescheduledNotice);
   if(rescheduledNotice){financeMeetingPlanner=null;rescheduledNoticeContext=rescheduledNotice.noticeContext||null;renderAnswer(q,rescheduledNotice);return;}
   if(heldDateQuestion&&window.isMeetingDateCorrection?.(q)){
@@ -2585,6 +2589,7 @@ touch();
 <script src="association-term-convocation.js?v=1"></script>
 <script src="volunteer-plan-and-team-lead.js?v=1"></script>
 <script src="association-rescheduled-notice.js?v=1"></script>
+<script src="meeting-notice-calendar.js?v=1"></script>
 <script src="association-court-representation.js?v=1"></script>
 <script src="community-association-continuity.js?v=1"></script>
 <script src="cooperative-charter-membership.js?v=1"></script>
