@@ -1588,6 +1588,7 @@ let officeAddressContext=null;
 let officerEligibilityContext=null;
 let coopMeetingRelocationContext=null;
 let handoverFinanceContext=null;
+let branchCorrespondenceContext=null;
 let legalPropertyContext=null;
 let communityMultiContext=null;
 let associationMeetingSequenceContext=null;
@@ -1610,6 +1611,7 @@ async function ask(q){
   const heldOfficerEligibility=officerEligibilityContext;officerEligibilityContext=null;
   const heldCoopMeetingRelocation=coopMeetingRelocationContext;coopMeetingRelocationContext=null;
   const heldHandoverFinance=handoverFinanceContext;handoverFinanceContext=null;
+  const heldBranchCorrespondence=branchCorrespondenceContext;branchCorrespondenceContext=null;
   const heldCommunityMulti=communityMultiContext;communityMultiContext=null;
   const heldLegalProperty=legalPropertyContext;legalPropertyContext=null;
   const heldVenueUse=venueUseContext;venueUseContext=null;
@@ -1661,6 +1663,8 @@ async function ask(q){
   if(officeAddress){financeMeetingPlanner=null;officeAddressContext=officeAddress.officeAddressContext||null;renderAnswer(q,officeAddress);return;}
   const officerEligibility=window.verifiedOfficerEligibilityAndElections?.(q,heldOfficerEligibility);
   if(officerEligibility){financeMeetingPlanner=null;officerEligibilityContext=officerEligibility.officerEligibilityContext||null;renderAnswer(q,officerEligibility);return;}
+  const branchCorrespondence=window.verifiedBranchCorrespondence?.(q,heldBranchCorrespondence);
+  if(branchCorrespondence){financeMeetingPlanner=null;branchCorrespondenceContext=branchCorrespondence.branchCorrespondenceContext||null;renderAnswer(q,branchCorrespondence);return;}
   const handoverFinance=window.verifiedFinancialHandover?.(q,heldHandoverFinance);
   if(handoverFinance){financeMeetingPlanner=null;handoverFinanceContext=handoverFinance.handoverFinanceContext||null;renderAnswer(q,handoverFinance);return;}
   const receiptScope=window.verifiedAssociationPickupAndService?.(q,heldReceiveAuthority);
@@ -2433,6 +2437,7 @@ touch();
 <script src="officer-eligibility-and-elections.js?v=1"></script>
 <script src="cooperative-meeting-relocation.js?v=1"></script>
 <script src="financial-handover.js?v=1"></script>
+<script src="branch-correspondence.js?v=1"></script>
 <script src="grant-multiple-sources.js?v=2"></script>
 <script src="grant-procurement-threshold.js?v=2"></script>
 <script src="association-legal-property.js?v=2"></script>
