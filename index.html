@@ -1584,6 +1584,8 @@ async function ask(q){
     if(matched){financeMeetingPlanner=null;postponedProxyDateQuestion=matched.followNewDate?heldDateQuestion:null;renderAnswer(q,matched);return;}
   }
   if(!financeMeetingPlanner&&typeof window.createFinanceMeetingPlanner==="function")financeMeetingPlanner=window.createFinanceMeetingPlanner({board,showAnswer:renderAnswer});
+  const villageOffice=window.verifiedVillageOfficeAndAssociation?.(q);
+  if(villageOffice){financeMeetingPlanner=null;renderAnswer(q,villageOffice);return;}
   const grantMissingRecord=window.verifiedGrantMissingMeetingRecord?.(q);
   if(grantMissingRecord){financeMeetingPlanner=null;renderAnswer(q,grantMissingRecord);return;}
   const representativeTransition=window.verifiedRepresentativeSystemTransition?.(q);
@@ -2258,6 +2260,7 @@ touch();
 <script src="association-cpa-independence.js?v=1"></script>
 <script src="representative-system-transition.js?v=20261128-323"></script>
 <script src="grant-and-missing-meeting-record.js?v=1"></script>
+<script src="village-office-and-association.js?v=1"></script>
 <script src="director-absence-clarification.js?v=1"></script>
 <script src="association-records-and-term.js?v=2"></script>
 <script src="association-external-audits.js?v=1"></script>
@@ -2357,7 +2360,7 @@ touch();
 <script src="meeting-convening-distinction.js?v=20261128-323"></script>
 <script src="answer-arbiter.js?v=20261128-323"></script>
 <script src="question-understanding.js?v=20261128-323"></script>
-<script src="counter-upgrade.js?v=20261128-323"></script>
+<script src="counter-upgrade.js?v=20261128-323-village"></script>
 <script src="keyword-menu.js?v=20261128-323"></script>
 <script src="ai-assist.js?v=20261128-323"></script>
 <script src="ai-understand.js?v=1"></script>
