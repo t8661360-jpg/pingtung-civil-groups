@@ -1303,6 +1303,10 @@ function thinkingView(q,lines){
   return()=>clearInterval(t);
 }
 function renderAnswer(q,a){
+  if(a?.title?.includes("條文沒有延長活動期間的規定")){
+    const corrected=window.verifiedCharitablePermitChanges?.(q)||window.verifiedCharitablePermitChanges?.("勸募期間可以延長嗎");
+    if(corrected)a=corrected;
+  }
   const steps=a.steps||[],docs=a.docs||[],laws=(a.laws||[]).filter(id=>ART[id]),notes=a.notes||[],acts=a.actions||[],groups=a.groups||[],staff=a.staff||[],refs=a.refs||[];
   board.innerHTML=`<div class="qline"><span class="who">您問</span><b>${esc(q)}</b></div>
    <span class="acat">${esc(a.category||"服務說明")}</span>
@@ -1567,8 +1571,10 @@ let grantProcContext=null;
 let legalPropertyContext=null;
 let communityMultiContext=null;
 let associationMeetingSequenceContext=null;
+let charitablePermitContext=null;
 async function ask(q){
   q=String(q||"").trim();if(!q||busy)return;
+  const heldCharitablePermit=charitablePermitContext;charitablePermitContext=null;
   const priorMeetingSequence=associationMeetingSequenceContext;associationMeetingSequenceContext=null;
   const heldElectionDual=electionDualContext;electionDualContext=null;
   const heldProcFacts=grantProcContext;grantProcContext=null;
@@ -1604,6 +1610,9 @@ async function ask(q){
     if(matched){financeMeetingPlanner=null;postponedProxyDateQuestion=matched.followNewDate?heldDateQuestion:null;renderAnswer(q,matched);return;}
   }
   if(!financeMeetingPlanner&&typeof window.createFinanceMeetingPlanner==="function")financeMeetingPlanner=window.createFinanceMeetingPlanner({board,showAnswer:renderAnswer});
+  const permitFull=heldCharitablePermit&&window.isCharitablePermitCorrection?.(q)?heldCharitablePermit+"；更新資料："+q:q;
+  const permitResult=window.verifiedCharitablePermitChanges?.(permitFull);
+  if(permitResult){financeMeetingPlanner=null;charitablePermitContext=permitResult.retainPermitQuestion?permitFull:null;renderAnswer(q,permitResult);return;}
   const charityQuestion=heldCharityQuestion&&window.isCharitableFundraisingFactReply?.(q)?heldCharityQuestion+"；"+q:q;
   const rosterQuestion=heldRosterSharing&&window.isElectionRosterSharingFactReply?.(q)?heldRosterSharing+"；"+q:q;
   const donationQuestion=heldDonationTax&&window.isAssociationDonationTaxFactReply?.(q)?heldDonationTax+"；"+q:q;
@@ -2361,6 +2370,7 @@ touch();
 <script src="member-death-kind-clarification.js?v=2"></script>
 <script src="member-death-election-continuity.js?v=1"></script>
 <script src="election-objection-preservation.js?v=1"></script>
+<script src="charitable-permit-changes.js?v=1"></script>
 <script src="charitable-fundraising-stages.js?v=1"></script>
 <script src="community-cooperative-pause.js?v=1"></script>
 <script src="association-event-private-contact.js?v=1"></script>
