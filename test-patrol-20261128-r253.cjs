@@ -1,0 +1,22 @@
+/* 第253輪：勸募與補助（補助款發出席費／車馬費、發傳單募款、傳單許可文號、企業贊助算勸募、勸募帳公開） */
+const r=require('./round-fixes.js');
+const zlib=require('zlib'),fs=require('fs');
+const st=JSON.parse(zlib.gunzipSync(fs.readFileSync('data/statutes.json.gz')));
+const A=q=>r.verifiedRoundAnswer(r.normalizeQuestion(q),{});
+let bad=0;
+const pos=(qs,k)=>qs.forEach(q=>{const a=A(q);const t=a&&a.title||'';if(!t.includes(k)){bad++;console.log('✗',q,'=>',t||'(無)','期望',k)}});
+const neg=(qs,k)=>qs.forEach(q=>{const a=A(q);const t=a&&a.title||'';if(t.includes(k)){bad++;console.log('✗反',q,'=>',t)}});
+pos(['補助款可以發出席費嗎','補助的錢可以付開會的出席費嗎','補助款可以發車馬費嗎','補助經費可以發開會費嗎','拿補助款付出席費可以嗎','補助款能不能拿來發出席費','補助款可以給理事開會費嗎'],'補助款可以付理事長或理監事的車馬費嗎');
+neg(['補助款可以給志工車馬費嗎','補助款可以付講師車馬費嗎'],'補助款可以付理事長或理監事的車馬費嗎');
+pos(['發傳單募款要申請嗎','發傳單請人捐款要先申請嗎'],'向民眾募款');
+pos(['傳單上要印許可文號嗎','海報上要寫許可文號嗎','廣告要放許可文號嗎','布條要不要印許可文號'],'勸募時要主動出示許可文件');
+pos(['企業贊助活動費用算勸募嗎','公司贊助協會算不算勸募'],'收贊助款算不算勸募');
+pos(['公司捐款給協會可以列費用嗎'],'公司或企業捐錢');
+pos(['勸募的帳要公開在哪','勸募的帳要公開在哪裡看'],'公告、公開徵信');
+pos(['勸募的帳怎麼保存'],'保存多久');
+pos(['社團辦慈善晚會收善款要申請嗎','辦慈善晚宴收善款要申請嗎','愛心晚會要收捐款可以嗎'],'義賣算不算勸募');
+const L=st.laws;
+const chk=(pc,n,s)=>{const a=L[pc]&&L[pc].articles[n];if(!a||!a.includes(s)){bad++;console.log('✗法條',pc,n,s)}};
+chk('D0050138','18','三十日內');chk('D0050138','24','四萬元以上二十萬元以下');chk('D0050138','26','二萬元以上十萬元以下');
+chk('D0050147','2','二十一日內為之。但必要時，得延長十四日');chk('D0050146','10','至少保存五年');chk('D0050138','19','三個月內');
+if(bad){console.log('失敗',bad);throw new Error('r253')}console.log('r253 OK');
