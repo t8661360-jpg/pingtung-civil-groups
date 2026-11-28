@@ -1,0 +1,12 @@
+const assert=require('node:assert/strict');
+const {route}=require('./record-access-triage.js');
+const s=q=>JSON.stringify(route(q));
+assert.match(s('我是協會會員，能查理事會紀錄，要求一份副本，可以貼到群組嗎？'),/第12條.*不把含個資的原件貼到社群/);
+assert.match(s('我是社團法人會員，想看原始會議紀錄與財務憑證，向縣府或法院？'),/第22條.*政府資訊公開法/);
+assert.match(s('我不是會員，想看縣府持有的協會補助結案報告'),/不是這條途徑的前提.*應提供不受限制的部分/);
+assert.match(s('更正：不是協會，是合作社社員，想依合作社法看社務與財務文件，應向誰提出？'),/第37條.*第35、36條/);
+const x=route('我是協會會員，想查閱一些文件，不確定該查哪些文件。');
+assert.equal(x.choices.length,3);
+assert.equal(new Set(x.choices.map(y=>route(y.question).title)).size,3);
+for(const q of ['協會會員大會不能出席要怎麼委託投票','協會會員問何時報到','另問：佳冬鄉文化團體有幾個','信用合作社社員要查閱會計書類'])assert.equal(route(q),null,q);
+console.log('團體會議紀錄、政資與帳目閱覽分流通過');
