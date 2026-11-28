@@ -1563,9 +1563,11 @@ let electionObjectionContext=null, charityQuestionContext=null;
 let rosterSharingContext=null;
 let donationTaxContext=null;
 let electionDualContext=null;
+let grantProcContext=null;
 async function ask(q){
   q=String(q||"").trim();if(!q||busy)return;
   const heldElectionDual=electionDualContext;electionDualContext=null;
+  const heldProcFacts=grantProcContext;grantProcContext=null;
   const heldDonationTax=donationTaxContext;donationTaxContext=null;
   const heldRosterSharing=rosterSharingContext;rosterSharingContext=null;
   const heldCharityQuestion=charityQuestionContext;charityQuestionContext=null;
@@ -1612,6 +1614,9 @@ async function ask(q){
   if(electionObjection){financeMeetingPlanner=null;electionObjectionContext=electionObjection.needsElectionFacts?electionQuestion:null;renderAnswer(q,electionObjection);return;}
   const memberDeathVoting=window.verifiedMemberDeathElectionContinuity?.(q);
   if(memberDeathVoting){financeMeetingPlanner=null;renderAnswer(q,memberDeathVoting);return;}
+  const procurementQuestion=heldProcFacts&&window.isGrantProcurementFactReply?.(q)?heldProcFacts+"；"+q:q;
+  const procurement=window.verifiedGrantProcurementThreshold?.(procurementQuestion);
+  if(procurement){financeMeetingPlanner=null;grantProcContext=procurement.needsProcFacts?procurementQuestion:null;renderAnswer(q,procurement);return;}
   const multipleGrants=window.verifiedGrantMultipleSources?.(q);
   if(multipleGrants){financeMeetingPlanner=null;renderAnswer(q,multipleGrants);return;}
   const dissolutionEstate=window.verifiedAssociationDissolutionEstate?.(q);
@@ -2276,7 +2281,7 @@ touch();
 <script src="post-election-first-meeting.js?v=2"></script>
 <script src="member-roster-access.js?v=20261127-election-copy"></script>
 <script src="election-roster-sharing.js?v=1"></script>
-<script src="association-donation-tax.js?v=1"></script>
+<script src="association-donation-tax.js?v=2"></script>
 <script src="election-dual-capacity.js?v=1"></script>
 <script src="association-fee-charter.js?v=1"></script>
 <script src="association-sponsor-ballot.js?v=20261127-sponsor"></script>
@@ -2304,6 +2309,7 @@ touch();
 <script src="volunteer-team-training-and-grants.js?v=1"></script>
 <script src="association-dissolution-estate.js?v=1"></script>
 <script src="grant-multiple-sources.js?v=2"></script>
+<script src="grant-procurement-threshold.js?v=1"></script>
 <script src="director-absence-clarification.js?v=1"></script>
 <script src="association-records-and-term.js?v=2"></script>
 <script src="association-external-audits.js?v=1"></script>
@@ -2406,7 +2412,7 @@ touch();
 <script src="meeting-convening-distinction.js?v=20261128-327"></script>
 <script src="answer-arbiter.js?v=20261128-327"></script>
 <script src="question-understanding.js?v=20261128-327"></script>
-<script src="counter-upgrade.js?v=20261128-327-election-dual"></script>
+<script src="counter-upgrade.js?v=20261128-327-grant-procurement"></script>
 <script src="keyword-menu.js?v=20261128-327"></script>
 <script src="ai-assist.js?v=20261128-327"></script>
 <script src="ai-understand.js?v=1"></script>

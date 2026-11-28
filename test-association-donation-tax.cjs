@@ -4,6 +4,7 @@ const {route,follow}=require('./association-donation-tax.js');
 const answer=q=>{const a=route(q);assert.ok(a,q);return [a.title,a.summary,...a.steps.flat()].join('\n');};
 const match=(q,...rs)=>{const a=answer(q);for(const r of rs)assert.match(a,r,q);return a;};
 const donated='屏東協會已報去年的所得稅，企業捐盲盒物資我們免費送弱勢但帳上和申報都漏。需要先補帳還是直接更正申報？';
+assert(route('一般合作社沒有對外營業，社員股金和會費混在一起，免稅六成執行率算分母嗎？').refs.some(r=>r.title==='合作社法第7條'&&r.source.includes('pcode=D0050112&flno=7')));
 match(donated,/所得稅法第11條第4項/,/不列入所得稅的收入和支出/,/該年度已送出/,/未經檢舉、未受調查/,/不貼到小屏/);
 match('協會帳上有政府補助、會費和義賣收入，去年年度公益支出只到六成。免稅要算哪個分母、義賣收入也免嗎、要不要送保留計畫？',/非銷售及基金孳息/,/創設目的以外所得額/,/不是對全部營收/,/主管機關查明同意/);
 match('先問物資：去年協會有收企業捐的輪椅，免費轉送其他團體；收據記了數量但沒估價格，報過所得稅後才發現。價格要怎麼查、要改哪一年、要補稅還是不一定、捐贈方要重開收據嗎？',/不用為了所得稅硬估單價/,/可靠市價或交易證據/,/不要求原捐方一律重開收據/,/交易實際發生年度/);

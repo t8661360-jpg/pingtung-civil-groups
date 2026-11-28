@@ -30,7 +30,7 @@ function route(q){
   return {direct:true,questionState:{focus:'compound',domain:'association-donation-tax'},category:'合作社｜年度所得稅',title:'一般合作社不能套用公益團體的年度六成免稅標準',summary:'一般合作社與教育、文化、公益、慈善機關團體不是同一種所得稅申報身分。未對外營業，不會讓所有合作社自動免稅。',steps:[
    ['先分消費合作社與其他合作社','所得稅法第4條第1項第14款，指依法經營、不對外營業的消費合作社；一般合作社不能只以不對外營業主張適用，也不要把該款當成營業稅免稅。合作社法第7條「得」免所得稅，仍須依租稅法規及實際營運判斷。'],
    ['股金與銷售收入分開','社員真正的出資入股，通常是股金權益，不因入帳就成為銷售收入；如果實際是收貨款、服務費或其他對價，按實質分類。依年度帳目與主管國稅局確認應用的申報身分與表件，不套用協會的六成或結餘計畫。']
-  ],refs:[income(4),law('合作社法','D0050121',7),ref('財政部：合作社所得稅處理','https://law-out.mof.gov.tw/LawContent.aspx?id=GL003591')]};
+  ],refs:[income(4),law('合作社法','D0050112',7),ref('財政部：合作社所得稅處理','https://law-out.mof.gov.tw/LawContent.aspx?id=GL003591')]};
  }
  if(!assoc||(!ratio&&!(physical&&(tax||report))&&!(tax&&countGrant&&/對價|受託|委託.*(?:辦|教)|接案/.test(t))))return null;
  if(!physical&&!ratio&&/勸募許可|募款許可/.test(t))return null;
