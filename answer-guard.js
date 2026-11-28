@@ -26,6 +26,8 @@
      只重組既有的已核對答案，不新增任何內容。 */
   const TYPES = [['合作社', /合作社/], ['社區發展協會', /社區發展協會|社區協會/], ['公會', /公會|商業會|工業會|職業團體/], ['工會', /工會/], ['基金會', /基金會|財團法人/], ['協會', /協會|社會團體|社團(?!法人)/]];
   const typesOf = t => { let x = NFK(t); const out = []; for (const [n, re] of TYPES) { if (re.test(x)) { out.push(n); x = x.replace(new RegExp(re.source, 'g'), '＿'); } } return out; };
+  // A type explicitly ruled out at the start of its own clause is not a second comparison target.
+  const comparisonTypes = s => typesOf(s.replace(/(^|[，,。；;])(?:也)?(?:不是|並非|不屬於)(?:一般|工商)?(?:商業(?:同業)?公會|工業(?:同業)?公會|公會|工會|社區發展協會|社會團體|協會|合作社|基金會)(?=$|[，,。；;])/g, '$1'));
   const COMPARE = /一樣嗎|一不一樣|一樣不一樣|有沒有一樣|相同嗎|是否相同|有什麼不同|有何不同|有什麼不一樣|哪裡不同|哪裡不一樣|差別|差在哪|差異|有什麼差|怎麼分|(跟|和|與).{2,14}(一樣|相同)|比較|各是|各要|各幾|各多|各有|各自|分別/;
   const ASK = /[?？]|嗎|呢$|怎麼|如何|怎樣|可以|可不可以|能不能|能否|是否|幾|多久|多少|誰|哪|什麼|甚麼|啥|要不要|需不需要|有沒有|會不會|算不算|一定要/;
   const fixedUnknown = q => { try { if (typeof reportUnanswered === 'function') reportUnanswered(q); } catch (e) {}
@@ -39,7 +41,7 @@
   function compareGuard(q, a) {
     if (!a || a.unanswered || a.guarded || /您是不是要問|想先確認|分開看|分別/.test(a.title || '')) return null;
     const t = NFK(q); if (!COMPARE.test(t)) return null;
-    const ty = typesOf(t); if (ty.length < 2) return null;
+    const ty = comparisonTypes(String(q || '').normalize('NFKC').replace(/\s+/g, '')); if (ty.length < 2) return null;
     const at = textOf(a);
     if (ty.every(n => TYPES.find(x => x[0] === n)[1].test(n === '協會' ? at.replace(/社區發展協會|社區協會/g, '＿') : at))) return null; // 答案兩種團體都有談到
     return menu(q, null);
@@ -47,7 +49,7 @@
   function compareTopic(q, a) {
     if (!a || a.unanswered || a.guarded || !window.AnswerArbiter || /您是不是要問|想先確認/.test(a.title || '')) return null;
     const t = NFK(q); if (!COMPARE.test(t)) return null;
-    const ty = typesOf(t); if (ty.length < 2) return null;
+    const ty = comparisonTypes(String(q || '').normalize('NFKC').replace(/\s+/g, '')); if (ty.length < 2) return null;
     const SKIP = /^(協會|合作社|社區發展協會|理事|監事|會員|社員|理事會|監事會|會員大會|社員大會|理事長|會員代表|名額|法人|成立)$/;
     const tp = window.AnswerArbiter.topicsOf(t).filter(x => !SKIP.test(x)); if (!tp.length) return null;
     const has = x => { const at = new Set(window.AnswerArbiter.topicsOf(textOf(x))); return tp.every(k => at.has(k)); };
