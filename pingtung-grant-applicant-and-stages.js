@@ -68,6 +68,8 @@ const guildFinance={title:'工商團體財務處理辦法第25、26條：團體�
 function applicantAndPayee(q){
  const raw=String(q??'').trim(),t=clean(raw);
  if(!t||t.length>520)return null;
+ // A named debtor or judicial account restriction is not a payee change.
+ if(/法院|法官|民事執行處|執行命令/.test(t)&&/扣押|凍結|查封|債務人|移轉命令|收取命令|支付轉給|禁止處分|帳戶.{0,5}限制|強制執行/.test(t))return null;
  const z=t.replace(/(?:不是|並非|非屬)(?:一般|原來的)?(?:工商公會|商業(?:同業)?公會|工業(?:同業)?公會|公會|社會團體|協會|合作社)/g,'');
  if(/(?:沒有要|不再|不問|不是問)(?:再|請|談|問|申請)?(?:補助|補件)|個人生活補助|低收入戶|租屋補助|就業補助|醫療補助|護理師公會|職業公會|工會|信用合作社|合作社|農會|漁會|建築物租賃契約/.test(z))return null;
  const explicit=/補助|核銷/.test(z)||/縣府通案/.test(z)&&/領款收據/.test(z),implicit=/(?:聲明書.{0,30}(?:代簽|領據|核定)|已(?:經)?用協會申請.{0,30}(?:戶名|收據|領據))/.test(z);

@@ -19,3 +19,4 @@ for(const q of qs.slice(10))assert.equal(r(q),null,q);
 assert.equal(r('不是協會，是信用合作社，已收到補助，理事長可以用自己名字領嗎？'),null);
 assert.equal(r('我們是協會，第一場辦完、第二場改期，縣府補助是否核銷'),null);
 console.log('PASS grant applicant, representative, bank and receipt types, annual duplicate and program branches');
+for(const q of ["銀行說協會公帳被法院扣押，現在是不能領而已，還是錢已經給對方了？","屏東的社會團體，銀行說收到法院扣押命令，命令上的債務人是協會，戶名也是協會。誰有十天期限？當天提出異議，錢會先解凍嗎？","我們協會的銀行帳戶被法院限制，裡面有縣府已撥的活動款，活動還沒做也還沒核銷。要報給原補助承辦還是登記機關？專款是不是一定不會被扣？","協會月底還有薪水和場租，公帳收到法院扣押命令，戶名和債務人相同。帳裡有一般會費跟已撥縣府活動補助，查不到有沒有再發移轉命令。十天是不是協會的異議期限，先去法院還是縣府？","更正，法院寫債務人是理事長本人，不是協會；協會戶名不同，補助也還沒撥。只是銀行請核對，沒有看到命令，現在要確認什麼？"])assert.equal(r(q),null,q);
