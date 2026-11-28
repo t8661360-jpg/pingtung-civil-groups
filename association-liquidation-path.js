@@ -41,10 +41,13 @@ function parse(q,prior){
  if(!follow&&!org&&!( /^(?:我們)?團體/.test(reduced)&&/解散/.test(reduced)&&/票|錢|財產/.test(reduced)))return null;
  if(!follow&&/被主管機關(?:命令|勒令)解散|命令解散|認定違法|欠錢還不起|(?:已|遭)宣告破產|停止業務/.test(reduced))return null;
  const votes=/表決|票|多少人|幾個人|幾人|多少會員|門檻|贊成|同意|半數|一半/.test(reduced);
+ if(!follow&&!prior&&/(剩餘|剩下|賸餘|餘款)/.test(reduced)&&/(別的|其他|其它|另一|別家)(協會|團體|單位|社團)/.test(reduced)&&!/新(?:成立|設立|組成|的)|欠|債|票|表決/.test(reduced))return null;
  const debts=/欠|應(?:收|付)|債|廠商|押金|租金|員工|資遣|工資|薪水/.test(reduced);
  const assets=/設備|器材|桌椅|冷氣|投影機|電腦|物資|財產|捐[物贈款給]|會費|結餘|賸餘|餘款|錢|補助/.test(reduced);
  const filing=/哪個機關|找縣府|向法院|法院報|法院還是|送件|什麼資料|怎麼報|報縣府|清算人/.test(reduced);
- const account=/關(?:帳|賬|戶)|辦銷戶|結清|銀行|存款|定存|轉進|轉到/.test(reduced);
+ /* 第255輪：只問「欠錢／欠款／負債可不可以解散」（沒有表決數字、沒有設備財產細節）是單純問能不能解散，交給單一答案，不要反問法人登記 */
+ if(!follow&&!prior&&debts&&!votes&&!filing&&!/設備|器材|桌椅|冷氣|投影機|電腦|物資|財產|捐|會費|結餘|賸餘|餘款|補助|押金|租金|員工|資遣|工資|薪水|廠商|表決|票/.test(reduced)&&/(解散|結束|收掉|關掉)/.test(reduced))return null;
+ const account=/關(?:帳|賬|戶)|辦銷戶|結清|銀行|存款|定存|轉進|轉到/.test(reduced.replace(/(?:欠|借|貸|向)(?:了)?(?:[^，。,；]{0,3})銀行/g,''));
  if(!follow&&filing&&!votes&&!debts&&!assets&&!account&&!/縣府還是|法院還是|哪個機關|向法院.{0,9}幾天|法院報.{0,6}幾天/.test(reduced))return null;
  const written=/書面同意|書面(?:表決|決議)|通訊.{0,5}(?:投票|表決)|郵寄.{0,5}(?:同意|表決)/.test(reduced);
  const otherExample=/(?:如果|假如|若是|若)(?:還)?(?:沒有|沒辦|未辦|還沒).{0,8}(?:法人)?登記/.test(reduced);
