@@ -1,0 +1,20 @@
+/* 第252輪：志工（制服費用、要不要簽志願服務計畫、祭獎＝敘獎） */
+const r=require('./round-fixes.js');
+const zlib=require('zlib'),fs=require('fs');
+const st=JSON.parse(zlib.gunzipSync(fs.readFileSync('data/statutes.json.gz')));
+const A=q=>r.verifiedRoundAnswer(r.normalizeQuestion(q),{});
+let bad=0;
+const pos=(qs,k)=>qs.forEach(q=>{const a=A(q);const t=a&&a.title||'';if(!t.includes(k)){bad++;console.log('✗',q,'=>',t||'(無)','期望',k)}});
+const neg=(qs,k)=>qs.forEach(q=>{const a=A(q);const t=a&&a.title||'';if(t.includes(k)){bad++;console.log('✗反',q,'=>',t)}});
+pos(['志工制服可以用協會經費買嗎','志工背心可以用協會經費買嗎','志工服裝費可以報帳嗎','志工的制服錢誰出','買志工帽子能報公帳嗎','志工制服要自己買嗎','協會幫志工做制服可以嗎'],'志工制服可以用協會經費買嗎');
+pos(['志工要不要簽志願服務計畫','志工隊要不要寫志願服務計畫','運用志工需要擬志願服務計畫嗎','志願服務計畫一定要做嗎'],'備案');
+pos(['志工祭獎怎麼申請','志工怎麼敘獎'],'志工獎勵');
+neg(['志工交通費怎麼請款','志工的餐費可以報帳嗎'],'制服');
+const L=st.laws;
+const chk=(pc,n,s)=>{const a=L[pc]&&L[pc].articles[n];if(!a||!a.includes(s)){bad++;console.log('✗法條',pc,n,s)}};
+chk('D0050131','16','應為志工辦理意外事故保險，必要時，並得補助交通、誤餐及特殊保險等經費');
+chk('D0050131','23','應編列預算或結合社會資源，辦理推動志願服務');
+chk('D0050131','7','檢具志願服務計畫及立案登記證書影本');
+chk('D0050134','4','銅牌獎：三千小時以上');chk('D0050131','20','服務時數達三百小時以上');
+chk('D0050131','22','由志願服務運用單位負損害賠償責任');
+if(bad){console.log('失敗',bad);throw new Error('r252')}console.log('r252 OK');

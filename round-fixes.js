@@ -248,8 +248,13 @@ function normalizeQuestionR232(s){
  s=s.replace(/(?:(?:被|遭)(?:縣府|縣政府|政府|主管機關|社會處)?|(?:縣府|縣政府|政府|主管機關|社會處))(?:命令|勒令|責令)(?:我們)?(?:協會|團體|本會)?解散/g,'被縣府解散');
  return s;
 }
+/* 第252輪（根源）：「祭獎」是「敘獎」的口語錯字（原本答成泛用的志工隊說明） */
+function normalizeQuestionR252(s){
+ s=String(s||'');
+ return s.replace(/祭獎/g,'敘獎');
+}
 function normalizeQuestion(q){
- return normalizeQuestionR247(normalizeQuestionR246(normalizeQuestionR245(normalizeQuestionR244(normalizeQuestionR235(normalizeQuestionR234(normalizeQuestionR233(normalizeQuestionR232(normalizeQuestionR229(normalizeQuestionR228(normalizeQuestionR227(normalizeQuestionR225(normalizeQuestionR223(normalizeQuestion223(normalizeQuestion222(normalizeQuestion221(normalizeQuestion216(normalizeQuestion215(normalizeQuestion214(normalizeQuestion212(normalizeQuestion210(normalizeQuestion209(normalizeQuestion208(normalizeQuestion207(normalizeQuestion206(normalizeQuestion202(normalizeQuestion201(normalizeQuestion200(normalizeQuestion194(normalizeQuestion193(normalizeQuestion192(normalizeQuestion191(normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(normalizeQuestionU5(normalizeQuestionU3(normalizeQuestionU4(normalizeQuestionU2(normalizeQuestionU6(normalizeQuestionU8(normalizeQuestionU9(normalizeQuestionU7(normalizeQuestionR237(normalizeQuestionR238(normalizeQuestionR239(normalizeQuestionR240(fixTyposU1(q)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
+ return normalizeQuestionR252(normalizeQuestionR247(normalizeQuestionR246(normalizeQuestionR245(normalizeQuestionR244(normalizeQuestionR235(normalizeQuestionR234(normalizeQuestionR233(normalizeQuestionR232(normalizeQuestionR229(normalizeQuestionR228(normalizeQuestionR227(normalizeQuestionR225(normalizeQuestionR223(normalizeQuestion223(normalizeQuestion222(normalizeQuestion221(normalizeQuestion216(normalizeQuestion215(normalizeQuestion214(normalizeQuestion212(normalizeQuestion210(normalizeQuestion209(normalizeQuestion208(normalizeQuestion207(normalizeQuestion206(normalizeQuestion202(normalizeQuestion201(normalizeQuestion200(normalizeQuestion194(normalizeQuestion193(normalizeQuestion192(normalizeQuestion191(normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(normalizeQuestionU5(normalizeQuestionU3(normalizeQuestionU4(normalizeQuestionU2(normalizeQuestionU6(normalizeQuestionU8(normalizeQuestionU9(normalizeQuestionU7(normalizeQuestionR237(normalizeQuestionR238(normalizeQuestionR239(normalizeQuestionR240(fixTyposU1(q))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
 }
 /* 第200輪（根源）：入會退會與會員資格換問法——
    「忘記繳／忘了繳／漏繳會費」＝沒繳會費（原本「忘記繳會費會被退會嗎」被當成退費）；
@@ -6555,7 +6560,7 @@ function patrol37(t){
  const Q=/(嗎|可以|能不能|可不可以|要不要|需不需要|一定|怎麼|如何|什麼|哪|幾|多久|誰|有沒有|是不是|會怎樣|怎麼辦)/.test(t);
  if(/(沒有?|沒|未|忘記|漏).{0,6}(備案|報備|報縣府|送計畫|送會|做.{0,4}計畫|志願服務計畫)/.test(t)&&Q)
   return R('志工沒有先備案就運用：法規要求運用前要備案，沒備案會被不補助並列入考核','志願服務運用單位要在運用志工之前，檢具志願服務計畫和立案登記證書影本，送縣政府及該計畫的目的事業主管機關備案（志願服務法第7條）。\n沒有依規定備案或備查，目的事業主管機關應該不予經費補助，並作為服務績效考核的參考（志願服務法第7條）。\n例外：運用單位的章程所載存立目的與志願服務計畫相符的，可以免於運用前申請備案，但仍要在年度結束後二個月內，把辦理情形函報縣府及目的事業主管機關備查。\n志願服務法沒有訂罰則，所以建議儘快補辦。',[VS(7)]);
- if(/(需不需要|要不要|要).{0,3}先?(報縣府|報備案|報備)/.test(t)&&!/(國外|出國|海外|退出|離開|不做|辭|不辦|結束|轉換|換單位)/.test(t))
+ if((/(需不需要|要不要|要).{0,3}先?(報縣府|報備案|報備)/.test(t)||/(需不需要|要不要|一定要|需要|要).{0,3}(簽|寫|擬|訂|做|提|送|交|有).{0,3}志願服務計畫|志願服務計畫.{0,3}(一定|必須|非).{0,2}(要)?(做|寫|擬|訂|提|有)/.test(t))&&!/(國外|出國|海外|退出|離開|不做|辭|不辦|結束|轉換|換單位)/.test(t))
   return R('運用志工前要先備案：把志願服務計畫和立案證書影本送縣府及目的事業主管機關','要。志願服務運用單位要在運用志工之前，檢具志願服務計畫和立案登記證書影本，送縣政府及該計畫的目的事業主管機關備案（志願服務法第7條）。\n運用結束後二個月內，要把辦理情形函報備查；運用期間在二年以上的，於年度結束後二個月內函報（第7條）。\n例外：協會章程所載存立目的與志願服務計畫相符的，可以免於運用前申請備案，但仍要在年度結束後二個月內，把辦理情形函報備查（第7條第4項）。',[VS(7)]);
  if(/(招|召募|徵|找).{0,2}志工|志工.{0,3}(招募|召募|徵)/.test(t)&&/(先|步驟|流程|要做什麼|要辦什麼|怎麼|如何|要準備|開始)/.test(t)&&!/(備案|報給)/.test(t))
   return R('協會想招志工：先訂志願服務計畫並備案，召募時把計畫公告','協會想召募志工，依序要做這幾件事：\n1. 訂志願服務計畫：內容要包括志工的召募、訓練、管理、運用、輔導、考核及服務項目（志願服務法第7條）。\n2. 運用前備案：檢具計畫和立案登記證書影本，送縣政府及該計畫的目的事業主管機關備案（第7條）。協會章程所載存立目的與志願服務計畫相符的，可以免於運用前申請備案，但仍要在年度結束後二個月內函報辦理情形備查（第7條第4項）。\n3. 召募時公告志願服務計畫（第6條）。\n4. 志工進來後：辦理基礎訓練和特殊訓練（第9條）、指定專人督導（第11條）、辦理意外事故保險（第16條）、發給志願服務證及服務紀錄冊（第12條）。',[VS(6),VS(7),VS(9),VS(11),VS(12),VS(16)]);
@@ -7185,6 +7190,9 @@ function patrol65(t){
  // 志工能不能當會計/出納
  if(/(會計|出納|管錢|財務|管帳|記帳)/.test(t)&&/(當|做|擔任|可以|能不能|可不可以|讓)/.test(t))
   return A('志工可以當協會的會計或出納嗎：法規沒有明文規定，但財務人員要專任，宜由協會的工作人員負責','法規沒有明文說志工可不可以當會計或出納。\n\n要注意的是：社會團體提用存款時，要由團體負責人、秘書長或總幹事及財務人員一起在領款憑證上蓋章；這裡的財務人員，是辦理會計、出納及財物管理的人，應為專任，編制不足時才可由其他工作人員兼辦（社會團體財務處理辦法第17條）。辦法沒有提到可由志工擔任。\n\n另外，志願服務是輔助性服務（志願服務法第3條第1款），所以錢的收付、保管這類責任重的事，宜由協會自己的財務人員負責，志工只協助事務性工作。',[Object.assign({},{title:'社會團體財務處理辦法第17條',source:LAW+'D0050097'}),VS(3)]);
+ // 第252輪：志工制服、背心、服裝可不可以用協會經費買（原本被「志工有補助嗎」籠統回答，沒有回答制服）
+ if(/(制服|背心|服裝|服飾|帽子|識別.{0,2}(衣|背心))/.test(t)&&/(買|購|做|製|發|經費|報帳|報公帳|列支|支出|花|錢|費|誰出|自己出|自費|補助)/.test(t))
+  return A('志工制服可以用協會經費買嗎：法規沒有明文規定，要看協會的預算和志願服務計畫','志願服務法沒有提到志工制服、背心要由誰出錢。法規明定的是：運用單位必要時，得補助志工的交通、誤餐及特殊保險等經費（志願服務法第16條）；運用單位應編列預算或結合社會資源，辦理推動志願服務（第23條）。\n制服錢能不能由協會出、怎麼報帳，要看協會有沒有把這筆編進預算，以及志願服務計畫怎麼訂。細節請洽縣府社會處承辦人員，縣府總機 08-7320415。',[VS(16),VS(23)])
  // 志工有補助嗎
  if(/(補助|補貼|津貼|經費|有錢|給錢)/.test(t)&&!/(車馬|交通|誤餐|薪|領錢|報酬)/.test(t))
   return A('志工有補助嗎：運用單位必要時可補助交通、誤餐，政府有編預算推動志願服務','志工本人不是領薪水（志願服務法第3條第1款）。運用單位必要時，可以補助志工的交通、誤餐及特殊保險等經費（第16條）。\n\n另外，主管機關、目的事業主管機關和運用單位，應編列預算或結合社會資源推動志願服務（第23條）。協會想申請縣府當年度有沒有志願服務相關的補助，要看縣府的補助公告，請洽承辦人員。',[VS(3),VS(16),VS(23)]);
@@ -10483,7 +10491,7 @@ function patrol143(t){
  if(/(太少|不夠|很少|沒人|沒有人|找不到|招不到|招不夠|缺志工|缺人|不足|人手|沒人要|沒人願意|沒有人願意|沒有人要)/.test(t)&&!/(受傷|意外|會費|薪)/.test(t))
   return R('志工人手不夠想多招一些：依志願服務計畫召募，召募時要公告計畫','志工沒有法定的人數下限，人手不夠時，志願服務運用單位可以自行召募，也可以和其他運用單位聯合召募；召募時，要把志願服務計畫公告出來（志願服務法第6條）。\n\n志願服務計畫要寫明志工的召募、訓練、管理、運用、輔導、考核及服務項目（第7條第2項）；運用前要先把計畫和立案證書影本送主管機關及目的事業主管機關備案（第7條第3項）。召募進來的志工，要辦理基礎訓練和特殊訓練（第9條）、辦理意外事故保險（第16條）。',[VS(6),VS(7),VS(9),VS(16)]);
  // (f) 志工請款／報帳／核銷交通費
- if(/(請款|報帳|報銷|報支|核銷)/.test(t)&&!/(補助|經費|結案|便當|餐費|誤餐|交通費|油錢|油資|午餐|吃飯|飲料|茶水|車資|搭車|憑證|收據|發票)/.test(t))
+ if(/(請款|報帳|報銷|報支|核銷)/.test(t)&&!/(補助|經費|制服|背心|服裝|服飾|帽子|結案|便當|餐費|誤餐|交通費|油錢|油資|午餐|吃飯|飲料|茶水|車資|搭車|憑證|收據|發票)/.test(t))
   return R('志工可以向協會請交通費、誤餐費嗎：運用單位「得」補助，要不要補由協會決定','志願服務運用單位必要時「得」補助志工的交通、誤餐和特殊保險等經費（志願服務法第16條），用的是「得」，表示可以補助，不是法律規定一定要補。要不要補、補多少，由協會自己決定。\n\n志願服務不以獲取報酬為目的（第3條第1款），志工也不可以向受服務者收取報酬（第15條第7款）。協會如果要編列這類支出，請依協會預算與財務規定辦理，付款要有單據並留存憑證。',[VS(16),VS(3),VS(15)]);
  // (g) 志工遲到／違規可不可以罰錢
  if(/(罰錢|罰款|罰金|扣錢|違約金|處罰|懲罰)/.test(t)&&!/(偷|騙|詐|侵占|私吞|貪|犯法|刑|違法|性騷|傷害)/.test(t))
