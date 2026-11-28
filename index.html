@@ -1568,6 +1568,7 @@ let rosterSharingContext=null;
 let donationTaxContext=null;
 let inKindMixedSalesContext=null;
 let venueUseContext=null;
+let coopReconvenedElectionContext=null;
 let electionDualContext=null;
 let grantProcContext=null;
 let legalPropertyContext=null;
@@ -1583,6 +1584,7 @@ async function ask(q){
   const heldCommunityMulti=communityMultiContext;communityMultiContext=null;
   const heldLegalProperty=legalPropertyContext;legalPropertyContext=null;
   const heldVenueUse=venueUseContext;venueUseContext=null;
+  const heldCoopReconvened=coopReconvenedElectionContext;coopReconvenedElectionContext=null;
   const heldMixedSales=inKindMixedSalesContext;inKindMixedSalesContext=null;
   const heldDonationTax=donationTaxContext;donationTaxContext=null;
   const heldRosterSharing=rosterSharingContext;rosterSharingContext=null;
@@ -1619,6 +1621,9 @@ async function ask(q){
     if(matched){financeMeetingPlanner=null;postponedProxyDateQuestion=matched.followNewDate?heldDateQuestion:null;renderAnswer(q,matched);return;}
   }
   if(!financeMeetingPlanner&&typeof window.createFinanceMeetingPlanner==="function")financeMeetingPlanner=window.createFinanceMeetingPlanner({board,showAnswer:renderAnswer});
+  const coopElectionQ=window.cooperativeReconvenedElectionFollow?.(heldCoopReconvened,q)||q;
+  const coopElection=window.verifiedCooperativeReconvenedElection?.(coopElectionQ);
+  if(coopElection){financeMeetingPlanner=null;coopReconvenedElectionContext=coopElection.trackCoopElection?coopElectionQ:null;renderAnswer(q,coopElection);return;}
   const datedReschedule=window.verifiedSameYearAssociationMeetingDate?.(q);
   if(datedReschedule){financeMeetingPlanner=null;postponedProxyDateQuestion=datedReschedule.followNewDate?q:null;renderAnswer(q,datedReschedule);return;}
   const specialGuild=window.verifiedProfessionalGuildMeetingRules?.(q);
@@ -2310,6 +2315,7 @@ touch();
 <script src="cooperative-distribution.js?v=1"></script>
 <script src="document-inspection.js?v=1"></script>
 <script src="cooperative-election-threshold.js?v=1"></script>
+<script src="cooperative-reconvened-election.js?v=1"></script>
 <script src="association-chair-filing.js?v=1"></script>
 <script src="meeting-smoke-free.js?v=1"></script>
 <script src="association-cooperative-conversion.js?v=1"></script>
