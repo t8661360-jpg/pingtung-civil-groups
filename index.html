@@ -1689,6 +1689,8 @@ async function ask(q){
   }
   const grantFinancialReadiness=window.verifiedAssociationGrantFinancialReadiness?.(q,heldGrantFinance);
   if(grantFinancialReadiness){financeMeetingPlanner=null;grantFinanceContext=grantFinancialReadiness.grantFinanceContext||null;renderAnswer(q,grantFinancialReadiness);return;}
+  const fineLiability=window.verifiedAssociationFineLiability?.(q);
+  if(fineLiability){financeMeetingPlanner=null;renderAnswer(q.replace(/[;；]櫃檯確認罰單對象:(?:group|person|unknown)$/i,''),fineLiability);return;}
   const coopBallots=window.verifiedCooperativeMeetingBallots?.(q);
   if(coopBallots){financeMeetingPlanner=null;renderAnswer(q,coopBallots);return;}
   const cooperativeCharter=window.verifiedCooperativeCharterMembership?.(q);
@@ -2585,6 +2587,7 @@ touch();
 <script src="community-association-continuity.js?v=1"></script>
 <script src="cooperative-charter-membership.js?v=1"></script>
 <script src="cooperative-meeting-ballots.js?v=1"></script>
+<script src="association-fine-liability.js?v=1"></script>
 <script src="association-grant-financial-readiness.js?v=1"></script>
 <script src="association-guest-greeting.js?v=1"></script>
 <script src="association-grant-equipment-disposition.js?v=1"></script>
