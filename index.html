@@ -1560,8 +1560,10 @@ function smartFallback(q,kb){
 }
 let financeMeetingPlanner, postponedProxyDateQuestion, assemblyRecountQuestion, sameDayReportQuestion, cooperativeExpulsionQuestion;
 let electionObjectionContext=null, charityQuestionContext=null;
+let rosterSharingContext=null;
 async function ask(q){
   q=String(q||"").trim();if(!q||busy)return;
+  const heldRosterSharing=rosterSharingContext;rosterSharingContext=null;
   const heldCharityQuestion=charityQuestionContext;charityQuestionContext=null;
   const priorElectionObjection=electionObjectionContext;electionObjectionContext=null;
   const electionFollow=priorElectionObjection&&window.isElectionObjectionFactReply?.(q);
@@ -1591,6 +1593,9 @@ async function ask(q){
   }
   if(!financeMeetingPlanner&&typeof window.createFinanceMeetingPlanner==="function")financeMeetingPlanner=window.createFinanceMeetingPlanner({board,showAnswer:renderAnswer});
   const charityQuestion=heldCharityQuestion&&window.isCharitableFundraisingFactReply?.(q)?heldCharityQuestion+"；"+q:q;
+  const rosterQuestion=heldRosterSharing&&window.isElectionRosterSharingFactReply?.(q)?heldRosterSharing+"；"+q:q;
+  const rosterSharing=window.verifiedElectionRosterSharing?.(rosterQuestion);
+  if(rosterSharing){financeMeetingPlanner=null;rosterSharingContext=rosterSharing.needsRosterFacts?rosterQuestion:null;renderAnswer(q,rosterSharing);return;}
   const charity=window.verifiedCharitableFundraisingStages?.(charityQuestion);
   if(charity){financeMeetingPlanner=null;charityQuestionContext=charity.needsCharityFacts?charityQuestion:null;renderAnswer(q,charity);return;}
   const electionObjection=window.verifiedElectionObjectionPreservation?.(electionQuestion);
@@ -2260,6 +2265,7 @@ touch();
 <script src="mail-election-results.js?v=1"></script>
 <script src="post-election-first-meeting.js?v=2"></script>
 <script src="member-roster-access.js?v=20261127-election-copy"></script>
+<script src="election-roster-sharing.js?v=1"></script>
 <script src="association-fee-charter.js?v=1"></script>
 <script src="association-sponsor-ballot.js?v=20261127-sponsor"></script>
 <script src="association-finance-inventory-download.js?v=20261127-roster-and-inventory"></script>
@@ -2388,7 +2394,7 @@ touch();
 <script src="meeting-convening-distinction.js?v=20261128-326"></script>
 <script src="answer-arbiter.js?v=20261128-326"></script>
 <script src="question-understanding.js?v=20261128-326"></script>
-<script src="counter-upgrade.js?v=20261128-326-charity-stages"></script>
+<script src="counter-upgrade.js?v=20261128-326-roster-sharing"></script>
 <script src="keyword-menu.js?v=20261128-326"></script>
 <script src="ai-assist.js?v=20261128-326"></script>
 <script src="ai-understand.js?v=1"></script>
