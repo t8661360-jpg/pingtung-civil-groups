@@ -253,8 +253,13 @@ function normalizeQuestionR252(s){
  s=String(s||'');
  return s.replace(/祭獎/g,'敘獎');
 }
+/* 第254輪：「會員退出」是退會的口語說法（原本只有「退出協會」會換成退會，「會員退出以後還能當理事」被當成一般會員可當理事而答「可以」） */
+function normalizeQuestionR254(s){
+ s=String(s||'');
+ return s.replace(/(會員|會友)(們|自己)?(要|想|可以|能|已經|已|就)?退出(?!(理事會|監事會|理監事|群組|LINE|Line|line|活動|會議|大會|課程|行程|比賽))/g,'$1$2$3退會');
+}
 function normalizeQuestion(q){
- return normalizeQuestionR252(normalizeQuestionR247(normalizeQuestionR246(normalizeQuestionR245(normalizeQuestionR244(normalizeQuestionR235(normalizeQuestionR234(normalizeQuestionR233(normalizeQuestionR232(normalizeQuestionR229(normalizeQuestionR228(normalizeQuestionR227(normalizeQuestionR225(normalizeQuestionR223(normalizeQuestion223(normalizeQuestion222(normalizeQuestion221(normalizeQuestion216(normalizeQuestion215(normalizeQuestion214(normalizeQuestion212(normalizeQuestion210(normalizeQuestion209(normalizeQuestion208(normalizeQuestion207(normalizeQuestion206(normalizeQuestion202(normalizeQuestion201(normalizeQuestion200(normalizeQuestion194(normalizeQuestion193(normalizeQuestion192(normalizeQuestion191(normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(normalizeQuestionU5(normalizeQuestionU3(normalizeQuestionU4(normalizeQuestionU2(normalizeQuestionU6(normalizeQuestionU8(normalizeQuestionU9(normalizeQuestionU7(normalizeQuestionR237(normalizeQuestionR238(normalizeQuestionR239(normalizeQuestionR240(fixTyposU1(q))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
+ return normalizeQuestionR254(normalizeQuestionR252(normalizeQuestionR247(normalizeQuestionR246(normalizeQuestionR245(normalizeQuestionR244(normalizeQuestionR235(normalizeQuestionR234(normalizeQuestionR233(normalizeQuestionR232(normalizeQuestionR229(normalizeQuestionR228(normalizeQuestionR227(normalizeQuestionR225(normalizeQuestionR223(normalizeQuestion223(normalizeQuestion222(normalizeQuestion221(normalizeQuestion216(normalizeQuestion215(normalizeQuestion214(normalizeQuestion212(normalizeQuestion210(normalizeQuestion209(normalizeQuestion208(normalizeQuestion207(normalizeQuestion206(normalizeQuestion202(normalizeQuestion201(normalizeQuestion200(normalizeQuestion194(normalizeQuestion193(normalizeQuestion192(normalizeQuestion191(normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(normalizeQuestionU5(normalizeQuestionU3(normalizeQuestionU4(normalizeQuestionU2(normalizeQuestionU6(normalizeQuestionU8(normalizeQuestionU9(normalizeQuestionU7(normalizeQuestionR237(normalizeQuestionR238(normalizeQuestionR239(normalizeQuestionR240(fixTyposU1(q)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
 }
 /* 第200輪（根源）：入會退會與會員資格換問法——
    「忘記繳／忘了繳／漏繳會費」＝沒繳會費（原本「忘記繳會費會被退會嗎」被當成退費）；
@@ -3608,7 +3613,7 @@ function feeAndMemberStatus(t){
   return{direct:true,category:'人民團體財務',title:'會費要調整、減免或分期：要經會員大會通過並報縣府核備，標準要寫進章程',
   summary:'可以，但不是理事會或理事長說了算。\n\n• 入會費、常年會費的繳納數額和方式，要提經會員大會通過，並報請主管機關核備之後才能實施（人民團體法第33條）。\n• 會費的標準和繳納方式要訂入章程（社會團體財務處理辦法第14條）。\n\n所以想調漲、調降，或是對長者、學生減免，或改成可以分期，做法是：理事會擬好方案 → 提會員大會通過（涉及修改章程的，要出席人數三分之二以上同意）→ 報縣府核備 → 實施。\n\n至於入會費和常年會費各收多少、比例如何，法規沒有規定，由協會自己決定（內政部101年3月22日內授中社字第1015931084號函）。',
   statutes:[P(33),F(14),{title:'內政部101年3月22日內授中社字第1015931084號函',source:'https://dep.mohw.gov.tw/DOSAASW/cp-552-4777-103.html'}],notes:['會員退會要不要退費：由理事會訂退費原則，提會員大會通過後實施（社會團體財務處理辦法第14條）。']};
- if(/會員/.test(t)&&/(過世|死亡|往生|去世|搬家|搬走|遷出|遷走|還算會員|喪失資格|自動退會)/.test(t)&&!/理事|監事/.test(t))
+ if(/會員/.test(t)&&/(過世|死亡|往生|去世|搬家|搬走|遷出|遷走|還算會員|喪失資格|自動退會)/.test(t)&&!/理事|監事/.test(t)&&!/(繼承|子女|兒子|女兒|小孩|接他的|接她的|接手)/.test(t))
   return{direct:true,category:'人民團體會務說明',title:'會員過世就是出會；搬家算不算喪失資格，要看章程的會員資格',
   summary:'會員有下面情形之一的，就是出會（人民團體法第15條）：\n1. 死亡。\n2. 喪失會員資格。\n3. 經會員大會決議除名。\n\n所以：\n• 會員過世：死亡就是出會，不需要另外決議。法條寫的是「死亡為出會」，沒有明文規定繼承；家人想加入，要依章程的入會資格和程序自己申請。\n• 會員搬家：要看章程。章程的會員資格有「設籍或居住在本縣（本鄉鎮）」這類條件的，搬走之後就喪失會員資格；章程沒有這種限制的，搬家不影響。\n\n協會要做的事：會籍資料要隨時更新（人民團體會務輔導辦法第10條）。下次開大會前，理事會審定會員名冊時，把已經出會的人剔除，應出席人數才會正確。',
   statutes:[P(15),G(10)],notes:[]};
@@ -4346,7 +4351,7 @@ function membershipPatrol(t){
   return Object.assign({},base,{title:'會員出會有三種情形：死亡、喪失會員資格、被大會決議除名',
   summary:'依人民團體法第15條，會員有下面情形之一的，就是出會：\n1. 死亡。\n2. 喪失會員資格。\n3. 經會員大會決議除名（除名的事由和表決，見第14條、第27條）。\n什麼情形算「喪失會員資格」，要看協會章程的會員資格條款；章程沒有寫的，請洽縣府承辦人。協會要隨時更新會籍資料（人民團體會務輔導辦法第10條）。',
   statutes:[P(15),P(14),P(27),G(10)]});
- if(/會員/.test(t)&&/(死了|死掉)/.test(t)&&!/(理事|監事|委託)/.test(t))
+ if(/會員/.test(t)&&(/(死了|死掉)/.test(t)||(/(過世|死亡|往生|去世)/.test(t)&&/(繼承|子女|兒子|女兒|小孩|接他的|接她的|接手)/.test(t)))&&!/(理事|監事|委託)/.test(t))
   return Object.assign({},base,{title:'會員死亡就是出會；家屬不會自動取得會員資格，要依章程自己申請入會',
   summary:'會員死亡屬於出會的法定情形之一（人民團體法第15條第1款），不需要再經大會決議。協會要隨時更新會籍資料（人民團體會務輔導辦法第10條），下次開會員大會前審定名冊時，把已出會的人剔除。\n法條寫的是「死亡為出會」，沒有明文規定繼承；一般個人會員資格不會自動移轉，家人想加入，須依章程的入會資格和程序自己申請。會員生前的借款、代墊款等財產權利是另一件事，要依相關法律和契約另行判斷。\n本站只說明一般社會團體；特殊團體另依其適用法規。',
   statutes:[P(15),G(10),P(12),{title:'內政部108年8月21日台內團字第1080054016號函',source:'https://www.moi.gov.tw/News_Content.aspx?n=14119&sms=12360&s=256750'}]});
@@ -4366,7 +4371,7 @@ function membershipPatrol(t){
   return Object.assign({},base,{title:'會員名冊：立案時要送縣府；平時由協會自己更新，開大會報備時依通知附上',
   summary:'申請立案時，成立大會後30日內要檢具章程、會員名冊和選任職員簡歷冊報請核准（人民團體法第10條）。\n立案後，依第54條要在30日內報縣府核備的是章程、選任職員簡歷冊和負責人名冊，沒有列會員名冊。平時由協會自己更新會籍資料（人民團體會務輔導辦法第10條）；縣府在個別案件要求附名冊時，請依承辦人通知辦理。',
   statutes:[P(10),P(54),G(10)]});
- if(/(會籍|會員資格|會員)/.test(t)&&/(轉讓|轉給|讓給|過戶|頂替|換人)/.test(t)&&!/(股|基金|財產)/.test(t))
+ if(/(會籍|會員資格|會員)/.test(t)&&/(轉讓|轉給|讓給|過戶|頂替|換人)/.test(t)&&!/(股|基金|財產|死|過世|往生|去世|繼承)/.test(t))
   return Object.assign({},base,{title:'會員資格可不可以轉讓：人民團體法沒有規定，入會要依章程申請',
   summary:'人民團體法沒有規定會籍可以轉讓。會員入會、出會都由章程規定（人民團體法第12條第7款），入會依章程申請並經審查。\n想把會員資格換成別人，請由新的人依章程自己申請入會，原會員再依章程辦理退會。細節請洽您的協會。',
   statutes:[P(12),P(15)]});
@@ -7081,7 +7086,7 @@ function patrol62(t){
  if(/(入會|加入(協會|本會|社團|團體)?|當(協會|本會)?會員|報名.{0,4}會員|會員.{0,4}報名)/.test(t)&&/(去哪|找誰|哪裡|跟誰|向誰|直接|怎麼報名|在哪|到哪|報名)/.test(t)&&!/(退會|不想|不要|退出|費|拒絕|不讓|不准|除名|名冊|縣府要|報縣府|線上|網路|上網|電子|LINE|Line|line)/.test(t))
   return A('想入會：向您想加入的協會申請，資格和程序看它的章程','入會是向您想加入的協會申請。會員的入會、出會與除名是章程要載明的事項（人民團體法第12條第7款），資格和程序各協會不同，請先向協會索取章程或入會申請書。\n一般的做法是填申請書、由理事會審查、繳納入會費和常年會費後成為會員；入會費和常年會費的數額與繳納方式要經會員大會通過並報縣府核備（人民團體法第33條）。\n不知道有哪些協會，可以到本站「查詢立案團體」看。'+tail,[P(12),P(33)]);
  // 會員資格給別人（口語說法）
- if(/(會員資格|會籍|會員身分|會員身份|會員名額)/.test(t)&&/(給別人|讓給|轉給|送給|過戶|給家人|給親戚|給兒子|給女兒|給小孩|換人)/.test(t)&&!/(除名|退會)/.test(t))
+ if(/(會員資格|會籍|會員身分|會員身份|會員名額)/.test(t)&&/(給別人|讓給|轉給|送給|過戶|給家人|給親戚|給兒子|給女兒|給小孩|換人)/.test(t)&&!/(除名|退會|死|過世|往生|去世|繼承)/.test(t))
   return A('會員資格可不可以轉讓：人民團體法沒有規定，入會要依章程申請','人民團體法沒有規定會籍可以轉讓。會員入會、出會都由章程規定（人民團體法第12條第7款），入會依章程申請並經審查。\n想把會員資格換成別人，請由新的人依章程自己申請入會；原來的會員可以依章程辦理退會。'+tail,[P(12),P(15)]);
  // 會員有幾種
  if(/會員/.test(t)&&/(有幾種|分幾種|分哪幾|有哪幾|有哪些種類|分哪些|哪幾類|幾類|種類|分類|有什麼類|有哪些類)/.test(t)&&!/(會員大會|會員代表大會)/.test(t))
@@ -10969,7 +10974,7 @@ function patrol154(t){
   return R('退會證明：法規沒有規定要發，也沒有訂格式，請向協會申請','人民團體法沒有規定協會一定要發退會證明，也沒有規定格式。會員入會、出會與除名的程序，是章程要載明的事項（人民團體法第12條第7款）；會員出會的情形有死亡、喪失會員資格、經大會決議除名三種（第15條）。\n所以要不要開立、怎麼申請，請先看協會的章程，或直接向協會提出書面申請。實務上建議保留當初書面退會的紀錄。縣府不管理各協會的會員名冊，無法代為開立。',[P(12),P(15)]);
  // (d) 我有沒有入會成功、還是不是會員；入會多久有回音
  if((/(我|自己|本人)/.test(t)&&/(是不是|是否|有沒有|有無|還是不是|算不算|算是)/.test(t)&&/(會員|入會|加入)/.test(t)&&!/(募款|勸募|募捐|捐款|捐錢|捐助|贊助|義賣)/.test(t))||/(怎麼|如何|能|可以)?(確認|查|知道|查詢).{0,6}(有沒有|是否|是不是|有無).{0,4}(入會|會員|加入)/.test(t)||/入會.{0,8}(多久|多長時間|幾天|什麼時候).{0,6}(回覆|回音|通知|審核|結果|通過|知道|有消息)/.test(t)||/(入會|加入).{0,6}(申請|申請書|資料).{0,4}(要)?等(多久|多長時間|幾天)/.test(t)||/(入會|加入).{0,6}(有沒有|是否|是不是).{0,3}(成功|通過|過了)/.test(t)||/(入會|加入).{0,10}(沒|未|還沒|一直沒|都沒).{0,3}(收到|接到|看到).{0,4}(通知|回覆|回音|消息|結果)/.test(t))
-  return R('有沒有入會成功、是不是會員：要問協會，法規沒有訂審查期限','人民團體法沒有規定入會審查要多久，也沒有規定要通知申請人的期限；入會的資格與程序是章程要載明的事項（人民團體法第12條第7款），一般要經理事會通過。入會申請通常在理事會議時審查，所以要看章程訂的理事會召開頻率：理事會至少每三個月開一次（人民團體法第29條），社會團體至少每六個月一次（第43條），實務上會在下一次理事會議審查決定。\n協會要建立會籍資料並隨時更新（人民團體會務輔導辦法第10條第1項），新會員入會也不用逐一報縣府（第54條只列章程、選任職員簡歷冊和負責人名冊的異動），所以縣府查不到您是不是會員。\n請直接向該協會（理事長或總幹事）詢問，或請協會確認會員名冊，必要時請協會以書面回覆。',[P(12),P(54),{title:'人民團體會務輔導辦法第10條',source:LAW+'D0020094'}]);
+  return R('有沒有入會成功、是不是會員：要問協會，法規沒有訂審查期限','人民團體法沒有規定入會審查要多久，也沒有規定要通知申請人的期限；入會的資格與程序是章程要載明的事項（人民團體法第12條第7款），一般要經理事會通過。入會申請通常在理事會議時審查，所以要看章程訂的理事會召開頻率：人民團體法第29條規定理事會每三個月至少開一次，但社會團體（協會）依第43條是每六個月至少開一次，實務上會在下一次理事會議審查決定。\n協會要建立會籍資料並隨時更新（人民團體會務輔導辦法第10條第1項），新會員入會也不用逐一報縣府（第54條只列章程、選任職員簡歷冊和負責人名冊的異動），所以縣府查不到您是不是會員。\n請直接向該協會（理事長或總幹事）詢問，或請協會確認會員名冊，必要時請協會以書面回覆。',[P(12),P(54),{title:'人民團體會務輔導辦法第10條',source:LAW+'D0020094'}]);
  // (f) 被冒名入會、沒經同意被列為會員、退會後名字還在名冊
  if((/(冒用|冒名|盜用|未經.{0,3}同意|沒經過.{0,3}同意|沒有經過.{0,3}同意|沒問過我|擅自|不經.{0,3}同意|沒同意)/.test(t)&&/(入會|會員|名單|名冊|列為|拉進|加入|名字|姓名)/.test(t))||/(退會|已退|退出).{0,8}(名字|姓名|資料).{0,6}(還在|還留|沒刪|仍在)/.test(t)||/(名字|姓名).{0,4}(還在|還留|仍在).{0,4}(名冊|名單)/.test(t)||/我(沒|沒有)(入會|加入).{0,6}(名單|名冊).{0,4}(卻|竟然|怎麼)?有我/.test(t))
   return R('被冒名入會、沒經同意被列為會員，或退會後名字還在名冊：可以請協會更正','入會的資格與程序，是章程要載明的事項（人民團體法第12條第7款），一般是本人提出申請、經理事會審查；本站查到的人民團體法沒有規定可以不經本人同意就把人列為會員。協會要建立會籍資料並隨時辦理異動更新（人民團體會務輔導辦法第10條第1項）。\n如果您沒有入會、或已經退會，名字卻還在名冊上，可以用書面向協會說明並請求更正或刪除。個人資料保護法規定，當事人可以請求補充或更正、停止利用、刪除（第3條）；協會應維護個人資料的正確，依請求更正（第11條第1項）；違反規定蒐集、處理或利用的，要依請求刪除或停止（第11條第4項）。\n協會不處理的話，可以向縣府社會處反映。',[P(12),{title:'人民團體會務輔導辦法第10條',source:LAW+'D0020094'},PDPA(3),PDPA(11)]);
