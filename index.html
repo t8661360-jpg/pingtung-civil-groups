@@ -1610,6 +1610,8 @@ async function ask(q){
     if(matched){financeMeetingPlanner=null;postponedProxyDateQuestion=matched.followNewDate?heldDateQuestion:null;renderAnswer(q,matched);return;}
   }
   if(!financeMeetingPlanner&&typeof window.createFinanceMeetingPlanner==="function")financeMeetingPlanner=window.createFinanceMeetingPlanner({board,showAnswer:renderAnswer});
+  const specialGuild=window.verifiedProfessionalGuildMeetingRules?.(q);
+  if(specialGuild){financeMeetingPlanner=null;renderAnswer(q,specialGuild);return;}
   const permitFull=heldCharitablePermit&&window.isCharitablePermitCorrection?.(q)?heldCharitablePermit+"；更新資料："+q:q;
   const permitResult=window.verifiedCharitablePermitChanges?.(permitFull);
   if(permitResult){financeMeetingPlanner=null;charitablePermitContext=permitResult.retainPermitQuestion?permitFull:null;renderAnswer(q,permitResult);return;}
@@ -2370,6 +2372,7 @@ touch();
 <script src="member-death-kind-clarification.js?v=2"></script>
 <script src="member-death-election-continuity.js?v=1"></script>
 <script src="election-objection-preservation.js?v=1"></script>
+<script src="professional-guild-meeting-rules.js?v=1"></script>
 <script src="charitable-permit-changes.js?v=1"></script>
 <script src="charitable-fundraising-stages.js?v=1"></script>
 <script src="community-cooperative-pause.js?v=1"></script>
