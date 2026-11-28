@@ -1609,11 +1609,18 @@ async function ask(q){
     const matched=window.verifiedAssociationAssemblyRecount?.(full);
     if(matched){financeMeetingPlanner=null;assemblyRecountQuestion=matched.followQuorumCounts?full:null;renderAnswer(q,matched);return;}
   }
+  if(heldDateQuestion&&window.isMeetingDateCorrection?.(q)){
+    const corrected=window.applyMeetingDateCorrection(heldDateQuestion,q);
+    const matched=window.verifiedAssociationPostponedProxy?.(corrected);
+    if(matched){financeMeetingPlanner=null;postponedProxyDateQuestion=matched.followNewDate?corrected:null;renderAnswer(q,matched);return;}
+  }
   if(heldDateQuestion&&window.isPostponedProxyDateReply?.(q)){
     const matched=window.verifiedAssociationPostponedProxy?.(heldDateQuestion+"；續問日期："+q);
     if(matched){financeMeetingPlanner=null;postponedProxyDateQuestion=matched.followNewDate?heldDateQuestion:null;renderAnswer(q,matched);return;}
   }
   if(!financeMeetingPlanner&&typeof window.createFinanceMeetingPlanner==="function")financeMeetingPlanner=window.createFinanceMeetingPlanner({board,showAnswer:renderAnswer});
+  const datedReschedule=window.verifiedSameYearAssociationMeetingDate?.(q);
+  if(datedReschedule){financeMeetingPlanner=null;postponedProxyDateQuestion=datedReschedule.followNewDate?q:null;renderAnswer(q,datedReschedule);return;}
   const specialGuild=window.verifiedProfessionalGuildMeetingRules?.(q);
   if(specialGuild){financeMeetingPlanner=null;renderAnswer(q,specialGuild);return;}
   const permitFull=heldCharitablePermit&&window.isCharitablePermitCorrection?.(q)?heldCharitablePermit+"；更新資料："+q:q;
@@ -2364,7 +2371,7 @@ touch();
 <script src="association-canceled-grant-in-kind.js?v=1"></script>
 <script src="association-fiscal-cases.js?v=1"></script>
 <script src="association-coop-quorum-volunteer-grant.js?v=20261127-coop-formula"></script>
-<script src="association-postponed-proxy.js?v=20261128-cross-year"></script>
+<script src="association-postponed-proxy.js?v=20261128-new-date"></script>
 <script src="association-representative-quorum.js?v=20261128-331"></script>
 <script src="coop-farm-verified-split.js?v=1"></script>
 <script src="association-filing-and-donation-scope.js?v=1"></script>
