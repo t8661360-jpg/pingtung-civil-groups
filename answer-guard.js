@@ -200,7 +200,7 @@
     ['配偶', '親屬', '三等親', '三親等', '親戚', '夫妻', '老婆', '太太', '先生', '兒子', '女兒', '家人'], ['會址', '地址', '遷址', '搬家', '搬遷'], ['改名', '名稱', '會名', '名字', '更名'], ['收據'], ['捐款', '捐贈', '捐錢', '捐助'],
     ['剩餘財產', '剩下的錢', '賸餘', '剩餘', '餘款', '剩的錢'], ['解散', '清算'], ['章程'], ['通知'], ['出席', '到場', '法定人數', '流會'], ['委託', '代理出席', '委託書'], ['補選', '遞補', '候補'], ['辭職', '請辭'], ['改選', '選舉', '投票', '選票'],
     ['會費', '入會費', '常年會費', '年費'], ['補助', '核銷'], ['統編', '統一編號'], ['開戶', '帳戶', '存摺'], ['法人', '法院'], ['理事長'], ['常務理事'], ['常務監事'], ['監事', '理監事'], ['理事', '理監事'], ['會員大會', '社員大會', '大會'], ['理事會', '監事會', '理監事會'],
-    ['圖記', '印信', '印章'], ['立案證書', '證書'], ['預算', '決算', '財務報表', '報表'], ['工作計畫', '工作報告'], ['薪水', '薪資', '酬勞', '車馬費', '出席費'], ['罷免'], ['除名', '開除', '退會', '出會'], ['入會', '加入'], ['成立', '籌組', '籌備', '設立', '立案'], ['視訊', '線上', '遠距'], ['紀錄', '記錄'], ['勸募', '募款'], ['股金', '股息', '盈餘', '結餘'], ['分會', '分支'], ['查帳', '查核', '稽核', '看帳', '審核帳'], ['稅'], ['名下', '登記在誰', '登記誰', '誰的名字', '過戶', '所有權'], ['土地', '房地', '不動產', '房子', '房屋', '購置']
+    ['圖記', '印信', '印章'], ['立案證書', '證書'], ['預算', '決算', '財務報表', '報表'], ['工作計畫', '工作報告'], ['薪水', '薪資', '酬勞', '車馬費', '出席費'], ['罷免'], ['除名', '開除', '退會', '出會'], ['入會', '加入'], ['成立', '籌組', '籌備', '設立', '立案'], ['視訊', '線上', '遠距'], ['紀錄', '記錄'], ['勸募', '募款'], ['股金', '股息', '盈餘', '結餘'], ['分會', '分支'], ['查帳', '查核', '稽核', '看帳', '審核帳'], ['稅'], ['名下', '登記在誰', '登記誰', '誰的名字', '過戶', '所有權'], ['土地', '房地', '不動產', '房子', '房屋', '購置'], ['名額', '代表名額', '員額'], ['交接', '移交', '清冊']
   ].map(g => ({ name: g[0], re: new RegExp(g.map(esc).sort((x, y) => y.length - x.length).join('|')) }));
   const ACTIONS = [['會址', '地址', '遷址', '搬家', '搬遷'], ['改名', '名稱', '會名', '名字', '更名'], ['圖記', '印信'], ['立案證書'], ['統編', '統一編號'], ['開戶', '銀行帳戶', '存摺'], ['法人登記', '社團法人'], ['解散'], ['理事長變更', '換理事長', '理事長換人', '新理事長']]
     .map(g => ({ name: g[0], re: new RegExp(g.map(esc).join('|')) }));
@@ -536,6 +536,44 @@
     return null;
   }
   if (typeof window !== 'undefined') window.__understandingGuard9 = understandingGuard9;
+
+  /* ── 理解把關 2026-11-28 第2輪：D 兩種團體（協會＋合作社）同問退出 → 兩邊各答；E 一句問兩件事（連接詞分隔、前半沒有問號）答案只談到其中一半 → 選單 ── */
+  function understandingGuard10(q, a) {
+    if (!a || !a.title || a.guarded) return null;
+    if (/兩件事|兩種團體|難倒小屏|想先確認|暫時無法回覆/.test(a.title)) return null;
+    const fs = a.questionState && a.questionState.focus;
+    if (fs === 'compound' || fs === 'clarify') return null;
+    if (a.category === '業務分流' || a.category === '打招呼' || a.category === '團體查詢' || (a.groups && a.groups.length)) return null;
+    const raw = NFK(q); if (raw.length < 8) return null;
+    /* D：協會會員＋合作社社員同問「退出」：沒有逗號可拆，原本只答差別或只答合作社 */
+    if ((/協會|社團/.test(raw) && /合作社/.test(raw) || /退社/.test(raw) && /退會/.test(raw)) && !/信用合作社|社區發展|公會|工會|農會|漁會/.test(raw) && /(退出|退會|退社|出會|離開)/.test(raw) && !/(股金|退股|退錢|退費|理事|監事|理事長|主席)/.test(raw)) {
+      const A = resolvePart('協會會員要怎麼退會'), B = resolvePart('合作社社員可以退社嗎');
+      if (A && B && A.title !== B.title) {
+        const blk = (n, x) => '第' + n + '個問題：' + x.title + '\n' + x.summary;
+        const seen = new Set(); const st = [...(A.statutes || []), ...(B.statutes || [])].filter(x => { const k = x && x.title; if (!k || seen.has(k)) return false; seen.add(k); return true; });
+        return { ...A, direct: true, guarded: true, category: '人民團體會務說明', title: '您問了兩件事，小屏分開回答',
+          summary: '您一次問了協會和合作社兩種團體，小屏分開回答。\n\n' + blk('一（協會）', A) + '\n\n' + blk('二（合作社）', B),
+          statutes: st, refs: [A, B].flatMap(x => x.refs || []), notes: [...new Set([A, B].flatMap(x => x.notes || []))], steps: [], docs: [], laws: [], actions: A.actions || [], questionState: { focus: 'compound' } };
+      }
+      return menu2(q, ['協會會員要怎麼退會', '合作社社員可以退社嗎', ...similar(q, 5)], '您一次問了協會和合作社兩種團體，小屏怕只答到其中一種。');
+    }
+    /* E：用「另外／還有／順便／以及／同時／一起」連起兩件事，前半常沒有問號（想增加名額，另外也想調高會費，可以嗎） */
+    if (/另外|還有|順便|以及|同時|一起|，也想|,也想/.test(raw) && !a.unanswered) {
+      const at = answerText(a);
+      const parts = splitParts(q).map(p => ({ p, ts: topicsIn(p) })).filter(x => x.ts.length);
+      if (parts.length >= 2) {
+        const cov = x => x.ts.filter(g => g.re.test(at)).length / x.ts.length;
+        const miss = parts.filter(x => cov(x) < 0.6), hit = parts.filter(x => cov(x) >= 0.6);
+        if (miss.length && hit.length) {
+          const rel = []; const per = Math.max(2, Math.floor(8 / parts.length));
+          for (const x of parts) rel.push(...similar(x.p, per));
+          return menu2(q, rel, '您一次問了不只一件事，小屏怕只答到其中一半。');
+        }
+      }
+    }
+    return null;
+  }
+  if (typeof window !== 'undefined') window.__understandingGuard10 = understandingGuard10;
   function guard(q, a) {
     /* 交叉巡檢第30輪：交叉巡檢規則（focus 以 cross- 開頭）是逐題核對、已涵蓋混合問句每一部分的答案，不再被一句兩問、兩種團體選單蓋掉 */
     if (a && a.questionState && /^cross-/.test(String(a.questionState.focus || '')) && !/您是不是要問/.test(a.title || '')) return null;
@@ -547,6 +585,7 @@
     try { const u7 = understandingGuard7(q, a); if (u7) return u7; } catch (e) {}
     try { const u8 = understandingGuard8(q, a); if (u8) return u8; } catch (e) {}
     try { const u9 = understandingGuard9(q, a); if (u9) return u9; } catch (e) {}
+    try { const u10 = understandingGuard10(q, a); if (u10) return u10; } catch (e) {}
     try { const u6 = understandingGuard6(q, a); if (u6) return u6; } catch (e) {}
     try {
       if (!a || a.direct || a.questionState || a.unanswered || !a.title) return null;

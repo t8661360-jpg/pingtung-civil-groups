@@ -104,6 +104,22 @@ function normalizeQuestionU6(s){
    ① 「監事會三個監事只來兩個，可以開嗎」＝問出席門檻，不是問誰召集；
    ② 「成立十年從來沒改過章程，會不會有問題」＝章程要不要定期重訂；
    ③ 社區發展協會解散＋公所補助蓋的涼亭、買的設備＝解散後補助財產歸屬 */
+/* 理解把關 2026-11-28 第2輪：
+   ① 「大會當天可以臨時加提案／議程沒有的案子現場提／開會時有人臨時要加議題」＝大會的臨時動議（原本被配成開會前準備、緊急召開臨時會議，或出難倒小屏）；
+   ② 「疫情／颱風／天災期間任期可以延長、順延」＝天災疫情能不能暫緩改選（原本被配成會議改期、任期長度）。 */
+function normalizeQuestionU10(s){
+ s=String(s||'');
+ if(!/合作社|社員|公會|工會|農會|漁會/.test(s)&&!/(章程|修章|附議|幾個人|選舉|改選|罷免|解散|預算|決算|通知.{0,6}(幾|多久)|幾天前|幾日前)/.test(s)&&s.length<40){
+  const mtg=/(大會|會議|開會|議程|通知)/.test(s);
+  if(mtg&&(/臨時(?:要|想|想要|說要|有人要|有人想)?(?:加|增加|多加|再加|補|追加|添|新增)(?:一?個)?(?:提案|議案|議題|案子|項目|案)/.test(s)||
+     /(?:議程|通知|開會通知)(?:上|裡|裡面)?(?:沒有|沒寫|沒列|沒印|沒提|沒排)的?(?:提案|議案|議題|案子|案|事項|項目)?.{0,8}(?:現場|當場|當天|臨時|開會時).{0,4}(?:提|討論|加|表決)/.test(s)||
+     /議程.{0,6}(?:當場|現場|臨時)(?:增加|加|新增|追加)/.test(s)||
+     /(?:通知|議程)(?:上|裡)?(?:沒有|沒寫|沒列)的?(?:議案|提案|案子|案|議題).{0,6}(?:當天|現場|當場).{0,4}(?:討論|提|表決)/.test(s)||
+     (/(?:臨時動議|臨時提動議|臨時提議)/.test(s)&&/(可以|能不能|可不可以|能否|行不行)/.test(s)&&s.replace(/臨時動議|臨時提動議|臨時提議|會員|代表|大會|會議|開會|當天|當場|現場|可以|能不能|可不可以|能否|行不行|嗎|嗼|呢|在|有|提|請問|協會|我們|的/g,'').length<=2)))s='會議上臨時提案要怎麼處理';
+ }
+ if(!/合作社|社員|公會|工會|農會|漁會/.test(s)&&/(疫情|天災|颱風|地震|水災|災害|嚴重特殊傳染)/.test(s)&&/任期/.test(s)&&/(延長|延後|延期|順延|展延|延)/.test(s)&&!/(幾年|幾屆|連任|怎麼算|起算)/.test(s))s='天災疫情能不能暫緩改選';
+ return s;
+}
 function normalizeQuestionU9(s){
  s=String(s||'');
  if(!/合作社|社員/.test(s)){
@@ -259,7 +275,7 @@ function normalizeQuestionR254(s){
  return s.replace(/(會員|會友)(們|自己)?(要|想|可以|能|已經|已|就)?退出(?!(理事會|監事會|理監事|群組|LINE|Line|line|活動|會議|大會|課程|行程|比賽))/g,'$1$2$3退會');
 }
 function normalizeQuestion(q){
- return normalizeQuestionR254(normalizeQuestionR252(normalizeQuestionR247(normalizeQuestionR246(normalizeQuestionR245(normalizeQuestionR244(normalizeQuestionR235(normalizeQuestionR234(normalizeQuestionR233(normalizeQuestionR232(normalizeQuestionR229(normalizeQuestionR228(normalizeQuestionR227(normalizeQuestionR225(normalizeQuestionR223(normalizeQuestion223(normalizeQuestion222(normalizeQuestion221(normalizeQuestion216(normalizeQuestion215(normalizeQuestion214(normalizeQuestion212(normalizeQuestion210(normalizeQuestion209(normalizeQuestion208(normalizeQuestion207(normalizeQuestion206(normalizeQuestion202(normalizeQuestion201(normalizeQuestion200(normalizeQuestion194(normalizeQuestion193(normalizeQuestion192(normalizeQuestion191(normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(normalizeQuestionU5(normalizeQuestionU3(normalizeQuestionU4(normalizeQuestionU2(normalizeQuestionU6(normalizeQuestionU8(normalizeQuestionU9(normalizeQuestionU7(normalizeQuestionR237(normalizeQuestionR238(normalizeQuestionR239(normalizeQuestionR240(fixTyposU1(q)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
+ return normalizeQuestionU10(normalizeQuestionR254(normalizeQuestionR252(normalizeQuestionR247(normalizeQuestionR246(normalizeQuestionR245(normalizeQuestionR244(normalizeQuestionR235(normalizeQuestionR234(normalizeQuestionR233(normalizeQuestionR232(normalizeQuestionR229(normalizeQuestionR228(normalizeQuestionR227(normalizeQuestionR225(normalizeQuestionR223(normalizeQuestion223(normalizeQuestion222(normalizeQuestion221(normalizeQuestion216(normalizeQuestion215(normalizeQuestion214(normalizeQuestion212(normalizeQuestion210(normalizeQuestion209(normalizeQuestion208(normalizeQuestion207(normalizeQuestion206(normalizeQuestion202(normalizeQuestion201(normalizeQuestion200(normalizeQuestion194(normalizeQuestion193(normalizeQuestion192(normalizeQuestion191(normalizeQuestion190(normalizeQuestion189(normalizeQuestion186(normalizeQuestion185(normalizeQuestion183(normalizeQuestion182(normalizeQuestion181(normalizeQuestion180(normalizeQuestion179(normalizeQuestion176(normalizeQuestion175(normalizeQuestion174(normalizeQuestion173(normalizeQuestion171(normalizeQuestion170(normalizeQuestion169(normalizeQuestion157(normalizeQuestion156(normalizeQuestion155(normalizeQuestion154(normalizeQuestion153(normalizeQuestion152(normalizeQuestion151(normalizeQuestion149(normalizeQuestion148(normalizeQuestion147(normalizeQuestion143(normalizeQuestion142(normalizeQuestion141(normalizeQuestion138(normalizeQuestionBase(normalizeQuestion158(normalizeQuestion159(normalizeQuestion160(normalizeQuestion161(normalizeQuestion162(normalizeQuestion163(normalizeQuestion164(normalizeQuestion165(normalizeQuestion166(normalizeQuestion167(normalizeQuestion168(normalizeQuestionU5(normalizeQuestionU3(normalizeQuestionU4(normalizeQuestionU2(normalizeQuestionU6(normalizeQuestionU8(normalizeQuestionU9(normalizeQuestionU7(normalizeQuestionR237(normalizeQuestionR238(normalizeQuestionR239(normalizeQuestionR240(fixTyposU1(q))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
 }
 /* 第200輪（根源）：入會退會與會員資格換問法——
    「忘記繳／忘了繳／漏繳會費」＝沒繳會費（原本「忘記繳會費會被退會嗎」被當成退費）；
@@ -1994,7 +2010,7 @@ function supervisorAsDirector(t){
  if(/合作社/.test(t))return null;
  if(/開會|召開|自己開|會議|否決|推翻|決議|監事會|理事會/.test(t))return null;
  if(!/(監事|監察人)/.test(t)||!/(理事|兼任|同時當|同時可以當|一人.{0,4}(當|任))/.test(t))return null;
- if(/(外國人|外籍|年齡|幾歲|未成年|公務員|老師|教師|里長|夫妻|親屬|被判|前科|無給|薪|任期|改選|換屆|連任|幾年|多久)/.test(t))return null;
+ if(/(外國人|外籍|年齡|幾歲|未成年|公務員|老師|教師|里長|夫妻|親屬|配偶|太太|先生|老婆|老公|丈夫|妻子|兒子|女兒|父親|母親|兄弟|姊妹|姐妹|家人|親戚|親等|被判|前科|無給|薪|任期|改選|換屆|連任|幾年|多久)/.test(t))return null;
  return {category:'人民團體會務說明',title:'協會理事與監事不能一人兼任：同時當選須當場擇一',summary:'不可以。人民團體選舉罷免辦法第16條明定：會員如一人同時當選理事與監事（或候補理事與候補監事），由當選人當場擇一擔任；當選人不在場或無法擇定時，以得票較多的職位為當選，票數相同抽籤。所以同一人不能同時擔任理事與監事。\n\n理由：理事會執行會務、監事會監察理事會（人民團體法第18條），一人兼任兩者就無人監督。\n\n常見狀況：\n• 改選開票後發現同一人理事、監事都上榜 → 主席當場請本人選一個，另一個職位由次高票遞補為當選。\n• 現任理事任期中想改任監事 → 須先辭理事（經理事會決議解任，人民團體法第23條），再於補選時參選監事。',statutes:[E(16),P(18),P(23)],notes:['公會等職業團體另有理監事不得兼任會務工作人員的限制；合作社則依合作社法第40條，監事不得兼任理事。'],questionState:{focus:'director-supervisor-dual',domain:'social'}};
 }
 function electionReportDeadline(t){
@@ -10838,7 +10854,7 @@ function patrol152(t){
  if(/(公所|鄉公所|鎮公所|市公所|區公所)/.test(t)&&/(改選|選舉|選理監事|選理事)/.test(t)&&/(通知|報|知會|告知|說|跟|向|備查|送|要不要|需不需要|要先)/.test(t))
   return R('改選要不要通知公所：法規只寫報請主管機關（縣府）派員列席，沒有寫要通知公所','法規寫的是：會員（會員代表）大會要報請主管機關派員列席（人民團體法第26條第2項）；大會會議紀錄要在閉會後三十日內報請主管機關備查（人民團體會務輔導辦法第12條）。條文沒有規定改選要通知鄉鎮市公所。\n如果您的團體平常有公所輔導（例如社區發展協會），要不要另外知會公所，法規沒有明文，請向公所或縣府承辦人員確認。',[P(26),MG(12)]);
  // (g) 一個人同時當選理事和監事
- if(/(同時|又|一個人|同一個人|同一人|既|兩個職|兩個位)/.test(t)&&/(選上|當選|選為|選到|選中)/.test(t)&&/(理事)/.test(t)&&/(監事)/.test(t)&&!/(兼任|兼|可以同時當|能不能同時當)/.test(t))
+ if(/(同時|又|一個人|同一個人|同一人|既|兩個職|兩個位)/.test(t)&&/(選上|當選|選為|選到|選中)/.test(t)&&/(理事)/.test(t)&&/(監事)/.test(t)&&!/(兼任|兼|可以同時當|能不能同時當|配偶|太太|先生|老婆|老公|丈夫|妻子|夫妻|親屬|親戚|兒子|女兒|兄弟|姊妹|姐妹|家人|親等|父親|母親)/.test(t))
   return R('一個人同時當選理事和監事：當場擇一，沒在場就以得票較多的職位為準','同一個會員同時當選理事和監事（或候補理事和候補監事）時，由當選人當場擇一擔任；當選人沒在場，或在場卻沒有擇定的，以得票較多的職位為當選，票數相同的用抽籤決定。\n如果同一個人既是正式當選、又是候補當選，以正式當選為準（人民團體選舉罷免辦法第16條）。',[ER(16)]);
  // (h) 選票鉛筆、錯字、塗改、簽名蓋章、夾寫文字
  if(/(選票|選舉票)/.test(t)&&/(鉛筆|原子筆|錯字|寫錯|塗改|改過|修正帶|簽名|蓋章|蓋印|字跡|夾寫|多寫|寫字|寫了|空白)/.test(t)&&!/(保存|幾年|印製|誰|領|發|蓋團體圖記|監事簽章)/.test(t)){
