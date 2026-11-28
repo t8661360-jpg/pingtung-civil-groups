@@ -1616,6 +1616,7 @@ let foodDonationContext=false;
 let socialWorkPracticeContext=false;
 let communityCareServiceContext=false;
 let privacyIncidentContext=null;
+let civilMediationContext=null;
 let deceasedHandoverContext=null;
 let candidateMembershipContext=null;
 async function ask(q){
@@ -1632,6 +1633,7 @@ async function ask(q){
   const heldSocialWorkPractice=socialWorkPracticeContext;socialWorkPracticeContext=false;
   const heldCommunityCareService=communityCareServiceContext;communityCareServiceContext=false;
   const heldPrivacyIncident=privacyIncidentContext;privacyIncidentContext=null;
+  const heldCivilMediation=civilMediationContext;civilMediationContext=null;
   const heldDeceasedHandover=deceasedHandoverContext;deceasedHandoverContext=null;
   const heldCandidateMembership=candidateMembershipContext;candidateMembershipContext=null;
   const heldCharitablePermit=charitablePermitContext;charitablePermitContext=null;
@@ -1689,6 +1691,8 @@ async function ask(q){
   }
   const heldDateQuestion=postponedProxyDateQuestion;postponedProxyDateQuestion=null;
   const heldRecountQuestion=assemblyRecountQuestion;assemblyRecountQuestion=null;
+  const civilMediation=window.verifiedCivilMediationTriage?.(q,heldCivilMediation);
+  if(civilMediation){financeMeetingPlanner=null;civilMediationContext=civilMediation.civilMediationContext;renderAnswer(q.replace(/^櫃檯確認民事調解:[a-z]+$/i,'民事調解'),civilMediation);return;}
   const privacyIncident=window.verifiedPrivacyIncidentGuidance?.(q,heldPrivacyIncident);
   if(privacyIncident){financeMeetingPlanner=null;privacyIncidentContext=privacyIncident.privacyIncidentContext||null;renderAnswer(q.replace(/^個資事故類型確認:[a-z]+$/i,'個資事故通報'),privacyIncident);return;}
   const socialWorkPractice=window.verifiedSocialWorkerPracticeTriage?.(q,heldSocialWorkPractice);
@@ -2618,6 +2622,7 @@ touch();
 <script src="volunteer-plan-and-team-lead.js?v=1"></script>
 <script src="association-rescheduled-notice.js?v=1"></script>
 <script src="meeting-notice-calendar.js?v=1"></script>
+<script src="civil-mediation-triage.js?v=1"></script>
 <script src="privacy-incident-guidance.js?v=1"></script>
 <script src="community-care-service-triage.js?v=1"></script>
 <script src="social-worker-practice-triage.js?v=1"></script>
