@@ -3,7 +3,7 @@
    候選問題只取已驗證會答對的固定測試題與知識庫條目（data/keyword-questions.json）。 */
 (function () {
   let LIST = null;
-  const READY = fetch('data/keyword-questions.json?v=20261128-343').then(r => r.ok ? r.json() : null).then(d => { LIST = (d && d.questions) || []; }).catch(() => { LIST = []; });
+  const READY = fetch('data/keyword-questions.json?v=20261128-344').then(r => r.ok ? r.json() : null).then(d => { LIST = (d && d.questions) || []; }).catch(() => { LIST = []; });
   const NFK = s => String(s || '').normalize('NFKC').replace(/\s+/g, '').replace(/臺/g, '台');
   const QWORD = /[?？嗎呢]|怎|如何|可以|可不可以|能不能|能否|幾|什麼|甚麼|哪|誰|是否|要不要|多久|多少|為何|為什麼|請問|一定要|需不需要|有沒有|會不會|算不算/;
   function isKeyword(raw) {

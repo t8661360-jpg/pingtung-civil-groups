@@ -118,6 +118,8 @@ function route(raw,prior){
  if(!follow&&!((qNotice&&qRecord)||(qYear&&(qNotice||qRecord||f==='joint'))||(qCharter&&(qNotice||qRecord))||(f==='joint'&&qJointFail)))return null;
  /* 理解把關 2026-11-28：修改章程只能在會員大會，不用再問哪一種會議；沒有改期時交給既有的修章答案 */
  if(!f&&qCharter&&!qYear&&!(qNotice&&qRecord)&&!condition.change&&!follow)return null;
+ /* 交叉巡檢第32輪：沒有提到任何會議、也沒有改期時，不出會議類型選單（例：沒有收入還要做決算、報縣府嗎） */
+ if(!f&&!condition.change&&!follow&&!/會議|開會|大會|理事會|監事會|聯席|社務會/.test(clean))return null;
  if(!f){
   const a=make('先確認是哪一種會議','改期時，誰應收到通知、提前幾天、紀錄要不要報備，都要先看開的是哪一種會。',[],[act,meetings]);
   return {...a,choiceHeading:'您要改的是哪種會議？',choices:Object.entries(form).filter(([k])=>k!=='coopBoard').map(([k,label])=>({label,question:'請選擇一般協會的'+label}))};

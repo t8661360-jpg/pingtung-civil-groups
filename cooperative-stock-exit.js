@@ -41,6 +41,8 @@ function parse(raw,prior){
  const operation=money&&/(?:分|提撥|交易額|怎麼算|彌補|公積金).{0,7}|營業/.test(t);
  if(!explicitExit&&!(death&&(refund||debt||/代.{0,4}投票/.test(t)))&&!(operation&&(!/解散|清算|餘產|剩餘財產/.test(t)||inactive)))return null;
  if(type==='credit'&&!explicitExit)return null;
+ /* 交叉巡檢第32輪：問退社後還能不能當理事監事、多久可以再入社（沒有問股金退還），交給 round-fixes */
+ if(/(?:當|擔任|選|繼續當).{0,3}(?:理事|監事)|再(?:請)?入社|重新入社|再加入/.test(t)&&!/股金|退錢|退還|股款|社股/.test(t))return null;
  // Leave specialized meeting continuity, resignation and data-disclosure cases with their existing routes.
  if(/(?:理事會主席|理事長|監事|理事).{0,7}(?:辭|離職|卸任)|辭(?:掉|去|了).{0,8}(?:主席|理事長|理事)|(?:社員大會|社務會).{0,13}(?:法定人數|仍列入|要算|要扣|算我|扣人數|出席|表決)|(?:公告|公開|公布|貼網|上網).{0,9}(?:欠|名冊|名單)|(?:股款|股金|欠繳).{0,9}(?:上網|公布|公開|貼網)/.test(t))return null;
  if(type==='credit'&&!inactive&&!/房貸|貸款|質押|一(?:起|併).{0,5}(?:抵|扣)|代領|代辦|授權|委託/.test(t))return null;

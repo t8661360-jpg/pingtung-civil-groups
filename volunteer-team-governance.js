@@ -17,6 +17,8 @@ function parse(q,prev){
  const t0=norm(q);
  if(!t0||t0.length>590||/^新題/.test(t0)||outside.test(t0))return null;
  if(/時數.{0,8}(?:抵|折抵|換)/.test(t0))return null;
+ /* 交叉巡檢第32輪：只問志工隊開銷要不要列入協會預算、能不能用協會經費（沒有問收費、立案），交給 round-fixes 的預算答案 */
+ if(/預算/.test(t0)&&/(?:開銷|費用|支出|花費|開支)/.test(t0)&&!/(?:收(?:費|錢|取)|隊費|月費|繳|立案|備案|保險|成立)/.test(t0))return null;
  const k=Object.keys(cases).find(k=>cases[k][1]===t0);
  if(k)return {...prev,org:k,picked:true};
  const corrected=!!prev&&/^(更正|其實|補充|剛才說錯)/.test(t0)&&/章程|計畫|協會|合作社|社股|隊/.test(t0);
