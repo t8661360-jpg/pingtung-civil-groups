@@ -1568,6 +1568,7 @@ let rosterSharingContext=null;
 let donationTaxContext=null;
 let inKindMixedSalesContext=null;
 let venueUseContext=null;
+let borrowedEquipmentContext=null;
 let coopReconvenedElectionContext=null;
 let electionDualContext=null;
 let grantProcContext=null;
@@ -1584,6 +1585,7 @@ async function ask(q){
   const heldCommunityMulti=communityMultiContext;communityMultiContext=null;
   const heldLegalProperty=legalPropertyContext;legalPropertyContext=null;
   const heldVenueUse=venueUseContext;venueUseContext=null;
+  const heldBorrowedEquipment=borrowedEquipmentContext;borrowedEquipmentContext=null;
   const heldCoopReconvened=coopReconvenedElectionContext;coopReconvenedElectionContext=null;
   const heldMixedSales=inKindMixedSalesContext;inKindMixedSalesContext=null;
   const heldDonationTax=donationTaxContext;donationTaxContext=null;
@@ -1631,6 +1633,9 @@ async function ask(q){
   const permitFull=heldCharitablePermit&&window.isCharitablePermitCorrection?.(q)?heldCharitablePermit+"；更新資料："+q:q;
   const permitResult=window.verifiedCharitablePermitChanges?.(permitFull);
   if(permitResult){financeMeetingPlanner=null;charitablePermitContext=permitResult.retainPermitQuestion?permitFull:null;renderAnswer(q,permitResult);return;}
+  const borrowedEquipmentQ=window.associationBorrowedEquipmentFollow?.(heldBorrowedEquipment,q)||q;
+  const borrowedEquipment=window.verifiedAssociationBorrowedEquipment?.(borrowedEquipmentQ);
+  if(borrowedEquipment){financeMeetingPlanner=null;borrowedEquipmentContext=borrowedEquipment.borrowKeepContext?borrowedEquipmentQ:null;renderAnswer(q,borrowedEquipment);return;}
   const charityQuestion=heldCharityQuestion&&window.isCharitableFundraisingFactReply?.(q)?heldCharityQuestion+"；"+q:q;
   const rosterQuestion=heldRosterSharing&&window.isElectionRosterSharingFactReply?.(q)?heldRosterSharing+"；"+q:q;
   const venueUseQuestion=heldVenueUse&&window.isVenueUseCorrection?.(q)?heldVenueUse+"；更新情況："+q:q;
@@ -2356,6 +2361,7 @@ touch();
 <script src="representative-system-transition.js?v=20261128-332"></script>
 <script src="grant-and-missing-meeting-record.js?v=1"></script>
 <script src="village-office-and-association.js?v=2"></script>
+<script src="association-borrowed-equipment.js?v=1"></script>
 <script src="cooperative-conflicts-and-contracts.js?v=1"></script>
 <script src="volunteer-team-training-and-grants.js?v=1"></script>
 <script src="association-dissolution-estate.js?v=1"></script>
@@ -2398,7 +2404,7 @@ touch();
 <script src="member-death-election-continuity.js?v=1"></script>
 <script src="election-objection-preservation.js?v=1"></script>
 <script src="professional-guild-meeting-rules.js?v=1"></script>
-<script src="charitable-permit-changes.js?v=20261128-dissolution-funds"></script>
+<script src="charitable-permit-changes.js?v=20261128-asset-scope"></script>
 <script src="charitable-fundraising-stages.js?v=1"></script>
 <script src="community-cooperative-pause.js?v=1"></script>
 <script src="association-event-private-contact.js?v=1"></script>

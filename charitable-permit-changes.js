@@ -21,7 +21,7 @@ function singlePurposeLatePeriod(t,prior){
 }
 function dissolution(t,raw,prior){
  if(notEnding.test(t)||!/解散|走.{0,4}清算|清算中/.test(t)||!/協會|社會團體|公益社團法人/.test(t+prior)||/合作社|商業公會|職業公會|工會|農會|漁會/.test(t))return null;
- if(!/(?:勸募|公開募款|公益募款).{0,20}(?:餘|剩|未用|財物|款)|(?:餘|剩|未用|指定).{0,19}(?:勸募|公益募款)/.test(t))return null;
+ if(!/(?:勸募|公開募款|公益募款).{0,20}(?:餘|剩|未用|財物|款)|(?:餘款|賸餘|剩餘|未用完).{0,19}(?:勸募|公益募款)/.test(t))return null;
  if(!/核准|許可|公開勸募|公開募款|公益勸募/.test(t+prior))return null;
  const registered=/登記狀態確認:已辦|已(?:辦|完成|經)?(?:法院)?(?:社團)?法人登記|已(?:經)?去法院登記|公益社團法人/.test(t)&&!/登記狀態確認:僅|僅立案|只立案|未辦|沒(?:有)?(?:去)?法院登記/.test(t);
  const unregistered=/登記狀態確認:僅|僅立案|只立案|未辦(?:法院)?法人登記|還沒做法人登記|沒(?:有)?(?:去)?法院登記/.test(t);
