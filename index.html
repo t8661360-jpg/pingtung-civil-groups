@@ -1701,6 +1701,8 @@ async function ask(q){
   if(deceasedHandover){financeMeetingPlanner=null;deceasedHandoverContext=deceasedHandover.handoverDeathContext||null;renderAnswer(q,deceasedHandover);return;}
   const chairResignationDeadlock=window.verifiedAssociationChairResignationDeadlock?.(q);
   if(chairResignationDeadlock){financeMeetingPlanner=null;renderAnswer(q,chairResignationDeadlock);return;}
+  const grantEquipmentDisposition=window.verifiedAssociationGrantEquipmentDisposition?.(q);
+  if(grantEquipmentDisposition){financeMeetingPlanner=null;renderAnswer(q,grantEquipmentDisposition);return;}
   const unpaidWageTriage=window.verifiedAssociationUnpaidWageTriage?.(q);
   if(unpaidWageTriage){financeMeetingPlanner=null;renderAnswer(q,unpaidWageTriage);return;}
   const bankSwitch=window.verifiedAssociationBankSwitch?.(q);
@@ -2558,6 +2560,7 @@ touch();
 <script src="guild-liquidation-residue.js?v=1"></script>
 <script src="association-term-convocation.js?v=1"></script>
 <script src="volunteer-plan-and-team-lead.js?v=1"></script>
+<script src="association-grant-equipment-disposition.js?v=1"></script>
 <script src="association-unpaid-wage-triage.js?v=1"></script>
 <script src="association-bank-switch.js?v=1"></script>
 <script src="association-chair-resignation-deadlock.js?v=1"></script>

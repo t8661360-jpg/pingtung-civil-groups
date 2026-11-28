@@ -1,0 +1,14 @@
+const assert=require('node:assert/strict');
+const {route}=require('./association-grant-equipment-disposition.js');
+const as=q=>{const a=route(q);assert(a,q);return a;};
+const all=a=>[a.title,a.summary,...a.steps.flat()].join(' ');
+assert.match(all(as('我們協會用縣府補助買器材，計畫已結案，器材想送給另一協會，可以直接送嗎？')),/結案不能自動解除原限制/);
+assert.match(all(as('去年用補助跟自籌各一半買冷氣，核定函有用途，現在想搬去其他據點，錢已核銷、名冊要改嗎？')),/財產清冊，不是會員名冊/);
+assert.match(all(as('協會換屆，補助買的電腦已壞，找不到採購發票，有資產清冊；新理事長能直接報廢、另用會費買同規格嗎？')),/報廢舊品與另用會費購新設備分開/);
+const combo=all(as('我們立案協會準備解散，欠場租和員工薪資，手上有三年前縣府補助購置的設備、民眾指定捐的物資、會費和沒核完的補助。設備想先轉到另一協會，清算人還沒定，帳冊只有副本，解散大會尚未召開。請分開講能否先交設備、哪些款不能混用、誰來清算和承辦窗口。'));
+assert.match(combo,/先不要移轉設備/);assert.match(combo,/未登記則依章程或大會決議/);assert.match(combo,/指定捐物/);assert.match(combo,/勞資爭議調解/);
+const unknown=as('不確定那台設備只是縣府借的，還是核銷後變協會財產；有編財產號，但找不到借用單，先查什麼？');
+assert.equal(unknown.choices.length,3);assert.equal(new Set(unknown.choices.map(x=>as(x.question).title)).size,3);
+assert.match(all(as('更正，不是補助購買，是縣府只借用器材，協會已決定不續借，不是要報廢，要怎麼交回？')),/聯絡原出借單位歸還/);
+for(const q of ['不是協會，是有限責任合作社的公積金與公益金，兩筆在解散能否均分社員？','協會可以買補助設備嗎？','我是協會受僱出納，解散前積欠兩月工資，補助承辦要我簽已清償，如何申訴？','協會用補助買土地，能不能移轉給另外一會？','協會辦活動借公所音響，弄壞了要賠嗎？','新題：滿州鄉全部存續團體幾個？'])assert.equal(route(q),null,q);
+console.log('Equipment source, disposal, borrowed return, and liquidation regressions passed');
