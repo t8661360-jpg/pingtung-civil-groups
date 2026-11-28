@@ -1606,6 +1606,7 @@ let associationMeetingSequenceContext=null;
 let charitablePermitContext=null;
 let directoryCountContext=null;
 let ballotStaffStage=null;
+let grantFinanceContext=null;
 let communityContinuityContext=null;
 let rescheduledNoticeContext=null;
 let deceasedHandoverContext=null;
@@ -1614,6 +1615,7 @@ async function ask(q){
   q=String(q||"").trim();if(!q||busy)return;
   const heldDirectoryCount=directoryCountContext;directoryCountContext=null;
   const heldBallotStaffStage=ballotStaffStage;ballotStaffStage=null;
+  const heldGrantFinance=grantFinanceContext;grantFinanceContext=null;
   const heldCommunityContinuity=communityContinuityContext;communityContinuityContext=null;
   const heldRescheduledNotice=rescheduledNoticeContext;rescheduledNoticeContext=null;
   const heldDeceasedHandover=deceasedHandoverContext;deceasedHandoverContext=null;
@@ -1685,6 +1687,8 @@ async function ask(q){
     const matched=window.verifiedAssociationAssemblyRecount?.(full);
     if(matched){financeMeetingPlanner=null;assemblyRecountQuestion=matched.followQuorumCounts?full:null;renderAnswer(q,matched);return;}
   }
+  const grantFinancialReadiness=window.verifiedAssociationGrantFinancialReadiness?.(q,heldGrantFinance);
+  if(grantFinancialReadiness){financeMeetingPlanner=null;grantFinanceContext=grantFinancialReadiness.grantFinanceContext||null;renderAnswer(q,grantFinancialReadiness);return;}
   const cooperativeCharter=window.verifiedCooperativeCharterMembership?.(q);
   if(cooperativeCharter){financeMeetingPlanner=null;renderAnswer(q,cooperativeCharter);return;}
   const communityContinuity=window.verifiedCommunityAssociationContinuity?.(q,heldCommunityContinuity);
@@ -2578,6 +2582,7 @@ touch();
 <script src="association-court-representation.js?v=1"></script>
 <script src="community-association-continuity.js?v=1"></script>
 <script src="cooperative-charter-membership.js?v=1"></script>
+<script src="association-grant-financial-readiness.js?v=1"></script>
 <script src="association-guest-greeting.js?v=1"></script>
 <script src="association-grant-equipment-disposition.js?v=1"></script>
 <script src="association-unpaid-wage-triage.js?v=1"></script>
