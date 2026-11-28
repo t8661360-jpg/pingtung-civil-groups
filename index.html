@@ -1579,6 +1579,7 @@ let grantEvidenceContext=null;
 let coopStockContext=null;
 let noticeReviewContext=null;
 let officeResignationContext=null;
+let liquidationPathContext=null;
 let legalPropertyContext=null;
 let communityMultiContext=null;
 let associationMeetingSequenceContext=null;
@@ -1593,6 +1594,7 @@ async function ask(q){
   const heldCoopStock=coopStockContext;coopStockContext=null;
   const heldNoticeReview=noticeReviewContext;noticeReviewContext=null;
   const heldOfficeResignation=officeResignationContext;officeResignationContext=null;
+  const heldLiquidationPath=liquidationPathContext;liquidationPathContext=null;
   const heldCommunityMulti=communityMultiContext;communityMultiContext=null;
   const heldLegalProperty=legalPropertyContext;legalPropertyContext=null;
   const heldVenueUse=venueUseContext;venueUseContext=null;
@@ -1638,6 +1640,8 @@ async function ask(q){
   const coopElectionQ=window.cooperativeReconvenedElectionFollow?.(heldCoopReconvened,q)||q;
   const coopElection=window.verifiedCooperativeReconvenedElection?.(coopElectionQ);
   if(coopElection){financeMeetingPlanner=null;coopReconvenedElectionContext=coopElection.trackCoopElection?coopElectionQ:null;renderAnswer(q,coopElection);return;}
+  const liquidationPath=window.verifiedAssociationLiquidationPath?.(q,heldLiquidationPath);
+  if(liquidationPath){financeMeetingPlanner=null;liquidationPathContext=liquidationPath.liquidationPathContext||null;renderAnswer(q,liquidationPath);return;}
   const officeResignation=window.verifiedOfficeResignationScope?.(q,heldOfficeResignation);
   if(officeResignation){financeMeetingPlanner=null;officeResignationContext=officeResignation.officeResignationContext||null;renderAnswer(q,officeResignation);return;}
   const noticeReview=window.verifiedMeetingKindNoticeReview?.(q,heldNoticeReview);
@@ -2391,7 +2395,8 @@ touch();
 <script src="grant-evidence-and-privacy.js?v=1"></script>
 <script src="cooperative-conflicts-and-contracts.js?v=1"></script>
 <script src="volunteer-team-training-and-grants.js?v=1"></script>
-<script src="association-dissolution-estate.js?v=1"></script>
+<script src="association-dissolution-estate.js?v=2"></script>
+<script src="association-liquidation-path.js?v=1"></script>
 <script src="grant-multiple-sources.js?v=2"></script>
 <script src="grant-procurement-threshold.js?v=2"></script>
 <script src="association-legal-property.js?v=2"></script>
